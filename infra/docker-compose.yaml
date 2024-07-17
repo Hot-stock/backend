@@ -5,7 +5,7 @@ services:
     container_name: postgres
     image: postgres:15
     ports:
-      - 5431:5432
+      - 5432:5432
     restart: always
     env_file: ./postgres/.env
     volumes:
