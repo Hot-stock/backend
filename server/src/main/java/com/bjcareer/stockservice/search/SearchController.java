@@ -1,17 +1,16 @@
 package com.bjcareer.stockservice.search;
 
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/v0/search")
+
+@RestController
+@RequestMapping("/api/v0/search")
 public class SearchController {
 
-    //사용자가 입력한 단어가 넘어옴
-    //쿼리파람있음
+    // 사용자가 입력한 단어와 제한 수를 받아 예측된 단어 목록을 반환하는 메서드
     @PostMapping("/predictions")
-    public void getPredictionWord(@RequestParam String word, @RequestParam int limit){
+    public void getPredictionWord(@RequestParam String word, @RequestParam int limit) {
+
     }
 }

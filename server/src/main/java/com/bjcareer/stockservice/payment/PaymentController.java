@@ -1,27 +1,24 @@
 package com.bjcareer.stockservice.payment;
 
-
-import com.oracle.svm.core.annotate.Delete;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/v0/payment")
+@RestController
+@RequestMapping("/api/v0/payment")
 public class PaymentController {
 
-    @PostMapping("/payment")
-    public void doPayment(){
-        //먹등성이 가능하도록 설계해야 함
-
+    @PostMapping
+    public void doPayment() {
+        // 결제 처리 로직을 여기에 구현합니다.
     }
 
-    @PostMapping("/payment/{paymentId}/cancle")
-    public void deletePayment(){
-
+    @PostMapping("/{paymentId}/cancel")
+    public void cancelPayment(@PathVariable String paymentId) {
+        // 결제 취소 로직을 여기에 구현합니다.
     }
 
-    //상태 조회
-    @GetMapping("/payment/{paymentId}")
-    public void getpayment(){
+    @GetMapping("/{paymentId}")
+    public void getDetailInfoPayment(@PathVariable String paymentId) {
+        // 결제 상태 조회 로직을 여기에 구현합니다.
     }
-
-
 }
+
