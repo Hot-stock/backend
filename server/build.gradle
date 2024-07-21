@@ -28,16 +28,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
 
 	//swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
-
 	// PostgreSQL JDBC Driver
-	implementation 'org.postgresql:postgresql'
+	implementation 'org.postgresql:postgresql:42.2.18'
 }
 
 tasks.named('test') {
