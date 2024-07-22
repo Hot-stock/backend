@@ -1,26 +1,24 @@
-package com.bjcareer.stockservice.timeDeal.repository;
+package com.bjcareer.stockservice.timeDeal.repository.event;
 
 
-import com.bjcareer.stockservice.timeDeal.domain.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
-import jakarta.persistence.Entity;
+import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-@Repository
 @RequiredArgsConstructor
-public class TimeDealEventRepository {
+public class UnlockEventRepository implements EventRepository {
+    @PersistenceContext
     private final EntityManager em;
 
-    @Transactional
-    public void save(TimeDealEvent timeDealEvent) {
+    public Long save(TimeDealEvent timeDealEvent) {
         em.persist(timeDealEvent);
+        return timeDealEvent.getId();
     }
-
-    @Transactional
     public TimeDealEvent findById(Long id) {
         return em.find(TimeDealEvent.class, id);
     }
+
 }
