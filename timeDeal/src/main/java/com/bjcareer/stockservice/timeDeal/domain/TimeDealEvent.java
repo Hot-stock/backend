@@ -22,9 +22,6 @@ public class TimeDealEvent {
     //몇 개의 쿠푼이 사용자에게 전달됐는지
     private int deliveredCouponNum;
 
-    @Version
-    private Integer version;
-
 
     public TimeDealEvent(int publishedCouponNum) {
         this.publishedCouponNum = publishedCouponNum;
