@@ -1,5 +1,6 @@
 package com.bjcareer.stockservice.timeDeal.domain;
 
+import com.github.ksuid.KsuidGenerator;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,8 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Coupon {
     @Id
-    @GeneratedValue
-    private Long id;
+    String id = KsuidGenerator.generate();
 
     @Column(unique = true, nullable = false)
     private UUID couponNumber;
