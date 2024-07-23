@@ -20,15 +20,18 @@ public class TimeDealEvent {
     private int publishedCouponNum;
 
     //몇 개의 쿠푼이 사용자에게 전달됐는지
-    private int usedCouponNum;
+    private int deliveredCouponNum;
+
+    @Version
+    private Integer version;
 
 
     public TimeDealEvent(int publishedCouponNum) {
         this.publishedCouponNum = publishedCouponNum;
-        this.usedCouponNum = 0;
+        this.deliveredCouponNum = 0;
     }
 
-    public void updatePublishedCoupon(){
-        this.usedCouponNum++;
+    public void updateDeliveredCouponNum(){
+        this.deliveredCouponNum++;
     }
 }
