@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RestController @RequiredArgsConstructor
+@RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v0/timedeal")
 @Slf4j
 public class TimeDealController {
