@@ -31,12 +31,24 @@ class TimeDealServiceTest {
         entityManager.getTransaction().commit();
     }
 
+    @Test
+    void 이벤트_생성_요청(){
+        TimeDealEvent timeDealEvent1 = timeDealService.createTimeDealEvent(100);
+        assertEquals(timeDealEvent1.getPublishedCouponNum(), 100);
+        assertEquals(timeDealEvent1.getDeliveredCouponNum(), 0);
+    }
 
     @Test
-    void 단건으로_요청(){
-        Coupon coupon = timeDealService.generateCouponToUser(timeDealEvent.getId(), 20.0);
-        TimeDealEvent event = timeDealEventRepository.findById(timeDealEvent.getId());
-        assertEquals(event.getDeliveredCouponNum(), 1);
+    void 잘못된_이벤트Id로_쿠폰_발급을_요청하는_경우(){
+        assertThrows(IllegalStateException.class , () -> timeDealService.generateCouponToUser(-99L, 20.0));
+    }
+
+    @Test
+    void 티켓을_더이상_발급할_수_없는_상황일(){
+        TimeDealEvent localTimeDealEvent = new TimeDealEvent(0);
+        timeDealEventRepository.save(localTimeDealEvent);
+
+        assertThrows(IllegalStateException.class , () -> timeDealService.generateCouponToUser(localTimeDealEvent.getId(), 20.0));
     }
 
     @Test
