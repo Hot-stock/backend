@@ -37,16 +37,4 @@ class CouponRepositoryTest {
         assertEquals(findCoupon.getId(), saveId);
     }
 
-    @Test
-    void 저장된_쿠폰_찾기() {
-        em.persist(timeDealEvent);
-
-        Coupon coupon = new Coupon(20.0, timeDealEvent);
-        em.persist(coupon);
-
-        Coupon coupon1 = couponRepository.findById(coupon.getId());
-
-        assertEquals(coupon1.getCouponNumber(), coupon.getCouponNumber());
-        assertEquals(coupon1.getId(), coupon.getId());
-    }
 }

@@ -19,8 +19,12 @@ public class UnlockCouponRepository implements CouponRepository {
         return coupon.getId();
     }
 
-    @Transactional
     public Coupon findById(String id) {
         return em.find(Coupon.class, id);
+    }
+
+    @Override
+    public void saveAsync(Coupon coupon) {
+        em.persist(coupon);
     }
 }

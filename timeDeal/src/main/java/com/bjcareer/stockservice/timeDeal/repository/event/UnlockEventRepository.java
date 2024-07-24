@@ -21,4 +21,8 @@ public class UnlockEventRepository implements EventRepository {
         return em.find(TimeDealEvent.class, id);
     }
 
+    @Override
+    public void saveAsync(TimeDealEvent timeDealEvent) {
+
+    }
 }

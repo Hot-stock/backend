@@ -20,4 +20,9 @@ public class OptimisticLockEventRepository implements EventRepository {
     public TimeDealEvent findById(Long id) {
         return em.find(TimeDealEvent.class, id, LockModeType.OPTIMISTIC);
     }
+
+    @Override
+    public void saveAsync(TimeDealEvent timeDealEvent) {
+        em.persist(timeDealEvent);
+    }
 }

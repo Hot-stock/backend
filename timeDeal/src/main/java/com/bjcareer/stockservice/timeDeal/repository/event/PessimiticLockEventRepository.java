@@ -7,6 +7,7 @@ import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -25,5 +26,9 @@ public class PessimiticLockEventRepository implements EventRepository {
         TimeDealEvent timeDealEvent = em.find(TimeDealEvent.class, id, LockModeType.PESSIMISTIC_WRITE);
         log.debug("비관적 락 시작 컬럼 pk {}", id);
         return timeDealEvent;
+    }
+
+    public void saveAsync(TimeDealEvent timeDealEvent) {
+        em.merge(timeDealEvent);
     }
 }
