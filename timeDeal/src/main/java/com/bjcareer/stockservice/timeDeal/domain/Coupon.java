@@ -36,10 +36,7 @@ public class Coupon {
         this.status = CouponStatus.UNUSED;
         this.publishedDate = LocalDate.now();
         this.event = event;
+        this.couponNumber = UUID.randomUUID();
     }
 
-    @PrePersist
-    private void createCouponNumber() {
-        couponNumber = UUID.randomUUID();
-    }
 }

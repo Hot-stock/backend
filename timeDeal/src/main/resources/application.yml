@@ -2,6 +2,7 @@ spring:
   application:
     name: timeDeal
 
+
   datasource:
     username: timo
     password: timo
@@ -20,6 +21,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+    org.springframework.web: debug
 
 #springdoc.swagger-ui.path=/docs
 
