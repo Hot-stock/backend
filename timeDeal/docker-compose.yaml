@@ -4,12 +4,10 @@ services:
   postgres:
     container_name: time-deal
     image: time-deal-service
-    ports:
-      - 5432:5432
-      - 8080:8080
+    network_mode: host
     restart: always
     volumes:
-      - service_data:.
+      - service_data:/app
     logging:
       driver: "json-file"
       options:
