@@ -22,3 +22,10 @@ logging:
     org.hibernate.SQL: debug
 
 #springdoc.swagger-ui.path=/docs
+
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /docs
+

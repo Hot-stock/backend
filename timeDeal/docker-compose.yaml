@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: time-deal
+    image: time-deal-service
+    ports:
+      - 5432:5432
+      - 8080:8080
+    restart: always
+    volumes:
+      - service_data:.
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"    # 로그 파일의 최대 크기 설정 (예: 10MB)
+        max-file: "3"      # 로그 파일을 회전할 때 보관할 파일 수 (예: 3개 파일 보관)
+
+volumes:
+  service_data:
