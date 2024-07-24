@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    username: timo
+    password: timo
+    url: jdbc:postgresql://localhost:5432/test_stock_service
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+#        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+#springdoc.swagger-ui.path=/docs
