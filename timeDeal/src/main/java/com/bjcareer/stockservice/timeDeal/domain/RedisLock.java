@@ -13,27 +13,27 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedisLock {
     private final RedissonClient redissonClient;
+    private final Long WAIT_TIME = 1L;
+    private final Long LEASE_TIME = 0L;
 
-
-    public boolean tryLock(String lockName) {
-        log.debug("lock Name {} 획득 요청", lockName);
-        RLock lock = redissonClient.getLock(lockName);
+    public boolean tryLock(String key) {
+        log.debug("lock Name {} 획득 요청", key);
+        RLock lock = redissonClient.getLock(key);
         boolean result = false;
 
         try {
-            result = lock.tryLock(1, 1, TimeUnit.MINUTES);
+            result = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             log.error(e.getMessage());
-            throw new IllegalStateException("Lock 요청 실패");
         }
 
-        log.debug("lock Name {} 획득 결과 {}", lockName, result);
+        log.debug("lock Name {} 획득 결과 {}", key, result);
         return result;
     }
 
-    public void releaselock(String lockName) {
-        log.debug("lock release {}", lockName);
-        RLock lock = redissonClient.getLock(lockName);
+    public void releaselock(String key) {
+        log.debug("lock release {}", key);
+        RLock lock = redissonClient.getLock(key);
         lock.unlock();
     }
 
