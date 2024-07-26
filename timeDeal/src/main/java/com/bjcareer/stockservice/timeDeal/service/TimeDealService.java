@@ -6,11 +6,15 @@ import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
+import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.concurrent.CompletableFuture;
+import org.springframework.web.server.ServerErrorException;
+
+import java.util.Optional;
 
 
 @Service
@@ -21,70 +25,65 @@ public class TimeDealService {
     private final EventRepository timeDealEventRepository;
     private final InMemoryEventRepository inMemoryEventRepository;
     private final RedisLock redisLock;
+    private final String LOCK_KEK = "TIME_DEAL_LOCK";
 
     @Transactional
-    public TimeDealEvent createTimeDealEvent(int publishedCouponNum) {
+    public Optional<TimeDealEvent> createTimeDealEvent(int publishedCouponNum) {
         log.debug("타임딜 서비스 시작");
-        String lockName = "timeDealEventLock";
-        TimeDealEvent timeDealEvent = new TimeDealEvent(publishedCouponNum);
-        boolean isLocked = redisLock.tryLock(lockName);
 
-        if (isLocked){
-            Long saveId = timeDealEventRepository.save(timeDealEvent);
-            inMemoryEventRepository.save(timeDealEvent);
-            redisLock.releaselock(lockName);
-            log.debug("저장된 ID는 {}", saveId);
-        }else {
-            throw new IllegalStateException("레디스 락 획득 실패");
+        TimeDealEvent timeDealEvent = new TimeDealEvent(publishedCouponNum);
+        boolean isLocked = redisLock.tryLock(LOCK_KEK);
+
+        if (!isLocked){
+            return Optional.empty();
         }
 
-        return timeDealEvent;
+        Long saveId = timeDealEventRepository.save(timeDealEvent);
+        inMemoryEventRepository.save(timeDealEvent);
+
+        redisLock.releaselock(LOCK_KEK);
+        log.debug("저장된 ID는 {}", saveId);
+
+        return Optional.of(timeDealEvent);
     }
 
-    public Coupon generateCouponToUser(Long eventId, Double discountRate) {
-        log.info("요청된 이벤트 ID {}", eventId);
-        vaildateEventId(eventId);
+    public Optional<Coupon> generateCouponToUser(Long eventId, Double discountRate) {
+        boolean isValidEventId = validateEventId(eventId);
 
-        String lockName = "generateCouponToUserLock";
-        boolean is_locked = redisLock.tryLock(lockName);
-
-        if (!is_locked) {
-            throw new IllegalStateException("사용자 time-out");
+        if (!isValidEventId){
+            throw new IllegalStateException("Invalid Event ID: " + eventId);
         }
 
-        log.info("lock 획득 {}", Thread.currentThread().getName());
+        boolean isLocked = redisLock.tryLock(LOCK_KEK);
+
+        if (!isLocked) {
+            throw new RedisLockAcquisitionException("Can't Get Lock Try");
+        }
 
         TimeDealEvent timeDealEvent = inMemoryEventRepository.findById(eventId);
-        vaildateRemainCoupon(timeDealEvent);
-        timeDealEvent.updateDeliveredCouponNum();
+        boolean isDelivered = timeDealEvent.incrementDeliveredCouponIfPossible();
+        Coupon result;
 
-        log.info("사용자에게 전달된 쿠폰의 개수는 = {} ", timeDealEvent.getDeliveredCouponNum());
+        if (isDelivered) {
+            inMemoryEventRepository.save(timeDealEvent);
+            result = generateCouponAndSaveToDatabase(discountRate, timeDealEvent);
+        }else{
+            timeDealEventRepository.saveAsync(timeDealEvent);
+            result = null;
+        }
 
-        inMemoryEventRepository.save(timeDealEvent);
-        Coupon result = generateCoupon(discountRate, timeDealEvent);
-        log.info("발급된 쿠폰 ID는 {}", result.getCouponNumber());
-        redisLock.releaselock(lockName);
-
-        return result;
+        redisLock.releaselock(LOCK_KEK);
+        return Optional.ofNullable(result);
     }
 
-    protected Coupon generateCoupon(Double discountRate, TimeDealEvent timeDealEvent) {
+    protected Coupon generateCouponAndSaveToDatabase(Double discountRate, TimeDealEvent timeDealEvent) {
         Coupon coupon = new Coupon(discountRate, timeDealEvent);
         couponRepository.saveAsync(coupon);
         return coupon;
     }
 
-    private void vaildateRemainCoupon(TimeDealEvent timeDealEvent) {
-        if(timeDealEvent.getPublishedCouponNum() <= timeDealEvent.getDeliveredCouponNum()){
-            timeDealEventRepository.saveAsync(timeDealEvent);
-            throw new IllegalStateException("더 이상 발급하지 못함");
-        }
-    }
-
-    private void vaildateEventId(Long eventId) {
+    private boolean validateEventId(Long eventId) {
         TimeDealEvent byId = inMemoryEventRepository.findById(eventId);
-        if (byId == null) {
-            throw  new IllegalStateException("잘못된 Event를 요청함");
-        }
+        return byId != null;
     }
 }
