@@ -30,7 +30,7 @@ scrape_configs:
     metrics_path: "/actuator/prometheus"
     scrape_interval: 30s
     static_configs:
-      - targets: ['localhost:8080'] #서버 주소의 변경에 따라서 변경되어야 함
+      - targets: ['time-deal-service:8080'] #서버 주소의 변경에 따라서 변경되어야 함
 
 
 
