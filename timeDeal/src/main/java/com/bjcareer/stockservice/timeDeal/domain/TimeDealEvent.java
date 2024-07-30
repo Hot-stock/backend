@@ -5,12 +5,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Slf4j
 public class TimeDealEvent {
     @Id @GeneratedValue
     @Column(name="time_deal_event_id")
@@ -28,7 +29,12 @@ public class TimeDealEvent {
         this.deliveredCouponNum = 0;
     }
 
-    public void updateDeliveredCouponNum(){
-        this.deliveredCouponNum++;
+    public boolean incrementDeliveredCouponIfPossible(){
+        log.debug("published coupon number is {}, deliveredCoupon number is {}", publishedCouponNum, deliveredCouponNum);
+        if (deliveredCouponNum < publishedCouponNum) {
+            this.deliveredCouponNum++;
+            return true;
+        }
+        return false;
     }
 }

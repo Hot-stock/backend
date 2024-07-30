@@ -2,7 +2,6 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.1'
 	id 'io.spring.dependency-management' version '1.1.5'
-
 }
 
 group = 'com.bjcareer'
@@ -47,6 +46,9 @@ dependencies {
 
 	// PostgreSQL JDBC Driver
 	implementation 'org.postgresql:postgresql:42.2.18'
+
+	//
+	testImplementation 'org.mockito:mockito-core:5.12.0'
 
 	// https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-prometheus
 	implementation 'io.micrometer:micrometer-registry-prometheus'

@@ -10,17 +10,20 @@ import org.redisson.api.RedissonClient;
 @RequiredArgsConstructor
 public class RedisTimeDealRepository implements InMemoryEventRepository {
     private final RedissonClient redissonClient;
+    private final String BUCKET = "timeDeal:";
 
     @Override
     public Long save(TimeDealEvent timeDealEvent) {
-        RBucket<TimeDealEvent> bucket = redissonClient.getBucket("timeDeal:" + timeDealEvent.getId());
+        String BUCKET_NAME = BUCKET + timeDealEvent.getId();
+        RBucket<TimeDealEvent> bucket = redissonClient.getBucket(BUCKET_NAME);
         bucket.set(timeDealEvent);
         return timeDealEvent.getId();
     }
 
     @Override
     public TimeDealEvent findById(Long id) {
-        RBucket<TimeDealEvent> bucket = redissonClient.getBucket("timeDeal:" + id);
+        String BUCKET_NAME = BUCKET + id;
+        RBucket<TimeDealEvent> bucket = redissonClient.getBucket(BUCKET_NAME);
         return bucket.get();
     }
 }
