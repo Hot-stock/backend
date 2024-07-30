@@ -10,7 +10,6 @@ import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
 import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import java.util.Optional;
 
@@ -20,10 +19,10 @@ import static org.mockito.BDDMockito.*;
 
 class TimeDealServiceTest {
     private TimeDealService timeDealService;
-    @Mock private CouponRepository couponRepository;
-    @Mock private RedisLock redisLock;
-    @Mock private EventRepository eventRepository;
-    @Mock private InMemoryEventRepository inMemoryEventRepository;
+    private CouponRepository couponRepository;
+    private RedisLock redisLock;
+    private EventRepository eventRepository;
+    private InMemoryEventRepository inMemoryEventRepository;
 
     private String LOCK_KEY = "TIME_DEAL_LOCK";
 
@@ -46,11 +45,10 @@ class TimeDealServiceTest {
         given(inMemoryEventRepository.save(any(TimeDealEvent.class))).willReturn(1L);
 
         // when
-        Optional<TimeDealEvent> result = timeDealService.createTimeDealEvent(publishedCouponNum);
+        TimeDealEvent result = timeDealService.createTimeDealEvent(publishedCouponNum);
 
         // then
-        assertTrue(result.isPresent(), "The event should be created successfully.");
-        assertEquals(publishedCouponNum, result.get().getPublishedCouponNum(), "Published coupon number should match.");
+        assertEquals(publishedCouponNum, result.getPublishedCouponNum(), "Published coupon number should match.");
     }
 
     @Test
@@ -59,11 +57,8 @@ class TimeDealServiceTest {
 
         given(redisLock.tryLock(LOCK_KEY)).willReturn(false);
 
-        // when
-        Optional<TimeDealEvent> result = timeDealService.createTimeDealEvent(publishedCouponNum);
-
         // then
-        assertFalse(result.isPresent());
+        assertThrows(RedisLockAcquisitionException.class, ()-> timeDealService.createTimeDealEvent(publishedCouponNum));
     }
 
     @Test
@@ -71,10 +66,10 @@ class TimeDealServiceTest {
         // given
         Long EVENT_ID = 99L;
 
-        given(inMemoryEventRepository.findById(99L)).willReturn(null);
+        given(inMemoryEventRepository.findById(EVENT_ID)).willReturn(null);
 
         // then
-        assertThrows(IllegalStateException.class , () -> timeDealService.generateCouponToUser(-99L, 20.0));
+        assertThrows(IllegalArgumentException.class , () -> timeDealService.generateCouponToUser(EVENT_ID, 20.0));
     }
 
     @Test

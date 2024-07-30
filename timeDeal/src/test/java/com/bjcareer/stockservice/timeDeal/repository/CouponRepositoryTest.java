@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class CouponRepositoryTest {
     @Autowired EntityManager em;
-    @Autowired() CouponRepository couponRepository;
+    @Autowired CouponRepository couponRepository;
 
     TimeDealEvent timeDealEvent;
 
