@@ -12,19 +12,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/initdb.d:/docker-entrypoint-initdb.d:rw
     networks:
-      - infra_network   
-
-  mongodb:
-    container_name: mongodb
-    image: mongo:6.0.7
-    ports:
-      - 27017:27017
-    restart: always
-    env_file: ./mongodb/.env
-    volumes:
-      - mongodb_data:/data/db:rw
-      - ./mongodb/initdb.d:/docker-entrypoint-initdb.d:rw
-    networks:
       - infra_network
 
   redis:
@@ -44,61 +31,79 @@ services:
     networks:
       - infra_network
 
-  redis-insight:
-    container_name: redis-insight
-    image: redislabs/redisinsight:1.14.0
-    ports:
-      - '6380:8001'
-    restart: always
-    env_file: ./redis/.env
+  prometheus:
+    container_name: prometheus
+    image: bitnami/prometheus
     volumes:
-      - redis_insight_data:/db:rw
-    depends_on:
-      - redis
+      - ./promethus/conf/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+    ports:
+      - 9090:9090
     networks:
       - infra_network
 
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3.12.1-management
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
     ports:
-      - 5672:5672
-      - 5673:15672
-    restart: always
-    env_file: ./rabbitmq/.env
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/:rw # mount 사용
-      - rabbitmq_data:/var/log/rabbitmq/:rw # mount 사용 같이 사용해되는지 여부는 확인 필요
-      - ./rabbitmq/etc/:/etc/rabbitmq/:rw
+      - 3000:3000
     networks:
       - infra_network
 
-  minio:    
-    container_name: minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"    
-    image: minio/minio:RELEASE.2023-06-29T05-12-28Z
-    restart: always
-    env_file: ./minio/.env
-    volumes:
-      - minio_data:/data
-    command: server /data --console-address :9001
-    networks:
-      - infra_network
-
-  create_buckets:
-    image: minio/mc:RELEASE.2023-06-28T21-54-17Z
-    container_name: create_buckets
-    env_file: ./minio/.env
-    volumes:
-      - ./minio/init_create_buckets.sh/:/init.sh:ro
-    entrypoint: >
-      /bin/sh -c /init.sh
-    depends_on:
-      - minio
-    networks:
-      - infra_network
+#  redis-insight:
+#    container_name: redis-insight
+#    image: redislabs/redisinsight:1.14.0
+#    ports:
+#      - '6380:8001'
+#    restart: always
+#    env_file: ./redis/.env
+#    volumes:
+#      - redis_insight_data:/db:rw
+#    depends_on:
+#      - redis
+#    networks:
+#      - infra_network
+#
+#  rabbitmq:
+#    container_name: rabbitmq
+#    image: rabbitmq:3.12.1-management
+#    ports:
+#      - 5672:5672
+#      - 5673:15672
+#    restart: always
+#    env_file: ./rabbitmq/.env
+#    volumes:
+#      - rabbitmq_data:/var/lib/rabbitmq/:rw # mount 사용
+#      - rabbitmq_data:/var/log/rabbitmq/:rw # mount 사용 같이 사용해되는지 여부는 확인 필요
+#      - ./rabbitmq/etc/:/etc/rabbitmq/:rw
+#    networks:
+#      - infra_network
+#
+##  minio:
+##    container_name: minio
+##    ports:
+##      - "9000:9000"
+##      - "9001:9001"
+##    image: minio/minio:RELEASE.2023-06-29T05-12-28Z
+##    restart: always
+##    env_file: ./minio/.env
+##    volumes:
+##      - minio_data:/data
+##    command: server /data --console-address :9001
+##    networks:
+##      - infra_network
+##
+##  create_buckets:
+##    image: minio/mc:RELEASE.2023-06-28T21-54-17Z
+##    container_name: create_buckets
+##    env_file: ./minio/.env
+##    volumes:
+##      - ./minio/init_create_buckets.sh/:/init.sh:ro
+##    entrypoint: >
+##      /bin/sh -c /init.sh
+##    depends_on:
+##      - minio
+##    networks:
+##      - infra_network
 
 volumes:
   postgres_data:

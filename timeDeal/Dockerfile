@@ -6,6 +6,6 @@ WORKDIR /app
 RUN ./gradlew init
 RUN ./gradlew build -x test
 
-COPY ./build/libs/server-0.0.1-SNAPSHOT.jar /app/app.jar
+RUN cp /app/build/libs/timeDeal-0.0.1-SNAPSHOT.jar /app/app.jar
 
 ENTRYPOINT ["java","-jar","./app.jar"]

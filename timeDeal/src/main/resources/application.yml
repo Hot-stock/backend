@@ -2,6 +2,8 @@ spring:
   application:
     name: timeDeal
 
+
+
   datasource:
     username: timo
     password: timo
@@ -10,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: true
@@ -20,5 +22,31 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+    org.springframework.web: debug
 
 #springdoc.swagger-ui.path=/docs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+  info:
+    env:
+      enabled: true
+
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /docs
+
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true

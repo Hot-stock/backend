@@ -33,9 +33,9 @@ jobs:
       - name: Create Sonar Gradle File
         run: |
           insert_string="plugins { id 'org.sonarqube' version '4.4.1.3373' }"
-          if [ -f "build.gradle" ]; then
+          if [ -f "./timeDeal/build.gradle" ]; then
             echo "$insert_string" > temp.gradle
-            cat build.gradle >> temp.gradle
+            cat ./timeDeal/build.gradle >> temp.gradle
             echo "" >> temp.gradle
             echo "sonarqube {" >> temp.gradle
             echo "    properties {" >> temp.gradle
@@ -52,11 +52,11 @@ jobs:
             echo "    }" >> build.gradle
             echo "}" >> build.gradle
           fi
-          chmod 777 ./gradlew
+          chmod 777 ./timeDeal/gradlew
           
 
       - name: Analyze
-        run: ./gradlew sonar -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }} -Dsonar.organization=f-lab-edu-1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SECRET_SONARQUBE }} -Dsonar.gradle.skipCompile=true
+        run: ./timeDeal/gradlew sonar -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }} -Dsonar.organization=f-lab-edu-1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SECRET_SONARQUBE }} -Dsonar.gradle.skipCompile=true
         env:
           SONAR_TOKEN: ${{ secrets.SECRET_SONARQUBE }}
 
