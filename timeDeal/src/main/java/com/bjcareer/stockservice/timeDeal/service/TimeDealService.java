@@ -27,6 +27,7 @@ public class TimeDealService {
     private final RedisLock redisLock;
     private final String LOCK_KEK = "TIME_DEAL_LOCK";
 
+
     @Transactional
     public Optional<TimeDealEvent> createTimeDealEvent(int publishedCouponNum) {
         log.debug("타임딜 서비스 시작");
@@ -35,12 +36,13 @@ public class TimeDealService {
         boolean isLocked = redisLock.tryLock(LOCK_KEK);
 
         if (!isLocked){
+            log.error("Can't get redis lock'");
             return Optional.empty();
         }
 
         Long saveId = timeDealEventRepository.save(timeDealEvent);
         inMemoryEventRepository.save(timeDealEvent);
-
+        
         redisLock.releaselock(LOCK_KEK);
         log.debug("저장된 ID는 {}", saveId);
 
