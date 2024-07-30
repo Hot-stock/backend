@@ -29,15 +29,14 @@ public class TimeDealService {
 
 
     @Transactional
-    public Optional<TimeDealEvent> createTimeDealEvent(int publishedCouponNum) {
+    public TimeDealEvent createTimeDealEvent(int publishedCouponNum) {
         log.debug("타임딜 서비스 시작");
 
         TimeDealEvent timeDealEvent = new TimeDealEvent(publishedCouponNum);
         boolean isLocked = redisLock.tryLock(LOCK_KEK);
 
         if (!isLocked){
-            log.error("Can't get redis lock'");
-            return Optional.empty();
+            throw new RedisLockAcquisitionException("Can't get redis lock");
         }
 
         Long saveId = timeDealEventRepository.save(timeDealEvent);
@@ -46,14 +45,14 @@ public class TimeDealService {
         redisLock.releaselock(LOCK_KEK);
         log.debug("저장된 ID는 {}", saveId);
 
-        return Optional.of(timeDealEvent);
+        return timeDealEvent;
     }
 
     public Optional<Coupon> generateCouponToUser(Long eventId, Double discountRate) {
         boolean isValidEventId = validateEventId(eventId);
 
         if (!isValidEventId){
-            throw new IllegalStateException("Invalid Event ID: " + eventId);
+            throw new IllegalArgumentException("Invalid Event ID: " + eventId);
         }
 
         boolean isLocked = redisLock.tryLock(LOCK_KEK);

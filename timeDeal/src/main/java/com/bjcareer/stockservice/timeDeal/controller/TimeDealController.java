@@ -1,18 +1,20 @@
 package com.bjcareer.stockservice.timeDeal.controller;
 
 
+import com.bjcareer.stockservice.timeDeal.controller.dto.TimeDealDTO.*;
 import com.bjcareer.stockservice.timeDeal.domain.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
 import com.bjcareer.stockservice.timeDeal.service.TimeDealService;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v0/timedeal")
+@RequestMapping("/api/v0/time-deal")
 @Slf4j
 public class TimeDealController {
     private final TimeDealService timeDealService;
@@ -22,46 +24,25 @@ public class TimeDealController {
     }
 
 
-    @PostMapping("/start")
-    public CreateTimeDealEventResponse setTimeDealEvent(@RequestBody CreateTimeDealEventRequest request){
+    @PostMapping("/open")
+    public ResponseEntity setTimeDealEvent(@RequestBody CreateTimeDealEventRequest request){
         TimeDealEvent timeDealEvent = timeDealService.createTimeDealEvent(request.getPublishedCouponNumber());
-        CreateTimeDealEventResponse response = new CreateTimeDealEventResponse(200, timeDealEvent.getId(), timeDealEvent.getPublishedCouponNum());
-        return response;
+        CreateTimeDealEventResponse response = new CreateTimeDealEventResponse(timeDealEvent.getId(), timeDealEvent.getPublishedCouponNum());
+        return new ResponseEntity(response, HttpStatus.OK);
     }
 
 
-    @PostMapping("tickets/{userId}/{eventId}")
-    public GenerateCouponResponse generateTimeDealTicket(@PathVariable("userId") String userId, @PathVariable("eventId") Long eventId){
-        log.debug(userId);
-        try{
-            Coupon coupon = timeDealService.generateCouponToUser(eventId, 20.0);
-            GenerateCouponResponse response = new GenerateCouponResponse(200, coupon.getCouponNumber());
-            return response;
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return new GenerateCouponResponse(400, UUID.randomUUID());
-        }
-    }
+    @PostMapping("tickets/{eventId}/{userId}")
+    public ResponseEntity generateTimeDealTicket(@PathVariable("eventId") Long eventId, @PathVariable("userId") String userId){
+        log.debug("User {} request coupon {}", userId, eventId);
+        double DISCCOUT_RATE = 20.0;
+        GenerateCouponResponse response = new GenerateCouponResponse();
+        response.setUserId(userId);
 
+        Optional<Coupon> coupon = timeDealService.generateCouponToUser(eventId, DISCCOUT_RATE);
+        coupon.ifPresent(c -> response.setCouponNumber(c.getCouponNumber()));
+        HttpStatus statusCode = coupon.isPresent() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 
-    @Getter
-    @NoArgsConstructor
-    public static class CreateTimeDealEventRequest {
-        private int publishedCouponNumber;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    static class CreateTimeDealEventResponse{
-        int statusCode;
-        Long enventId;
-        int publishedCouponNumber;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    static class GenerateCouponResponse{
-        int statusCode;
-        UUID couponNumber;
+        return new ResponseEntity(response, statusCode);
     }
 }
