@@ -9,15 +9,15 @@ import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+
 @Repository
-@RequiredArgsConstructor
 @Slf4j
 public class DatabaseRepository {
-    private final EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
 
     public boolean save(User user) {
         try {
