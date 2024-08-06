@@ -36,6 +36,13 @@ public class User {
         this.telegramId = telegramId;
     }
 
+    public boolean verifyPassword(String password){
+        if (this.password.equals(password)){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "User{" +
