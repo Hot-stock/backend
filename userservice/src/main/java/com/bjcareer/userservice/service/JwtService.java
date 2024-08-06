@@ -1,9 +1,10 @@
 package com.bjcareer.userservice.service;
 
 import com.bjcareer.userservice.domain.AuthTokenManager;
-import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.repository.RedisRepository;
+import com.bjcareer.userservice.service.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
