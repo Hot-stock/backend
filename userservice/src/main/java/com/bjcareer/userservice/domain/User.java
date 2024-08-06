@@ -2,13 +2,8 @@ package com.bjcareer.userservice.domain;
 
 import com.github.ksuid.KsuidGenerator;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "client")
@@ -36,5 +31,13 @@ public class User {
         this.telegramId = telegramId;
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", telegramId='" + telegramId + '\'' +
+                ", version=" + version +
+                '}';
+    }
 }
