@@ -1,19 +1,43 @@
 package com.bjcareer.userservice.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.github.ksuid.KsuidGenerator;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "client")
+@Data
+@NoArgsConstructor
 public class User {
 
     @Id
-    String id;
+    private String id = KsuidGenerator.generate();
 
     @Column(unique=true, name = "user_id")
-    String userId;
-    String password;
+    private String userId;
+
+    private String password;
 
     @Column(name = "telegram_id")
-    String telegramId;
+    private String telegramId;
+
+    @Version
+    private Long version;
+
+    public User(String userId, String password, String telegramId) {
+        this.userId = userId;
+        this.password = password;
+        this.telegramId = telegramId;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", telegramId='" + telegramId + '\'' +
+                ", version=" + version +
+                '}';
+    }
 }
