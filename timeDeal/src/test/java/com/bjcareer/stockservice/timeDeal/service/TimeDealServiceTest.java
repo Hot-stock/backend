@@ -1,80 +1,130 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
 import com.bjcareer.stockservice.timeDeal.domain.Coupon;
+import com.bjcareer.stockservice.timeDeal.domain.RedisLock;
 import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
+import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.transaction.Transactional;
+import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
+
+import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mock;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
-@SpringBootTest
-@Transactional
 class TimeDealServiceTest {
-    @Autowired private TimeDealService timeDealService;
-    @Autowired private EventRepository timeDealEventRepository;
-    @Autowired EntityManagerFactory entityManagerFactory;
+    private TimeDealService timeDealService;
+    @Mock private CouponRepository couponRepository;
+    @Mock private RedisLock redisLock;
+    @Mock private EventRepository eventRepository;
+    @Mock private InMemoryEventRepository inMemoryEventRepository;
 
-    TimeDealEvent timeDealEvent;
+    private String LOCK_KEY = "TIME_DEAL_LOCK";
 
     @BeforeEach
     void setUp() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        timeDealEvent = new TimeDealEvent(3);
-        entityManager.persist(timeDealEvent);
-        entityManager.getTransaction().commit();
+        redisLock = mock(RedisLock.class);
+        eventRepository = mock(EventRepository.class);
+        inMemoryEventRepository = mock(InMemoryEventRepository.class);
+        couponRepository = mock(CouponRepository.class);
+
+        timeDealService = new TimeDealService(couponRepository, eventRepository, inMemoryEventRepository, redisLock);
     }
 
     @Test
-    void 이벤트_생성_요청(){
-        TimeDealEvent timeDealEvent1 = timeDealService.createTimeDealEvent(100);
-        assertEquals(timeDealEvent1.getPublishedCouponNum(), 100);
-        assertEquals(timeDealEvent1.getDeliveredCouponNum(), 0);
+    void testCreateTimeDealEvent_lockAcquired() {
+        int publishedCouponNum = 100;
+
+        given(redisLock.tryLock(LOCK_KEY)).willReturn(true);
+        given(eventRepository.save(any(TimeDealEvent.class))).willReturn(1L);
+        given(inMemoryEventRepository.save(any(TimeDealEvent.class))).willReturn(1L);
+
+        // when
+        Optional<TimeDealEvent> result = timeDealService.createTimeDealEvent(publishedCouponNum);
+
+        // then
+        assertTrue(result.isPresent(), "The event should be created successfully.");
+        assertEquals(publishedCouponNum, result.get().getPublishedCouponNum(), "Published coupon number should match.");
     }
 
     @Test
-    void 잘못된_이벤트Id로_쿠폰_발급을_요청하는_경우(){
+    void testCreateTimeDealEvent_lockNotAcquired() {
+        int publishedCouponNum = 100;
+
+        given(redisLock.tryLock(LOCK_KEY)).willReturn(false);
+
+        // when
+        Optional<TimeDealEvent> result = timeDealService.createTimeDealEvent(publishedCouponNum);
+
+        // then
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    void testGenerateCouponToUser_withInvalidEventId() {
+        // given
+        Long EVENT_ID = 99L;
+
+        given(inMemoryEventRepository.findById(99L)).willReturn(null);
+
+        // then
         assertThrows(IllegalStateException.class , () -> timeDealService.generateCouponToUser(-99L, 20.0));
     }
 
     @Test
-    void 티켓을_더이상_발급할_수_없는_상황일(){
-        TimeDealEvent localTimeDealEvent = new TimeDealEvent(0);
-        timeDealEventRepository.save(localTimeDealEvent);
+    void testGenerateCouponToUser_whenNoMoreTicketsAvailable() {
+        // given
+        Long EVENT_ID = 1L;
 
-        assertThrows(IllegalStateException.class , () -> timeDealService.generateCouponToUser(localTimeDealEvent.getId(), 20.0));
+        given(inMemoryEventRepository.findById(EVENT_ID)).willReturn(new TimeDealEvent(0));
+        given(redisLock.tryLock(LOCK_KEY)).willReturn(true);
+
+        // then
+        assertFalse(timeDealService.generateCouponToUser(EVENT_ID, 20.0).isPresent());
+        verify(eventRepository, times(1)).saveAsync(any(TimeDealEvent.class));
     }
 
     @Test
-    void 사람들이_쿠폰보다_적은_수를_요청하는_경우() throws InterruptedException {
+    void testGenerateCouponToUser_whenMoreRequestsThanCouponsAvailable() throws InterruptedException {
+        // setup
+        Long EVENT_ID = 1L;
+        TimeDealEvent timeDealEvent = new TimeDealEvent(1);
 
-        Runnable runnable = () -> {
-            timeDealService.generateCouponToUser(timeDealEvent.getId(), 20.0); //em공유가 안된다는 점
-        };
+        // given
+        given(inMemoryEventRepository.findById(EVENT_ID)).willReturn(timeDealEvent);
+        given(redisLock.tryLock(LOCK_KEY)).willReturn(true);
 
-        Runnable runnable1 = () -> {
-            timeDealService.generateCouponToUser(timeDealEvent.getId(), 20.0); //em공유가 안된다는 점
+        // then
+        Optional<Coupon> publishedCoupon = timeDealService.generateCouponToUser(EVENT_ID, 20.0);
+        Optional<Coupon> cantGetCoupon = timeDealService.generateCouponToUser(EVENT_ID, 20.0);
 
-        };
+        assertTrue(publishedCoupon.isPresent());
+        assertFalse(cantGetCoupon.isPresent());
 
-        Thread thread = new Thread(runnable, "User A");
-        Thread thread1 = new Thread(runnable1, "User B");
-
-        thread.start();
-        thread1.start();
-
-        thread.join();
-        thread1.join();
-
-        TimeDealEvent event = timeDealEventRepository.findById(timeDealEvent.getId());
-
-        assertEquals(event.getDeliveredCouponNum(), 2);
+        verify(eventRepository, times(1)).saveAsync(any(TimeDealEvent.class));
     }
 
+    @Test
+    void testGenerateCouponToUser_whenAcquireFailOfRedisLock() throws InterruptedException {
+        // setup
+        Long EVENT_ID = 1L;
+        TimeDealEvent timeDealEvent = new TimeDealEvent(1);
+
+        // given
+        given(inMemoryEventRepository.findById(EVENT_ID)).willReturn(timeDealEvent);
+        given(redisLock.tryLock(LOCK_KEY)).willReturn(true).willReturn(false);
+
+        // then
+        Optional<Coupon> publishedCoupon = timeDealService.generateCouponToUser(EVENT_ID, 20.0);
+        assertTrue(publishedCoupon.isPresent());
+        verify(inMemoryEventRepository, times(1)).save(any(TimeDealEvent.class));
+
+        assertThrows(RedisLockAcquisitionException.class, () -> timeDealService.generateCouponToUser(EVENT_ID, 20.0));
+    }
 }
