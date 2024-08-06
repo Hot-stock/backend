@@ -1,5 +1,6 @@
 package com.bjcareer.userservice.controller.exHandler;
 
+import com.bjcareer.userservice.controller.RegisterController;
 import com.bjcareer.userservice.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

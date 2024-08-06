@@ -4,11 +4,11 @@ import com.bjcareer.userservice.domain.RandomCodeGenerator;
 import com.bjcareer.userservice.domain.Redis;
 import com.bjcareer.userservice.domain.Telegram;
 import com.bjcareer.userservice.domain.User;
+import com.bjcareer.userservice.exceptions.RedisLockAcquisitionException;
+import com.bjcareer.userservice.exceptions.TelegramCommunicationException;
+import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
 import com.bjcareer.userservice.repository.DatabaseRepository;
 import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.service.exceptions.RedisLockAcquisitionException;
-import com.bjcareer.userservice.service.exceptions.TelegramCommunicationException;
-import com.bjcareer.userservice.service.exceptions.UserAlreadyExistException;
 import com.bjcareer.userservice.service.vo.TokenVO;
 import lombok.Data;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class RegisterService {
     private final Redis redisDomain;
 
     public Long generateRandomTokenForAuthentication(String telegramId) {
-        int EXPIRATION_TIME = 60;
+        Long EXPIRATION_TIME = 60L;
         Long generate = RandomCodeGenerator.generate();
         boolean isSend = telegramDomain.sendCode(telegramId, generate);
 
@@ -61,15 +61,10 @@ public class RegisterService {
         Optional<User> userIdInDatabase = databaseRepository.findByUserId(user.getUserId());
         userIdInDatabase.ifPresent(u -> {
             redisDomain.releaselock(LOCK_KEY);
-            throw new UserAlreadyExistException("ID already exists: " + user.getUserId());
+            throw new UserAlreadyExistsException("ID already exists: " + user.getUserId());
         });
 
-        boolean isSaved = databaseRepository.save(user);
-
-        if (!isSaved){
-            redisDomain.releaselock(LOCK_KEY);
-            throw new UserAlreadyExistException("User already exist: " + user.getUserId());
-        }
+        databaseRepository.save(user);
 
         redisDomain.releaselock(LOCK_KEY);
         return user.getId();
