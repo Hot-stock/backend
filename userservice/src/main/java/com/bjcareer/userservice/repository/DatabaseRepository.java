@@ -1,12 +1,15 @@
 package com.bjcareer.userservice.repository;
 
 import com.bjcareer.userservice.domain.User;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
+import com.bjcareer.userservice.exceptions.DatabaseOperationException;
+import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
+import com.bjcareer.userservice.exceptions.UserNotFoundException;
+import com.bjcareer.userservice.repository.queryConst.DatabaseQuery;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,22 +23,32 @@ public class DatabaseRepository {
         try {
             em.persist(user);
             return true;
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return false;
+        } catch (EntityExistsException e) {
+            log.error("User already exists: {}", user.getId());
+            throw new UserAlreadyExistsException("User already exists with ID: " + user.getId());
+        } catch (PersistenceException e) {
+            log.error("PersistenceException during user save: {}", e.getMessage());
+            throw new DatabaseOperationException("Error saving user to database", e);
+        } catch (Exception e) {
+            log.error("Unexpected error during user save: {}", e.getMessage());
+            throw new DatabaseOperationException("Unexpected error during user save", e);
         }
     }
 
     public Optional<User> findByUserId(String userId) {
-        TypedQuery<User> query = em.createQuery("select u from User u where u.userId = :userId", User.class);
-        query.setParameter("userId", userId);
-
-        try{
-            User singleResult = query.getSingleResult();
-            return Optional.of(singleResult);
-        }catch (NoResultException e){
-            log.debug(e.getMessage(), "찾고자 하는 사용자 없음");
+        try {
+            TypedQuery<User> query = em.createQuery(DatabaseQuery.finedUsertQuery, User.class);
+            query.setParameter("userId", userId);
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            log.warn("No user found with userId: {}", userId);
             return Optional.empty();
+        } catch (PersistenceException e) {
+            log.error("PersistenceException during user retrieval: {}", e.getMessage());
+            throw new DatabaseOperationException("Error retrieving user from database", e);
+        } catch (Exception e) {
+            log.error("Unexpected error during user retrieval: {}", e.getMessage());
+            throw new DatabaseOperationException("Unexpected error during user retrieval", e);
         }
     }
 }
