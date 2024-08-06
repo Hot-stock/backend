@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: userservice
+
+  datasource:
+    username: timo
+    password: timo
+    url: jdbc:postgresql://localhost:5432/user_service # 환경변수 사용
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+databbase:
+  name: user_service # database 이름 정의
+
+redis:
+  address: ${REDIS_ADDRESS:redis://localhost:6379}
+  password: ${REDIS_PASSWORD:changeme}
+  database: ${REDIS_DATABASE:0}
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+# springdoc.swagger-ui.path=/docs
