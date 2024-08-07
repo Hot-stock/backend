@@ -2,7 +2,7 @@ package com.bjcareer.userservice.domain.entity;
 
 import java.io.Serializable;
 
-public enum RoleType implements Serializable {
+public enum RoleType {
     ALL("All User asscess"),
     ADMIN("Administrator with full access"),
     USER("Regular user with limited access"),

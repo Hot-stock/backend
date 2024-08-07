@@ -44,6 +44,12 @@ public class User {
         this.userType = UserType.NORMAL;
     }
 
+    public List<RoleType> getRoles(){
+        List<RoleType> roles = new ArrayList<>();
+        assignments.stream().forEach(assignment-> roles.add(assignment.getRole().getType()));
+        return roles;
+    }
+
     public boolean verifyPassword(String password){
         if (this.password.equals(password)){
             return true;

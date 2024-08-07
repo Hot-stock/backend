@@ -4,7 +4,7 @@ import com.bjcareer.userservice.domain.entity.RoleAssignments;
 import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.service.vo.SessionVO;
+import com.bjcareer.userservice.service.vo.JwtTokenVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
@@ -42,21 +42,19 @@ public class RoleAspect {
         System.out.println("Session ID: " + request.getAttribute("sessionId"));
         String sessionId = (String) request.getAttribute("sessionId");
 
-        Optional<SessionVO> authTokenBySessionId = redisRepository.findAuthTokenBySessionId(sessionId);
+        Optional<JwtTokenVO> authTokenBySessionId = redisRepository.findAuthTokenBySessionId(sessionId);
 
         if (!authTokenBySessionId.isPresent()) {
             System.out.println("Session ID not found or user not authenticated.");
             throw new UnauthorizedAccessAttemptException("User not authenticated");
         }
 
-        SessionVO sessionVO = authTokenBySessionId.get();
-        List<RoleAssignments> assignments = sessionVO.getUser().getAssignments();
+        List<RoleType> roleTypes = authTokenBySessionId.get().getRoleType();
 
-        System.out.println("User's roles: " + assignments);
 
-        boolean hasRequiredRole = assignments.stream()
+        boolean hasRequiredRole = roleTypes.stream()
                 .anyMatch(assignment -> Arrays.stream(roles)
-                        .anyMatch(role -> role.equals(assignment.getRole().getType())));
+                        .anyMatch(role -> role.equals(assignment)));
 
         if (!hasRequiredRole) {
             System.out.println("User does not have the required role. Access denied.");

@@ -1,5 +1,6 @@
 package com.bjcareer.userservice.domain;
 
+import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -24,13 +26,13 @@ public class AuthTokenManager {
         signingKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
     }
 
-    public JwtTokenVO generateToken(String sessionId) {
+    public JwtTokenVO generateToken(String sessionId, List<RoleType> roles) {
         long currentTimeMillis = System.currentTimeMillis();
 
         String accessToken = generateToken(currentTimeMillis + ACCESS_TOKEN_EXPIRE_DURATION_SEC * 1000L);
         String refreshToken = generateToken(currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC * 1000L);
 
-        return new JwtTokenVO(accessToken, refreshToken, sessionId, currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC * 1000L);
+        return new JwtTokenVO(accessToken, refreshToken, sessionId, currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC * 1000L, roles);
     }
 
     public Claims verifyToken(String token) throws SignatureException, ExpiredJwtException {
