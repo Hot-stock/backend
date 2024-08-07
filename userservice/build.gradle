@@ -27,7 +27,7 @@ dependencies {
 	implementation project(":proto")
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.redisson:redisson-spring-boot-starter:3.33.0'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
