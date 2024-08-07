@@ -29,6 +29,13 @@ subprojects {
 	}
 }
 
+project(':timeDeal') {
+	dependencies {
+		implementation project(':proto')
+	}
+}
+
+
 project(':userservice') {
 	dependencies {
 		implementation project(':proto')

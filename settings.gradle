@@ -2,4 +2,5 @@ rootProject.name = 'hot-stock'
 
 include ':proto'
 include ':gateway'
-include 'userservice'
+include ':userservice'
+include ':timeDeal'

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -41,7 +43,7 @@ public class TimeDealService {
         return timeDealEvent;
     }
 
-    public Coupon generateCouponToUser(Long eventId, Double discountRate) {
+    public Optional<Coupon> generateCouponToUser(Long eventId, Double discountRate) {
         log.info("요청된 이벤트 ID {}", eventId);
         vaildateEventId(eventId);
 
@@ -56,7 +58,7 @@ public class TimeDealService {
 
         TimeDealEvent timeDealEvent = inMemoryEventRepository.findById(eventId);
         vaildateRemainCoupon(timeDealEvent);
-        timeDealEvent.updateDeliveredCouponNum();
+        timeDealEvent.incrementDeliveredCouponIfPossible();
 
         log.info("사용자에게 전달된 쿠폰의 개수는 = {} ", timeDealEvent.getDeliveredCouponNum());
 
@@ -65,7 +67,7 @@ public class TimeDealService {
         log.info("발급된 쿠폰 ID는 {}", result.getCouponNumber());
         redisLock.releaselock(lockName);
 
-        return result;
+        return Optional.of(result);
     }
 
     protected Coupon generateCoupon(Double discountRate, TimeDealEvent timeDealEvent) {
