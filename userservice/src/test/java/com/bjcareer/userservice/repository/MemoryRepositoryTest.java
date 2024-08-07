@@ -1,6 +1,6 @@
 package com.bjcareer.userservice.repository;
 
-import com.bjcareer.userservice.domain.User;
+import com.bjcareer.userservice.domain.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

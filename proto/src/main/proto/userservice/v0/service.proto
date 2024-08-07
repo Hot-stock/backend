@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.bjcareer.grpc.userservice.v0;
+
+import "userservice/v0/message.proto";  // 상대 경로로 import
+
+option java_package = "com.bjcareer.grpc.userservice.v0";
+option java_outer_classname = "UserServiceProto";
+
+service Userservice {
+  // message.proto에서 정의된 메시지를 사용
+  rpc Login (LoginRequest) returns (LoginResponse) {}
+}

@@ -1,10 +1,11 @@
 package com.bjcareer.userservice.service;
 
 import com.bjcareer.userservice.domain.AuthTokenManager;
+import com.bjcareer.userservice.domain.entity.User;
+import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.exceptions.*;
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
-import io.jsonwebtoken.Claims;
+import com.bjcareer.userservice.service.vo.SessionVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,15 +21,19 @@ public class JwtService {
     private final AuthTokenManager authTokenManager;
     private final String OBJECT_KEY = "USER:LOGIN:";
 
-    public JwtTokenVO generateToken() {
+    public JwtTokenVO generateToken(User user) {
         String sessionId = UUID.randomUUID().toString();
         JwtTokenVO jwtTokenVO = authTokenManager.generateToken(sessionId);
-        redisRepository.saveJWT(getObjectKeyForRedis(sessionId), jwtTokenVO, AuthTokenManager.REFRESH_TOKEN_EXPIRE_DURATION_SEC);
+        SessionVO sessionVO = new SessionVO(jwtTokenVO, user);
+
+        redisRepository.saveJWT(getObjectKeyForRedis(sessionId), sessionVO, AuthTokenManager.REFRESH_TOKEN_EXPIRE_DURATION_SEC);
+
         return jwtTokenVO;
     }
 
     public JwtTokenVO generateAccessTokenViaRefresh(String sessionId, String refreshToken) {
-        JwtTokenVO jwtTokenVO = validateSessionAndToken(sessionId, refreshToken, true);
+        SessionVO sessionVO = validateSessionAndToken(sessionId, refreshToken, true);
+        JwtTokenVO jwtTokenVO = sessionVO.getJwtTokenVO();
 
         boolean isVerify = authTokenManager.validateRefreshTokenExpiration(refreshToken);
 
@@ -41,32 +46,31 @@ public class JwtService {
             throw new UnauthorizedAccessAttemptException("Token theft is suspected. Please generate a new token.");
         }
 
-        redisRepository.saveJWT(getObjectKeyForRedis(sessionId), jwtTokenVO, jwtTokenVO.getRefreshTokenExpireTime());
+        redisRepository.saveJWT(getObjectKeyForRedis(sessionId), sessionVO, jwtTokenVO.getRefreshTokenExpireTime());
 
         return authTokenManager.generateToken(sessionId);
     }
 
-    public boolean verifyAccessToken(String sessionId, String accessToken) {
-        JwtTokenVO jwtTokenVO = validateSessionAndToken(sessionId, accessToken, false);
+    public boolean verifyAccessToken(String accessToken) {
         authTokenManager.verifyToken(accessToken);
         return true;
     }
 
-    private JwtTokenVO validateSessionAndToken(String sessionId, String token, boolean isRefreshToken) {
-        Optional<JwtTokenVO> authToken = redisRepository.findAuthTokenBySessionId(getObjectKeyForRedis(sessionId));
+    private SessionVO validateSessionAndToken(String sessionId, String token, boolean isRefreshToken) {
+        Optional<SessionVO> authToken = redisRepository.findAuthTokenBySessionId(getObjectKeyForRedis(sessionId));
 
         if (authToken.isEmpty()) {
             throw new UnauthorizedAccessAttemptException("Invalid session ID.");
         }
 
-        JwtTokenVO jwtTokenVO = authToken.get();
+        JwtTokenVO jwtTokenVO = authToken.get().getJwtTokenVO();
 
         if ((isRefreshToken && !jwtTokenVO.getRefreshToken().equals(token)) ||
                 (!isRefreshToken && !jwtTokenVO.getAccessToken().equals(token))) {
             throw new UnauthorizedAccessAttemptException("The token does not match.");
         }
 
-        return jwtTokenVO;
+        return authToken.get();
     }
 
     private String getObjectKeyForRedis(String sessionId) {

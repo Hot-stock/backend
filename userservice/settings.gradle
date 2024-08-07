@@ -1,1 +1,4 @@
 rootProject.name = 'userservice'
+
+include ':proto'
+project(':proto').projectDir = new File(settingsDir, '../proto')

@@ -30,6 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         Optional<Cookie> accessToken = Arrays.stream(cookies).filter(c -> c.getName().equals(ACCESS_TOKEN)).findFirst();
         Optional<Cookie> sessionId = Arrays.stream(cookies).filter(c -> c.getName().equals(SESSION_ID)).findFirst();
 
+        request.setAttribute(SESSION_ID, sessionId.get().getValue());
+
         if (accessToken.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
@@ -40,6 +42,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        return jwtService.verifyAccessToken(sessionId.get().getValue(), accessToken.get().getValue());
+        return jwtService.verifyAccessToken(accessToken.get().getValue());
     }
 }

@@ -1,0 +1,47 @@
+plugins {
+	id 'java'
+}
+
+group = 'com.bjcareer'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+subprojects {
+	apply plugin: 'java'
+
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		// gRPC 설정
+		implementation 'io.github.lognet:grpc-spring-boot-starter'
+		implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
+
+		runtimeOnly 'io.grpc:grpc-netty-shaded:1.65.0'
+		implementation 'io.grpc:grpc-protobuf:1.65.0'
+		implementation 'io.grpc:grpc-stub:1.65.0'
+		compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // Java 9+에서 필
+
+	}
+}
+
+project(':userservice') {
+	dependencies {
+		implementation project(':proto')
+	}
+}
+
+
+project(':gateway') {
+	dependencies {
+		implementation project(':proto')
+	}
+}
+
+project(':proto') {
+	jar { enabled = true }
+}

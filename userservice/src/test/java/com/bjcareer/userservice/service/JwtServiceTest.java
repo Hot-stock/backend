@@ -1,6 +1,7 @@
 package com.bjcareer.userservice.service;
 
 import com.bjcareer.userservice.domain.AuthTokenManager;
+import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.repository.RedisRepository;
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
@@ -23,10 +24,13 @@ class JwtServiceTest {
     private JwtService jwtService;
     private JwtTokenVO givenTokenVO;
     private String sessionId;
+    private User user;
 
     @BeforeEach
     void setUp() {
         redisRepository = mock(RedisRepository.class);
+
+        user = mock(User.class);
         authTokenManager = mock(AuthTokenManager.class);
         sessionId = UUID.randomUUID().toString();
         givenTokenVO = new JwtTokenVO(ACCESS_TOKEN, REFRESH_TOKEN, sessionId, 3000L);
@@ -39,7 +43,7 @@ class JwtServiceTest {
         given(authTokenManager.generateToken(anyString())).willReturn(givenTokenVO);
 
         // when
-        JwtTokenVO resultTokenVO = jwtService.generateToken();
+        JwtTokenVO resultTokenVO = jwtService.generateToken(user);
 
         // then
         assertEquals(givenTokenVO.getAccessToken(), resultTokenVO.getAccessToken());

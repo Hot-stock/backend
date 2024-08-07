@@ -1,8 +1,6 @@
 package com.bjcareer.userservice;
 
-import com.bjcareer.userservice.domain.AuthTokenManager;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
-import com.bjcareer.userservice.repository.RedisRepository;
 import com.bjcareer.userservice.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +11,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class AuthConfig implements WebMvcConfigurer {
     private final JwtService jwtService;
-    private final AuthTokenManager authTokenManager;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

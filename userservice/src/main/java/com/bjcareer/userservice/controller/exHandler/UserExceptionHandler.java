@@ -1,6 +1,7 @@
 package com.bjcareer.userservice.controller.exHandler;
 
 import com.bjcareer.userservice.controller.UserController;
+import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
 import com.bjcareer.userservice.exceptions.*;
 import io.jsonwebtoken.ExpiredJwtException;

@@ -3,12 +3,12 @@ package com.bjcareer.userservice.service;
 import com.bjcareer.userservice.domain.RandomCodeGenerator;
 import com.bjcareer.userservice.domain.Redis;
 import com.bjcareer.userservice.domain.Telegram;
-import com.bjcareer.userservice.domain.User;
+import com.bjcareer.userservice.domain.entity.*;
 import com.bjcareer.userservice.repository.DatabaseRepository;
 import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.service.exceptions.RedisLockAcquisitionException;
-import com.bjcareer.userservice.service.exceptions.TelegramCommunicationException;
-import com.bjcareer.userservice.service.exceptions.UserAlreadyExistException;
+import com.bjcareer.userservice.exceptions.RedisLockAcquisitionException;
+import com.bjcareer.userservice.exceptions.TelegramCommunicationException;
+import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
 import com.bjcareer.userservice.service.vo.TokenVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,7 +92,6 @@ class RegisterServiceTest {
 
         given(redis.tryLock(anyString())).willReturn(true);
         given(databaseRepository.findByUserId(anyString())).willReturn(Optional.empty());
-        given(databaseRepository.save(user)).willReturn(true);
 
         //when
         String id = registerService.registerService(user);
@@ -110,7 +109,7 @@ class RegisterServiceTest {
 
 
         //when
-        assertThrows(UserAlreadyExistException.class, () -> registerService.registerService(user));
+        assertThrows(UserAlreadyExistsException.class, () -> registerService.registerService(user));
     }
 
     @Test
@@ -118,10 +117,9 @@ class RegisterServiceTest {
         User user = new User("ID", "PASSWORD", "TelegramID");
 
         given(redis.tryLock(anyString())).willReturn(true);
-        given(databaseRepository.save(user)).willReturn(false);
 
         //when
-        assertThrows(UserAlreadyExistException.class, () -> registerService.registerService(user));
+        assertThrows(UserAlreadyExistsException.class, () -> registerService.registerService(user));
     }
 
     @Test

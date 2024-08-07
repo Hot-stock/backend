@@ -3,7 +3,7 @@ package com.bjcareer.userservice.service;
 import com.bjcareer.userservice.domain.RandomCodeGenerator;
 import com.bjcareer.userservice.domain.Redis;
 import com.bjcareer.userservice.domain.Telegram;
-import com.bjcareer.userservice.domain.User;
+import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.exceptions.RedisLockAcquisitionException;
 import com.bjcareer.userservice.exceptions.TelegramCommunicationException;
 import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
@@ -58,10 +58,10 @@ public class RegisterService {
             throw new RedisLockAcquisitionException("Server is busy");
         }
 
-        Optional<User> userIdInDatabase = databaseRepository.findByUserId(user.getUserId());
+        Optional<User> userIdInDatabase = databaseRepository.findByUserId(user.getAlais());
         userIdInDatabase.ifPresent(u -> {
             redisDomain.releaselock(LOCK_KEY);
-            throw new UserAlreadyExistsException("ID already exists: " + user.getUserId());
+            throw new UserAlreadyExistsException("ID already exists: " + user.getAlais());
         });
 
         databaseRepository.save(user);

@@ -1,6 +1,7 @@
 package com.bjcareer.userservice.service;
 
-import com.bjcareer.userservice.domain.User;
+import com.bjcareer.userservice.domain.entity.User;
+import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.repository.DatabaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,18 +16,18 @@ public class UserService {
     private final DatabaseRepository databaseRepository;
 
     @Transactional(readOnly = true)
-    public void login(User inputUser) throws AuthenticationException {
-        Optional<User> userFromDatabase = databaseRepository.findByUserId(inputUser.getUserId());
+    public void login(User inputUser) {
+        Optional<User> userFromDatabase = databaseRepository.findByUserId(inputUser.getAlais());
 
         if(userFromDatabase.isEmpty()){
-            throw new AuthenticationException("잘못된 ID나 PASSWORD를 입력했습니다.");
+            throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다.");
         }
 
         User storedUser = userFromDatabase.get();
         boolean isVerify = storedUser.verifyPassword(inputUser.getPassword());
 
         if(!isVerify){
-            throw new AuthenticationException("잘못된 ID나 PASSWORD를 입력했습니다2.");
+            throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다2.");
         }
     }
 }
