@@ -21,8 +21,8 @@ public class SearchRepository {
 
 		Query query = em.createQuery(QueryConst.GET_SUGGESTION_KEYWORD);
 		query.setParameter("target", keyword + "%");
-		query.getResultList().forEach(rank -> result.add((Suggestion)rank));
 
+		query.getResultList().forEach(rank -> result.add((Suggestion)rank));
 		return result;
 	}
 
@@ -31,5 +31,13 @@ public class SearchRepository {
 		query.setParameter("target", keyword);
 		Suggestion suggestion = (Suggestion) query.getSingleResult();
 		return suggestion;
+	}
+
+	public void saveKeyword(Suggestion suggestion) {
+		em.persist(suggestion);
+	}
+
+	public List<Suggestion> getAllSuggestion() {
+		return em.createQuery(QueryConst.GET_ALL_DATA, Suggestion.class).getResultList();
 	}
 }
