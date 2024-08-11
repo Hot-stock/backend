@@ -7,14 +7,16 @@ import org.springframework.stereotype.Service;
 import com.bjcareer.search.domain.entity.Suggestion;
 import com.bjcareer.search.repository.SearchRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class SearchService {
-	private SearchRepository searchRepository;
+	private final SearchRepository searchRepository;
 
 	public List<Suggestion> getSuggestionKeyword(String keyword){
 		return searchRepository.findSuggestionKeyword(keyword);
 	}
-
 
 	public Suggestion updateSearchCount(String keyword){
 		Suggestion suggestion = searchRepository.updateSearchCount(keyword);
