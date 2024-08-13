@@ -1,6 +1,4 @@
-package com.bjcareer.search.retrieval;
-
-import java.util.Map;
+package com.bjcareer.search.retrieval.noSQL;
 
 public class MongoNode {
 	String keyword = "";
