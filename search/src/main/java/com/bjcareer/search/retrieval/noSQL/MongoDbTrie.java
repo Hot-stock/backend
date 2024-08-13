@@ -1,22 +1,17 @@
-package com.bjcareer.search.retrieval;
+package com.bjcareer.search.retrieval.noSQL;
 
-import static com.mongodb.client.model.Filters.*;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import com.bjcareer.search.repository.TrieRepository;
-import com.mongodb.client.MongoCursor;
+import com.bjcareer.search.retrieval.Trie;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MongoDbTrie implements Trie{
+public class MongoDbTrie implements Trie {
 	private final TrieRepository repository;
 
 	@Override
@@ -49,16 +44,8 @@ public class MongoDbTrie implements Trie{
 	}
 
 	public List<String> search(String query){
-		List<String> result = new ArrayList<>();
-		MongoCursor<Document> rootDocument = repository.findAllByKeyword(MongoQueryKeywords.KEYWORD, query);
-
-		if (rootDocument == null) {
-			return result;
-		}
-
-		searchChild(rootDocument, result);
-
-		return result;
+		Document rootDocument = repository.findSingleByKeyword(MongoQueryKeywords.KEYWORD, query);
+		return repository.getkeyworkList(rootDocument);
 	}
 
 
@@ -68,33 +55,6 @@ public class MongoDbTrie implements Trie{
 		while(parentId != null){
 			repository.setChildIdToParentDocument(childId, parentId);
 			parentId = repository.findByObjectId(parentId).getObjectId(MongoQueryKeywords.PARENT_ID);
-		}
-	}
-
-	private void searchChild(MongoCursor<Document> rootDocument, List<String> result) {
-		Queue<ObjectId> queue = new LinkedList<>();
-		queue.add(rootDocument.next().getObjectId(MongoQueryKeywords.KEY)); //부모아이디를 넣어줌
-
-		while (!queue.isEmpty()) {
-			ObjectId parentId = queue.poll();
-			MongoCursor<Document> currentDocument = repository.findAllByKeyword(MongoQueryKeywords.PARENT_ID, parentId);
-
-			if(currentDocument == null){
-				continue;
-			}
-
-			addCurrentIdToQueueAndSaveEndOfword(result, currentDocument, queue);
-		}
-	}
-
-	private void addCurrentIdToQueueAndSaveEndOfword(List<String> result, MongoCursor<Document> currentDocument, Queue<ObjectId> queue) {
-		while(currentDocument.hasNext()){
-			Document current = currentDocument.next();
-			queue.add(current.getObjectId(MongoQueryKeywords.KEY));
-
-			if (current.getBoolean(MongoQueryKeywords.END_OF_WORD, false)) {
-				result.add(current.getString(MongoQueryKeywords.KEYWORD));
-			}
 		}
 	}
 
