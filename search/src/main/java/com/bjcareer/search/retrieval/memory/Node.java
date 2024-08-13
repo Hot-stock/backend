@@ -1,4 +1,4 @@
-package com.bjcareer.search.retrieval;
+package com.bjcareer.search.retrieval.memory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,8 +6,17 @@ import java.util.Map;
 public class Node {
 	Map<Character, Node> child = new HashMap<>();
 	String keyword = "";
-	Long search_count = 0L;
+	Long searchCount = 0L;
 	boolean endOfWord = false;
+
+	public Node() {
+	}
+
+	public Node(String keyword, Long search_count, boolean endOfWord) {
+		this.keyword = keyword;
+		this.searchCount = search_count;
+		this.endOfWord = endOfWord;
+	}
 
 	@Override
 	public String toString() {
