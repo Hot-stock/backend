@@ -1,12 +1,12 @@
 package com.bjcareer.search.retrieval.noSQL;
 
-public class MongoNode {
+public class DocumentNode {
 	String keyword = "";
 	Long search_count = 0L;
 	boolean endOfWord = false;
 	Long parentId = null;
 
-	public MongoNode(String keyword, Long search_count, boolean endOfWord, Long parentId) {
+	public DocumentNode(String keyword, Long search_count, boolean endOfWord, Long parentId) {
 		this.keyword = keyword;
 		this.search_count = search_count;
 		this.endOfWord = endOfWord;

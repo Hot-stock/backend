@@ -9,18 +9,18 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
 
-import com.bjcareer.search.retrieval.noSQL.MongoQueryKeywords;
+import com.bjcareer.search.retrieval.noSQL.DocumentQueryKeywords;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
 
 @Repository
-public class MongoTrieRepository {
+public class DocumentRepository {
 	private MongoCollection<Document> collection;
 	public static final String TRIE_COLLECTION = "Trie";
 
-	public MongoTrieRepository(MongoDatabase database) {
+	public DocumentRepository(MongoDatabase database) {
 		collection = database.getCollection(TRIE_COLLECTION);
 	}
 
@@ -34,23 +34,23 @@ public class MongoTrieRepository {
 	}
 
 	public Document findByObjectId(ObjectId objectId){
-		return collection.find(eq(MongoQueryKeywords.KEY, objectId)).first();
+		return collection.find(eq(DocumentQueryKeywords.KEY, objectId)).first();
 	}
 
 	public ObjectId saveDocument(Document document){
 		collection.insertOne(document);
-		return document.getObjectId(MongoQueryKeywords.KEY);
+		return document.getObjectId(DocumentQueryKeywords.KEY);
 	}
 
 	public void setChildIdToParentDocument(ObjectId childId, ObjectId parentId){
 		collection.updateOne(
-			eq(MongoQueryKeywords.KEY, parentId),
+			eq(DocumentQueryKeywords.KEY, parentId),
 			Updates.addToSet("childs", childId)
 		);
 	}
 
 	public void updateKeyword(String key, ObjectId id, Object object){
-		collection.updateOne(eq(MongoQueryKeywords.KEY, id), Updates.set(key, object));
+		collection.updateOne(eq(DocumentQueryKeywords.KEY, id), Updates.set(key, object));
 	}
 
 	public List<String> getkeyworkList(Document rootDocument){
@@ -60,10 +60,10 @@ public class MongoTrieRepository {
 			return result;
 		}
 
-		List<ObjectId> childs = rootDocument.getList(MongoQueryKeywords.CHILDS, ObjectId.class);
+		List<ObjectId> childs = rootDocument.getList(DocumentQueryKeywords.CHILDS, ObjectId.class);
 
 		if (childs != null) {
-			childs.stream().forEach(c -> result.add(findByObjectId(c).get(MongoQueryKeywords.KEYWORD, String.class)));
+			childs.stream().forEach(c -> result.add(findByObjectId(c).get(DocumentQueryKeywords.KEYWORD, String.class)));
 		}
 
 		return result;

@@ -1,6 +1,6 @@
 package com.bjcareer.search.retrieval.noSQL;
 
-public class MongoQueryKeywords {
+public class DocumentQueryKeywords {
 	public static final String KEYWORD = "keyword";
 	public static final String PARENT_ID = "parentId";
 	public static final String SEARCH_COUNT = "searchCount";
