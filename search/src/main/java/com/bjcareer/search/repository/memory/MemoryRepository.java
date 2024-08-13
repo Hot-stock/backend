@@ -1,4 +1,4 @@
-package com.bjcareer.search.repository;
+package com.bjcareer.search.repository.memory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 @Repository
-public class SearchRepository {
+public class MemoryRepository {
 	@PersistenceContext
 	private EntityManager em;
 
