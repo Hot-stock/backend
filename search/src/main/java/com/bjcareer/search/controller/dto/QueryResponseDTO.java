@@ -18,6 +18,12 @@ public class QueryResponseDTO {
 		rankings.forEach(r -> keywords.add(new Keyword(r.getKeyword())));
 	}
 
+
+	public QueryResponseDTO(List<String> rankings, int total) {
+		this.total = total;
+		rankings.forEach(r -> keywords.add(new Keyword(r)));
+	}
+
 	@Data
 	public static class Keyword{
 		private final String keyword;

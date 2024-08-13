@@ -1,26 +1,26 @@
 package com.bjcareer.search.service;
 
 import java.util.List;
-
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import com.bjcareer.search.domain.entity.Suggestion;
-import com.bjcareer.search.repository.SearchRepository;
+import com.bjcareer.search.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.retrieval.Trie;
 
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SearchService {
-	private final SearchRepository searchRepository;
+	private final DocumentRepository documentRepository;
+	private final Trie trie;
 
-	public List<Suggestion> getSuggestionKeyword(String keyword){
-		return searchRepository.findSuggestionKeyword(keyword);
+	public List<String> getSuggestionKeyword(String keyword){
+		return trie.search(keyword);
 	}
 
-	public Suggestion updateSearchCount(String keyword){
-		Suggestion suggestion = searchRepository.updateSearchCount(keyword);
-		return suggestion;
+	public void updateSearchCount(String keyword){
+		documentRepository.updateSearchCount(keyword);
 	}
 
 }
