@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: search
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: timo
+    password: timo
+    url: jdbc:postgresql://localhost:5432/search_service
+
+  data:
+    mongodb:
+      uri: mongodb://changeme:changeme@localhost:27017
+      database: keywords
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+
+redis:
+  address: ${REDIS_ADDRESS:redis://localhost:6379}
+  password: ${REDIS_PASSWORD:changeme}
+  database: ${REDIS_DATABASE:0}
+
+logging:
+  level:
+    com.bjcareer.search : debug
+

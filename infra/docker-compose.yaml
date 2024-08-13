@@ -13,7 +13,6 @@ services:
       - ./postgres/initdb.d:/docker-entrypoint-initdb.d:rw
     networks:
       - infra_network
-
   redis:
     container_name: redis
     image: redis:7.0.11
@@ -28,6 +27,18 @@ services:
       - redis_data:/data:rw
       - ./redis/etc/redis.conf:/etc/redis.conf:rw
     command: redis-server /etc/redis.conf
+    networks:
+      - infra_network
+
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    env_file: ./mongodb/.env
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb/initdb.d:/docker-entrypoint-initdb.d:rw
     networks:
       - infra_network
 
@@ -112,6 +123,7 @@ volumes:
   redis_insight_data:
   rabbitmq_data:
   minio_data:
+  scylla_data:
 
 networks:
   infra_network:
