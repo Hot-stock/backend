@@ -25,6 +25,7 @@ public class CacheTrieService implements Trie {
 		if (node.isPresent()) {
 			return node.get().getChild();
 		}
+
 		return new ArrayList<>();
 	}
 }
