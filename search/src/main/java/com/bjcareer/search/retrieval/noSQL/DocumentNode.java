@@ -12,4 +12,5 @@ public class DocumentNode {
 		this.endOfWord = endOfWord;
 		this.parentId = parentId;
 	}
+
 }
