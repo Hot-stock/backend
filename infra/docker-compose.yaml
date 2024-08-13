@@ -13,6 +13,7 @@ services:
       - ./postgres/initdb.d:/docker-entrypoint-initdb.d:rw
     networks:
       - infra_network
+
   redis:
     container_name: redis
     image: redis:7.0.11
@@ -21,6 +22,7 @@ services:
     restart: always
     labels:
       - "name=redis"
+      - "mode=standalone"
     env_file: ./redis/.env
     volumes:
       - redis_data:/data:rw
@@ -42,6 +44,18 @@ services:
     networks:
       - infra_network
 
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    env_file: ./mongodb/.env
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb/initdb.d:/docker-entrypoint-initdb.d:rw
+    networks:
+      - infra_network
+
   prometheus:
     container_name: prometheus
     image: bitnami/prometheus
@@ -60,20 +74,19 @@ services:
     networks:
       - infra_network
 
-  redis-insight:
-    container_name: redis-insight
-    image: redislabs/redisinsight:1.14.0
-    ports:
-      - '6380:8001'
-      - '6380:6379'
-    restart: always
-    env_file: ./redis/.env
-    volumes:
-      - redis_insight_data:/db:rw
-    depends_on:
-      - redis
-    networks:
-      - infra_network
+#  redis-insight:
+#    container_name: redis-insight
+#    image: redislabs/redisinsight:1.14.0
+#    ports:
+#      - '6380:8001'
+#    restart: always
+#    env_file: ./redis/.env
+#    volumes:
+#      - redis_insight_data:/db:rw
+#    depends_on:
+#      - redis
+#    networks:
+#      - infra_network
 #
 #  rabbitmq:
 #    container_name: rabbitmq
