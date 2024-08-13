@@ -15,13 +15,13 @@ public class DocumentTrieService implements Trie {
 	private final DocumentRepository repository;
 
 	@Override
-	public void insert(String str, Long searchCount){
+	public void insert(String keyword, Long searchCount){
 		String query = "";
 		ObjectId parendId = null;
 		Document lastDocument = null;
 
-		for (int i = 0; i < str.length(); i++) {
-			query += str.charAt(i);
+		for (int i = 0; i < keyword.length(); i++) {
+			query += keyword.charAt(i);
 
 			Document parentNode = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, query);
 
@@ -29,7 +29,7 @@ public class DocumentTrieService implements Trie {
 				parendId = parentNode.getObjectId(DocumentQueryKeywords.KEY);
 			}else{
 				lastDocument = changeNodeToDocument(query, parendId);
-				parendId = repository.saveDocument(lastDocument);
+				parendId = repository.saveDocument(keyword, lastDocument);
 			}
 		}
 
@@ -37,24 +37,24 @@ public class DocumentTrieService implements Trie {
 			return;
 		}
 
-		repository.updateKeyword(DocumentQueryKeywords.SEARCH_COUNT, parendId, searchCount);
-		repository.updateKeyword(DocumentQueryKeywords.END_OF_WORD, parendId, true);
+		repository.updateKeyword(keyword, DocumentQueryKeywords.SEARCH_COUNT, parendId, searchCount);
+		repository.updateKeyword(keyword, DocumentQueryKeywords.END_OF_WORD, parendId, true);
 
-		updateParentToChild(lastDocument, parendId);
+		updateParentToChild(keyword, lastDocument, parendId);
 	}
 
-	public List<String> search(String query){
-		Document rootDocument = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, query);
-		return repository.getkeyworkList(rootDocument);
+	public List<String> search(String keyword){
+		Document rootDocument = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, keyword);
+		return repository.getkeyworkList(keyword,rootDocument);
 	}
 
 
-	public void updateParentToChild(Document endOfDocument, ObjectId childId) {
+	public void updateParentToChild(String keyword, Document endOfDocument, ObjectId childId) {
 		ObjectId parentId = endOfDocument.getObjectId(DocumentQueryKeywords.PARENT_ID);
 
 		while(parentId != null){
-			repository.setChildIdToParentDocument(childId, parentId);
-			parentId = repository.findByObjectId(parentId).getObjectId(DocumentQueryKeywords.PARENT_ID);
+			repository.setChildIdToParentDocument(keyword, childId, parentId);
+			parentId = repository.findByObjectId(keyword, parentId).getObjectId(DocumentQueryKeywords.PARENT_ID);
 		}
 	}
 
