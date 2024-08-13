@@ -26,18 +26,12 @@ public class CacheRepository {
 		if (bucket.isExists()) {
 			return Optional.of((CacheNode)bucket.get());
 		}
-
-		Document singleByKeyword = repository.findSingleByKeyword(MongoQueryKeywords.KEYWORD, keyword);
-		CacheNode node = new CacheNode(keyword, repository.getkeyworkList(singleByKeyword));
-		saveKeyword(node);
 		return Optional.empty();
 	}
 
 	public void saveKeyword(CacheNode node) {
 		String BUCKET_KEY = BUCKET + node.getKeyword();
-		System.out.println("BUCKET_KEY = " + BUCKET_KEY);
 		RBucket<Object> bucket = redissonClient.getBucket(BUCKET_KEY);
 		bucket.set(node);
-		System.out.println("node = " + node);
 	}
 }
