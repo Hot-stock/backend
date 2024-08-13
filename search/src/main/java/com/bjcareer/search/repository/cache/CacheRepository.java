@@ -7,9 +7,9 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
-import com.bjcareer.search.repository.noSQL.MongoTrieRepository;
+import com.bjcareer.search.repository.noSQL.DocumentRepository;
 import com.bjcareer.search.retrieval.cache.CacheNode;
-import com.bjcareer.search.retrieval.noSQL.MongoQueryKeywords;
+import com.bjcareer.search.retrieval.noSQL.DocumentQueryKeywords;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CacheRepository {
 	private final RedissonClient redissonClient;
-	private final MongoTrieRepository repository;
+	private final DocumentRepository repository;
 	private static final String BUCKET = "TRIE:";
 
 	public Optional<CacheNode> findByKeyword(String keyword) {
@@ -26,6 +26,10 @@ public class CacheRepository {
 		if (bucket.isExists()) {
 			return Optional.of((CacheNode)bucket.get());
 		}
+
+		Document singleByKeyword = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, keyword);
+		CacheNode node = new CacheNode(keyword, repository.getkeyworkList(singleByKeyword));
+		saveKeyword(node);
 		return Optional.empty();
 	}
 

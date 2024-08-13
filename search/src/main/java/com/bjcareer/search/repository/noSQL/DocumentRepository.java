@@ -53,6 +53,10 @@ public class DocumentRepository {
 		collection.updateOne(eq(DocumentQueryKeywords.KEY, id), Updates.set(key, object));
 	}
 
+	public void updateSearchCount(String keyword){
+		collection.updateOne(eq(DocumentQueryKeywords.KEYWORD, keyword), Updates.inc(DocumentQueryKeywords.KEYWORD, 1));
+	}
+
 	public List<String> getkeyworkList(Document rootDocument){
 		List<String> result = new ArrayList<>();
 
