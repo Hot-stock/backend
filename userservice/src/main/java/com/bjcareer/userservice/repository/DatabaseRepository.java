@@ -74,4 +74,21 @@ public class DatabaseRepository {
             throw new DatabaseOperationException("Unexpected error during user retrieval", e);
         }
     }
+
+    public Optional<Role> findRoleByRoleType(RoleType roleType) {
+        try {
+            TypedQuery<Role> query = em.createQuery(DatabaseQuery.finedRoleQuery, Role.class);
+            query.setParameter("type", roleType.name());
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            log.warn("No Role found with role name: {}", roleType);
+            return Optional.empty();
+        } catch (PersistenceException e) {
+            log.error("PersistenceException during role retrieval: {}", e.getMessage());
+            throw new DatabaseOperationException("Error retrieving user from database", e);
+        } catch (Exception e) {
+            log.error("Unexpected error during role retrieval: {}", e.getMessage());
+            throw new DatabaseOperationException("Unexpected error during user retrieval", e);
+        }
+    }
 }

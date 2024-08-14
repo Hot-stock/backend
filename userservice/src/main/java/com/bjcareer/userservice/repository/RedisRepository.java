@@ -2,7 +2,7 @@ package com.bjcareer.userservice.repository;
 
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
 import com.bjcareer.userservice.service.vo.TokenVO;
-import com.bjcareer.userservice.domain.User;
+import com.bjcareer.userservice.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBucket;
@@ -21,7 +21,7 @@ public class RedisRepository {
     private final RedissonClient redissonClient;
 
     public void saveUser(User user, int keepAlive) {
-        saveToRedis(user.getUserId(), user, keepAlive);
+        saveToRedis(user.getAlais(), user, keepAlive);
     }
 
     public Optional<User> findUserById(String userId) {

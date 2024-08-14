@@ -7,6 +7,7 @@ import com.bjcareer.userservice.repository.RedisRepository;
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -18,49 +19,48 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Aspect
+@Slf4j
 public class RoleAspect {
     private final RedisRepository redisRepository;
 
     @Before("@annotation(hasRole) && args(request, ..)")
     public void checkRole(HasRole hasRole, HttpServletRequest request) {
-        RoleType[] roles = hasRole.value();
+        RoleType[] requiredRoles = hasRole.value();
 
-        System.out.println("Roles required: " + Arrays.toString(roles));
+        log.debug("Roles required: {}", Arrays.toString(requiredRoles));
 
-        if (roles.length == 0) {
-            System.out.println("No roles specified. Unauthorized access attempt.");
+        if (requiredRoles.length == 0) {
+            log.warn("No roles specified. Unauthorized access attempt.");
             throw new UnauthorizedAccessAttemptException("User not authenticated");
         }
 
-        boolean allowAll = Arrays.stream(roles).anyMatch(role -> role.equals(RoleType.ALL));
-
-        if (allowAll) {
-            System.out.println("Access granted to all roles.");
+        if (Arrays.asList(requiredRoles).contains(RoleType.ALL)) {
+            log.debug("Access granted to all roles.");
             return;
         }
 
-        System.out.println("Session ID: " + request.getAttribute("sessionId"));
         String sessionId = (String) request.getAttribute("sessionId");
+        log.debug("Session ID: {}", sessionId);
 
-        Optional<JwtTokenVO> authTokenBySessionId = redisRepository.findAuthTokenBySessionId(sessionId);
+        JwtTokenVO authToken = redisRepository.findAuthTokenBySessionId(sessionId)
+            .orElseThrow(() -> {
+                log.warn("Session ID not found or user not authenticated.");
+                return new UnauthorizedAccessAttemptException("User not authenticated");
+            });
 
-        if (!authTokenBySessionId.isPresent()) {
-            System.out.println("Session ID not found or user not authenticated.");
-            throw new UnauthorizedAccessAttemptException("User not authenticated");
-        }
+        checkUserRoles(requiredRoles, authToken.getRoleType());
+    }
 
-        List<RoleType> roleTypes = authTokenBySessionId.get().getRoleType();
-
-
-        boolean hasRequiredRole = roleTypes.stream()
-                .anyMatch(assignment -> Arrays.stream(roles)
-                        .anyMatch(role -> role.equals(assignment)));
+    private void checkUserRoles(RoleType[] requiredRoles, List<RoleType> userRoles) {
+        boolean hasRequiredRole = userRoles.stream()
+            .anyMatch(userRole -> Arrays.stream(requiredRoles)
+                .anyMatch(requiredRole -> requiredRole.equals(userRole)));
 
         if (!hasRequiredRole) {
-            System.out.println("User does not have the required role. Access denied.");
+            log.warn("User does not have the required role. Access denied.");
             throw new UnauthorizedAccessAttemptException("You do not have the required role to access this resource");
         }
 
-        System.out.println("Access granted.");
+        log.debug("Access granted.");
     }
 }
