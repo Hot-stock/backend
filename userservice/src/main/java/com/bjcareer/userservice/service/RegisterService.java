@@ -38,7 +38,7 @@ public class RegisterService {
     }
 
     public boolean verifyToken(String telegramId, Long token) {
-        Optional<TokenVO> tokebByTelegramId = redisRepository.findTokebByTelegramId(telegramId);
+        Optional<TokenVO> tokebByTelegramId = redisRepository.findTokenByTelegramId(telegramId);
 
         if (tokebByTelegramId.isEmpty()){
             return false;

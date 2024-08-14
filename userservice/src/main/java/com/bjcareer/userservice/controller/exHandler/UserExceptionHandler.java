@@ -2,7 +2,7 @@ package com.bjcareer.userservice.controller.exHandler;
 
 import com.bjcareer.userservice.controller.UserController;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
-import com.bjcareer.userservice.service.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.exceptions.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
