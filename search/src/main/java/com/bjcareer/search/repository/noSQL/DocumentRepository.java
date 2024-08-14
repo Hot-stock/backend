@@ -36,8 +36,8 @@ public class DocumentRepository {
 	}
 
 
-	public Document findSingleByKeyword(String keyword, Object query){
-		MongoCollection<Document> collection = getDocumentMongoCollection(keyword);
+	public Document findSingleByKeyword(String keyword, String query){
+		MongoCollection<Document> collection = getDocumentMongoCollection(query);
 		return collection.find(eq(keyword, query)).first();
 	}
 
@@ -118,8 +118,12 @@ public class DocumentRepository {
 
 	private MongoCollection<Document> getDocumentMongoCollection(String keyword) {
 		char c = keyword.charAt(0);
-		Integer index = shardingKey.get(c);
+		System.out.println("c = " + c);
+		System.out.println("shardingKey = " + shardingKey);
+		Integer index = shardingKey.get(String.valueOf(c));
+		System.out.println("index = " + index);
 		MongoCollection<Document> collection = collections.get(index);
+		System.out.println("collection = " + collection);
 		return collection;
 	}
 }
