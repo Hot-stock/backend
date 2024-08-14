@@ -1,6 +1,11 @@
 package com.bjcareer.userservice.domain;
 
+import java.nio.charset.Charset;
+
 import com.github.ksuid.KsuidGenerator;
+import com.google.common.base.Charsets;
+import com.google.common.hash.Hashing;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +32,7 @@ public class User {
 
     public User(String userId, String password, String telegramId) {
         this.userId = userId;
-        this.password = password;
+        this.password = Hashing.sha256().hashString(password, Charsets.UTF_8).toString();
         this.telegramId = telegramId;
     }
 
