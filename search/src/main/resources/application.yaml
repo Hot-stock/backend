@@ -8,10 +8,6 @@ spring:
     password: timo
     url: jdbc:postgresql://localhost:5432/search_service
 
-  data:
-    mongodb:
-      uri: mongodb://changeme:changeme@localhost:27017
-      database: keywords
 
   jpa:
     hibernate:
@@ -22,11 +18,19 @@ spring:
         show_sql: true
 
 redis:
-  address: ${REDIS_ADDRESS:redis://localhost:6379}
-  password: ${REDIS_PASSWORD:changeme}
-  database: ${REDIS_DATABASE:0}
+  address: redis://localhost:6379,redis://localhost:6381
+  password: changeme
+  database: 0
+
+mongodb:
+  database: keywords
+  uri: mongodb://changeme:changeme@localhost:27017,mongodb://changeme:changeme@localhost:27018
+
 
 logging:
   level:
     com.bjcareer.search : debug
 
+# 추가된 설정 항목
+database:
+  number: ${DATABASE_NUMBER:2}

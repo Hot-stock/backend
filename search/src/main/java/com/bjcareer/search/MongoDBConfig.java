@@ -3,22 +3,22 @@ package com.bjcareer.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
-@Configuration
+@ConfigurationProperties(
+	prefix = "mongodb"
+)
 public class MongoDBConfig {
-
-	@Value("${spring.data.mongodb.uris}")
+	@Value("#{'${mongodb.uri}'.split(',')}")
 	private List<String> uris;
 
-	@Value("${spring.data.mongodb.database}")
+	@Value("${mongodb.database}")
 	private String database;
+
 
 	@Bean
 	public List<MongoDatabase> mongoClient() {

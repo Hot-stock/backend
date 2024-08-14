@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
-import com.bjcareer.search.domain.entity.Suggestion;
 import com.bjcareer.search.repository.noSQL.DocumentRepository;
 import com.bjcareer.search.retrieval.Trie;
 

@@ -43,7 +43,22 @@ services:
     command: redis-server /etc/salve.conf
     networks:
       - infra_network
-
+  redis1:
+    container_name: redis1
+    image: redis:7.0.11
+    ports:
+      - 6381:6379
+    restart: always
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    env_file: ./redis/.env
+    volumes:
+      - redis_data1:/data:rw
+      - ./redis/etc/redis.conf:/etc/redis.conf:rw
+    command: redis-server /etc/redis.conf
+    networks:
+      - infra_network
   mongo:
     container_name: mongo
     image: mongo:latest
@@ -52,6 +67,18 @@ services:
     env_file: ./mongodb/.env
     volumes:
       - mongodb_data:/data/db
+      - ./mongodb/initdb.d:/docker-entrypoint-initdb.d:rw
+    networks:
+      - infra_network
+
+  mongo2:
+    container_name: mongo2
+    image: mongo:latest
+    ports:
+      - "27018:27017"  # 호스트 포트 27018을 컨테이너의 27017 포트에 매핑
+    env_file: ./mongodb/.env
+    volumes:
+      - mongodb_data2:/data/db
       - ./mongodb/initdb.d:/docker-entrypoint-initdb.d:rw
     networks:
       - infra_network
@@ -137,6 +164,8 @@ volumes:
   redis_insight_data:
   rabbitmq_data:
   minio_data:
+  mongodb_data2:
+  redis_data1:
   redis_slave:
 
 networks:
