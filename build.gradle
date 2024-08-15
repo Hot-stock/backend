@@ -28,6 +28,11 @@ subprojects {
 
 	}
 }
+project(':search') {
+	dependencies {
+		implementation project(':proto')
+	}
+}
 
 project(':timeDeal') {
 	dependencies {

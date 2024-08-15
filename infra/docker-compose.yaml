@@ -13,7 +13,6 @@ services:
       - ./postgres/initdb.d:/docker-entrypoint-initdb.d:rw
     networks:
       - infra_network
-
   redis:
     container_name: redis
     image: redis:7.0.11
@@ -22,12 +21,24 @@ services:
     restart: always
     labels:
       - "name=redis"
-      - "mode=standalone"
     env_file: ./redis/.env
     volumes:
       - redis_data:/data:rw
       - ./redis/etc/redis.conf:/etc/redis.conf:rw
     command: redis-server /etc/redis.conf
+    networks:
+      infra_network:
+
+  redis-slave:
+    image: redis:7.0.11
+    hostname: redis-slave
+    volumes:
+      - redis_slave:/data
+      - ./redis/etc/salve.conf:/etc/salve.conf:rw
+    env_file: ./redis/.env
+    ports:
+      - "6479:6379"
+    command: redis-server /etc/salve.conf
     networks:
       - infra_network
 
@@ -49,19 +60,20 @@ services:
     networks:
       - infra_network
 
-#  redis-insight:
-#    container_name: redis-insight
-#    image: redislabs/redisinsight:1.14.0
-#    ports:
-#      - '6380:8001'
-#    restart: always
-#    env_file: ./redis/.env
-#    volumes:
-#      - redis_insight_data:/db:rw
-#    depends_on:
-#      - redis
-#    networks:
-#      - infra_network
+  redis-insight:
+    container_name: redis-insight
+    image: redislabs/redisinsight:1.14.0
+    ports:
+      - '6380:8001'
+      - '6380:6379'
+    restart: always
+    env_file: ./redis/.env
+    volumes:
+      - redis_insight_data:/db:rw
+    depends_on:
+      - redis
+    networks:
+      - infra_network
 #
 #  rabbitmq:
 #    container_name: rabbitmq
@@ -112,7 +124,7 @@ volumes:
   redis_insight_data:
   rabbitmq_data:
   minio_data:
+  redis_slave:
 
 networks:
   infra_network:
-    name: infra_network
