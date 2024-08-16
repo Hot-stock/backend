@@ -1,5 +1,8 @@
-package com.bjcareer.stockservice.timeDeal.domain;
+package com.bjcareer.stockservice.timeDeal.domain.coupon;
 
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
+import com.bjcareer.stockservice.timeDeal.domain.user.User;
+import com.bjcareer.stockservice.timeDeal.domain.user.UserVO;
 import com.github.ksuid.KsuidGenerator;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -18,25 +21,29 @@ public class Coupon {
 
     @Column(unique = true, nullable = false)
     private UUID couponNumber;
-    private Double couponRate;
 
-    //사용유무
     @Enumerated(value = EnumType.STRING)
     private CouponStatus status;
 
-    //생성일자
     private LocalDate publishedDate;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "time_deal_event_id")
-    private TimeDealEvent event;
+    @JoinColumn(name = "event_id")
+    private Event event;
 
-    public Coupon(Double couponRate, TimeDealEvent event) {
-        this.couponRate = couponRate;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Transient
+    private UserVO userVO;
+
+    public Coupon(Event event, UserVO user) {
         this.status = CouponStatus.UNUSED;
         this.publishedDate = LocalDate.now();
         this.event = event;
         this.couponNumber = UUID.randomUUID();
+        this.userVO = user;
     }
 
 }

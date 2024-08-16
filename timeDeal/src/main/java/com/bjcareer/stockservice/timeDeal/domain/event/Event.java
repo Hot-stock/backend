@@ -1,4 +1,4 @@
-package com.bjcareer.stockservice.timeDeal.domain;
+package com.bjcareer.stockservice.timeDeal.domain.event;
 
 
 import jakarta.persistence.*;
@@ -12,21 +12,23 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Slf4j
-public class TimeDealEvent {
+public class Event {
     @Id @GeneratedValue
-    @Column(name="time_deal_event_id")
+    @Column(name="event_id")
     private Long id;
-
-    //몇 개의 쿠폰이 발행했는지
     private int publishedCouponNum;
-
-    //몇 개의 쿠푼이 사용자에게 전달됐는지
     private int deliveredCouponNum;
+    private EventStatus status;
+    private int discountPercentage;
 
+    @Version
+    private Long version;
 
-    public TimeDealEvent(int publishedCouponNum) {
+    public Event(int publishedCouponNum, int discountPercentage) {
         this.publishedCouponNum = publishedCouponNum;
         this.deliveredCouponNum = 0;
+        this.discountPercentage = discountPercentage;
+        this.status = EventStatus.OPENED;
     }
 
     public boolean incrementDeliveredCouponIfPossible(){
