@@ -1,12 +1,9 @@
 package com.bjcareer.stockservice.timeDeal.repository;
 
-import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Transactional;
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
+import com.bjcareer.stockservice.timeDeal.repository.event.EventCustomRepository;
 
-public interface EventRepository {
-    public Long save(TimeDealEvent timeDealEvent);
-    public TimeDealEvent findById(Long id);
-    @Async @Transactional
-    public void saveAsync(TimeDealEvent timeDealEvent);
+import org.springframework.data.repository.CrudRepository;
+
+public interface EventRepository extends CrudRepository<Event, Long>, EventCustomRepository {
 }

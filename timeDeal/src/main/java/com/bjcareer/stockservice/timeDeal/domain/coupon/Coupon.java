@@ -1,8 +1,6 @@
 package com.bjcareer.stockservice.timeDeal.domain.coupon;
 
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
-import com.bjcareer.stockservice.timeDeal.domain.user.User;
-import com.bjcareer.stockservice.timeDeal.domain.user.UserVO;
 import com.github.ksuid.KsuidGenerator;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,19 +29,14 @@ public class Coupon {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String userPK;
 
-    @Transient
-    private UserVO userVO;
 
-    public Coupon(Event event, UserVO user) {
+    public Coupon(Event event, String userPK) {
         this.status = CouponStatus.UNUSED;
         this.publishedDate = LocalDate.now();
         this.event = event;
         this.couponNumber = UUID.randomUUID();
-        this.userVO = user;
+        this.userPK = userPK;
     }
-
 }
