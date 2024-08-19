@@ -1,15 +1,20 @@
 package com.bjcareer.stockservice.timeDeal.repository;
 
-import com.bjcareer.stockservice.timeDeal.domain.Coupon;
-import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
-import org.apache.commons.lang3.ClassUtils;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
-public interface CouponRepository {
-    public String save(Coupon coupon);
-    public Coupon findById(String id);
-    @Async
-    @Transactional
-    public void saveAsync(Coupon coupon);
+import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
+
+import com.bjcareer.stockservice.timeDeal.repository.coupon.CustomCouponRepository;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
+public interface CouponRepository extends CrudRepository<Coupon,Long>, CustomCouponRepository {
+	@Query("SELECT coupon FROM Coupon coupon WHERE coupon.id = :id")
+	Optional<Coupon> findById(@Param("id") String id);
+
+
+	@Query("SELECT coupon FROM Coupon coupon WHERE coupon.event.id = :eventId AND coupon.userPK = :userPK")
+	Optional<Coupon> findByEventIdAndUserId(@Param("eventId") Long eventId, @Param("userPK") String userPK);
 }

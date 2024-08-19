@@ -1,7 +1,6 @@
 package com.bjcareer.stockservice.timeDeal.performance.pk;
 
 
-import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
@@ -10,13 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 
 @SpringBootTest
 public class PkPerformanceTest {
@@ -26,7 +23,7 @@ public class PkPerformanceTest {
     @PersistenceContext
     private EntityManager em;
 
-    private TimeDealEvent timeDealEvent;
+    private Event timeDealEvent;
     private static final int NUM_THREADS = 100;
 
     @BeforeEach
@@ -34,7 +31,7 @@ public class PkPerformanceTest {
     void setUp() {
         EntityManager em = entityManagerFactory.createEntityManager();
         em.getTransaction().begin();
-        timeDealEvent = new TimeDealEvent(10);
+        timeDealEvent = new Event(10, 10);
         em.persist(timeDealEvent);
         em.getTransaction().commit();
     }

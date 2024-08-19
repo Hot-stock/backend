@@ -2,15 +2,14 @@ package com.bjcareer.stockservice.timeDeal.controller;
 
 
 import com.bjcareer.stockservice.timeDeal.controller.dto.TimeDealDTO.*;
-import com.bjcareer.stockservice.timeDeal.domain.Coupon;
-import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
+import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.service.TimeDealService;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,9 +24,12 @@ public class TimeDealController {
 
 
     @PostMapping("/open")
-    public ResponseEntity setTimeDealEvent(@RequestBody CreateTimeDealEventRequest request){
-        TimeDealEvent timeDealEvent = timeDealService.createTimeDealEvent(request.getPublishedCouponNumber());
+    public ResponseEntity<?> openTimeDealEvent(@RequestBody CreateTimeDealEventRequest request){
+        validateOpenEventInputs(request);
+
+        Event timeDealEvent = timeDealService.createEvent(request.getPublishedCouponNumber(), request.getDiscountRate());
         CreateTimeDealEventResponse response = new CreateTimeDealEventResponse(timeDealEvent.getId(), timeDealEvent.getPublishedCouponNum());
+
         return new ResponseEntity(response, HttpStatus.OK);
     }
 
@@ -35,14 +37,19 @@ public class TimeDealController {
     @PostMapping("tickets/{eventId}/{userId}")
     public ResponseEntity generateTimeDealTicket(@PathVariable("eventId") Long eventId, @PathVariable("userId") String userId){
         log.debug("User {} request coupon {}", userId, eventId);
-        double DISCCOUT_RATE = 20.0;
-        GenerateCouponResponse response = new GenerateCouponResponse();
-        response.setUserId(userId);
+        Coupon coupon = timeDealService.generateCouponToUser(eventId, userId);
+        GenerateCouponResponse response = new GenerateCouponResponse(coupon);
 
-        Optional<Coupon> coupon = timeDealService.generateCouponToUser(eventId, DISCCOUT_RATE);
-        coupon.ifPresent(c -> response.setCouponNumber(c.getCouponNumber()));
-        HttpStatus statusCode = coupon.isPresent() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity(response, HttpStatus.OK);
+    }
 
-        return new ResponseEntity(response, statusCode);
+
+    private void validateOpenEventInputs(CreateTimeDealEventRequest request) {
+        if (request.getPublishedCouponNumber() <= 0) {
+            throw new IllegalArgumentException("Published coupon number must be greater than zero");
+        }
+        if (request.getDiscountRate() < 0 || request.getDiscountRate() > 100) {
+            throw new IllegalArgumentException("Discount rate must be between 0 and 100");
+        }
     }
 }

@@ -1,92 +1,88 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
-import com.bjcareer.stockservice.timeDeal.domain.Coupon;
+import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.RedisLock;
-import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
+import com.bjcareer.stockservice.timeDeal.domain.event.exception.DuplicateParticipationException;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
+import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TimeDealService {
+    private static final String LOCK_KEY_PREFIX = "EVENT_LOCK:";
+    private static final long ALIVE_MINUTE = 5L;
+
     private final CouponRepository couponRepository;
-    private final EventRepository timeDealEventRepository;
+    private final EventRepository eventRepository;
     private final InMemoryEventRepository inMemoryEventRepository;
     private final RedisLock redisLock;
 
     @Transactional
-    public TimeDealEvent createTimeDealEvent(int publishedCouponNum) {
-        log.debug("타임딜 서비스 시작");
-        String lockName = "timeDealEventLock";
-        TimeDealEvent timeDealEvent = new TimeDealEvent(publishedCouponNum);
-        boolean isLocked = redisLock.tryLock(lockName);
-
-        if (isLocked){
-            Long saveId = timeDealEventRepository.save(timeDealEvent);
-            inMemoryEventRepository.save(timeDealEvent);
-            redisLock.releaselock(lockName);
-            log.debug("저장된 ID는 {}", saveId);
-        }else {
-            throw new IllegalStateException("레디스 락 획득 실패");
-        }
-
-        return timeDealEvent;
+    public Event createEvent(int publishedCouponNum, int discountRate) {
+        Event event = new Event(publishedCouponNum, discountRate);
+        return eventRepository.save(event);
     }
 
-    public Optional<Coupon> generateCouponToUser(Long eventId, Double discountRate) {
-        log.info("요청된 이벤트 ID {}", eventId);
-        vaildateEventId(eventId);
+    @Transactional
+    public Coupon generateCouponToUser(Long eventId, String userPK) {
+        String lockKey = LOCK_KEY_PREFIX + eventId;
+        redisLock.tryLock(lockKey);
 
-        String lockName = "generateCouponToUserLock";
-        boolean is_locked = redisLock.tryLock(lockName);
-
-        if (!is_locked) {
-            throw new IllegalStateException("사용자 time-out");
+        try {
+            Event event = loadEventToMemoryIfNotExists(eventId);
+            validateEvent(eventId, event);
+            validateDuplicateParticipation(event, userPK);
+            return createCoupon(event, userPK);
+        } finally {
+            redisLock.releaselock(lockKey);
         }
-
-        log.info("lock 획득 {}", Thread.currentThread().getName());
-
-        TimeDealEvent timeDealEvent = inMemoryEventRepository.findById(eventId);
-        vaildateRemainCoupon(timeDealEvent);
-        timeDealEvent.incrementDeliveredCouponIfPossible();
-
-        log.info("사용자에게 전달된 쿠폰의 개수는 = {} ", timeDealEvent.getDeliveredCouponNum());
-
-        inMemoryEventRepository.save(timeDealEvent);
-        Coupon result = generateCoupon(discountRate, timeDealEvent);
-        log.info("발급된 쿠폰 ID는 {}", result.getCouponNumber());
-        redisLock.releaselock(lockName);
-
-        return Optional.of(result);
     }
 
-    protected Coupon generateCoupon(Double discountRate, TimeDealEvent timeDealEvent) {
-        Coupon coupon = new Coupon(discountRate, timeDealEvent);
-        couponRepository.saveAsync(coupon);
+    private void validateEvent(Long eventId, Event event) {
+        try {
+            event.checkEventStatus();
+            event.incrementDeliveredCouponIfPossible();
+        } catch (Exception e) {
+            throw new InvalidEventException("Invalid event state: " + eventId);
+        }
+    }
+
+    private void validateDuplicateParticipation(Event event, String userPK) {
+        boolean isDuplicate = inMemoryEventRepository.findParticipant(event, userPK).isPresent() ||
+            couponRepository.findByEventIdAndUserId(event.getId(), userPK).isPresent();
+
+        if (isDuplicate) {
+            throw new DuplicateParticipationException("User has already participated in this event.");
+        }
+    }
+
+    private Event loadEventToMemoryIfNotExists(Long eventId) {
+        return inMemoryEventRepository.findById(eventId)
+            .orElseGet(() -> loadEventDataToMemory(eventId));
+    }
+
+    private Event loadEventDataToMemory(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new InvalidEventException("Invalid event ID provided: eventId " + eventId));
+        inMemoryEventRepository.save(event, ALIVE_MINUTE);
+        return event;
+    }
+
+    private Coupon createCoupon(Event event, String userPK) {
+        Coupon coupon = new Coupon(event, userPK);
+        couponRepository.save(coupon);
+        inMemoryEventRepository.saveClient(event, ALIVE_MINUTE, userPK);
         return coupon;
-    }
-
-    private void vaildateRemainCoupon(TimeDealEvent timeDealEvent) {
-        if(timeDealEvent.getPublishedCouponNum() <= timeDealEvent.getDeliveredCouponNum()){
-            timeDealEventRepository.saveAsync(timeDealEvent);
-            throw new IllegalStateException("더 이상 발급하지 못함");
-        }
-    }
-
-    private void vaildateEventId(Long eventId) {
-        TimeDealEvent byId = inMemoryEventRepository.findById(eventId);
-        if (byId == null) {
-            throw  new IllegalStateException("잘못된 Event를 요청함");
-        }
     }
 }
