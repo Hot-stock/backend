@@ -1,7 +1,7 @@
 package com.bjcareer.stockservice.timeDeal.performance.pk;
 
-import com.bjcareer.stockservice.timeDeal.domain.CouponStatus;
-import com.bjcareer.stockservice.timeDeal.domain.TimeDealEvent;
+import com.bjcareer.stockservice.timeDeal.domain.coupon.CouponStatus;
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.github.ksuid.KsuidGenerator;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -30,9 +30,9 @@ public class KusidCouponEntity {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "time_deal_event_id")
-    private TimeDealEvent event;
+    private Event event;
 
-    public KusidCouponEntity(Double couponRate, TimeDealEvent event) {
+    public KusidCouponEntity(Double couponRate, Event event) {
         this.couponRate = couponRate;
         this.status = CouponStatus.UNUSED;
         this.publishedDate = LocalDate.now();
