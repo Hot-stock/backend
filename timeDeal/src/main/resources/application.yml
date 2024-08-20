@@ -2,17 +2,15 @@ spring:
   application:
     name: timeDeal
 
-
-
   datasource:
+    url: jdbc:postgresql://localhost:5432/stock_service
     username: timo
     password: timo
-    url: jdbc:postgresql://localhost:5432/stock_service
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -24,18 +22,14 @@ logging:
     org.hibernate.SQL: debug
     org.springframework.web: debug
 
-#springdoc.swagger-ui.path=/docs
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-
-
   info:
     env:
       enabled: true
-
   endpoint:
     health:
       show-details: always
@@ -45,6 +39,13 @@ springdoc:
     path: /docs
   swagger-ui:
     path: /docs
+
+redis:
+  address:
+    master: "redis://127.0.0.1:6379"
+    slave:  "redis://127.0.0.1:6479"
+  password: "changeme"
+  database: 0
 
 server:
   tomcat:

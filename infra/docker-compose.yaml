@@ -36,11 +36,11 @@ services:
     hostname: redis-slave
     volumes:
       - redis_slave:/data
-      - ./redis/etc/salve.conf:/etc/salve.conf:rw
+      - ./redis/etc/slave.conf:/etc/slave.conf:rw
     env_file: ./redis/.env
     ports:
       - "6479:6379"
-    command: redis-server /etc/salve.conf
+    command: redis-server /etc/slave.conf
     networks:
       - infra_network
 

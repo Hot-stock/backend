@@ -18,4 +18,11 @@ logging:
   level:
     org.hibernate.SQL: debug
 
+redis:
+  address:
+    master: "redis://127.0.0.1:6379"
+    slave:  "redis://127.0.0.1:6479"
+  password: "changeme"
+  database: 0
+
 #springdoc.swagger-ui.path=/docs
