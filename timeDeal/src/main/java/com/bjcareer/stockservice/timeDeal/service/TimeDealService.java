@@ -82,6 +82,7 @@ public class TimeDealService {
     private Coupon createCoupon(Event event, String userPK) {
         Coupon coupon = new Coupon(event, userPK);
         couponRepository.save(coupon);
+        inMemoryEventRepository.saveCoupon(coupon, ALIVE_MINUTE);
         inMemoryEventRepository.saveClient(event, ALIVE_MINUTE, userPK);
         return coupon;
     }
