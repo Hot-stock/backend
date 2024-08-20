@@ -11,6 +11,9 @@ import org.redisson.config.Config;
 import org.redisson.api.RPatternTopic;
 
 import com.bjcareer.stockservice.timeDeal.listener.RedisListenerService;
+import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
+import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
+import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
 
 @Configuration
 public class RedisConfig {
@@ -41,11 +44,6 @@ public class RedisConfig {
 		// 슬레이브 주소 설정
 		masterSlaveServersConfig.addSlaveAddress(redisSlaveAddress);
 
-		// SingleServerConfig singleServerConfig = config.useSingleServer();
-		// singleServerConfig.setAddress(redisMasterAddress);
-		// singleServerConfig.setPassword(redisPassword);
-		// singleServerConfig.setDatabase(redisDatabase);
-
 		return Redisson.create(config);
 	}
 
@@ -55,5 +53,12 @@ public class RedisConfig {
 		RPatternTopic topic = redissonClient.getPatternTopic(patternTopic, StringCodec.INSTANCE);
 		topic.addListener(String.class, listenerService);
 		return null;
+	}
+
+	@Bean
+	public RedisListenerService redisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {
+		RedisListenerService redisListenerService = new RedisListenerService(memoryEventRepository, repository,
+			couponRepository);
+		return redisListenerService;
 	}
 }

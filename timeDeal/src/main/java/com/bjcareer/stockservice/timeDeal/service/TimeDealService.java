@@ -21,7 +21,7 @@ import java.util.Optional;
 @Slf4j
 public class TimeDealService {
     private static final String LOCK_KEY_PREFIX = "EVENT_LOCK:";
-    private static final long ALIVE_MINUTE = 5L;
+    private static final long ALIVE_MINUTE = 1L;
 
     private final CouponRepository couponRepository;
     private final EventRepository eventRepository;
@@ -34,7 +34,7 @@ public class TimeDealService {
         return eventRepository.save(event);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Coupon generateCouponToUser(Long eventId, String userPK) {
         String lockKey = LOCK_KEY_PREFIX + eventId;
         redisLock.tryLock(lockKey);
@@ -43,16 +43,24 @@ public class TimeDealService {
             Event event = loadEventToMemoryIfNotExists(eventId);
             validateEvent(eventId, event);
             validateDuplicateParticipation(event, userPK);
-            return createCoupon(event, userPK);
+            Coupon coupon = createCoupon(event, userPK);
+            saveMemoryDatabase(userPK, coupon, event);
+            return coupon;
         } finally {
             redisLock.releaselock(lockKey);
         }
     }
 
+    private void saveMemoryDatabase(String userPK, Coupon coupon, Event event) {
+        inMemoryEventRepository.saveCoupon(coupon, ALIVE_MINUTE);
+        inMemoryEventRepository.saveClient(event, ALIVE_MINUTE, userPK);
+        inMemoryEventRepository.save(event, ALIVE_MINUTE);
+    }
+
     private void validateEvent(Long eventId, Event event) {
         try {
             event.checkEventStatus();
-            event.incrementDeliveredCouponIfPossible();
+            event.incrementDeliveredCouponIfPossible(); //변경 감지 됨
         } catch (Exception e) {
             throw new InvalidEventException("Invalid event state: " + eventId);
         }
@@ -80,10 +88,6 @@ public class TimeDealService {
     }
 
     private Coupon createCoupon(Event event, String userPK) {
-        Coupon coupon = new Coupon(event, userPK);
-        couponRepository.save(coupon);
-        inMemoryEventRepository.saveCoupon(coupon, ALIVE_MINUTE);
-        inMemoryEventRepository.saveClient(event, ALIVE_MINUTE, userPK);
-        return coupon;
+		return new Coupon(event, userPK);
     }
 }
