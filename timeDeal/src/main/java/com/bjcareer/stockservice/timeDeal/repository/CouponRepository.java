@@ -9,7 +9,9 @@ import com.bjcareer.stockservice.timeDeal.repository.coupon.CustomCouponReposito
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 public interface CouponRepository extends CrudRepository<Coupon,Long>, CustomCouponRepository {
 	@Query("SELECT coupon FROM Coupon coupon WHERE coupon.id = :id")
 	Optional<Coupon> findById(@Param("id") String id);

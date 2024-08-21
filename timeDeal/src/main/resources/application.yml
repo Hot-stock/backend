@@ -3,7 +3,7 @@ spring:
     name: timeDeal
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/stock_service
+    url: jdbc:postgresql://223.130.142.94:5432/stock_service
     username: timo
     password: timo
     driver-class-name: org.postgresql.Driver
@@ -17,10 +17,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+
 logging:
   level:
     org.hibernate.SQL: debug
-    org.springframework.web: debug
+    org.springframework.web: error
+    com.bjcareer.stockservice.timeDeal: info
 
 management:
   endpoints:
@@ -42,8 +44,8 @@ springdoc:
 
 redis:
   address:
-    master: "redis://127.0.0.1:6379"
-    slave:  "redis://127.0.0.1:6479"
+    master: "redis://223.130.142.94:6379"
+    slave:  "redis://223.130.142.94:6479"
   password: "changeme"
   database: 0
 
