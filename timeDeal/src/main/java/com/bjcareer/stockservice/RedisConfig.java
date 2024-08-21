@@ -1,5 +1,7 @@
 package com.bjcareer.stockservice;
 
+import org.redisson.api.RScoredSortedSet;
+import org.redisson.api.RSortedSet;
 import org.redisson.config.MasterSlaveServersConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +11,9 @@ import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
 import org.redisson.api.RPatternTopic;
+import org.springframework.data.util.Pair;
 
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.listener.RedisListenerService;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
@@ -29,6 +33,8 @@ public class RedisConfig {
 
 	@Value("${redis.database}")
 	private int redisDatabase;
+	@Value("${redis.queueName}")
+	private String queueName;
 
 	@Bean
 	public RedissonClient redissonClient() {
@@ -56,9 +62,16 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public RedisListenerService redisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {
+	public RedisListenerService setUpredisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {
 		RedisListenerService redisListenerService = new RedisListenerService(memoryEventRepository, repository,
 			couponRepository);
 		return redisListenerService;
 	}
+
+
+	@Bean
+	public RScoredSortedSet<Pair<Long, String>> setUpSortedSet(RedissonClient redissonClient) {
+		return redissonClient.getScoredSortedSet(queueName);
+	}
+
 }

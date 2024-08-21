@@ -1,10 +1,9 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
+import org.redisson.api.RScoredSortedSet;
 import org.springframework.data.util.Pair;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CronQueueService {
-	public static final Queue<Pair<Long, String>> queueParticipation = new LinkedList<>();
+	public final RScoredSortedSet<Pair<Long, String>> priorityQueue;
 	private final TimeDealService timeDealService;
 
 	@Scheduled(cron = "0/30 * * * * *")
@@ -26,7 +25,7 @@ public class CronQueueService {
 		List<Pair<Long, String>> participations = new ArrayList<>(30);
 
 		for (int i = 0; i < 30; i++) {
-			Pair<Long, String> participation = queueParticipation.poll();
+			Pair<Long, String> participation = priorityQueue.pollFirst();
 
 			if (participation == null) {
 				log.debug("Queue is empty, breaking out of the loop");
@@ -43,8 +42,7 @@ public class CronQueueService {
 			try {
 				timeDealService.generateCouponToUser(participation.getFirst(), participation.getSecond());
 			}catch (Exception e){
-				log.error(e.getMessage());
-				//이미 참여했는지에 따른 처리가 필요함
+				log.debug(e.getMessage());
 			}
 		});
 
