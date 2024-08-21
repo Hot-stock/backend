@@ -12,41 +12,35 @@ import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventExc
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TimeDealService {
-    private static final String LOCK_KEY_PREFIX = "EVENT_LOCK:";
-    private static final long ALIVE_MINUTE = 1L;
+    private static final long ALIVE_MINUTE = 5L;
 
     private final CouponRepository couponRepository;
     private final EventRepository eventRepository;
     private final InMemoryEventRepository inMemoryEventRepository;
-    private final RedisLock redisLock;
 
+    @Transactional
     public Event createEvent(int publishedCouponNum, int discountRate) {
         Event event = new Event(publishedCouponNum, discountRate);
         return eventRepository.save(event);
     }
 
+    @Transactional
     public Coupon generateCouponToUser(Long eventId, String userPK) {
-        String lockKey = LOCK_KEY_PREFIX + eventId;
-        redisLock.tryLock(lockKey);
+        Event event = loadEventToMemoryIfNotExists(eventId);
 
-        try {
-            Event event = loadEventToMemoryIfNotExists(eventId);
+        validateEvent(eventId, event);
+        validateDuplicateParticipation(event, userPK);
 
-            validateEvent(eventId, event);
-            validateDuplicateParticipation(event, userPK);
+        Coupon coupon = createCoupon(event, userPK);
+        saveMemoryDatabase(userPK, coupon, event);
 
-            Coupon coupon = createCoupon(event, userPK);
-            saveMemoryDatabase(userPK, coupon, event);
-
-            return coupon;
-        } finally {
-            redisLock.releaselock(lockKey);
-        }
+        return coupon;
     }
 
     private void saveMemoryDatabase(String userPK, Coupon coupon, Event event) {
