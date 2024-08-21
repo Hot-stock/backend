@@ -52,7 +52,7 @@ public class Redis {
 		return matchingKeys.iterator().hasNext() ? matchingKeys.iterator().next() : null;
 	}
 
-	public <T> RScoredSortedSet<T> getScoredSortedSet(String name, Class<T> classType) {
+	public <T> RScoredSortedSet<T> getScoredSortedSet(String name) {
 		return client.getScoredSortedSet(name);
 	}
 }
