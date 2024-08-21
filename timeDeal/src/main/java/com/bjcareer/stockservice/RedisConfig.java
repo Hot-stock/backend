@@ -33,8 +33,6 @@ public class RedisConfig {
 
 	@Value("${redis.database}")
 	private int redisDatabase;
-	@Value("${redis.queueName}")
-	private String queueName;
 
 	@Bean
 	public RedissonClient redissonClient() {
@@ -67,11 +65,4 @@ public class RedisConfig {
 			couponRepository);
 		return redisListenerService;
 	}
-
-
-	@Bean
-	public RScoredSortedSet<Pair<Long, String>> setUpSortedSet(RedissonClient redissonClient) {
-		return redissonClient.getScoredSortedSet(queueName);
-	}
-
 }

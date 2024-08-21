@@ -9,15 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Slf4j
 public class Event {
-    @Id @GeneratedValue
+
+    @Id
+    @GeneratedValue
     @Column(name="event_id")
     private Long id;
+
     private int publishedCouponNum;
     private int deliveredCouponNum;
     private EventStatus status;
@@ -33,23 +35,35 @@ public class Event {
         this.status = EventStatus.OPENED;
     }
 
-    public void closeEvent(){
-        this.status = EventStatus.CLOSED;
-    }
-
-    public void checkEventStatus(){
-        if (status == EventStatus.CLOSED){
+    public void validateEventStatus() {
+        if (isClosed()) {
             throw new InvalidEventException("Event status is CLOSED");
         }
     }
 
-    public void incrementDeliveredCouponIfPossible(){
-        log.debug("published coupon number is {}, deliveredCoupon number is {}", publishedCouponNum, deliveredCouponNum);
+    public int deliverCoupons(int numberOfCoupons) {
+        validateEventStatus();
 
-        if (deliveredCouponNum < publishedCouponNum) {
-            this.deliveredCouponNum++;
-        }else{
-            throw new CouponLimitExceededException("Coupon limit has been exceeded for event ID: " + this.getId());
+        log.debug("Published coupon number: {}, Delivered coupon number: {}", publishedCouponNum, deliveredCouponNum);
+
+        int newDeliveredCouponNum = deliveredCouponNum + numberOfCoupons;
+
+        if (newDeliveredCouponNum >= publishedCouponNum) {
+            closeEvent();
+            int excessCoupons = newDeliveredCouponNum - publishedCouponNum;
+            deliveredCouponNum = publishedCouponNum;
+            return excessCoupons;
         }
+
+        deliveredCouponNum = newDeliveredCouponNum;
+        return 0;
+    }
+
+    private void closeEvent() {
+        this.status = EventStatus.CLOSED;
+    }
+
+    private boolean isClosed() {
+        return status == EventStatus.CLOSED;
     }
 }
