@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CronQueueService {
 
+	public static final int INITIAL_CAPACITY = 1000;
 	private final Redis redis;
 	private final TimeDealService timeDealService;
 
@@ -34,13 +35,16 @@ public class CronQueueService {
 		}
 
 		RScoredSortedSet<String> pq = redis.getScoredSortedSet(key);
-		Map<String, Double> participationScores = new HashMap<>(30);
+		Map<String, Double> participationScores = new HashMap<>(INITIAL_CAPACITY);
 
 		// RScoredSortedSet에서 데이터를 가져와서 Map에 저장
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < INITIAL_CAPACITY; i++) {
 			Double score = pq.firstScore();
 			String client = pq.pollFirst();
-			if (client == null) break; // 더 이상 요소가 없으면 루프를 종료합니다.
+			if (client == null) {
+				redis.removeCacheScoredSortedSet(key);
+				break; // 더 이상 요소가 없으면 루프를 종료합니다.
+			}
 			participationScores.put(client, score);
 		}
 

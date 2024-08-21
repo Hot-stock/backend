@@ -1,5 +1,7 @@
 package com.bjcareer.stockservice.timeDeal.domain.redis;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.redisson.api.RKeys;
@@ -19,6 +21,7 @@ public class Redis {
 	private final RedissonClient client;
 	private static final long WAIT_TIME = 1L;
 	private static final long LEASE_TIME = 1L;
+	Map<String, RScoredSortedSet<?>> cachePQ = new ConcurrentHashMap<>();
 
 	public boolean acquireLock(String key) throws InterruptedException {
 		log.debug("Requesting lock acquisition for key: {}", key);
@@ -47,6 +50,16 @@ public class Redis {
 	}
 
 	public <T> RScoredSortedSet<T> getScoredSortedSet(String name) {
-		return client.getScoredSortedSet(name);
+		RScoredSortedSet<T> pq = (RScoredSortedSet<T>) cachePQ.get(name);
+
+		if (pq == null) {
+			cachePQ.put(name, client.getScoredSortedSet(name));
+		}
+
+		return (RScoredSortedSet<T>)cachePQ.get(name);
+	}
+
+	public void removeCacheScoredSortedSet(String key) {
+		cachePQ.remove(key);
 	}
 }

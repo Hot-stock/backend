@@ -48,16 +48,24 @@ public class RedisConfig {
 		// 슬레이브 주소 설정
 		masterSlaveServersConfig.addSlaveAddress(redisSlaveAddress);
 
+		masterSlaveServersConfig.setMasterConnectionMinimumIdleSize(70);
+		masterSlaveServersConfig.setSlaveConnectionMinimumIdleSize(80);
+		masterSlaveServersConfig.setSlaveConnectionPoolSize(70);
+		masterSlaveServersConfig.setMasterConnectionPoolSize(70);
+
+		masterSlaveServersConfig.setKeepAlive(true);
+
+
 		return Redisson.create(config);
 	}
 
-	@Bean
-	public Object setupKeyExpirationListener(RedissonClient redissonClient, RedisListenerService listenerService) {
-		String patternTopic = String.format("__keyevent@%d__:expired", redisDatabase);
-		RPatternTopic topic = redissonClient.getPatternTopic(patternTopic, StringCodec.INSTANCE);
-		topic.addListener(String.class, listenerService);
-		return null;
-	}
+	// @Bean
+	// public Object setupKeyExpirationListener(RedissonClient redissonClient, RedisListenerService listenerService) {
+	// 	String patternTopic = String.format("__keyevent@%d__:expired", redisDatabase);
+	// 	RPatternTopic topic = redissonClient.getPatternTopic(patternTopic, StringCodec.INSTANCE);
+	// 	topic.addListener(String.class, listenerService);
+	// 	return null;
+	// }
 
 	@Bean
 	public RedisListenerService setUpredisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {

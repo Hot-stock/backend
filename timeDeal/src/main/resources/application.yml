@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: true
@@ -20,9 +20,9 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: debug
+    org.hibernate.SQL: info
     org.springframework.web: error
-    com.bjcareer.stockservice.timeDeal: info
+    com.bjcareer.stockservice.timeDeal: debug
 
 management:
   endpoints:

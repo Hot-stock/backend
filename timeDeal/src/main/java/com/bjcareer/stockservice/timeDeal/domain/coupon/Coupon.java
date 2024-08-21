@@ -15,7 +15,8 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Coupon {
     @Id
-    String id = KsuidGenerator.generate();
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
 
     @Column(unique = true, nullable = false)
     private UUID couponNumber;
