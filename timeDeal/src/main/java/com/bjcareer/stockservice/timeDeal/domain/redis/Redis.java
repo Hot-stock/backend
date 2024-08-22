@@ -20,17 +20,11 @@ public class Redis {
 	private static final long WAIT_TIME = 1L;
 	private static final long LEASE_TIME = 1L;
 
-	public boolean acquireLock(String key) {
+	public boolean acquireLock(String key) throws InterruptedException {
 		log.debug("Requesting lock acquisition for key: {}", key);
 		RLock lock = client.getLock(key);
 		boolean acquired = false;
-
-		try {
-			acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MINUTES);
-		} catch (InterruptedException e) {
-			log.error("Failed to acquire lock: {}", e.getMessage());
-		}
-
+		acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MINUTES);
 		log.debug("Lock acquisition result for key {}: {}", key, acquired);
 		return acquired;
 	}
