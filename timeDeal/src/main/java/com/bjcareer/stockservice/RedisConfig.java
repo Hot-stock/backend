@@ -1,19 +1,12 @@
 package com.bjcareer.stockservice;
 
-import org.redisson.api.RScoredSortedSet;
-import org.redisson.api.RSortedSet;
 import org.redisson.config.MasterSlaveServersConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
-import org.redisson.api.RPatternTopic;
-import org.springframework.data.util.Pair;
-
-import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.listener.RedisListenerService;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
@@ -49,7 +42,7 @@ public class RedisConfig {
 		masterSlaveServersConfig.addSlaveAddress(redisSlaveAddress);
 
 		masterSlaveServersConfig.setMasterConnectionMinimumIdleSize(70);
-		masterSlaveServersConfig.setSlaveConnectionMinimumIdleSize(80);
+		masterSlaveServersConfig.setSlaveConnectionMinimumIdleSize(70);
 		masterSlaveServersConfig.setSlaveConnectionPoolSize(70);
 		masterSlaveServersConfig.setMasterConnectionPoolSize(70);
 
@@ -58,14 +51,6 @@ public class RedisConfig {
 
 		return Redisson.create(config);
 	}
-
-	// @Bean
-	// public Object setupKeyExpirationListener(RedissonClient redissonClient, RedisListenerService listenerService) {
-	// 	String patternTopic = String.format("__keyevent@%d__:expired", redisDatabase);
-	// 	RPatternTopic topic = redissonClient.getPatternTopic(patternTopic, StringCodec.INSTANCE);
-	// 	topic.addListener(String.class, listenerService);
-	// 	return null;
-	// }
 
 	@Bean
 	public RedisListenerService setUpredisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {

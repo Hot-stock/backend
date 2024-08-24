@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.redisson.api.RScoredSortedSet;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
+import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
+import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CronQueueService {
 
-	public static final int INITIAL_CAPACITY = 1000;
+	private static final int INITIAL_CAPACITY = 1000;
+	private final RedisQueue redisQueue;
 	private final Redis redis;
 	private final TimeDealService timeDealService;
 
@@ -31,50 +35,70 @@ public class CronQueueService {
 		String key = redis.getSingleKeyUsingScan(TimeDealService.QUEUE_NAME + "*");
 
 		if (key == null) {
+			log.debug("No matching queue found.");
 			return;
 		}
 
-		RScoredSortedSet<String> pq = redis.getScoredSortedSet(key);
-		Map<String, Double> participationScores = new HashMap<>(INITIAL_CAPACITY);
+		Map<String, Double> participations = extractParticipationFromPQ(key);
+		redisQueue.removeCacheScoredSortedSetIfInNodata(key);
 
-		// RScoredSortedSet에서 데이터를 가져와서 Map에 저장
-		for (int i = 0; i < INITIAL_CAPACITY; i++) {
-			Double score = pq.firstScore();
-			String client = pq.pollFirst();
-			if (client == null) {
-				redis.removeCacheScoredSortedSet(key);
-				break; // 더 이상 요소가 없으면 루프를 종료합니다.
-			}
-			participationScores.put(client, score);
-		}
+		Long eventId = extractEventIdFromKey(key);
+		Optional<Integer> excessCoupons = updateEventStatus(eventId, participations, key);
 
-		Long eventId = extractedEventID(key);
-		int excessCoupons = 0;
-		try {
-			excessCoupons = timeDealService.updateEventStatus(eventId, participationScores.size());
-		} catch (IllegalStateException e) {
-			log.error(e.getMessage());
-			restorePQ(participationScores, pq);
-		}catch (InvalidEventException e){
-			log.error(e.getMessage());
+		if (excessCoupons.isEmpty()) {
 			return;
 		}
 
-		List<String> validParticipants =  new ArrayList<>(participationScores.keySet());
-		if (excessCoupons > 0) {
-			int validParticipantsCount = participationScores.size() - excessCoupons;
-			validParticipants = validParticipants.subList(0, validParticipantsCount);
-		}
-
+		List<String> validParticipants = calculateValidCouponParticipants(participations, excessCoupons.get());
 		timeDealService.bulkGenerateCoupon(eventId, validParticipants);
 	}
 
-	private void restorePQ(Map<String, Double> participationScores, RScoredSortedSet<String> pq) {
-		participationScores.keySet().forEach(client -> pq.add(participationScores.get(client), client));
+	private Map<String, Double> extractParticipationFromPQ(String key) {
+		Map<String, Double> participations = new HashMap<>(INITIAL_CAPACITY);
+
+		for (int i = 0; i < INITIAL_CAPACITY; i++) {
+			ParticipationVO participationVO = redisQueue.getClientInfoUsingBatch(key);
+
+			if (participationVO == null) {
+				break;
+			}
+			participations.put(participationVO.getClientId(), participationVO.getScore());
+		}
+
+		return participations;
 	}
 
-	private Long extractedEventID(String keysByPattern) {
-		String[] split = keysByPattern.split(":");
-		return Long.parseLong(split[2]);
+	private static List<String> calculateValidCouponParticipants(Map<String, Double> participations, Integer excessCoupons) {
+		List<String> validParticipants = new ArrayList<>(participations.keySet());
+
+		if (excessCoupons > 0) {
+			int validParticipantsCount = participations.size() - excessCoupons;
+			validParticipants = validParticipants.subList(0, validParticipantsCount);
+		}
+
+		return validParticipants;
+	}
+
+	private Optional<Integer> updateEventStatus(Long eventId, Map<String, Double> participations, String key) {
+		RScoredSortedSet<String> pq = redisQueue.getScoredSortedSet(key);
+
+		try {
+			return Optional.of(timeDealService.updateEventStatus(eventId, participations.size()));
+		} catch (InterruptedException | IllegalStateException e) {
+			log.error("Error updating event status: {}", e.getMessage(), e);
+			restoreParticipationQueue(participations, pq);
+		} catch (InvalidEventException e) {
+			log.error("Invalid event exception: {}", e.getMessage(), e);
+		}
+		return Optional.empty();
+	}
+
+	private void restoreParticipationQueue(Map<String, Double> participationScores, RScoredSortedSet<String> pq) {
+		participationScores.forEach((key,value) -> pq.add(value, key));
+	}
+
+	private Long extractEventIdFromKey(String key) {
+		String[] keyParts = key.split(":");
+		return Long.parseLong(keyParts[2]);
 	}
 }
