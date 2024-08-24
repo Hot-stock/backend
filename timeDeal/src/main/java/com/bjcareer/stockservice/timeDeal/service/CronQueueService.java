@@ -59,7 +59,7 @@ public class CronQueueService {
 		for (int i = 0; i < INITIAL_CAPACITY; i++) {
 			ParticipationVO participationVO = redisQueue.getClientInfoUsingBatch(key);
 
-			if (participationVO == null) {
+			if (participationVO == null || participationVO.getScore() == null) {
 				break;
 			}
 			participations.put(participationVO.getClientId(), participationVO.getScore());
