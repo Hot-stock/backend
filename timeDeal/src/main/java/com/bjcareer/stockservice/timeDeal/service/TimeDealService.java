@@ -2,11 +2,13 @@ package com.bjcareer.stockservice.timeDeal.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
@@ -14,7 +16,6 @@ import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.redisson.api.RScoredSortedSet;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class TimeDealService {
     private final CouponRepository couponRepository;
     private final EventRepository eventRepository;
     private final InMemoryEventRepository inMemoryEventRepository;
+    private final RedisQueue redisQueue;
     private final Redis redis;
 
     @Transactional
@@ -36,15 +38,13 @@ public class TimeDealService {
         return eventRepository.save(event);
     }
 
-    public int addParticipation(Long eventId, String userPK) {
-        long currentTimeMillis = System.currentTimeMillis();
-        RScoredSortedSet<String> participationQueue = redis.getScoredSortedSet(TimeDealService.QUEUE_NAME + eventId);
-        participationQueue.add(-currentTimeMillis, userPK);
-        return participationQueue.size();
+    public int addParticipation(Long eventId, String clientPK) {
+        String key = TimeDealService.QUEUE_NAME + eventId;
+		return redisQueue.addParticipation(key, clientPK);
     }
 
     @Transactional
-    public int updateEventStatus(Long eventId, int participationsSize) {
+    public int updateEventStatus(Long eventId, int participationsSize) throws InterruptedException {
         String lockKey = "EVENT:LOCK" + eventId;
 
         boolean isLockAcquired = redis.acquireLock(lockKey);
