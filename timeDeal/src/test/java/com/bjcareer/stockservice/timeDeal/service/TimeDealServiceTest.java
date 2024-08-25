@@ -19,6 +19,7 @@ import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
+import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
@@ -38,7 +39,7 @@ public class TimeDealServiceTest {
     private Redis redis;
 
     @Mock
-    private RedissonClient redisson;
+    private RedisQueue redisQueue;
 
     @InjectMocks
     private TimeDealService timeDealService;
@@ -46,7 +47,7 @@ public class TimeDealServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        timeDealService = new TimeDealService(couponRepository, eventRepository, inMemoryEventRepository, redis);
+        timeDealService = new TimeDealService(couponRepository, eventRepository, inMemoryEventRepository, redisQueue, redis);
     }
 
     @Test
@@ -79,7 +80,7 @@ public class TimeDealServiceTest {
         when(event.deliverCoupons(anyInt())).thenReturn(10);
 
         // Act
-        int excessParticipants = timeDealService.updateEventStatus(eventId, participationsSize);
+        int excessParticipants = timeDealService.updateDeliveryEventCoupon(eventId, participationsSize);
 
         // Assert
         assertEquals(10, excessParticipants);
@@ -110,7 +111,7 @@ public class TimeDealServiceTest {
         when(redis.acquireLock(anyString())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () -> timeDealService.updateEventStatus(eventId, participationsSize));
+        assertThrows(IllegalStateException.class, () -> timeDealService.updateDeliveryEventCoupon(eventId, participationsSize));
     }
 
     @Test
@@ -123,7 +124,7 @@ public class TimeDealServiceTest {
         when(eventRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(InvalidEventException.class, () -> timeDealService.updateEventStatus(eventId, participationsSize));
+        assertThrows(InvalidEventException.class, () -> timeDealService.updateDeliveryEventCoupon(eventId, participationsSize));
 
         verify(redis, times(1)).releaseLock(anyString());
     }

@@ -1,68 +1,62 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import java.util.concurrent.TimeUnit;
 
-import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.data.util.Pair;
+import org.redisson.api.RScoredSortedSet;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
+import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
+
+@SpringBootTest
 class CronQueueServiceTest {
-	@Mock
+	public static final String TEST_KEY = TimeDealService.REDIS_QUEUE_NAME + "987654321";
+	public static final String TEST_PARTICIPANT = TimeDealService.REDIS_PARTICIPANT_SET + "987654321";
+
+	@Autowired
 	private TimeDealService timeDealService;
+
+	@Autowired
+	private RedisQueue redisQueue;
+
+	@Autowired
+	private Redis redis;
+
+	@Autowired
 	private CronQueueService cronQueueService;
+
+	@Autowired
+	private RedissonClient client;
+
 
 	@BeforeEach
 	void setUp() {
-		CronQueueService.queueParticipation.clear();
-
-		timeDealService = Mockito.mock(TimeDealService.class);
-		cronQueueService = new CronQueueService(timeDealService);
+		cronQueueService = new CronQueueService(redisQueue, redis, timeDealService);
 	}
 
-	@Test
-	void testGetParticipationInQueue_WithLessThan30Items() {
-		// given
-		for (long i = 1; i <= 10; i++) {
-			CronQueueService.queueParticipation.add(Pair.of(i, "User" + i));
-		}
-
-		// when
-		cronQueueService.getParticipationInQueue();
-
-		// then
-		verify(timeDealService, times(10)).generateCouponToUser(anyLong(), anyString());
+	@AfterEach
+	void tearDown() {
+		client.getScoredSortedSet(TEST_KEY).clear();
+		client.getSet(TEST_PARTICIPANT).clear();
 	}
 
-	@Test
-	void testGetParticipationInQueue_WithMoreThan30Items() {
-		// given
-		for (long i = 1; i <= 50; i++) {
-			CronQueueService.queueParticipation.add(Pair.of(i, "User" + i));
-		}
-
-		// when
-		cronQueueService.getParticipationInQueue();
-
-		// then
-		verify(timeDealService, times(30)).generateCouponToUser(anyLong(), anyString());
-	}
 
 	@Test
-	void testGetParticipationInQueue_WithEmptyQueue() {
-		// given
-		// Queue is already empty
+	@Transactional
+	void 처음_신청한_유저인_경우_쿠폰을_발급_받을_수_있어야_함(){
+		String clientId = "1";
+		redisQueue.addParticipation(TEST_KEY, TEST_PARTICIPANT, clientId);
+		cronQueueService.processParticipationQueue();
 
-		// when
-		cronQueueService.getParticipationInQueue();
-
-		// then
-		verify(timeDealService, times(0)).generateCouponToUser(anyLong(), anyString());
+		RScoredSortedSet<Object> scoredSortedSet = client.getScoredSortedSet(TEST_KEY);
+		Assertions.assertEquals(0, scoredSortedSet.size());
+		Assertions.assertEquals(0, client.getSet(TEST_PARTICIPANT).size());
 	}
 }

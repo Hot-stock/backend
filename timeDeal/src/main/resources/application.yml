@@ -3,9 +3,9 @@ spring:
     name: timeDeal
 
   datasource:
-    url: jdbc:postgresql://223.130.142.94:5432/stock_service
-    username: timo
-    password: timo
+    url: changme
+    username: changme
+    password: changme
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -44,8 +44,8 @@ springdoc:
 
 redis:
   address:
-    master: "redis://223.130.142.94:6379"
-    slave:  "redis://223.130.142.94:6479"
+    master: "changme"
+    slave:  "changme"
   password: "changeme"
   database: 0
 

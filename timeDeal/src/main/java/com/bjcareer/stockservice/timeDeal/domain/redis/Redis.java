@@ -35,6 +35,7 @@ public class Redis {
 		try {
 			acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new RedisLockAcquisitionException(e.getMessage());
 		}
 		log.debug("Lock acquisition result for key {}: {}", key, acquired);
