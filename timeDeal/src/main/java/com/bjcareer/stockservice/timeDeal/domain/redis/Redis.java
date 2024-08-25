@@ -15,6 +15,8 @@ import org.redisson.api.RedissonClient;
 import org.redisson.api.TransactionOptions;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,11 +28,15 @@ public class Redis {
 	private static final long WAIT_TIME = 1L;
 	private static final long LEASE_TIME = 1L;
 
-	public boolean acquireLock(String key) throws InterruptedException {
+	public boolean acquireLock(String key) {
 		log.debug("Requesting lock acquisition for key: {}", key);
 		RLock lock = client.getLock(key);
 		boolean acquired = false;
-		acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MINUTES);
+		try {
+			acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			throw new RedisLockAcquisitionException(e.getMessage());
+		}
 		log.debug("Lock acquisition result for key {}: {}", key, acquired);
 		return acquired;
 	}

@@ -14,6 +14,7 @@ import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventExc
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
+import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,11 @@ public class CronQueueService {
 	private final Redis redis;
 	private final TimeDealService timeDealService;
 
-	@Scheduled(cron = "0/30 * * * * *")
+	@Scheduled(cron = "0/10 * * * * *")
 	public void processParticipationQueue() {
 		log.debug("Cron job started: processParticipationQueue");
 
-		String key = redis.getSingleKeyUsingScan(TimeDealService.QUEUE_NAME + "*");
+		String key = redis.getSingleKeyUsingScan(TimeDealService.REDIS_QUEUE_NAME + "*");
 
 		if (key == null) {
 			log.debug("No matching queue found.");
@@ -40,9 +41,9 @@ public class CronQueueService {
 		}
 
 		Map<String, Double> participations = extractParticipationFromPQ(key);
-		redisQueue.removeCacheScoredSortedSetIfInNodata(key);
-
 		Long eventId = extractEventIdFromKey(key);
+
+		timeDealService.validateEventParticipant(eventId, participations);
 		Optional<Integer> excessCoupons = updateEventStatus(eventId, participations, key);
 
 		if (excessCoupons.isEmpty()) {
@@ -51,6 +52,7 @@ public class CronQueueService {
 
 		List<String> validParticipants = calculateValidCouponParticipants(participations, excessCoupons.get());
 		timeDealService.bulkGenerateCoupon(eventId, validParticipants);
+		redisQueue.removeParticipation(key);
 	}
 
 	private Map<String, Double> extractParticipationFromPQ(String key) {
@@ -83,8 +85,8 @@ public class CronQueueService {
 		RScoredSortedSet<String> pq = redisQueue.getScoredSortedSet(key);
 
 		try {
-			return Optional.of(timeDealService.updateEventStatus(eventId, participations.size()));
-		} catch (InterruptedException | IllegalStateException e) {
+			return Optional.of(timeDealService.updateDeliveryEventCoupon(eventId, participations.size()));
+		} catch (RedisLockAcquisitionException e) {
 			log.error("Error updating event status: {}", e.getMessage(), e);
 			restoreParticipationQueue(participations, pq);
 		} catch (InvalidEventException e) {
