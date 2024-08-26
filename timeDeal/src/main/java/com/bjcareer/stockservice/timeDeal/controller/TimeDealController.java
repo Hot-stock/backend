@@ -1,6 +1,7 @@
 package com.bjcareer.stockservice.timeDeal.controller;
 
 
+import com.bjcareer.stockservice.timeDeal.controller.dto.TimeDealDTO;
 import com.bjcareer.stockservice.timeDeal.controller.dto.TimeDealDTO.*;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
@@ -37,10 +38,10 @@ public class TimeDealController {
     @PostMapping("tickets/{eventId}/{userId}")
     public ResponseEntity generateTimeDealTicket(@PathVariable("eventId") Long eventId, @PathVariable("userId") String userId){
         log.debug("User {} request coupon {}", userId, eventId);
-        Coupon coupon = timeDealService.generateCouponToUser(eventId, userId);
-        GenerateCouponResponse response = new GenerateCouponResponse(coupon);
+        int turn = timeDealService.addParticipation(eventId, userId);
+        GenerateCouponResponse response = new GenerateCouponResponse(userId, turn);
 
-        return new ResponseEntity(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
 

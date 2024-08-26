@@ -1,112 +1,131 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
-import com.bjcareer.stockservice.timeDeal.domain.RedisLock;
-import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
-import com.bjcareer.stockservice.timeDeal.domain.event.Event;
-import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
-import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
-import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
-import com.bjcareer.stockservice.timeDeal.domain.event.exception.CouponLimitExceededException;
-import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.redisson.api.RedissonClient;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
+import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
+import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
+import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
+import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
+import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
 
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+public class TimeDealServiceTest {
 
-@SpringBootTest
-class TimeDealServiceTest {
-    public static final int PUBLISHED_COUPON_NUM = 100;
-    public static final int DISCOUNT_PERCENTAGE = 50;
-    TimeDealService timeDealService;
-    EventRepository eventRepository;
-    CouponRepository couponRepository;
-    InMemoryEventRepository inMemoryEventRepository;
+    @Mock
+    private CouponRepository couponRepository;
 
-    @Autowired RedisLock redisLock;
+    @Mock
+    private EventRepository eventRepository;
+
+    @Mock
+    private InMemoryEventRepository inMemoryEventRepository;
+
+    @Mock
+    private Redis redis;
+
+    @Mock
+    private RedisQueue redisQueue;
+
+    @InjectMocks
+    private TimeDealService timeDealService;
 
     @BeforeEach
     void setUp() {
-        couponRepository = Mockito.mock(CouponRepository.class);
-        eventRepository = Mockito.mock(EventRepository.class);
-        inMemoryEventRepository = Mockito.mock(InMemoryEventRepository.class);
-
-        timeDealService = new TimeDealService(couponRepository, eventRepository, inMemoryEventRepository, redisLock);
+        MockitoAnnotations.initMocks(this);
+        timeDealService = new TimeDealService(couponRepository, eventRepository, inMemoryEventRepository, redisQueue, redis);
     }
 
     @Test
-    void createEvent_ShouldReturnSavedEvent() {
-        // When
-        Event event = new Event(TimeDealServiceTest.PUBLISHED_COUPON_NUM, TimeDealServiceTest.DISCOUNT_PERCENTAGE);
+    void createEvent_ShouldSaveEvent() {
+        // Arrange
+        int publishedCouponNum = 100;
+        int discountRate = 20;
+
+        Event event = new Event(publishedCouponNum, discountRate);
         when(eventRepository.save(any(Event.class))).thenReturn(event);
 
-        // given
-        Event result = timeDealService.createEvent(PUBLISHED_COUPON_NUM, DISCOUNT_PERCENTAGE);
+        // Act
+        Event createdEvent = timeDealService.createEvent(publishedCouponNum, discountRate);
 
-        // Then
-        assertNotNull(result);
-        assertEquals(PUBLISHED_COUPON_NUM, result.getPublishedCouponNum());
-        assertEquals(DISCOUNT_PERCENTAGE, result.getDiscountPercentage());
-
-        verify(eventRepository, times(1)).save(any(Event.class));
+        // Assert
+        assertNotNull(createdEvent);
+        assertEquals(publishedCouponNum, createdEvent.getPublishedCouponNum());
+        assertEquals(discountRate, createdEvent.getDiscountPercentage());
     }
 
     @Test
-    void 잘못된_이벤트Id로_쿠폰_발급을_요청하는_경우(){
-        Long InvaildEventId = -1L;
-        String userId = "testuser";
-        assertThrows(InvalidEventException.class , () -> timeDealService.generateCouponToUser(InvaildEventId, userId));
+    void updateEventStatus_ShouldUpdateEventAndReturnExcessParticipants() {
+        // Arrange
+        Long eventId = 1L;
+        int participationsSize = 50;
+        Event event = mock(Event.class);
+
+        when(redis.acquireLock(anyString())).thenReturn(true);
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
+        when(event.deliverCoupons(anyInt())).thenReturn(10);
+
+        // Act
+        int excessParticipants = timeDealService.updateDeliveryEventCoupon(eventId, participationsSize);
+
+        // Assert
+        assertEquals(10, excessParticipants);
     }
 
     @Test
-    void 티켓을_더이상_발급할_수_없는_상황일(){
-        Event eventMock = mock(Event.class);
+    void bulkGenerateCoupon_ShouldGenerateCouponsForClients() {
+        // Arrange
+        Long eventId = 1L;
+        List<String> clients = Arrays.asList("client1", "client2");
+        Event event = mock(Event.class);
 
-        when(eventMock.getId()).thenReturn(1L);
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(eventMock));
+        when(inMemoryEventRepository.findById(anyLong())).thenReturn(Optional.of(event));
 
-        assertThrows(CouponLimitExceededException.class , () -> timeDealService.generateCouponToUser(eventMock.getId(), "testUser"));
+        // Act
+        timeDealService.bulkGenerateCoupon(eventId, clients);
+
+        // Assert
+        verify(couponRepository, times(clients.size())).saveAsync(any(Coupon.class));
     }
 
     @Test
-    void 발급한_수보다_더_많은_사용자가_요청함() throws InterruptedException {
-        int TOTAL_REQUESTS = 4;
-        int TOTAL_COUPONS = 2;
-        AtomicInteger failCount = new AtomicInteger();
-        CountDownLatch latch = new CountDownLatch(TOTAL_REQUESTS);
-        ExecutorService executorService = Executors.newFixedThreadPool(TOTAL_REQUESTS);
+    void updateEventStatus_ShouldThrowException_WhenLockNotAcquired() {
+        // Arrange
+        Long eventId = 1L;
+        int participationsSize = 50;
 
-        Event eventMock = new Event(TOTAL_COUPONS, DISCOUNT_PERCENTAGE);
-        when(inMemoryEventRepository.findById(any())).thenReturn(Optional.of(eventMock));
+        when(redis.acquireLock(anyString())).thenReturn(false);
 
-        for (int i = 0; i < TOTAL_REQUESTS; i++) {
-            final String userId = "testuser" + i;
-            executorService.submit(() -> {
-                try {
-                    Coupon coupon = timeDealService.generateCouponToUser(eventMock.getId(), userId);
-                    assertNotNull(coupon);
-                } catch (CouponLimitExceededException e) {
-                    failCount.getAndIncrement();
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        latch.await(); // 모든 스레드가 종료될 때까지 대기
-        executorService.shutdown();
-        assertEquals(eventMock.getDeliveredCouponNum(), 2);
-        assertEquals(failCount.get(), TOTAL_REQUESTS - TOTAL_COUPONS);
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () -> timeDealService.updateDeliveryEventCoupon(eventId, participationsSize));
     }
 
+    @Test
+    void updateEventStatus_ShouldThrowException_WhenEventNotFound() {
+        // Arrange
+        Long eventId = 1L;
+        int participationsSize = 50;
+
+        when(redis.acquireLock(anyString())).thenReturn(true);
+        when(eventRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(InvalidEventException.class, () -> timeDealService.updateDeliveryEventCoupon(eventId, participationsSize));
+
+        verify(redis, times(1)).releaseLock(anyString());
+    }
 }

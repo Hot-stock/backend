@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
-import org.redisson.api.RPatternTopic;
-
 import com.bjcareer.stockservice.timeDeal.listener.RedisListenerService;
+import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
+import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
+import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
 
 @Configuration
 public class RedisConfig {
@@ -41,19 +41,21 @@ public class RedisConfig {
 		// 슬레이브 주소 설정
 		masterSlaveServersConfig.addSlaveAddress(redisSlaveAddress);
 
-		// SingleServerConfig singleServerConfig = config.useSingleServer();
-		// singleServerConfig.setAddress(redisMasterAddress);
-		// singleServerConfig.setPassword(redisPassword);
-		// singleServerConfig.setDatabase(redisDatabase);
+		masterSlaveServersConfig.setMasterConnectionMinimumIdleSize(70);
+		masterSlaveServersConfig.setSlaveConnectionMinimumIdleSize(70);
+		masterSlaveServersConfig.setSlaveConnectionPoolSize(70);
+		masterSlaveServersConfig.setMasterConnectionPoolSize(70);
+
+		masterSlaveServersConfig.setKeepAlive(true);
+
 
 		return Redisson.create(config);
 	}
 
 	@Bean
-	public Object setupKeyExpirationListener(RedissonClient redissonClient, RedisListenerService listenerService) {
-		String patternTopic = String.format("__keyevent@%d__:expired", redisDatabase);
-		RPatternTopic topic = redissonClient.getPatternTopic(patternTopic, StringCodec.INSTANCE);
-		topic.addListener(String.class, listenerService);
-		return null;
+	public RedisListenerService setUpredisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {
+		RedisListenerService redisListenerService = new RedisListenerService(memoryEventRepository, repository,
+			couponRepository);
+		return redisListenerService;
 	}
 }

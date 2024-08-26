@@ -1,7 +1,6 @@
 package com.bjcareer.stockservice.timeDeal.domain.coupon;
 
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
-import com.github.ksuid.KsuidGenerator;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,9 +12,13 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"event_id", "client_pk"})
+})
 public class Coupon {
     @Id
-    String id = KsuidGenerator.generate();
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
 
     @Column(unique = true, nullable = false)
     private UUID couponNumber;
@@ -29,6 +32,7 @@ public class Coupon {
     @JoinColumn(name = "event_id")
     private Event event;
 
+    @Column(name = "client_pk")
     private String userPK;
 
 

@@ -15,6 +15,6 @@ public class CustomCouponRepositoryImpl implements CustomCouponRepository {
 
 	@Override
 	public void saveAsync(Coupon coupon) {
-
+		em.persist(coupon);
 	}
 }

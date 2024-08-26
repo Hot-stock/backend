@@ -25,17 +25,15 @@ public class TimeDealDTO {
         int publishedCouponNumber;
     }
 
-
     @Data
-    public static class GenerateCouponResponse{
-        String userId;
-        UUID couponNumber;
-        Long eventId;
+    public static class GenerateCouponResponse {
+        private String userId;
+        private String message;
 
-        public GenerateCouponResponse(Coupon coupon) {
-            this.userId = coupon.getUserPK();
-            this.couponNumber = coupon.getCouponNumber();
-            this.eventId = coupon.getEvent().getId();
+        public GenerateCouponResponse(String userId, int i) {
+            this.userId = userId;
+            this.message = userId + "는 " + i + "번째로 신청했습니다.";
         }
     }
+
 }

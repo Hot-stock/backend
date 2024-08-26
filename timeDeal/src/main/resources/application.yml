@@ -2,12 +2,10 @@ spring:
   application:
     name: timeDeal
 
-
-
   datasource:
-    username: timo
-    password: timo
-    url: jdbc:postgresql://localhost:5432/stock_service
+    url: changme
+    username: changme
+    password: changme
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,23 +17,21 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.springframework.web: debug
+    org.hibernate.SQL: info
+    org.springframework.web: error
+    com.bjcareer.stockservice.timeDeal: debug
 
-#springdoc.swagger-ui.path=/docs
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-
-
   info:
     env:
       enabled: true
-
   endpoint:
     health:
       show-details: always
@@ -45,6 +41,13 @@ springdoc:
     path: /docs
   swagger-ui:
     path: /docs
+
+redis:
+  address:
+    master: "changme"
+    slave:  "changme"
+  password: "changeme"
+  database: 0
 
 server:
   tomcat:

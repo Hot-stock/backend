@@ -1,32 +1,40 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
-import com.bjcareer.stockservice.timeDeal.domain.RedisLock;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
-import com.bjcareer.stockservice.timeDeal.domain.event.exception.DuplicateParticipationException;
+import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
-import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TimeDealService {
-    private static final String LOCK_KEY_PREFIX = "EVENT_LOCK:";
+    public static final String REDIS_QUEUE_NAME = "EVENT:QUEUE:";
+    public static final String REDIS_PARTICIPANT_SET = "EVENT:PARTICIPANT:";
+
     private static final long ALIVE_MINUTE = 5L;
 
     private final CouponRepository couponRepository;
     private final EventRepository eventRepository;
     private final InMemoryEventRepository inMemoryEventRepository;
-    private final RedisLock redisLock;
+    private final RedisQueue redisQueue;
+    private final Redis redis;
 
     @Transactional
     public Event createEvent(int publishedCouponNum, int discountRate) {
@@ -34,56 +42,67 @@ public class TimeDealService {
         return eventRepository.save(event);
     }
 
+    public int addParticipation(Long eventId, String clientPK) {
+        String queueKey = TimeDealService.REDIS_QUEUE_NAME + eventId;
+        String eventParticipantSetKey = TimeDealService.REDIS_PARTICIPANT_SET + eventId;
+		return redisQueue.addParticipation(queueKey,  eventParticipantSetKey, clientPK) + 1;
+    }
+
     @Transactional
-    public Coupon generateCouponToUser(Long eventId, String userPK) {
-        String lockKey = LOCK_KEY_PREFIX + eventId;
-        redisLock.tryLock(lockKey);
+    public int updateDeliveryEventCoupon(Long eventId, int participationsSize) {
+        String lockKey = "EVENT:LOCK" + eventId;
+
+        boolean isLockAcquired = redis.acquireLock(lockKey);
+
+        if (!isLockAcquired) {
+            throw new RedisLockAcquisitionException("Unable to acquire lock for event update.");
+        }
 
         try {
-            Event event = loadEventToMemoryIfNotExists(eventId);
-            validateEvent(eventId, event);
-            validateDuplicateParticipation(event, userPK);
-            return createCoupon(event, userPK);
+            Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new InvalidEventException("Event not found for id: " + eventId));
+
+            int excessParticipants = event.deliverCoupons(participationsSize);
+
+            inMemoryEventRepository.save(event, ALIVE_MINUTE);
+            eventRepository.save(event);
+
+            return excessParticipants;
         } finally {
-            redisLock.releaselock(lockKey);
+            redis.releaseLock(lockKey);
         }
     }
 
-    private void validateEvent(Long eventId, Event event) {
-        try {
-            event.checkEventStatus();
-            event.incrementDeliveredCouponIfPossible();
-        } catch (Exception e) {
-            throw new InvalidEventException("Invalid event state: " + eventId);
+
+    public void validateEventParticipant(Long eventId, Map<String, Double> participations) {
+        Iterator<Map.Entry<String, Double>> iterator = participations.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<String, Double> entry = iterator.next();
+            Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId, entry.getKey());
+
+            if (byEventIdAndUserId.isPresent()) {
+                log.debug("이미 참여한 유저입니다. 더 이상 쿠폰을 발급할 수 없습니다");
+                iterator.remove();
+            }
         }
     }
 
-    private void validateDuplicateParticipation(Event event, String userPK) {
-        boolean isDuplicate = inMemoryEventRepository.findParticipant(event, userPK).isPresent() ||
-            couponRepository.findByEventIdAndUserId(event.getId(), userPK).isPresent();
+    public void bulkGenerateCoupon(Long eventId, List<String> clients) {
+        Event event = inMemoryEventRepository.findById(eventId)
+            .orElseThrow(() -> new InvalidEventException("Event not found in in-memory storage for id: " + eventId));
 
-        if (isDuplicate) {
-            throw new DuplicateParticipationException("User has already participated in this event.");
-        }
-    }
 
-    private Event loadEventToMemoryIfNotExists(Long eventId) {
-        return inMemoryEventRepository.findById(eventId)
-            .orElseGet(() -> loadEventDataToMemory(eventId));
-    }
+        clients.forEach(client -> {
+            Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId, client);
 
-    private Event loadEventDataToMemory(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new InvalidEventException("Invalid event ID provided: eventId " + eventId));
-        inMemoryEventRepository.save(event, ALIVE_MINUTE);
-        return event;
-    }
+            if (byEventIdAndUserId.isPresent()) {
+                log.debug("The user has already participated. No additional coupons can be issued");
+                return;
+            }
 
-    private Coupon createCoupon(Event event, String userPK) {
-        Coupon coupon = new Coupon(event, userPK);
-        couponRepository.save(coupon);
-        inMemoryEventRepository.saveCoupon(coupon, ALIVE_MINUTE);
-        inMemoryEventRepository.saveClient(event, ALIVE_MINUTE, userPK);
-        return coupon;
+            Coupon coupon = new Coupon(event, client);
+            couponRepository.save(coupon);
+        });
     }
 }

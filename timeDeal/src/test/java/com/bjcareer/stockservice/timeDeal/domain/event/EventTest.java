@@ -2,27 +2,39 @@ package com.bjcareer.stockservice.timeDeal.domain.event;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.bjcareer.stockservice.timeDeal.domain.event.exception.CouponLimitExceededException;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 
 class EventTest {
+
 	private Event event;
 
-	@Test
-	void shouldIncrementDeliveredCouponWhenPossible() {
+	@BeforeEach
+	void setUp() {
+		// Initialize event before each test
 		event = new Event(10, 15);
-		assertDoesNotThrow(event::incrementDeliveredCouponIfPossible, "Should not throw an exception when incrementing delivered coupon is possible");
-
-		event = new Event(0, 15);
-		assertThrows(CouponLimitExceededException.class, event::incrementDeliveredCouponIfPossible, "Should throw CouponLimitExceededException when no coupons are available");
 	}
 
 	@Test
-	void shouldThrowExceptionWhenEventIsClosedAndCheckStatusIsCalled() {
-		event = new Event(10, 15);
-		event.closeEvent();
-		assertThrows(InvalidEventException.class, event::checkEventStatus, "Should throw InvalidEventException when event is closed and status is checked");
+	void shouldReturnExceededCouponCountAndChangeStatusWhenCouponsExceeded() {
+		int deliveryCoupon = 15;
+
+		// Request to deliver more coupons than available
+		int exceededCouponSize = event.deliverCoupons(deliveryCoupon);
+
+		// Verify the number of exceeded coupons and the event status
+		assertEquals(deliveryCoupon - event.getPublishedCouponNum(), exceededCouponSize);
+		assertEquals(EventStatus.CLOSED, event.getStatus());
+	}
+
+	@Test
+	void shouldThrowExceptionWhenValidatingEventStatusAfterClosure() {
+		// Deliver all available coupons, causing the event to close
+		event.deliverCoupons(100);
+
+		// Verify that an exception is thrown when validating the status of a closed event
+		assertThrows(InvalidEventException.class, event::validateEventStatus, "Should throw InvalidEventException when event is closed and status is checked");
 	}
 }

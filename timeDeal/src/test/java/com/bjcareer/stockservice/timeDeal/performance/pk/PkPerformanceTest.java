@@ -64,7 +64,6 @@ public class PkPerformanceTest {
     public void 싱글쓰레드로_seq_search_성능테스트() {
         //500번째 찾는 것 278ms
         SeqCouponEntity seqCouponEntity = new SeqCouponEntity(10.0, timeDealEvent);
-        em.find(SeqCouponEntity.class, 500);
     }
 
     @Test

@@ -10,24 +10,22 @@ import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
 
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-@Service
 @Slf4j
-@Transactional
-@NoArgsConstructor
 public class RedisListenerService implements PatternMessageListener<String> {
 	private static final String BACKUP_SUFFIX = InMemoryEventRepository.BACKUP;
 
-	private InMemoryEventRepository memoryEventRepository;
-	private EventRepository eventRepository;
-	private CouponRepository couponRepository;
-	private Map<String, BackupHandler<?>> backupHandlers;
+	private final InMemoryEventRepository memoryEventRepository;
+	private final EventRepository eventRepository;
+	private final CouponRepository couponRepository;
+	private final Map<String, BackupHandler<?>> backupHandlers;
 
 	public RedisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository eventRepository,
 		CouponRepository couponRepository) {
@@ -42,13 +40,14 @@ public class RedisListenerService implements PatternMessageListener<String> {
 	}
 
 	@Override
+	@Transactional
 	public void onMessage(CharSequence pattern, CharSequence channel, String key) {
 		log.info("Received message on pattern: {}, channel: {}, key: {}", pattern, channel, key);
 
 		String[] split = key.split(":");
 		String backupKey = key + BACKUP_SUFFIX;
 
-		BackupHandler<?> handler = backupHandlers.get(split[0]);
+		BackupHandler<?> handler = backupHandlers.get(split[0] + ":");
 		if (handler != null) {
 			handleBackup(backupKey, handler);
 		} else {
@@ -67,16 +66,14 @@ public class RedisListenerService implements PatternMessageListener<String> {
 		);
 	}
 
+	@Getter
 	private static class BackupHandler<T> {
 		private final Class<T> type;
 		private final Consumer<T> saveFunction;
 
-		BackupHandler(Class<T> type, Consumer<T> saveFunction) {
+		public BackupHandler(Class<T> type, Consumer<T> saveFunction) {
 			this.type = type;
 			this.saveFunction = saveFunction;
-		}
-		public Class<T> getType() {
-			return type;
 		}
 
 		public void save(T entity) {
