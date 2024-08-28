@@ -14,17 +14,19 @@ import com.bjcareer.payment.payment.adapter.in.request.CheckoutRequest;
 import com.bjcareer.payment.payment.adapter.in.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v0")
+@Slf4j
 public class CheckoutController {
 	private final CheckoutUsecase checkoutUsecase;
 
 	@PostMapping("/checkout")
 	public Mono<ResponseEntity<ApiResponse>> checkout(@RequestBody CheckoutRequest checkoutRequest){
-		System.out.println("checkoutRequest = " + checkoutRequest);
+		log.debug("checkoutRequest = " + checkoutRequest);
 		CheckoutCommand checkoutCommand = new CheckoutCommand(checkoutRequest.getCartId(), checkoutRequest.getBuyerPk(),
 			checkoutRequest.getProductIds(), checkoutRequest.getCouponIds());
 
