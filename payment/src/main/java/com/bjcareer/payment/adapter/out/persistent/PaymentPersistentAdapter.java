@@ -1,17 +1,19 @@
-package com.bjcareer.payment.payment.adapter.out.persistent;
+package com.bjcareer.payment.adapter.out.persistent;
 
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
-import com.bjcareer.payment.payment.adapter.application.port.domain.entity.coupon.PaymentCoupon;
-import com.bjcareer.payment.payment.adapter.application.port.domain.entity.event.PaymentEvent;
-import com.bjcareer.payment.payment.adapter.application.port.domain.entity.order.PaymentOrder;
-import com.bjcareer.payment.payment.adapter.application.port.out.SavePaymentPort;
-import com.bjcareer.payment.payment.adapter.out.persistent.repository.PaymentCouponRepository;
-import com.bjcareer.payment.payment.adapter.out.persistent.repository.PaymentEventRepository;
-import com.bjcareer.payment.payment.adapter.out.persistent.repository.PaymentOrderRepository;
+import com.bjcareer.payment.adapter.out.persistent.repository.PaymentCouponRepository;
+import com.bjcareer.payment.adapter.out.persistent.repository.PaymentOrderRepository;
+import com.bjcareer.payment.adapter.out.persistent.repository.PaymentValidationRepository;
+import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
+import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
+import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
+import com.bjcareer.payment.application.port.out.PaymentValidationPort;
+import com.bjcareer.payment.application.port.out.SavePaymentPort;
+import com.bjcareer.payment.adapter.out.persistent.repository.PaymentEventRepository;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -19,7 +21,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @RequiredArgsConstructor
-public class PaymentPersistentAdapter implements SavePaymentPort {
+public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidationPort {
 
 	private final PaymentEventRepository paymentRepository;
 	private final PaymentOrderRepository paymentOrderRepository;
@@ -49,7 +51,7 @@ public class PaymentPersistentAdapter implements SavePaymentPort {
 				).flatMap(tuple -> {
 					List<PaymentOrder> t1 = tuple.getT1();
 					List<PaymentCoupon> t2 = tuple.getT2();
-					PaymentEvent paymentEvent = new PaymentEvent(it.getId(), it.getBuyerId(), it.getOrderId(), t1, t2);
+					PaymentEvent paymentEvent = new PaymentEvent(it.getId(), it.getBuyerId(), it.getOrderId(), it.getPaymentKey(), t1, t2);
 					return Mono.just(paymentEvent);
 				})
 			);
@@ -69,6 +71,26 @@ public class PaymentPersistentAdapter implements SavePaymentPort {
 			.then();
 	}
 
+	@Override
+	public Mono<Boolean> isVaild(String orderId, Long totalAmount) {
+		Mono<PaymentEvent> paymentEventMono = paymentEventRepository.findByOrderId(orderId)
+			.doOnNext(event -> System.out.println("Fetched PaymentEvent: " + event));
+
+		return paymentEventMono
+			.flatMap(it -> findById(it.getId())
+				.doOnNext(event -> {
+					System.out.println("Fetched PaymentEvent by ID: " + event);
+					System.out.println("Total amount in event: " + event.getTotalAmount());
+					System.out.println("Expected total amount: " + totalAmount);
+				})
+				.flatMap(event -> {
+					boolean isValid = event.getTotalAmount().equals(totalAmount);
+					System.out.println("Is valid: " + isValid);
+					return Mono.just(isValid);
+				})
+			);
+	}
+
 	private Mono<Void> saveCoupons(PaymentEvent paymentEvent) {
 		return Flux.fromIterable(paymentEvent.getCoupons())
 			.flatMap(coupon -> {
@@ -77,5 +99,7 @@ public class PaymentPersistentAdapter implements SavePaymentPort {
 			})
 			.then();
 	}
+
+
 
 }

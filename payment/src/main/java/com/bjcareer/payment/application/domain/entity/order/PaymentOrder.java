@@ -1,4 +1,4 @@
-package com.bjcareer.payment.payment.adapter.application.port.domain.entity.order;
+package com.bjcareer.payment.application.domain.entity.order;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -26,6 +26,9 @@ public class PaymentOrder {
 	@Column("product_id")
 	private Long productId;
 
+	@Column("amount")
+	private int amount;
+
 	@Column("payment_order_status")
 	private PaymentStatus paymentStatus;
 
@@ -47,8 +50,9 @@ public class PaymentOrder {
 	@Column("updated_at")
 	private LocalDateTime updatedAt;
 
-	public PaymentOrder(Long productId) {
+	public PaymentOrder(Long productId, int amount) {
 		this.productId = productId;
+		this.amount = amount;
 
 		this.paymentStatus = PaymentStatus.NOT_STARTED;
 		this.ledgerUpdate = false;
@@ -61,6 +65,38 @@ public class PaymentOrder {
 
 	public void assignRelatedPaymentEventId(Long id){
 		this.paymentEventId = id;
+	}
+
+	public void executePayment(){
+		if (isFinished()) {
+			return;
+		}
+
+		this.paymentStatus = PaymentStatus.EXECUTING;
+	}
+
+	public void executeSuccess(){
+		this.paymentStatus = PaymentStatus.SUCCESS;
+	}
+
+	public void executeFailure(){
+		this.paymentStatus = PaymentStatus.FAILURE;
+	}
+
+	public void executeUnknown(){
+		this.paymentStatus = PaymentStatus.UNKNOWN;
+	}
+
+	public void updateApprovedAt(LocalDateTime approvedAt){
+		this.updatedAt = approvedAt;
+	}
+
+	private boolean isFinished(){
+		if (this.paymentStatus == PaymentStatus.SUCCESS || this.paymentStatus == PaymentStatus.FAILURE) {
+			return true;
+		}
+
+		return false;
 	}
 
 }

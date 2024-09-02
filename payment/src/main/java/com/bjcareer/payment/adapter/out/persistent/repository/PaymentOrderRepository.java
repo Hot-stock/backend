@@ -1,10 +1,8 @@
-package com.bjcareer.payment.payment.adapter.out.persistent.repository;
-
-import java.util.Queue;
+package com.bjcareer.payment.adapter.out.persistent.repository;
 
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import com.bjcareer.payment.payment.adapter.application.port.domain.entity.order.PaymentOrder;
+import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 
 import reactor.core.publisher.Flux;
 

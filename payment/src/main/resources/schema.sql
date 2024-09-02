@@ -2,7 +2,8 @@ CREATE TABLE payment_event (
            payment_event_id BIGSERIAL PRIMARY KEY,
            buyer_id VARCHAR(255),
            order_id VARCHAR(255) NOT NULL unique,
-           payment_key VARCHAR(255) NOT NULL,
+           payment_key VARCHAR(255),
+           payment_method VARCHAR(255),
            is_payment_done BOOLEAN NOT NULL,
            created_at TIMESTAMP NOT NULL,
            updated_at TIMESTAMP NOT NULL
@@ -18,13 +19,14 @@ CREATE TABLE payment_order (
            wallet_update BOOLEAN NOT NULL,
            fail_count INT NOT NULL,
            threshold INT NOT NULL,
+           amount INT NOT NULL,
            create_at TIMESTAMP NOT NULL,
            updated_at TIMESTAMP NOT NULL,
            FOREIGN KEY (payment_event_id) REFERENCES payment_event(payment_event_id) ON DELETE CASCADE
 );
 
 CREATE TABLE payment_order_history (
-       payment_order_history_id SERIAL PRIMARY KEY,
+       payment_order_history_id BIGSERIAL PRIMARY KEY,
        payment_order_id BIGINT NOT NULL,
        previous_status VARCHAR(50),
        new_status VARCHAR(50),
