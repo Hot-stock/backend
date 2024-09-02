@@ -41,6 +41,7 @@ public class CheckoutService implements CheckoutUsecase {
 			if(isUniqueConstraintViolation(e)){
 				return new DuplicatedCheckout("진행중인 결제건이 있습니다.");
 			}
+			System.out.println("e = " + e);
 			return new CheckoutFailedException("Checkout failed due to a database error.", e);
 		});
 	}
@@ -62,7 +63,7 @@ public class CheckoutService implements CheckoutUsecase {
 	}
 
 	private PaymentOrder toPaymentOrder(Product product) {
-		return new PaymentOrder(product.getId());
+		return new PaymentOrder(product.getId(), product.getPrice());
 	}
 
 	private Mono<CheckoutResult> toCheckoutResult(PaymentEvent paymentEvent) {

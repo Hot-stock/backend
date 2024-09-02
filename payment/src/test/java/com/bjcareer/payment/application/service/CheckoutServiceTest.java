@@ -1,9 +1,10 @@
-package com.bjcareer.payment.payment.adapter.application.service;
+package com.bjcareer.payment.application.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.mockito.MockitoAnnotations;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +20,12 @@ import com.bjcareer.payment.application.port.in.CheckoutCommand;
 import com.bjcareer.payment.application.port.out.LoadCouponPort;
 import com.bjcareer.payment.application.port.out.LoadProductPort;
 import com.bjcareer.payment.application.port.out.SavePaymentPort;
-import com.bjcareer.payment.application.service.CheckoutService;
 
 import reactor.core.publisher.Mono;
 
 class CheckoutServiceTest {
 	public static final long ID = 1L;
+	public static final int AMOUNT = 100;
 	public static final int PERCENTAGE = 20;
 	public static final String TEST_BUYER = "test_buyer";
 	@Mock private LoadProductPort loadProductPort;
@@ -38,11 +39,12 @@ class CheckoutServiceTest {
 		checkoutUsecase = new CheckoutService(loadProductPort, loadCouponPort, savePaymentPort);
 	}
 
+
 	@Test
 	void PaymentEvent를_orderId를_받아올_수_있는지_테스트함(){
 
 		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-		List<PaymentOrder> paymentOrder = List.of(new PaymentOrder(ID));
+		List<PaymentOrder> paymentOrder = List.of(new PaymentOrder(ID, AMOUNT));
 		CheckoutCommand checkoutCommand = new CheckoutCommand(ID, TEST_BUYER, List.of(ID), List.of(ID));
 
 		PaymentEvent paymentEvent = new PaymentEvent(ID, TEST_BUYER, checkoutCommand.getIdempotenceKey(), paymentOrder, paymentCoupons);
@@ -59,7 +61,7 @@ class CheckoutServiceTest {
 	void PaymentEvent는_반듯이_한번만_성공해야함(){
 
 		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-		List<PaymentOrder> paymentOrder = List.of(new PaymentOrder(ID));
+		List<PaymentOrder> paymentOrder = List.of(new PaymentOrder(ID, AMOUNT));
 		CheckoutCommand checkoutCommand = new CheckoutCommand(ID, TEST_BUYER, List.of(ID), List.of(ID));
 
 		PaymentEvent paymentEvent = new PaymentEvent(ID, TEST_BUYER, checkoutCommand.getIdempotenceKey(), paymentOrder, paymentCoupons);

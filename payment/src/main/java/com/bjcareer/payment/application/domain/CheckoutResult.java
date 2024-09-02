@@ -11,7 +11,7 @@ public class CheckoutResult {
 	private final String buyerId;
 	private final String orderName;
 
-	public CheckoutResult(int amount, String orderId, String buyerId, String orderName) {
+	public CheckoutResult(Long amount, String orderId, String buyerId, String orderName) {
 		this.amount = String.valueOf(amount);
 		this.orderName = orderName;
 		this.orderId = orderId;
