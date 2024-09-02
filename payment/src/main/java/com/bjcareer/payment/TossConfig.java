@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Getter;
 
 @Getter
-@ConfigurationProperties("psp.toss")
+@ConfigurationProperties("toss")
 public class TossConfig {
 	private String url;
 	private String clientKey;
