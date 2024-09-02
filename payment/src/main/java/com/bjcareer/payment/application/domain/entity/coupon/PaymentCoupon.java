@@ -1,4 +1,4 @@
-package com.bjcareer.payment.payment.adapter.application.port.domain.entity.coupon;
+package com.bjcareer.payment.application.domain.entity.coupon;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
