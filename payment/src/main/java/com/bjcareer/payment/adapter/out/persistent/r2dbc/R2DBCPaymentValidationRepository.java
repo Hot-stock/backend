@@ -15,8 +15,8 @@ public class R2DBCPaymentValidationRepository implements PaymentValidationReposi
 	private final PaymentEventRepository paymentEventRepository;
 
 	@Override
-	public Mono<Boolean> isValid(String orderId, Long amount) {
-		Mono<PaymentEvent> byOrderId = paymentEventRepository.findByOrderId(orderId);
+	public Mono<Boolean> isValid(String checkoutId, Long amount) {
+		Mono<PaymentEvent> byOrderId = paymentEventRepository.findByCheckoutId(checkoutId);
 		return byOrderId.flatMap(it -> Mono.just(it.getTotalAmount().equals(amount)));
 	}
 }

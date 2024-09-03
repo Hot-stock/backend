@@ -45,7 +45,6 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 	@Override
 	public Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command) {
 		if (command.getStatus() == PaymentStatus.SUCCESS){
-			System.out.println("\"진입 시도 폭동\" = " + "진입 시도 폭동");
 			return updatePaymentStatus(command, PAYMENT_CONFIRM_SUCCESS);
 		} else if (command.getStatus() == PaymentStatus.FAILURE) {
 			return updatePaymentStatus(command, PAYMENT_CONFIRM_FAILURE);

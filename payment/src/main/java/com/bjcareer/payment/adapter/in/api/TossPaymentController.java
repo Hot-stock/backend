@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.payment.adapter.in.request.TossPaymentConfirmRequest;
 import com.bjcareer.payment.application.port.in.PaymentConfirmCommand;
@@ -15,7 +16,7 @@ import com.bjcareer.payment.adapter.in.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Controller
+@RestController
 @RequestMapping("/api/v0/payment")
 @RequiredArgsConstructor
 public class TossPaymentController {
