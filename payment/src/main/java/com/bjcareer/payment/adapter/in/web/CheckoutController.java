@@ -41,7 +41,6 @@ public class CheckoutController {
 
 	@PostMapping("/checkout")
 	public Mono<String> checkout(@RequestBody CheckoutRequest checkoutRequest, RedirectAttributes redirectAttributes){
-		log.debug("checkoutRequest = " + checkoutRequest);
 		CheckoutCommand checkoutCommand = new CheckoutCommand(checkoutRequest.getCartId(), checkoutRequest.getBuyerPk(),
 			checkoutRequest.getProductIds(), checkoutRequest.getCouponIds());
 

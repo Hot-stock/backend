@@ -5,6 +5,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,6 +26,9 @@ public class PaymentOrder {
 
 	@Column("product_id")
 	private Long productId;
+
+	@Column("order_id")
+	private String orderId;
 
 	@Column("amount")
 	private int amount;
@@ -53,6 +57,7 @@ public class PaymentOrder {
 	public PaymentOrder(Long productId, int amount) {
 		this.productId = productId;
 		this.amount = amount;
+		this.orderId = UUID.randomUUID().toString();
 
 		this.paymentStatus = PaymentStatus.NOT_STARTED;
 		this.ledgerUpdate = false;

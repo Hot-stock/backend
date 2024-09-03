@@ -15,6 +15,7 @@ import com.bjcareer.payment.application.port.in.ValidationCheckoutCommand;
 import com.bjcareer.payment.application.port.out.LoadCouponPort;
 import com.bjcareer.payment.application.port.out.LoadPaymentPort;
 import com.bjcareer.payment.application.port.out.SavePaymentPort;
+import com.bjcareer.payment.application.service.exceptions.AuthenticationFailureException;
 import com.bjcareer.payment.application.service.exceptions.CheckoutFailedException;
 import com.bjcareer.payment.application.service.exceptions.DuplicatedCheckout;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
@@ -55,7 +56,7 @@ public class CheckoutService implements CheckoutUsecase {
 				if (checkoutCommand.getBuyerPK().equals(it.getBuyerId())) {
 					return Mono.just(new CheckoutResult(it.getTotalAmount(), it.getCheckoutId(), it.getBuyerId(), MOCK_ORDER_NAME));
 				}
-				throw new RuntimeException("인가되지 않은 사용자가 요청을 진행");
+				throw new AuthenticationFailureException(String.format("Checkout 주인인 %s 와 요청한 %s가 다릅니다", it.getBuyerId(), checkoutCommand.getBuyerPK()));
 			});
 	}
 

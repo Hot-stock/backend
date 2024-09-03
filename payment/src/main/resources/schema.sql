@@ -14,6 +14,7 @@ CREATE TABLE payment_order (
            payment_order_id BIGSERIAL PRIMARY KEY,
            payment_event_id BIGINT NOT NULL,
            product_id BIGINT NOT NULL,
+           order_id VARCHAR(50) NOT NULL unique,
            payment_order_status VARCHAR(50) NOT NULL,
            ledger_update BOOLEAN NOT NULL,
            wallet_update BOOLEAN NOT NULL,

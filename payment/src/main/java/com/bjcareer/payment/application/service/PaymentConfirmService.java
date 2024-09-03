@@ -35,7 +35,7 @@ public class PaymentConfirmService implements PaymentConfirmUsecase {
 	}
 
 	private Mono<Boolean> validatePayment(PaymentConfirmCommand command) {
-		return paymentValidationPort.isVaild(command.getOrderId(), command.getAmount())
+		return paymentValidationPort.isVaild(command.getCheckoutId(), command.getAmount())
 			.doOnNext(valid -> System.out.println("valid = " + valid));
 	}
 
@@ -46,8 +46,8 @@ public class PaymentConfirmService implements PaymentConfirmUsecase {
 	}
 
 	private Mono<PaymentConfirmResult> updatePaymentStatusToExecuting(PaymentConfirmCommand command) {
-		return paymentStatusUpdatePort.updatePaymentStatusToExecuting(command.getOrderId(), command.getPaymentKey())
-			.thenReturn(new PaymentConfirmResult(command.getPaymentKey(), command.getOrderId(), command.getAmount()));
+		return paymentStatusUpdatePort.updatePaymentStatusToExecuting(command.getCheckoutId(), command.getPaymentKey())
+			.thenReturn(new PaymentConfirmResult(command.getPaymentKey(), command.getCheckoutId(), command.getAmount()));
 	}
 
 	private Mono<PaymentExecutionResult> executePayment(PaymentConfirmResult confirmResult) {
@@ -56,7 +56,7 @@ public class PaymentConfirmService implements PaymentConfirmUsecase {
 
 	private Mono<PaymentExecutionResult> finalizePaymentStatus(PaymentExecutionResult executionResult) {
 		return paymentStatusUpdatePort.updatePaymentStatus(
-				new PaymentStatusUpdateCommand(executionResult.getOrderId(), executionResult.getStatus(), executionResult.getApprovedAt()))
+				new PaymentStatusUpdateCommand(executionResult.getCheckoutId(), executionResult.getStatus(), executionResult.getApprovedAt()))
 			.thenReturn(executionResult);
 	}
 }

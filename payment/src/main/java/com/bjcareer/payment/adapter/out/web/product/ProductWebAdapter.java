@@ -10,7 +10,7 @@ import com.bjcareer.payment.application.port.out.LoadProductPort;
 
 @Component
 public class ProductWebAdapter implements LoadProductPort {
-	public static final int MOCK_PRICE = 1;
+	public static final int MOCK_PRICE = 2000;
 
 	@Override
 	public List<Product> getProducts(List<Long> productIds) {
