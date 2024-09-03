@@ -62,8 +62,8 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 	}
 
 	@Override
-	public Mono<Boolean> isVaild(String orderId, Long totalAmount) {
-		Mono<PaymentEvent> paymentEventMono = paymentEventRepository.findByCheckoutId(orderId)
+	public Mono<Boolean> isVaild(String checkoutId, Long totalAmount) {
+		Mono<PaymentEvent> paymentEventMono = paymentEventRepository.findByCheckoutId(checkoutId)
 			.doOnNext(event -> System.out.println("Fetched PaymentEvent: " + event));
 
 		return paymentEventMono

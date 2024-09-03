@@ -16,19 +16,13 @@ import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 import com.bjcareer.payment.adapter.out.persistent.PaymentPersistentAdapter;
+import com.bjcareer.payment.helper.HelperPayment;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SpringBootTest
 class PaymentPersistentAdapterTest {
-	long PRODUCT_ID = 1L;
-	long COUPON_ID = 1L;
-	String BUYER_ID = "USER_1";
-	int AMOUNT = 2000;
-	int PERCENTAGE = 20;
-
-	String CHECKOUT_ID = UUID.randomUUID().toString();
 
 	@Autowired
 	PaymentPersistentAdapter paymentPersistentAdapter;
@@ -36,14 +30,9 @@ class PaymentPersistentAdapterTest {
 
 	@BeforeEach
 	void setUp() {
-		PaymentOrder paymentOrder = new PaymentOrder(PRODUCT_ID, AMOUNT);
-		PaymentCoupon paymentCoupon = new PaymentCoupon(COUPON_ID, PERCENTAGE);
-		paymentEvent = new PaymentEvent(BUYER_ID, CHECKOUT_ID, List.of(paymentOrder), List.of(paymentCoupon));
-
-		// Act: 실제로 저장 메서드를 호출하고 결과를 얻습니다.
+		paymentEvent = HelperPayment.createPayment();
 		Mono<PaymentEvent> save = paymentPersistentAdapter.save(paymentEvent);
 		paymentEvent = save.block();
-
 	}
 
 	@AfterEach
@@ -53,23 +42,20 @@ class PaymentPersistentAdapterTest {
 	}
 
 	@Test
-	void Payment_이벤트_객체를_단건_저장() {
-		int percentage = 20;
-		int amount = 100;
+	void payment객체_저장() {
+		//when
+		PaymentEvent target = HelperPayment.createPayment();
 
-		PaymentOrder paymentOrder = new PaymentOrder(PRODUCT_ID, amount);
-		PaymentCoupon paymentCoupon = new PaymentCoupon(COUPON_ID, percentage);
-		PaymentEvent paymentEvent = new PaymentEvent(BUYER_ID, UUID.randomUUID().toString(), List.of(paymentOrder), List.of(paymentCoupon));
+		//act
+		Mono<PaymentEvent> save = paymentPersistentAdapter.save(target);
+		PaymentEvent savedPayment = save.block();
 
-		// Act: 실제로 저장 메서드를 호출하고 결과를 얻습니다.
-		Mono<PaymentEvent> save = paymentPersistentAdapter.save(paymentEvent);
-		PaymentEvent target = save.block();
+		//then
+		assertNotNull(savedPayment.getId());
+		assertEquals(1, savedPayment.getOrders().size());
+		assertEquals(1, savedPayment.getCoupons().size());
 
-		assertNotNull(target.getId());
-		assertEquals(1, target.getOrders().size());
-		assertEquals(1, target.getCoupons().size());
-
-		paymentPersistentAdapter.delete(target);
+		paymentPersistentAdapter.delete(target).block();
 	}
 
 
@@ -85,7 +71,7 @@ class PaymentPersistentAdapterTest {
 
 	@Test
 	void vaild_검증(){
-		Mono<Boolean> vaild = paymentPersistentAdapter.isVaild(CHECKOUT_ID, paymentEvent.getTotalAmount());
+		Mono<Boolean> vaild = paymentPersistentAdapter.isVaild(paymentEvent.getCheckoutId(), paymentEvent.getTotalAmount());
 		StepVerifier.create(vaild)
 			.assertNext(
 				it -> assertEquals(true, it)
@@ -95,7 +81,7 @@ class PaymentPersistentAdapterTest {
 
 	@Test
 	void checkoutId로_payment_검사(){
-		Mono<PaymentEvent> paymentByCheckoutId = paymentPersistentAdapter.getPaymentByCheckoutId(CHECKOUT_ID);
+		Mono<PaymentEvent> paymentByCheckoutId = paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId());
 		StepVerifier.create(paymentByCheckoutId)
 			.assertNext(
 				it -> {
