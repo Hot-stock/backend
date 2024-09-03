@@ -44,11 +44,20 @@ class PaymentConfirmServiceTest {
 
 	@AfterEach
 	void tearDown() {
-		paymentPersistentAdapter.delete(paymentEvent).block();
+		paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId())
+			.doOnSuccess(payment -> {
+				if (payment != null) {
+					paymentPersistentAdapter.delete(payment).block(); // 삭제 작업을 동기적으로 수행
+				}
+			})
+			.onErrorResume(e -> {
+				return Mono.empty(); // 에러가
+			})
+			.block(); // 비동기 흐름을 동기적으로 마무리
 	}
 
 	@Test
-	void Confirm_결제_요청(){
+	void Confirm_결제가_완료되고_나면_orderHistory_order_payment의_내용이_전부_변경되어야함(){
 		PaymentExecutionResult expectedResult = new PaymentExecutionResult(paymentEvent.getPaymentKey(), paymentEvent.getCheckoutId(), "ORDER_NAME", 1, "DONE",
 			"2022-01-01T00:00:00+09:00", "2022-01-01T00:00:00+09:00", true, false, false);
 

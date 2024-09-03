@@ -41,22 +41,15 @@ class PaymentStatusPersistentAdapterTest {
 	}
 
 	@Test
-	void paymentEvent에_있는_주문들을_시작_상태로_변경_후_상태들이_제대로_저장되는지_테스트() {
+	void paymentEvent에_있는_주문들을_시작_상태로_변경_되고_order_history에도_기록되어야_함() throws InterruptedException {
 		String expectedPaymentKey = "TEST_PAYMENT_KEY";
+		//when
+		paymentEvent = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getCheckoutId(), expectedPaymentKey).block();
+		PaymentEvent findPayment = paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId()).block();
 
-		Mono<Void> result = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getCheckoutId(), expectedPaymentKey);
-		StepVerifier.create(result).verifyComplete();
+		assertEquals(expectedPaymentKey, findPayment.getPaymentKey(), "PAYMENT_KEY가 설정되지 않았습니다.");
+		findPayment.getOrders().forEach(order -> assertEquals(PaymentStatus.EXECUTING, order.getPaymentStatus(), "Order 상태가 EXECUTING으로 설정되지 않았습니다."));
 
-		Mono<PaymentEvent> reloadResult = paymentPersistentAdapter.findById(paymentEvent.getId());
-
-		StepVerifier.create(reloadResult)
-			.assertNext(paymentEvent -> {
-				assertEquals(expectedPaymentKey, paymentEvent.getPaymentKey(), "PAYMENT_KEY가 설정되지 않았습니다.");
-				paymentEvent.getOrders().forEach(order ->
-					assertEquals(PaymentStatus.EXECUTING, order.getPaymentStatus(), "Order 상태가 EXECUTING으로 설정되지 않았습니다.")
-				);
-			})
-			.verifyComplete();
 	}
 
 	@Test

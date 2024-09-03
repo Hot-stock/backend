@@ -16,7 +16,7 @@ class TossPaymentExecutorTest {
 	@Autowired PaymentExecutor paymentExecutor;
 
 	@Test
-	void 토스_요청가는_지테스트(){
+	void 토스_요청가는지_테스트(){
 		PaymentConfirmResult paymentConfirmResult = new PaymentConfirmResult("PAYMENT_KEY", "ORDER_ID", 1L);
 		Mono<PaymentExecutionResult> execute = paymentExecutor.execute(paymentConfirmResult);
 

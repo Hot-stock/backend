@@ -33,9 +33,9 @@ public class PaymentOrderHistory {
 	@Column("reason")
 	private String reason;
 
-	public PaymentOrderHistory(Long paymentOrderId, PaymentStatus newStatus, String reason) {
+	public PaymentOrderHistory(Long paymentOrderId, String reason) {
 		this.paymentOrderId = paymentOrderId;
-		this.newStatus = newStatus;
+		this.newStatus = PaymentStatus.NOT_STARTED;
 		this.previousStatus = PaymentStatus.NOT_STARTED;
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();

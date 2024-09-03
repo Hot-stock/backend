@@ -2,6 +2,7 @@ package com.bjcareer.payment.application.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.payment.adapter.out.persistent.PaymentPersistentAdapter;
+import com.bjcareer.payment.adapter.out.persistent.exceptions.DataNotFoundException;
 import com.bjcareer.payment.application.domain.CheckoutResult;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.port.in.CheckoutCommand;
@@ -49,6 +51,9 @@ class CheckoutServiceTest {
 				if (payment != null) {
 					paymentPersistentAdapter.delete(payment).block(); // 삭제 작업을 동기적으로 수행
 				}
+			})
+			.onErrorResume(e -> {
+				return Mono.empty(); // 에러가
 			})
 			.block(); // 비동기 흐름을 동기적으로 마무리
 	}
@@ -87,7 +92,7 @@ class CheckoutServiceTest {
 	void 인가되지_않은_사용자가_checkout을_요청함(){
 		CheckoutResult result = checkoutUsecase.checkout(checkoutCommand).block();
 		Mono<CheckoutResult> creator = checkoutUsecase.validationCheckout(
-			new ValidationCheckoutCommand("NOT+CHECKOUT_USER", result.getCheckoutId()));
+			new ValidationCheckoutCommand("NOT_CHECKOUT_USER", result.getCheckoutId()));
 
 		StepVerifier.create(creator)
 			.expectError(AuthenticationFailureException.class) // 예외가 발생할 것을 기대

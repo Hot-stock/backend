@@ -113,7 +113,4 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 			})
 			.then();
 	}
-
-
-
 }

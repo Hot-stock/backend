@@ -67,6 +67,7 @@ public class PaymentEvent {
 	public PaymentEvent(PaymentEvent paymentEvent, List<PaymentOrder> orders, List<PaymentCoupon> coupons) {
 		this(paymentEvent.getBuyerId(), paymentEvent.getCheckoutId(), orders, coupons);
 		this.id = paymentEvent.getId();
+		this.paymentKey = paymentEvent.getPaymentKey();
 		this.isPaymentDone = paymentEvent.isPaymentDone();
 		this.createdAt = paymentEvent.getCreatedAt();
 		this.updatedAt = paymentEvent.getUpdatedAt();
