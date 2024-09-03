@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.bjcareer.payment.adapter.in.response.ApiResponse;
+import com.bjcareer.payment.adapter.out.persistent.exceptions.DataNotFoundException;
 import com.bjcareer.payment.application.service.exceptions.CheckoutFailedException;
 import com.bjcareer.payment.application.service.exceptions.DuplicatedCheckout;
 
@@ -30,6 +31,15 @@ public class CheckoutExceptionHandler {
 		return buildResponseEntity(
 			HttpStatus.TOO_MANY_REQUESTS,
 			"진행중인 결제건이 있습니다."
+		);
+	}
+
+	@ExceptionHandler(DataNotFoundException.class)
+	public ResponseEntity<ApiResponse> handleDataNotFoundExceptionException(DataNotFoundException e) {
+		log.error("DataNotFoundException: {}", e.getMessage());
+		return buildResponseEntity(
+			HttpStatus.BAD_REQUEST,
+			"요청한 데이터를 찾을 수 없습니다"
 		);
 	}
 

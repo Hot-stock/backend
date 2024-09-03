@@ -3,6 +3,8 @@ package com.bjcareer.payment.application.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CheckoutService implements CheckoutUsecase {
 	public static final String MOCK_ORDER_NAME = "1년치 구독 결제";
+	private static final Logger log = LoggerFactory.getLogger(CheckoutService.class);
 	private final LoadProductPort loadProductPort;
 	private final LoadCouponPort loadCouponPort;
 	private final SavePaymentPort savePaymentPort;

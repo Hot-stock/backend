@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
+import com.bjcareer.payment.adapter.out.persistent.exceptions.DataNotFoundException;
 import com.bjcareer.payment.adapter.out.persistent.repository.PaymentCouponRepository;
 import com.bjcareer.payment.adapter.out.persistent.repository.PaymentOrderRepository;
 import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
@@ -16,10 +17,11 @@ import com.bjcareer.payment.application.port.out.SavePaymentPort;
 import com.bjcareer.payment.adapter.out.persistent.repository.PaymentEventRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Repository
+@Repository @Slf4j
 @RequiredArgsConstructor
 public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidationPort, LoadPaymentPort {
 
@@ -64,18 +66,18 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 	@Override
 	public Mono<Boolean> isVaild(String checkoutId, Long totalAmount) {
 		Mono<PaymentEvent> paymentEventMono = paymentEventRepository.findByCheckoutId(checkoutId)
-			.doOnNext(event -> System.out.println("Fetched PaymentEvent: " + event));
+			.doOnNext(event -> log.debug("Fetched PaymentEvent: " + event));
 
 		return paymentEventMono
 			.flatMap(it -> findById(it.getId())
 				.doOnNext(event -> {
-					System.out.println("Fetched PaymentEvent by ID: " + event);
-					System.out.println("Total amount in event: " + event.getTotalAmount());
-					System.out.println("Expected total amount: " + totalAmount);
+					log.debug("Fetched PaymentEvent by ID: {}",  event);
+					log.debug("Total amount in event: {}", event.getTotalAmount());
+					log.debug("Expected total amount: {}", totalAmount);
 				})
 				.flatMap(event -> {
 					boolean isValid = event.getTotalAmount().equals(totalAmount);
-					System.out.println("Is valid: " + isValid);
+					log.debug("Is valid: " + isValid);
 					return Mono.just(isValid);
 				})
 			);
@@ -83,9 +85,16 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 
 	@Override
 	public Mono<PaymentEvent> getPaymentByCheckoutId(String checkoutId) {
-		return paymentEventRepository.findByCheckoutId(checkoutId).flatMap(
-			it -> findById(it.getId()));
+		return paymentEventRepository.findByCheckoutId(checkoutId)
+			.doOnSuccess(event -> {
+				if (event == null) {
+					String err = String.format("No PaymentEvent found for checkoutId: %s", checkoutId);
+					throw new DataNotFoundException(err);
+				}
+			})
+			.flatMap(it -> findById(it.getId()));
 	}
+
 
 	private Mono<Void> saveOrders(PaymentEvent paymentEvent) {
 		return Flux.fromIterable(paymentEvent.getOrders())
