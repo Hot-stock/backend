@@ -7,7 +7,6 @@ import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import reactor.core.publisher.Mono;
 
 public interface PaymentEventRepository extends ReactiveCrudRepository<PaymentEvent, Long> {
-
-	@Query("SELECT * FROM payment_event WHERE order_id= :orderId")
-	Mono<PaymentEvent> findByOrderId(String orderId);
+	@Query("SELECT * FROM payment_event WHERE checkout_id= :orderId")
+	Mono<PaymentEvent> findByCheckoutId(String checkoutId);
 }

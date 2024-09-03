@@ -7,10 +7,10 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 
 import com.bjcareer.payment.adapter.out.persistent.repository.PaymentCouponRepository;
 import com.bjcareer.payment.adapter.out.persistent.repository.PaymentOrderRepository;
-import com.bjcareer.payment.adapter.out.persistent.repository.PaymentValidationRepository;
 import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
+import com.bjcareer.payment.application.port.out.LoadPaymentPort;
 import com.bjcareer.payment.application.port.out.PaymentValidationPort;
 import com.bjcareer.payment.application.port.out.SavePaymentPort;
 import com.bjcareer.payment.adapter.out.persistent.repository.PaymentEventRepository;
@@ -21,9 +21,8 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @RequiredArgsConstructor
-public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidationPort {
+public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidationPort, LoadPaymentPort {
 
-	private final PaymentEventRepository paymentRepository;
 	private final PaymentOrderRepository paymentOrderRepository;
 	private final PaymentCouponRepository paymentCouponRepository;
 	private final TransactionalOperator transactionalOperator;
@@ -32,7 +31,7 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 	@Override
 	public Mono<PaymentEvent> save(PaymentEvent paymentEvent) {
 		return transactionalOperator.transactional(
-			paymentRepository.save(paymentEvent)
+			paymentEventRepository.save(paymentEvent)
 				.flatMap(savedPayment ->
 					saveOrders(savedPayment)
 						.then(saveCoupons(savedPayment))
@@ -43,7 +42,7 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 
 	@Override
 	public Mono<PaymentEvent> findById(Long id) {
-		return paymentRepository.findById(id)
+		return paymentEventRepository.findById(id)
 			.flatMap(it ->
 				Mono.zip(
 					paymentOrderRepository.findByPaymentEventId(it.getId()).collectList(),
@@ -51,7 +50,7 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 				).flatMap(tuple -> {
 					List<PaymentOrder> t1 = tuple.getT1();
 					List<PaymentCoupon> t2 = tuple.getT2();
-					PaymentEvent paymentEvent = new PaymentEvent(it.getId(), it.getBuyerId(), it.getOrderId(), it.getPaymentKey(), t1, t2);
+					PaymentEvent paymentEvent = new PaymentEvent(it, t1, t2);
 					return Mono.just(paymentEvent);
 				})
 			);
@@ -59,21 +58,12 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 
 	@Override
 	public Mono<Void> delete(PaymentEvent paymentEvent) {
-		return paymentRepository.delete(paymentEvent);
-	}
-
-	private Mono<Void> saveOrders(PaymentEvent paymentEvent) {
-		return Flux.fromIterable(paymentEvent.getOrders())
-			.flatMap(order -> {
-				order.assignRelatedPaymentEventId(paymentEvent.getId());
-				return paymentOrderRepository.save(order);
-			})
-			.then();
+		return paymentEventRepository.delete(paymentEvent);
 	}
 
 	@Override
 	public Mono<Boolean> isVaild(String orderId, Long totalAmount) {
-		Mono<PaymentEvent> paymentEventMono = paymentEventRepository.findByOrderId(orderId)
+		Mono<PaymentEvent> paymentEventMono = paymentEventRepository.findByCheckoutId(orderId)
 			.doOnNext(event -> System.out.println("Fetched PaymentEvent: " + event));
 
 		return paymentEventMono
@@ -89,6 +79,21 @@ public class PaymentPersistentAdapter implements SavePaymentPort, PaymentValidat
 					return Mono.just(isValid);
 				})
 			);
+	}
+
+	@Override
+	public Mono<PaymentEvent> getPaymentByCheckoutId(String checkoutId) {
+		return paymentEventRepository.findByCheckoutId(checkoutId).flatMap(
+			it -> findById(it.getId()));
+	}
+
+	private Mono<Void> saveOrders(PaymentEvent paymentEvent) {
+		return Flux.fromIterable(paymentEvent.getOrders())
+			.flatMap(order -> {
+				order.assignRelatedPaymentEventId(paymentEvent.getId());
+				return paymentOrderRepository.save(order);
+			})
+			.then();
 	}
 
 	private Mono<Void> saveCoupons(PaymentEvent paymentEvent) {

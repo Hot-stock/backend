@@ -32,9 +32,9 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 	private final PaymentEventRepository paymentEventRepository;
 
 	@Override
-	public Mono<Void> updatePaymentStatusToExecuting(String orderId, String paymentKey) {
+	public Mono<Void> updatePaymentStatusToExecuting(String checkoutId, String paymentKey) {
 		return transactionalOperator.transactional(
-			paymentRepository.findByOrderId(orderId)
+			paymentRepository.findByCheckoutId(checkoutId)
 				.flatMap(paymentEvent ->
 					updatePaymentKeyAndProcessOrders(paymentEvent, paymentKey)
 						.flatMap(paymentRepository::save))
@@ -70,15 +70,14 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 	}
 	
 	private Flux<PaymentOrder> setUpDonePayment(PaymentEvent payment) {
-		payment.setPaymnetFinish();
-		System.out.println("ASDASDASD payment = " + payment);
+		payment.setPaymentFinished();
 		return paymentEventRepository.save(payment).flatMapMany(this::findPaymentOrdersByEvent);
 	}
 
 
 	private Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command, String reason) {
 		return transactionalOperator.transactional(
-			paymentRepository.findByOrderId(command.getOrderId())
+			paymentRepository.findByCheckoutId(command.getCheckoutId())
 				.flatMapMany(this::setUpDonePayment)
 				.flatMap(order -> {
 						updatePaymentOrderDetails(command, order);

@@ -11,7 +11,9 @@ import com.bjcareer.payment.application.domain.Product;
 import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.port.in.CheckoutCommand;
 import com.bjcareer.payment.application.port.in.CheckoutUsecase;
+import com.bjcareer.payment.application.port.in.ValidationCheckoutCommand;
 import com.bjcareer.payment.application.port.out.LoadCouponPort;
+import com.bjcareer.payment.application.port.out.LoadPaymentPort;
 import com.bjcareer.payment.application.port.out.SavePaymentPort;
 import com.bjcareer.payment.application.service.exceptions.CheckoutFailedException;
 import com.bjcareer.payment.application.service.exceptions.DuplicatedCheckout;
@@ -29,6 +31,7 @@ public class CheckoutService implements CheckoutUsecase {
 	private final LoadProductPort loadProductPort;
 	private final LoadCouponPort loadCouponPort;
 	private final SavePaymentPort savePaymentPort;
+	private final LoadPaymentPort loadPaymentPort;
 
 	@Override
 	public Mono<CheckoutResult> checkout(CheckoutCommand checkoutCommand) {
@@ -41,9 +44,19 @@ public class CheckoutService implements CheckoutUsecase {
 			if(isUniqueConstraintViolation(e)){
 				return new DuplicatedCheckout("진행중인 결제건이 있습니다.");
 			}
-			System.out.println("e = " + e);
 			return new CheckoutFailedException("Checkout failed due to a database error.", e);
 		});
+	}
+
+	@Override
+	public Mono<CheckoutResult> validationCheckout(ValidationCheckoutCommand checkoutCommand) {
+		return loadPaymentPort.getPaymentByCheckoutId(checkoutCommand.getCheckoutId())
+			.flatMap(it -> {
+				if (checkoutCommand.getBuyerPK().equals(it.getBuyerId())) {
+					return Mono.just(new CheckoutResult(it.getTotalAmount(), it.getCheckoutId(), it.getBuyerId(), MOCK_ORDER_NAME));
+				}
+				throw new RuntimeException("인가되지 않은 사용자가 요청을 진행");
+			});
 	}
 
 	private List<Product> loadProducts(CheckoutCommand checkoutCommand) {
@@ -67,8 +80,7 @@ public class CheckoutService implements CheckoutUsecase {
 	}
 
 	private Mono<CheckoutResult> toCheckoutResult(PaymentEvent paymentEvent) {
-		System.out.println("paymentEvent.getTotalAmount() = " + paymentEvent.getTotalAmount());
-		return Mono.just(new CheckoutResult(paymentEvent.getTotalAmount(), paymentEvent.getOrderId(), paymentEvent.getBuyerId(),
+		return Mono.just(new CheckoutResult(paymentEvent.getTotalAmount(), paymentEvent.getCheckoutId(), paymentEvent.getBuyerId(),
 			MOCK_ORDER_NAME));
 	}
 

@@ -50,7 +50,7 @@ class PaymentStatusPersistentAdapterTest {
 	void order의_상태들을_실행으로_변경() {
 		String expectedPaymentKey = "TEST_PAYMENT_KEY";
 
-		Mono<Void> result = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getOrderId(),
+		Mono<Void> result = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getCheckoutId(),
 			expectedPaymentKey);
 
 		StepVerifier.create(result).verifyComplete();  // 시퀀스가 정상적으로 종료되었는지 확인
@@ -70,7 +70,7 @@ class PaymentStatusPersistentAdapterTest {
 
 	@Test
 	void order_status가_succes로_변경되는지() {
-		PaymentStatusUpdateCommand command = new PaymentStatusUpdateCommand(paymentEvent.getOrderId(), PaymentStatus.SUCCESS, LocalDateTime.now());
+		PaymentStatusUpdateCommand command = new PaymentStatusUpdateCommand(paymentEvent.getCheckoutId(), PaymentStatus.SUCCESS, LocalDateTime.now());
 
 		Mono<Boolean> booleanMono = paymentStatusPersistentAdapter.updatePaymentStatus(command);
 
