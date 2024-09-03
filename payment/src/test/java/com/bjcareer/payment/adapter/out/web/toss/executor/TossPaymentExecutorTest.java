@@ -1,31 +1,50 @@
 package com.bjcareer.payment.adapter.out.web.toss.executor;
 
-import org.junit.jupiter.api.Tag;
+
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import com.bjcareer.payment.adapter.out.web.toss.exception.PspConfirmationException;
+import com.bjcareer.payment.adapter.out.web.toss.exception.TossErrorCode;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
+import com.bjcareer.payment.helper.PSPWebClientConfiguration;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-
 @SpringBootTest
+@Import(PSPWebClientConfiguration.class)
 class TossPaymentExecutorTest {
-	@Autowired PaymentExecutor paymentExecutor;
+	public static final long AMOUNT = 2000L;
 
+	@Autowired
+	private PSPWebClientConfiguration pspWebClientConfiguration;
 
 	@Test
-	void 토스_요청가는지_테스트(){
-		PaymentConfirmResult paymentConfirmResult = new PaymentConfirmResult("PAYMENT_KEY", "ORDER_ID", 1L);
-		Mono<PaymentExecutionResult> execute = paymentExecutor.execute(paymentConfirmResult);
+	void whenNonRetryableErrorIsReceived() {
+		WebClient webClient = pspWebClientConfiguration.tossPaymentWebClient(TossErrorCode.EXCEED_MAX_AMOUNT.toString());
+		TossPaymentExecutor tossPaymentExecutor = new TossPaymentExecutor(webClient);
+		Mono<PaymentExecutionResult> execute = tossPaymentExecutor.execute(
+			new PaymentConfirmResult("TEST_KEY", "TEST_ID", AMOUNT));
 
 		StepVerifier.create(execute)
-		.expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-			throwable.getMessage().equals("Failed to communicate with Toss: 404 NOT_FOUND"))
+			.expectErrorMatches(throwable -> throwable instanceof PspConfirmationException)
+			.verify();
+	}
+
+	@Test
+	void whenRetryableErrorIsReceived() {
+		WebClient webClient = pspWebClientConfiguration.tossPaymentWebClient(TossErrorCode.ACCOUNT_OWNER_CHECK_FAILED.toString());
+		TossPaymentExecutor tossPaymentExecutor = new TossPaymentExecutor(webClient);
+		Mono<PaymentExecutionResult> execute = tossPaymentExecutor.execute(
+			new PaymentConfirmResult("TEST_KEY", "TEST_ID", AMOUNT));
+
+		StepVerifier.create(execute)
+			.expectErrorMatches(throwable -> throwable instanceof IllegalStateException)
 			.verify();
 	}
 
