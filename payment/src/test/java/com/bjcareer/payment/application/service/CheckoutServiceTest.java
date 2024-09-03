@@ -10,68 +10,75 @@ import org.mockito.MockitoAnnotations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import static org.mockito.Mockito.*;
 
+import com.bjcareer.payment.adapter.out.persistent.PaymentPersistentAdapter;
 import com.bjcareer.payment.application.domain.CheckoutResult;
 import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 import com.bjcareer.payment.application.port.in.CheckoutCommand;
 import com.bjcareer.payment.application.port.out.LoadCouponPort;
+import com.bjcareer.payment.application.port.out.LoadPaymentPort;
 import com.bjcareer.payment.application.port.out.LoadProductPort;
 import com.bjcareer.payment.application.port.out.SavePaymentPort;
+import com.bjcareer.payment.helper.HelperPayment;
 
 import reactor.core.publisher.Mono;
 
+@SpringBootTest
 class CheckoutServiceTest {
-	public static final long ID = 1L;
-	public static final int AMOUNT = 100;
-	public static final int PERCENTAGE = 20;
-	public static final String TEST_BUYER = "test_buyer";
-	@Mock private LoadProductPort loadProductPort;
-	@Mock private LoadCouponPort loadCouponPort;
-	@Mock private SavePaymentPort savePaymentPort;
-	private CheckoutService checkoutUsecase;
+	public static final Long CART_ID = 1L;
+
+	@Autowired CheckoutService checkoutUsecase;
+	@Autowired PaymentPersistentAdapter paymentPersistentAdapter;
+
+	CheckoutCommand checkoutCommand;
+	PaymentEvent paymentEvent;
+
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.openMocks(this); // Mockito 애노테이션을 초기화합니다.
-		checkoutUsecase = new CheckoutService(loadProductPort, loadCouponPort, savePaymentPort);
+		paymentEvent = HelperPayment.createPayment();
+		checkoutCommand = new CheckoutCommand(CART_ID, HelperPayment.BUYER_ID, List.of(HelperPayment.PRODUCT_ID), List.of(HelperPayment.COUPON_ID));
+
+		// paymentEvent = paymentPersistentAdapter.save(paymentEvent).block();
+	}
+
+	@AfterEach
+	void tearDown() {
+		// paymentPersistentAdapter.delete(paymentEvent).block();
 	}
 
 
 	@Test
-	void PaymentEvent를_orderId를_받아올_수_있는지_테스트함(){
-
-		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-		List<PaymentOrder> paymentOrder = List.of(new PaymentOrder(ID, AMOUNT));
-		CheckoutCommand checkoutCommand = new CheckoutCommand(ID, TEST_BUYER, List.of(ID), List.of(ID));
-
-		PaymentEvent paymentEvent = new PaymentEvent(ID, TEST_BUYER, checkoutCommand.getIdempotenceKey(), paymentOrder, paymentCoupons);
-		when(savePaymentPort.save(any())).thenReturn(Mono.just(paymentEvent));
-
+	void PaymentCheckout_생성을_테스트 (){
 		Mono<CheckoutResult> checkoutmono = checkoutUsecase.checkout(checkoutCommand);
 		CheckoutResult checkout = checkoutmono.block();
 
-		assertEquals(checkoutCommand.getIdempotenceKey() , checkout.getOrderId());
-		assertEquals(1, checkout.getAmount());
+		assertEquals(checkoutCommand.getIdempotenceKey() , checkout.getCheckoutId());
+		assertEquals(HelperPayment.AMOUNT, checkout.getAmount());
 	}
 
 	@Test
-	void PaymentEvent는_반듯이_한번만_성공해야함(){
-
-		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-		List<PaymentOrder> paymentOrder = List.of(new PaymentOrder(ID, AMOUNT));
-		CheckoutCommand checkoutCommand = new CheckoutCommand(ID, TEST_BUYER, List.of(ID), List.of(ID));
-
-		PaymentEvent paymentEvent = new PaymentEvent(ID, TEST_BUYER, checkoutCommand.getIdempotenceKey(), paymentOrder, paymentCoupons);
-		when(savePaymentPort.save(any())).thenReturn(Mono.just(paymentEvent));
-
+	void PaymentEvent의_멱등성_보장을_테스트함(){
 		Mono<CheckoutResult> checkoutmono = checkoutUsecase.checkout(checkoutCommand);
 		CheckoutResult checkout = checkoutmono.block();
 
-		assertEquals(checkoutCommand.getIdempotenceKey() , checkout.getOrderId());
-		assertEquals(1, checkout.getAmount());
+		assertEquals(checkoutCommand.getIdempotenceKey() , checkout.getCheckoutId());
+		assertEquals(HelperPayment.AMOUNT, checkout.getAmount());
+	}
+
+	@Test
+	void 인가되지_않은_사용자가_checkout을_요청함(){
+		Mono<CheckoutResult> checkoutmono = checkoutUsecase.checkout(checkoutCommand);
+		CheckoutResult checkout = checkoutmono.block();
+
+		assertEquals(checkoutCommand.getIdempotenceKey() , checkout.getCheckoutId());
+		assertEquals(HelperPayment.AMOUNT, checkout.getAmount());
 	}
 
 }

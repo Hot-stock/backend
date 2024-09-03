@@ -17,35 +17,29 @@ import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 import com.bjcareer.payment.application.port.in.PaymentConfirmCommand;
+import com.bjcareer.payment.helper.HelperPayment;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
 class PaymentConfirmServiceTest {
-	String ORDER_ID = UUID.randomUUID().toString();
-	String PAYMENT_KEY = UUID.randomUUID().toString();
-	long AMOUNT = 1000;
-
 	@Autowired
 	PaymentPersistentAdapter paymentPersistentAdapter;
 	@Autowired
 	PaymentStatusPersistentAdapter paymentStatusPersistentAdapter;
-	@Autowired
-	PaymentConfirmService paymentConfirmService;
+	@Autowired PaymentConfirmService paymentConfirmService;
 
 	PaymentEvent paymentEvent;
+	PaymentConfirmCommand command;
 
 	@BeforeEach
 	void setUp() {
-		long ID = 1L;
-		int PERCENTAGE = 20;
+		paymentEvent = HelperPayment.createPayment();
+		paymentEvent = paymentPersistentAdapter.save(paymentEvent).block();
 
-		List<PaymentOrder> paymentOrders = List.of(new PaymentOrder(ID, (int)AMOUNT));
-		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-
-		paymentEvent = new PaymentEvent("BUYER_ID", ORDER_ID, paymentOrders, paymentCoupons);
-		paymentPersistentAdapter.save(paymentEvent).block();
+		command = new PaymentConfirmCommand(paymentEvent.getPaymentKey(), paymentEvent.getCheckoutId(), paymentEvent.getTotalAmount());
 	}
 
 	@AfterEach
@@ -55,8 +49,7 @@ class PaymentConfirmServiceTest {
 
 	@Test
 	void Confirm_결제_요청(){
-		PaymentConfirmCommand command = new PaymentConfirmCommand(PAYMENT_KEY, ORDER_ID, AMOUNT);
-		PaymentExecutionResult expectedResult = new PaymentExecutionResult(PAYMENT_KEY, ORDER_ID, "ORDER_NAME", 1, "DONE",
+		PaymentExecutionResult expectedResult = new PaymentExecutionResult(paymentEvent.getPaymentKey(), paymentEvent.getCheckoutId(), "ORDER_NAME", 1, "DONE",
 			"2022-01-01T00:00:00+09:00", "2022-01-01T00:00:00+09:00", true, false, false);
 
 		Mono<PaymentExecutionResult> confirm = paymentConfirmService.confirm(command);
