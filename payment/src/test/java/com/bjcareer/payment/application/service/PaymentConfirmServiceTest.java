@@ -1,23 +1,28 @@
 package com.bjcareer.payment.application.service;
 
-
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.payment.adapter.out.persistent.PaymentPersistentAdapter;
-import com.bjcareer.payment.adapter.out.persistent.PaymentStatusPersistentAdapter;
+import com.bjcareer.payment.adapter.out.web.PaymentExecutionWebAdapter;
+import com.bjcareer.payment.adapter.out.web.toss.exception.TossErrorCode;
+import com.bjcareer.payment.adapter.out.web.toss.executor.TossPaymentExecutor;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
-import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
+import com.bjcareer.payment.application.domain.entity.order.PaymentStatus;
 import com.bjcareer.payment.application.port.in.PaymentConfirmCommand;
+import com.bjcareer.payment.application.port.out.PaymentExecutionPort;
+import com.bjcareer.payment.application.port.out.PaymentStatusUpdatePort;
+import com.bjcareer.payment.application.port.out.PaymentValidationPort;
 import com.bjcareer.payment.helper.HelperPayment;
+import com.bjcareer.payment.helper.PSPWebClientConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,44 +31,85 @@ import reactor.core.publisher.Mono;
 @SpringBootTest
 class PaymentConfirmServiceTest {
 	@Autowired
-	PaymentPersistentAdapter paymentPersistentAdapter;
-	@Autowired
-	PaymentStatusPersistentAdapter paymentStatusPersistentAdapter;
-	@Autowired PaymentConfirmService paymentConfirmService;
+	private PSPWebClientConfiguration webClientConfiguration;
 
-	PaymentEvent paymentEvent;
-	PaymentConfirmCommand command;
+	@Autowired
+	private PaymentStatusUpdatePort paymentStatusUpdatePort;
+
+	@Autowired
+	private PaymentValidationPort paymentValidationPort;
+
+	@Autowired
+	private PaymentPersistentAdapter paymentPersistentAdapter;
+
+	private PaymentExecutionPort paymentExecutionPort;
+	private PaymentEvent paymentEvent;
+	private PaymentConfirmCommand command;
 
 	@BeforeEach
 	void setUp() {
 		paymentEvent = HelperPayment.createPayment();
 		paymentEvent = paymentPersistentAdapter.save(paymentEvent).block();
-
 		command = new PaymentConfirmCommand(paymentEvent.getPaymentKey(), paymentEvent.getCheckoutId(), paymentEvent.getTotalAmount());
 	}
 
 	@AfterEach
 	void tearDown() {
 		paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId())
-			.doOnSuccess(payment -> {
-				if (payment != null) {
-					paymentPersistentAdapter.delete(payment).block(); // 삭제 작업을 동기적으로 수행
-				}
-			})
-			.onErrorResume(e -> {
-				return Mono.empty(); // 에러가
-			})
-			.block(); // 비동기 흐름을 동기적으로 마무리
+			.flatMap(payment -> payment != null ? paymentPersistentAdapter.delete(payment) : Mono.empty())
+			.onErrorResume(e -> Mono.empty())
+			.block();
 	}
 
 	@Test
-	void Confirm_결제가_완료되고_나면_orderHistory_order_payment의_내용이_전부_변경되어야함(){
-		PaymentExecutionResult expectedResult = new PaymentExecutionResult(paymentEvent.getPaymentKey(), paymentEvent.getCheckoutId(), "ORDER_NAME", 1, "DONE",
-			"2022-01-01T00:00:00+09:00", "2022-01-01T00:00:00+09:00", true, false, false);
+	void shouldFailDueToExceedingLimit_AndUpdateOrderHistory() {
+		setupExecutionPort(TossErrorCode.EXCEED_MAX_AMOUNT);
 
+		PaymentConfirmService paymentConfirmService = createPaymentConfirmService();
 		Mono<PaymentExecutionResult> confirm = paymentConfirmService.confirm(command);
-		PaymentExecutionResult result = confirm.block();
 
-		assertEquals(expectedResult, result, "예상된 결과가 같지 않습니다");
+		confirm.onErrorResume(throwable -> Mono.empty()).block();
+		verifyPaymentStatus(PaymentStatus.FAILURE);
+	}
+
+	@Test
+	void shouldFailDueToInvalidPaymentValidation() {
+		command = new PaymentConfirmCommand(paymentEvent.getPaymentKey(), paymentEvent.getCheckoutId(), 2L);
+
+		PaymentConfirmService paymentConfirmService = createPaymentConfirmService();
+		Mono<PaymentExecutionResult> confirm = paymentConfirmService.confirm(command);
+
+		confirm.onErrorResume(throwable -> Mono.empty()).block();
+		verifyPaymentStatus(PaymentStatus.FAILURE);
+	}
+
+	@Test
+	void shouldCompleteSuccessfully_IfAlreadyApproved() {
+		setupExecutionPort(TossErrorCode.ALREADY_COMPLETED_PAYMENT);
+
+		PaymentConfirmService paymentConfirmService = createPaymentConfirmService();
+		Mono<PaymentExecutionResult> confirm = paymentConfirmService.confirm(command);
+
+		confirm.onErrorResume(throwable -> Mono.empty()).block();
+		verifyPaymentStatus(PaymentStatus.SUCCESS);
+	}
+
+	private void setupExecutionPort(TossErrorCode errorCode) {
+		WebClient webClient = webClientConfiguration.tossPaymentWebClient(errorCode.toString());
+		TossPaymentExecutor executor = new TossPaymentExecutor(webClient);
+		paymentExecutionPort = new PaymentExecutionWebAdapter(executor);
+	}
+
+	private PaymentConfirmService createPaymentConfirmService() {
+		return new PaymentConfirmService(paymentStatusUpdatePort, paymentValidationPort, paymentExecutionPort);
+	}
+
+	private void verifyPaymentStatus(PaymentStatus expectedStatus) {
+		PaymentEvent result = paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId()).block();
+		List<PaymentOrder> orders = result.getOrders();
+
+		assertTrue(result.isPaymentDone());
+		assertEquals(paymentEvent.getPaymentKey(), result.getPaymentKey());
+		orders.forEach(order -> assertEquals(expectedStatus, order.getPaymentStatus()));
 	}
 }
