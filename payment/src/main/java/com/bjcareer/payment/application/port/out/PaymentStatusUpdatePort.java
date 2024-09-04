@@ -6,6 +6,6 @@ import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import reactor.core.publisher.Mono;
 
 public interface PaymentStatusUpdatePort {
-	Mono<PaymentEvent> updatePaymentStatusToExecuting(String checkoutId, String paymentKey);
+	Mono<PaymentEvent> updatePaymentStatusToExecuting(PaymentStatusUpdateCommand command, String paymentKey);
 	Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command);
 }
