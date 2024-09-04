@@ -23,8 +23,8 @@ import reactor.core.publisher.Mono;
 public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 	public static final String PAYMENT_CONFIRM_START = "PAYMENT_CONFIRM_START";
 	public static final String PAYMENT_CONFIRM_SUCCESS = "PAYMENT_CONFIRM_SUCCESS";
-	public static final String PAYMENT_CONFIRM_FAILURE = "PAYMENT_CONFIRM_SUCCESS";
-	public static final String PAYMENT_CONFIRM_UNKNOWN = "PAYMENT_CONFIRM_SUCCESS";
+	public static final String PAYMENT_CONFIRM_FAILURE = "PAYMENT_CONFIRM_FAILURE";
+	public static final String PAYMENT_CONFIRM_UNKNOWN = "PAYMENT_CONFIRM_UNKNOWN";
 
 	private final PaymentEventRepository paymentRepository;
 	private final PaymentOrderRepository paymentOrderRepository;
@@ -33,69 +33,67 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 	private final PaymentEventRepository paymentEventRepository;
 
 	@Override
-	public Mono<PaymentEvent> updatePaymentStatusToExecuting(String checkoutId, String paymentKey) {
+	public Mono<PaymentEvent> updatePaymentStatusToExecuting(PaymentStatusUpdateCommand command, String paymentKey) {
 		 return transactionalOperator.transactional(
-			paymentRepository.findByCheckoutId(checkoutId)
+			paymentRepository.findByCheckoutId(command.getCheckoutId())
 				.switchIfEmpty(Mono.error(
-					new DataNotFoundException(String.format("%s의 paymnetEvent를 excuting으로 변경하려고 했지만 실패함", checkoutId))))
-				.flatMap(paymentEvent -> updatePaymentKeyAndProcessOrders(paymentEvent, paymentKey))
+					new DataNotFoundException(String.format("%s의 paymnetEvent를 excuting으로 변경하려고 했지만 실패함", command.getCheckoutId()))))
+				.flatMap(paymentEvent -> updatePaymentKeyAndProcessOrders(paymentEvent, command, paymentKey))
 				.flatMap(paymentRepository::save)
 		);
 	}
 
 	@Override
 	public Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command) {
-		if (command.getStatus() == PaymentStatus.SUCCESS){
-			return updatePaymentStatus(command, PAYMENT_CONFIRM_SUCCESS);
-		} else if (command.getStatus() == PaymentStatus.FAILURE) {
-			return updatePaymentStatus(command, PAYMENT_CONFIRM_FAILURE);
-		}else{
-			return updatePaymentStatus(command, PAYMENT_CONFIRM_UNKNOWN);
-		}
+		return updatePaymentStatusWithCommand(command)
+			.flatMap(paymentEvent -> {
+				if (command.getStatus() == PaymentStatus.SUCCESS || command.getStatus() == PaymentStatus.FAILURE) {
+					paymentEvent.setPaymentFinished();
+					return paymentRepository.save(paymentEvent)
+						.thenReturn(true);
+				}
+				return Mono.just(true);
+			});
 	}
 
-	private Mono<PaymentEvent> updatePaymentKeyAndProcessOrders(PaymentEvent paymentEvent, String paymentKey) {
+	private Mono<PaymentEvent> updatePaymentKeyAndProcessOrders(PaymentEvent paymentEvent, PaymentStatusUpdateCommand command, String paymentKey) {
 		paymentEvent.updatePaymentKey(paymentKey);
-		return findAndProcessPaymentOrders(paymentEvent, PaymentStatus.EXECUTING)
+		return findAndProcessPaymentOrders(paymentEvent, command)
 			.then(Mono.just(paymentEvent));
 	}
 
-	private Flux<PaymentOrder> findAndProcessPaymentOrders(PaymentEvent paymentEvent, PaymentStatus status) {
+	private Flux<PaymentOrder> findAndProcessPaymentOrders(PaymentEvent paymentEvent, PaymentStatusUpdateCommand command) {
 		return findPaymentOrdersByEvent(paymentEvent)
 			.flatMap(it ->
-				updatePaymentOrderStatus(it, status, PAYMENT_CONFIRM_START)
+				updatePaymentOrderStatus(it, command)
 					.flatMap(paymentOrderRepository::save));
 	}
 
-	private Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command, String reason) {
+	private Mono<PaymentEvent> updatePaymentStatusWithCommand(PaymentStatusUpdateCommand command) {
 		return transactionalOperator.transactional(
 			paymentRepository.findByCheckoutId(command.getCheckoutId())
-				.flatMapMany(this::setUpDonePayment)
+				.flatMapMany(this::findPaymentOrdersByEvent)
 				.flatMap(order -> {
 						updatePaymentOrderDetails(command, order);
-						return updatePaymentOrderStatus(order, command.getStatus(), reason)
+						return updatePaymentOrderStatus(order, command)
 							.flatMap(paymentOrderRepository::save);
-					}).then(Mono.just(true)));
-	}
-
-	private Flux<PaymentOrder> setUpDonePayment(PaymentEvent payment) {
-		payment.setPaymentFinished();
-		return paymentEventRepository.save(payment).flatMapMany(this::findPaymentOrdersByEvent);
+						}))
+			.then(paymentRepository.findByCheckoutId(command.getCheckoutId()));
 	}
 
 	private Flux<PaymentOrder> findPaymentOrdersByEvent(PaymentEvent paymentEvent) {
 		return paymentOrderRepository.findByPaymentEventId(paymentEvent.getId());
 	}
 
-	private Mono<PaymentOrder> updatePaymentOrderStatus(PaymentOrder paymentOrder, PaymentStatus status, String reason) {
-		return updatePaymentHistory(paymentOrder, reason)
+	private Mono<PaymentOrder> updatePaymentOrderStatus(PaymentOrder paymentOrder, PaymentStatusUpdateCommand command) {
+		return updatePaymentHistory(paymentOrder, command)
 			.flatMap(it ->
 			{
-				if (status == PaymentStatus.SUCCESS) {
+				if (command.getStatus() == PaymentStatus.SUCCESS) {
 					paymentOrder.executeSuccess();
-				} else if (status == PaymentStatus.FAILURE) {
+				} else if (command.getStatus() == PaymentStatus.FAILURE) {
 					paymentOrder.executeFailure();
-				} else if (status == PaymentStatus.EXECUTING) {
+				} else if (command.getStatus() == PaymentStatus.EXECUTING) {
 					paymentOrder.executePayment();
 				} else {
 					paymentOrder.executeUnknown();
@@ -108,18 +106,18 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 		order.updateApprovedAt(command.getApprovedAt());
 	}
 
-	private Mono<PaymentOrderHistory> updatePaymentHistory(PaymentOrder paymentOrder, String status) {
+	private Mono<PaymentOrderHistory> updatePaymentHistory(PaymentOrder paymentOrder, PaymentStatusUpdateCommand command) {
 		return paymentOrderHistoryRepository.findByOrderId(paymentOrder.getId())
-			.switchIfEmpty(createNewPaymentOrderHistory(paymentOrder, status))
+			.switchIfEmpty(createNewPaymentOrderHistory(paymentOrder, command))
 			.flatMap(paymentOrderHistory -> {
-				paymentOrderHistory.changeStatus(PaymentStatus.EXECUTING, status);
+				paymentOrderHistory.changeStatus(command.getStatus(), command.getReason(), command.getChangedBy());
 				return paymentOrderHistoryRepository.save(paymentOrderHistory);
 			});
 	}
 
-	private Mono<PaymentOrderHistory> createNewPaymentOrderHistory(PaymentOrder paymentOrder, String status) {
+	private Mono<PaymentOrderHistory> createNewPaymentOrderHistory(PaymentOrder paymentOrder, PaymentStatusUpdateCommand command) {
 		return paymentOrderHistoryRepository.save(
-			new PaymentOrderHistory(paymentOrder.getId(), status)
+			new PaymentOrderHistory(paymentOrder.getId(), command.getStatus().toString())
 		);
 	}
 }
