@@ -44,7 +44,8 @@ class PaymentStatusPersistentAdapterTest {
 	void paymentEvent에_있는_주문들을_시작_상태로_변경_되고_order_history에도_기록되어야_함() throws InterruptedException {
 		String expectedPaymentKey = "TEST_PAYMENT_KEY";
 		//when
-		paymentEvent = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getCheckoutId(), expectedPaymentKey).block();
+		PaymentStatusUpdateCommand cmd = new PaymentStatusUpdateCommand(paymentEvent.getCheckoutId(), PaymentStatus.EXECUTING, LocalDateTime.now(), "TEST_PAYMENT_EXECUTING");
+		paymentEvent = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(cmd, expectedPaymentKey).block();
 		PaymentEvent findPayment = paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId()).block();
 
 		assertEquals(expectedPaymentKey, findPayment.getPaymentKey(), "PAYMENT_KEY가 설정되지 않았습니다.");
@@ -54,9 +55,9 @@ class PaymentStatusPersistentAdapterTest {
 
 	@Test
 	void order_status가_succes로_변경되는지() {
-		PaymentStatusUpdateCommand command = new PaymentStatusUpdateCommand(paymentEvent.getCheckoutId(), PaymentStatus.SUCCESS, LocalDateTime.now());
-
-		Mono<Boolean> booleanMono = paymentStatusPersistentAdapter.updatePaymentStatus(command);
+		//when
+		PaymentStatusUpdateCommand cmd = new PaymentStatusUpdateCommand(paymentEvent.getCheckoutId(), PaymentStatus.SUCCESS, LocalDateTime.now(), "TEST_PAYMENT_EXECUTING");
+		Mono<Boolean> booleanMono = paymentStatusPersistentAdapter.updatePaymentStatus(cmd);
 
 		StepVerifier.create(booleanMono)
 			.expectNext(true)  // updatePaymentStatus가 성공적으로 완료되었는지 확인
@@ -73,7 +74,7 @@ class PaymentStatusPersistentAdapterTest {
 		);
 		// 각 Order의 상태가 SUCCESS로 업데이트되었는지 확인
 		updatedPaymentEvent.getOrders().forEach(order ->
-			assertEquals(command.getApprovedAt(), order.getUpdatedAt(), "Order 상태가 SUCCESS로 설정되지 않았습니다.")
+			assertEquals(cmd.getApprovedAt(), order.getUpdatedAt(), "Order 상태가 SUCCESS로 설정되지 않았습니다.")
 		);
 	}
 

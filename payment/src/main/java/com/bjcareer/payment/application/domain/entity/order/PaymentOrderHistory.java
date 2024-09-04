@@ -42,10 +42,11 @@ public class PaymentOrderHistory {
 		this.reason = reason;
 	}
 
-	public void changeStatus(PaymentStatus newStatus, String reason){
+	public void changeStatus(PaymentStatus newStatus, String reason, String changedBy){
 		this.previousStatus = this.newStatus;
 		this.newStatus = newStatus;
 		this.reason = reason;
+		this.changedBy = changedBy;
 		this.updatedAt = LocalDateTime.now();
 	}
 }

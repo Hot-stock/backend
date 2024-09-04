@@ -71,7 +71,7 @@ class PaymentPersistentAdapterTest {
 
 	@Test
 	void vaild_검증(){
-		Mono<Boolean> vaild = paymentPersistentAdapter.isVaild(paymentEvent.getCheckoutId(), paymentEvent.getTotalAmount());
+		Mono<Boolean> vaild = paymentPersistentAdapter.isValid(paymentEvent.getCheckoutId(), paymentEvent.getTotalAmount());
 		StepVerifier.create(vaild)
 			.assertNext(
 				it -> assertEquals(true, it)
