@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,6 +18,7 @@ import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
@@ -25,7 +27,6 @@ import reactor.util.retry.RetryBackoffSpec;
 @RequiredArgsConstructor
 @Slf4j
 public class TossPaymentExecutor implements PaymentExecutor {
-
 	public static final int MAX_ATTEMPTS = 3;
 	public static final int WAIT_TIME = 2;
 	public static final double JITTER_FACTOR = 0.1;
@@ -49,7 +50,12 @@ public class TossPaymentExecutor implements PaymentExecutor {
 			)
 			.bodyToMono(TossPaymentExecutionResponse.class)
 			.doOnNext(response -> log.info("Received response from Toss API for Order ID: {}", response.getOrderId()))
-			.retryWhen(getRetrySpec(paymentConfirmResult));
+			.retryWhen(getRetrySpec(paymentConfirmResult))
+			.onErrorResume(throwable -> {
+				log.error("Error occurred while confirming payment for Order ID: {} {}", paymentConfirmResult.getOrderId(), throwable.getMessage());
+				return Mono.error(new PspConfirmationException(HttpStatus.REQUEST_TIMEOUT, throwable.getMessage(), HotStockPspErrorCode.TIME_OUT_ERROR));
+			});
+
 
 		return tossPaymentExecutionResponseMono
 			.flatMap(it -> {

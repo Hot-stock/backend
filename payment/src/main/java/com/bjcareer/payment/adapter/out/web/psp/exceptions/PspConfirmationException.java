@@ -20,9 +20,9 @@ public class PspConfirmationException extends RuntimeException{
 	private boolean isRetryAbleError ;
 
 	public PspConfirmationException(HttpStatusCode errorCode, String errrMsg, HotStockPspErrorCode hotStockPspErrorCode) {
-		super(errrMsg);
+		super(hotStockPspErrorCode.getMessage());
 		this.errorCode = errorCode;
-		this.errrMsg = errrMsg;
+		this.errrMsg = hotStockPspErrorCode.getMessage();
 		this.isSuccess = hotStockPspErrorCode.isSuccess();
 		this.isFailure = hotStockPspErrorCode.isFailure();
 		this.isUnknown = hotStockPspErrorCode.isUnknown();;
