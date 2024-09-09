@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 import com.bjcareer.payment.application.domain.entity.order.PaymentStatus;
+import com.bjcareer.payment.helper.HelperPayment;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -29,48 +31,30 @@ class PaymentStatusPersistentAdapterTest {
 
 	@BeforeEach
 	void setUp() {
-		String ORDER_ID = UUID.randomUUID().toString();
-		long ID = 1L;
-		int PERCENTAGE = 20;
-		int AMOUNT = 20000;
-
-		List<PaymentOrder> paymentOrders = List.of(new PaymentOrder(ID, AMOUNT));
-		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-
-		paymentEvent = new PaymentEvent("BUYER_ID", ORDER_ID, paymentOrders, paymentCoupons);
-		paymentPersistentAdapter.save(paymentEvent).block();
+		paymentEvent = HelperPayment.createPayment();
+		paymentEvent = paymentPersistentAdapter.save(paymentEvent).block();
 	}
 
-	// @AfterEach
+	@AfterEach
 	void tearDown() {
 		paymentPersistentAdapter.delete(paymentEvent).block();
 	}
 
 	@Test
-	void order의_상태들을_실행으로_변경() {
+	void paymentEvent에_있는_주문들을_시작_상태로_변경_되고_order_history에도_기록되어야_함() throws InterruptedException {
 		String expectedPaymentKey = "TEST_PAYMENT_KEY";
+		//when
+		paymentEvent = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getCheckoutId(), expectedPaymentKey).block();
+		PaymentEvent findPayment = paymentPersistentAdapter.getPaymentByCheckoutId(paymentEvent.getCheckoutId()).block();
 
-		Mono<Void> result = paymentStatusPersistentAdapter.updatePaymentStatusToExecuting(paymentEvent.getOrderId(),
-			expectedPaymentKey);
+		assertEquals(expectedPaymentKey, findPayment.getPaymentKey(), "PAYMENT_KEY가 설정되지 않았습니다.");
+		findPayment.getOrders().forEach(order -> assertEquals(PaymentStatus.EXECUTING, order.getPaymentStatus(), "Order 상태가 EXECUTING으로 설정되지 않았습니다."));
 
-		StepVerifier.create(result).verifyComplete();  // 시퀀스가 정상적으로 종료되었는지 확인
-
-		Mono<PaymentEvent> reloadResult = paymentPersistentAdapter.findById(paymentEvent.getId());
-
-		StepVerifier.create(reloadResult)
-			.assertNext(paymentEvent -> {
-				assertEquals(expectedPaymentKey, paymentEvent.getPaymentKey(), "PAYMENT_KEY가 설정되지 않았습니다.");
-
-				paymentEvent.getOrders().forEach(order ->
-					assertEquals(PaymentStatus.EXECUTING, order.getPaymentStatus(), "Order 상태가 EXECUTING으로 설정되지 않았습니다.")
-				);
-			})
-			.verifyComplete();  // 시퀀스가 정상적으로 종료되었는지 확인
 	}
 
 	@Test
 	void order_status가_succes로_변경되는지() {
-		PaymentStatusUpdateCommand command = new PaymentStatusUpdateCommand(paymentEvent.getOrderId(), PaymentStatus.SUCCESS, LocalDateTime.now());
+		PaymentStatusUpdateCommand command = new PaymentStatusUpdateCommand(paymentEvent.getCheckoutId(), PaymentStatus.SUCCESS, LocalDateTime.now());
 
 		Mono<Boolean> booleanMono = paymentStatusPersistentAdapter.updatePaymentStatus(command);
 

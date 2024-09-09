@@ -3,6 +3,7 @@ package com.bjcareer.payment.adapter.out.persistent;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
+import com.bjcareer.payment.adapter.out.persistent.exceptions.DataNotFoundException;
 import com.bjcareer.payment.application.domain.PaymentStatusUpdateCommand;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
@@ -32,20 +33,19 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 	private final PaymentEventRepository paymentEventRepository;
 
 	@Override
-	public Mono<Void> updatePaymentStatusToExecuting(String orderId, String paymentKey) {
-		return transactionalOperator.transactional(
-			paymentRepository.findByOrderId(orderId)
-				.flatMap(paymentEvent ->
-					updatePaymentKeyAndProcessOrders(paymentEvent, paymentKey)
-						.flatMap(paymentRepository::save))
-				.then()
+	public Mono<PaymentEvent> updatePaymentStatusToExecuting(String checkoutId, String paymentKey) {
+		 return transactionalOperator.transactional(
+			paymentRepository.findByCheckoutId(checkoutId)
+				.switchIfEmpty(Mono.error(
+					new DataNotFoundException(String.format("%s의 paymnetEvent를 excuting으로 변경하려고 했지만 실패함", checkoutId))))
+				.flatMap(paymentEvent -> updatePaymentKeyAndProcessOrders(paymentEvent, paymentKey))
+				.flatMap(paymentRepository::save)
 		);
 	}
 
 	@Override
 	public Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command) {
 		if (command.getStatus() == PaymentStatus.SUCCESS){
-			System.out.println("\"진입 시도 폭동\" = " + "진입 시도 폭동");
 			return updatePaymentStatus(command, PAYMENT_CONFIRM_SUCCESS);
 		} else if (command.getStatus() == PaymentStatus.FAILURE) {
 			return updatePaymentStatus(command, PAYMENT_CONFIRM_FAILURE);
@@ -56,11 +56,9 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 
 	private Mono<PaymentEvent> updatePaymentKeyAndProcessOrders(PaymentEvent paymentEvent, String paymentKey) {
 		paymentEvent.updatePaymentKey(paymentKey);
-
 		return findAndProcessPaymentOrders(paymentEvent, PaymentStatus.EXECUTING)
 			.then(Mono.just(paymentEvent));
 	}
-
 
 	private Flux<PaymentOrder> findAndProcessPaymentOrders(PaymentEvent paymentEvent, PaymentStatus status) {
 		return findPaymentOrdersByEvent(paymentEvent)
@@ -68,23 +66,21 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 				updatePaymentOrderStatus(it, status, PAYMENT_CONFIRM_START)
 					.flatMap(paymentOrderRepository::save));
 	}
-	
-	private Flux<PaymentOrder> setUpDonePayment(PaymentEvent payment) {
-		payment.setPaymnetFinish();
-		System.out.println("ASDASDASD payment = " + payment);
-		return paymentEventRepository.save(payment).flatMapMany(this::findPaymentOrdersByEvent);
-	}
-
 
 	private Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command, String reason) {
 		return transactionalOperator.transactional(
-			paymentRepository.findByOrderId(command.getOrderId())
+			paymentRepository.findByCheckoutId(command.getCheckoutId())
 				.flatMapMany(this::setUpDonePayment)
 				.flatMap(order -> {
 						updatePaymentOrderDetails(command, order);
 						return updatePaymentOrderStatus(order, command.getStatus(), reason)
 							.flatMap(paymentOrderRepository::save);
 					}).then(Mono.just(true)));
+	}
+
+	private Flux<PaymentOrder> setUpDonePayment(PaymentEvent payment) {
+		payment.setPaymentFinished();
+		return paymentEventRepository.save(payment).flatMapMany(this::findPaymentOrdersByEvent);
 	}
 
 	private Flux<PaymentOrder> findPaymentOrdersByEvent(PaymentEvent paymentEvent) {
@@ -123,7 +119,7 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 
 	private Mono<PaymentOrderHistory> createNewPaymentOrderHistory(PaymentOrder paymentOrder, String status) {
 		return paymentOrderHistoryRepository.save(
-			new PaymentOrderHistory(paymentOrder.getId(), PaymentStatus.EXECUTING, status)
+			new PaymentOrderHistory(paymentOrder.getId(), status)
 		);
 	}
 }

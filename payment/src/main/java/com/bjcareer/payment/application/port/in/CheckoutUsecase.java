@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface CheckoutUsecase {
 	Mono<CheckoutResult> checkout(CheckoutCommand checkoutCommand);
+	Mono<CheckoutResult> validationCheckout(ValidationCheckoutCommand checkoutCommand);
 }

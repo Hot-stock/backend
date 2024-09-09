@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class PaymentExecutionResult {
 	String paymentKey;
-	String orderId;
+	String checkoutId;
 	String orderName;
 	int totalAmount;
 	PspConfirmationStatus status;
@@ -22,11 +22,11 @@ public class PaymentExecutionResult {
 	boolean isUnknown;
 
 
-	public PaymentExecutionResult(String paymentKey, String orderId, String orderName, int
+	public PaymentExecutionResult(String paymentKey, String checkoutId, String orderName, int
 		totalAmount, String status,
 		String requestAt, String approvedAt, boolean isSuccess, boolean isFailure ,boolean isUnknown) {
 		this.paymentKey = paymentKey;
-		this.orderId = orderId;
+		this.checkoutId = checkoutId;
 		this.orderName = orderName;
 		this.totalAmount = totalAmount;
 		this.status = PspConfirmationStatus.fromString(status);

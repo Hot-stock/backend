@@ -1,7 +1,7 @@
 CREATE TABLE payment_event (
            payment_event_id BIGSERIAL PRIMARY KEY,
            buyer_id VARCHAR(255),
-           order_id VARCHAR(255) NOT NULL unique,
+           checkout_id VARCHAR(255) NOT NULL unique,
            payment_key VARCHAR(255),
            payment_method VARCHAR(255),
            is_payment_done BOOLEAN NOT NULL,
@@ -14,6 +14,7 @@ CREATE TABLE payment_order (
            payment_order_id BIGSERIAL PRIMARY KEY,
            payment_event_id BIGINT NOT NULL,
            product_id BIGINT NOT NULL,
+           order_id VARCHAR(50) NOT NULL unique,
            payment_order_status VARCHAR(50) NOT NULL,
            ledger_update BOOLEAN NOT NULL,
            wallet_update BOOLEAN NOT NULL,

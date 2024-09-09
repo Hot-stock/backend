@@ -16,6 +16,7 @@ import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 import com.bjcareer.payment.application.port.out.PaymentExecutionPort;
+import com.bjcareer.payment.helper.HelperPayment;
 
 @SpringBootTest
 class PaymentExecutionWebAdapterTest {
@@ -31,15 +32,8 @@ class PaymentExecutionWebAdapterTest {
 
 	@BeforeEach
 	void setUp() {
-		long ID = 1L;
-		int PERCENTAGE = 20;
-		int AMOUNT = 20000;
-
-		List<PaymentOrder> paymentOrders = List.of(new PaymentOrder(ID, AMOUNT));
-		List<PaymentCoupon> paymentCoupons = List.of(new PaymentCoupon(ID, PERCENTAGE));
-
-		paymentEvent = new PaymentEvent("BUYER_ID", ORDER_ID, paymentOrders, paymentCoupons);
-		paymentPersistentAdapter.save(paymentEvent).block();
+		paymentEvent = HelperPayment.createPayment();
+		paymentEvent = paymentPersistentAdapter.save(paymentEvent).block();
 	}
 
 	@AfterEach

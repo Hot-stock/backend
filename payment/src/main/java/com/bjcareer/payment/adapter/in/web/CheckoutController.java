@@ -28,7 +28,7 @@ public class CheckoutController {
 	private final CheckoutUsecase checkoutUsecase;
 
 	@GetMapping("")
-public String createCheckout(Model model){
+	public String createCheckout(Model model){
 		Random random = new Random();
 		int cartId = random.nextInt(1000000);  // 0부터 9,999,999까지의 숫자 중 하나를 반환
 
@@ -41,7 +41,6 @@ public String createCheckout(Model model){
 
 	@PostMapping("/checkout")
 	public Mono<String> checkout(@RequestBody CheckoutRequest checkoutRequest, RedirectAttributes redirectAttributes){
-		log.debug("checkoutRequest = " + checkoutRequest);
 		CheckoutCommand checkoutCommand = new CheckoutCommand(checkoutRequest.getCartId(), checkoutRequest.getBuyerPk(),
 			checkoutRequest.getProductIds(), checkoutRequest.getCouponIds());
 
@@ -58,5 +57,4 @@ public String createCheckout(Model model){
 	public String checkout(Model model){
 		return "checkout";
 	}
-
 }

@@ -5,12 +5,12 @@ import lombok.Data;
 @Data
 public class PaymentConfirmCommand {
 	private String paymentKey;
-	private String orderId;
+	private String checkoutId;
 	private Long amount;
 
-	public PaymentConfirmCommand(String paymentKey, String orderId, Long amount) {
+	public PaymentConfirmCommand(String paymentKey, String checkoutId, Long amount) {
 		this.paymentKey = paymentKey;
-		this.orderId = orderId;
+		this.checkoutId = checkoutId;
 		this.amount = amount;
 	}
 }
