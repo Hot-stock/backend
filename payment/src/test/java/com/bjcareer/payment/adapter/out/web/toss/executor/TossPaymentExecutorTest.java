@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.bjcareer.payment.adapter.out.web.psp.PspConfirmationException;
+import com.bjcareer.payment.adapter.out.web.psp.exceptions.PspConfirmationException;
 import com.bjcareer.payment.adapter.out.web.psp.toss.exception.TossErrorCode;
 import com.bjcareer.payment.adapter.out.web.psp.toss.executor.TossPaymentExecutor;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;

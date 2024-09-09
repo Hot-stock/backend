@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.bjcareer.payment.adapter.out.web.psp.exceptions.HotStockPspErrorCode;
 import com.bjcareer.payment.adapter.out.web.psp.toss.exception.TossErrorCode;
 import com.bjcareer.payment.adapter.out.web.psp.toss.response.TossFailureResponse;
 import com.bjcareer.payment.adapter.out.web.psp.toss.response.TossPaymentExecutionResponse;
-import com.bjcareer.payment.adapter.out.web.psp.PspConfirmationException;
+import com.bjcareer.payment.adapter.out.web.psp.exceptions.PspConfirmationException;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 
@@ -61,7 +62,7 @@ public class TossPaymentExecutor implements PaymentExecutor {
 	private static Mono<Throwable> getPspConfirmException(TossFailureResponse response) {
 		TossErrorCode tossErrorCode = TossErrorCode.valueOf(response.getCode());
 		PspConfirmationException pspConfirmationException = new PspConfirmationException(
-			HttpStatus.valueOf(response.getCode()), response.getMessage(), tossErrorCode);
+			HttpStatus.valueOf(response.getCode()), response.getMessage(), HotStockPspErrorCode.valueOf(tossErrorCode));
 		log.error("Payment confirmation failed with error code: {}, message: {}", response.getCode(), response.getMessage());
 		return Mono.error(pspConfirmationException);
 	}

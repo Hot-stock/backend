@@ -1,4 +1,4 @@
-package com.bjcareer.payment.adapter.out.web.psp;
+package com.bjcareer.payment.adapter.out.web.psp.exceptions;
 
 import org.springframework.http.HttpStatusCode;
 
@@ -19,13 +19,13 @@ public class PspConfirmationException extends RuntimeException{
 	private boolean isUnknown;
 	private boolean isRetryAbleError ;
 
-	public PspConfirmationException(HttpStatusCode errorCode, String errrMsg, TossErrorCode tossErrorCode) {
+	public PspConfirmationException(HttpStatusCode errorCode, String errrMsg, HotStockPspErrorCode hotStockPspErrorCode) {
 		super(errrMsg);
 		this.errorCode = errorCode;
 		this.errrMsg = errrMsg;
-		this.isSuccess = tossErrorCode.isSuccess();
-		this.isFailure = tossErrorCode.isSFailure();
-		this.isUnknown = tossErrorCode.isUnknown();;
+		this.isSuccess = hotStockPspErrorCode.isSuccess();
+		this.isFailure = hotStockPspErrorCode.isFailure();
+		this.isUnknown = hotStockPspErrorCode.isUnknown();;
 
 		this.isRetryAbleError = isUnknown;
 	}
