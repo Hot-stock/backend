@@ -2,7 +2,6 @@ package com.bjcareer.payment.adapter.out.web.toss.exception;
 
 public enum TossErrorCode {
 	ACCOUNT_OWNER_CHECK_FAILED("계좌 소유주를 가져오는데 실패했습니다. 은행코드, 계좌번호를 확인해주세요."),
-	ALREADY_CANCELED_PAYMENT("이미 취소된 결제 입니다."),
 	ALREADY_COMPLETED_PAYMENT("이미 완료된 결제 입니다."),
 	ALREADY_EXIST_SUBMALL("이미 존재하는 서브몰입니다."),
 	BELOW_MINIMUM_AMOUNT("신용카드는 결제금액이 100원 이상, 계좌는 200원이상부터 결제가 가능합니다."),
@@ -28,7 +27,31 @@ public enum TossErrorCode {
 		this.koreanMessage = koreanMessage;
 	}
 
-	public String getKoreanMessage() {
-		return koreanMessage;
+
+	public TossErrorCode getErrorCode(String msg) {
+		return TossErrorCode.valueOf(msg);
+	}
+
+	public Boolean isSuccess(){
+		return this == TossErrorCode.ALREADY_COMPLETED_PAYMENT;
+	}
+
+	public Boolean isSFailure(){
+		switch (this){
+			case BELOW_MINIMUM_AMOUNT:
+			case BELOW_ZERO_AMOUNT:
+			case EXCEED_MAX_AMOUNT:
+			case INVALID_CARD:
+			case INVALID_ACCOUNT_NUMBER:
+			case INVALID_PASSWORD:
+			case NOT_FOUND:
+				return true;
+		}
+
+		return false;
+	}
+
+	public Boolean isUnknown(){
+		return !isSuccess() && !isSFailure();
 	}
 }
