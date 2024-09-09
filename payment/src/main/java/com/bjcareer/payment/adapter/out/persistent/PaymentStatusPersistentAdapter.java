@@ -21,27 +21,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Repository
 public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
-	public static final String PAYMENT_CONFIRM_START = "PAYMENT_CONFIRM_START";
-	public static final String PAYMENT_CONFIRM_SUCCESS = "PAYMENT_CONFIRM_SUCCESS";
-	public static final String PAYMENT_CONFIRM_FAILURE = "PAYMENT_CONFIRM_FAILURE";
-	public static final String PAYMENT_CONFIRM_UNKNOWN = "PAYMENT_CONFIRM_UNKNOWN";
-
 	private final PaymentEventRepository paymentRepository;
 	private final PaymentOrderRepository paymentOrderRepository;
 	private final PaymentOrderHistoryRepository paymentOrderHistoryRepository;
 	private final TransactionalOperator transactionalOperator;
-	private final PaymentEventRepository paymentEventRepository;
 
-	@Override
-	public Mono<PaymentEvent> updatePaymentStatusToExecuting(PaymentStatusUpdateCommand command, String paymentKey) {
-		 return transactionalOperator.transactional(
-			paymentRepository.findByCheckoutId(command.getCheckoutId())
-				.switchIfEmpty(Mono.error(
-					new DataNotFoundException(String.format("%s의 paymnetEvent를 excuting으로 변경하려고 했지만 실패함", command.getCheckoutId()))))
-				.flatMap(paymentEvent -> updatePaymentKeyAndProcessOrders(paymentEvent, command, paymentKey))
-				.flatMap(paymentRepository::save)
-		);
-	}
 
 	@Override
 	public Mono<Boolean> updatePaymentStatus(PaymentStatusUpdateCommand command) {
@@ -51,6 +35,9 @@ public class PaymentStatusPersistentAdapter implements PaymentStatusUpdatePort {
 					paymentEvent.setPaymentFinished();
 					return paymentRepository.save(paymentEvent)
 						.thenReturn(true);
+				}else if(command.getStatus() == PaymentStatus.NOT_STARTED){
+					paymentEvent.updatePaymentKey(command.getPaymentKey());
+					return paymentRepository.save(paymentEvent).thenReturn(true);
 				}
 				return Mono.just(true);
 			});
