@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout 요청 보내기</title>
+</head>
+<body>
+<button id="checkoutButton">Checkout</button>
+
+<script>
+    document.getElementById('checkoutButton').addEventListener('click', function() {
+        const url = "http://localhost:8080/payment/checkout";
+
+        // 1부터 1000000 사이의 랜덤 정수 생성
+        const cartId = Math.floor(Math.random() * 1000000) + 1;
+
+        // 서버에서 올바르게 전달된 cartId 값이 있다면 다음 코드가 정상적으로 동작할 것입니다.
+        const data = {
+            cartId: cartId,  // 실제 숫자 타입의 값이어야 합니다.
+            buyerPk: "5EnNZRJGvaBX7zk2yd8ydw26XvwXkLrx9POLqKQjmAw4b0e1",
+            productIds: [1],
+            couponIds: [2]
+        };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+            redirect: 'follow'  // 기본값으로, fetch가 리디렉션을 자동으로 따르게 합니다.
+        })
+            .then(response => response.text())
+            .then(html => {
+                // 새 창을 열고, 해당 창에 HTML을 삽입합니다.
+                const newWindow = window.open("", "_blank");
+                if (newWindow) {
+                    newWindow.document.write(html);
+                    newWindow.document.close(); // 새 창의 문서를 닫아 리소스 로딩을 완료합니다.
+                } else {
+                    console.error('새 창을 열 수 없습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+</script>
+</body>
+</html>
