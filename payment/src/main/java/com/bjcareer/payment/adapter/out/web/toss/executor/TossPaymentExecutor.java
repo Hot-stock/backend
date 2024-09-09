@@ -14,6 +14,7 @@ import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
@@ -23,9 +24,8 @@ import org.slf4j.LoggerFactory;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class TossPaymentExecutor implements PaymentExecutor {
-
-	private static final Logger logger = LoggerFactory.getLogger(TossPaymentExecutor.class);
 
 	public static final int MAX_ATTEMPTS = 3;
 	public static final int WAIT_TIME = 2;
@@ -36,7 +36,7 @@ public class TossPaymentExecutor implements PaymentExecutor {
 	public Mono<PaymentExecutionResult> execute(PaymentConfirmResult paymentConfirmResult) {
 		String uri = "/v1/payments/confirm";
 
-		logger.info("Executing payment confirmation for Order ID: {}", paymentConfirmResult.getOrderId());
+		log.info("Executing payment confirmation for Order ID: {}", paymentConfirmResult.getOrderId());
 
 		Mono<TossPaymentExecutionResponse> tossPaymentExecutionResponseMono = webClient.post()
 			.uri(uri)
@@ -49,12 +49,12 @@ public class TossPaymentExecutor implements PaymentExecutor {
 					.flatMap(TossPaymentExecutor::getPspConfirmException)
 			)
 			.bodyToMono(TossPaymentExecutionResponse.class)
-			.doOnNext(response -> logger.info("Received response from Toss API for Order ID: {}", response.getOrderId()))
+			.doOnNext(response -> log.info("Received response from Toss API for Order ID: {}", response.getOrderId()))
 			.retryWhen(getRetrySpec(paymentConfirmResult));
 
 		return tossPaymentExecutionResponseMono
 			.flatMap(it -> {
-				logger.info("Payment confirmation successful for Order ID: {}", it.getOrderId());
+				log.info("Payment confirmation successful for Order ID: {}", it.getOrderId());
 				return Mono.just(new PaymentExecutionResult(it.getPaymentKey(), it.getOrderId(), it.getOrderName(),
 					it.getTotalAmount(), it.getStatus(), it.getRequestedAt(), it.getApprovedAt(), true, false, false));
 			});
@@ -64,14 +64,14 @@ public class TossPaymentExecutor implements PaymentExecutor {
 		TossErrorCode tossErrorCode = TossErrorCode.valueOf(response.getCode());
 		PspConfirmationException pspConfirmationException = new PspConfirmationException(
 			response.getCode(), response.getMessage(), tossErrorCode);
-		logger.error("Payment confirmation failed with error code: {}, message: {}", response.getCode(), response.getMessage());
+		log.error("Payment confirmation failed with error code: {}, message: {}", response.getCode(), response.getMessage());
 		return Mono.error(pspConfirmationException);
 	}
 
 	private RetryBackoffSpec getRetrySpec(PaymentConfirmResult paymentConfirmResult) {
 		return Retry.backoff(MAX_ATTEMPTS, Duration.ofSeconds(WAIT_TIME)).jitter(JITTER_FACTOR)
 			.filter(this::shouldRetry) // 특정 조건에 따라 재시도
-			.doBeforeRetry(retrySignal -> logger.warn("Retrying payment confirmation for Order ID: {}. Attempt: {}",
+			.doBeforeRetry(retrySignal -> log.warn("Retrying payment confirmation for Order ID: {}. Attempt: {}",
 				paymentConfirmResult.getOrderId(), retrySignal.totalRetries() + 1));
 	}
 

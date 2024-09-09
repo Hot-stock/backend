@@ -95,6 +95,9 @@ public class PaymentOrder {
 	public void updateApprovedAt(LocalDateTime approvedAt){
 		this.updatedAt = approvedAt;
 	}
+	public void updateFailCount(int failCount){
+		this.failCount = failCount;
+	}
 
 	private boolean isFinished(){
 		if (this.paymentStatus == PaymentStatus.SUCCESS || this.paymentStatus == PaymentStatus.FAILURE) {

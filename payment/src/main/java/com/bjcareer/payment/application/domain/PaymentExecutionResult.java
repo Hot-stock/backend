@@ -37,8 +37,8 @@ public class PaymentExecutionResult {
 		this.isFailure = isFailure;
 		this.isUnknown = isUnknown;
 	}
-
-	public PaymentExecutionResult(String code, String message) {
+	public PaymentExecutionResult(String paymentKey, String checkoutId, String orderName, int totalAmount, String status, String requestAt, String approvedAt, boolean isSuccess, boolean isFailure ,boolean isUnknown, String code, String message){
+		this(paymentKey, checkoutId, orderName, totalAmount, status, requestAt, approvedAt, isSuccess, isFailure, isUnknown);
 		failureExecution = new FailureExecution(code, message);
 	}
 
