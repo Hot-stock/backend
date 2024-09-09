@@ -10,9 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.payment.adapter.out.persistent.PaymentPersistentAdapter;
-import com.bjcareer.payment.adapter.out.web.PaymentExecutionWebAdapter;
-import com.bjcareer.payment.adapter.out.web.toss.exception.TossErrorCode;
-import com.bjcareer.payment.adapter.out.web.toss.executor.TossPaymentExecutor;
+import com.bjcareer.payment.adapter.out.web.psp.PaymentExecutionWebAdapter;
+import com.bjcareer.payment.adapter.out.web.psp.toss.exception.TossErrorCode;
+import com.bjcareer.payment.adapter.out.web.psp.toss.executor.TossPaymentExecutor;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 import com.bjcareer.payment.application.domain.entity.event.PaymentEvent;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;

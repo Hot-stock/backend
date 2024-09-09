@@ -1,5 +1,8 @@
-package com.bjcareer.payment.adapter.out.web.toss.exception;
+package com.bjcareer.payment.adapter.out.web.psp;
 
+import org.springframework.http.HttpStatusCode;
+
+import com.bjcareer.payment.adapter.out.web.psp.toss.exception.TossErrorCode;
 import com.bjcareer.payment.application.domain.entity.order.PaymentStatus;
 
 import lombok.Data;
@@ -8,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class PspConfirmationException extends RuntimeException{
-	private String errorCode;
+	private HttpStatusCode errorCode;
 	private String errrMsg;
 
 	private boolean isSuccess;
@@ -16,7 +19,7 @@ public class PspConfirmationException extends RuntimeException{
 	private boolean isUnknown;
 	private boolean isRetryAbleError ;
 
-	public PspConfirmationException(String errorCode, String errrMsg, TossErrorCode tossErrorCode) {
+	public PspConfirmationException(HttpStatusCode errorCode, String errrMsg, TossErrorCode tossErrorCode) {
 		super(errrMsg);
 		this.errorCode = errorCode;
 		this.errrMsg = errrMsg;

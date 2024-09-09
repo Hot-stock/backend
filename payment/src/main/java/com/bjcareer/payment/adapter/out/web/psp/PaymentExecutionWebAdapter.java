@@ -1,8 +1,8 @@
-package com.bjcareer.payment.adapter.out.web;
+package com.bjcareer.payment.adapter.out.web.psp;
 
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.payment.adapter.out.web.toss.executor.PaymentExecutor;
+import com.bjcareer.payment.adapter.out.web.psp.toss.executor.PaymentExecutor;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 import com.bjcareer.payment.application.port.out.PaymentExecutionPort;

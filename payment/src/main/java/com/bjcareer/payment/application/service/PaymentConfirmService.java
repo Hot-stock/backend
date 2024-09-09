@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.payment.adapter.out.web.toss.exception.PspConfirmationException;
+import com.bjcareer.payment.adapter.out.web.psp.PspConfirmationException;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 import com.bjcareer.payment.application.domain.PaymentStatusUpdateCommand;

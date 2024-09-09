@@ -1,4 +1,4 @@
-package com.bjcareer.payment.adapter.out.web.toss.executor;
+package com.bjcareer.payment.adapter.out.web.psp.toss.executor;
 
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;

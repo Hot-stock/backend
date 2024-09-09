@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.bjcareer.payment.adapter.out.web.toss.exception.PspConfirmationException;
+import com.bjcareer.payment.adapter.out.web.psp.PspConfirmationException;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 import com.bjcareer.payment.application.domain.PaymentStatusUpdateCommand;

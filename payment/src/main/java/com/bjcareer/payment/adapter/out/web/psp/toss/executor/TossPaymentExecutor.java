@@ -1,15 +1,16 @@
-package com.bjcareer.payment.adapter.out.web.toss.executor;
+package com.bjcareer.payment.adapter.out.web.psp.toss.executor;
 
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.bjcareer.payment.adapter.out.web.toss.exception.PspConfirmationException;
-import com.bjcareer.payment.adapter.out.web.toss.exception.TossErrorCode;
-import com.bjcareer.payment.adapter.out.web.toss.response.TossFailureResponse;
-import com.bjcareer.payment.adapter.out.web.toss.response.TossPaymentExecutionResponse;
+import com.bjcareer.payment.adapter.out.web.psp.toss.exception.TossErrorCode;
+import com.bjcareer.payment.adapter.out.web.psp.toss.response.TossFailureResponse;
+import com.bjcareer.payment.adapter.out.web.psp.toss.response.TossPaymentExecutionResponse;
+import com.bjcareer.payment.adapter.out.web.psp.PspConfirmationException;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 
@@ -18,9 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 @RequiredArgsConstructor
@@ -63,7 +61,7 @@ public class TossPaymentExecutor implements PaymentExecutor {
 	private static Mono<Throwable> getPspConfirmException(TossFailureResponse response) {
 		TossErrorCode tossErrorCode = TossErrorCode.valueOf(response.getCode());
 		PspConfirmationException pspConfirmationException = new PspConfirmationException(
-			response.getCode(), response.getMessage(), tossErrorCode);
+			HttpStatus.valueOf(response.getCode()), response.getMessage(), tossErrorCode);
 		log.error("Payment confirmation failed with error code: {}, message: {}", response.getCode(), response.getMessage());
 		return Mono.error(pspConfirmationException);
 	}

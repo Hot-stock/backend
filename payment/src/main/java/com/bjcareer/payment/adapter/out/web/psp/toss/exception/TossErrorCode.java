@@ -1,4 +1,4 @@
-package com.bjcareer.payment.adapter.out.web.toss.exception;
+package com.bjcareer.payment.adapter.out.web.psp.toss.exception;
 
 public enum TossErrorCode {
 	ACCOUNT_OWNER_CHECK_FAILED("계좌 소유주를 가져오는데 실패했습니다. 은행코드, 계좌번호를 확인해주세요."),
