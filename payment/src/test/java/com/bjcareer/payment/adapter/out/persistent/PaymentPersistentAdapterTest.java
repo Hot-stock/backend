@@ -28,7 +28,7 @@ class PaymentPersistentAdapterTest {
 	int AMOUNT = 2000;
 	int PERCENTAGE = 20;
 
-	String ORDER_ID = UUID.randomUUID().toString();
+	String CHECKOUT_ID = UUID.randomUUID().toString();
 
 	@Autowired
 	PaymentPersistentAdapter paymentPersistentAdapter;
@@ -38,7 +38,7 @@ class PaymentPersistentAdapterTest {
 	void setUp() {
 		PaymentOrder paymentOrder = new PaymentOrder(PRODUCT_ID, AMOUNT);
 		PaymentCoupon paymentCoupon = new PaymentCoupon(COUPON_ID, PERCENTAGE);
-		paymentEvent = new PaymentEvent(BUYER_ID, ORDER_ID, List.of(paymentOrder), List.of(paymentCoupon));
+		paymentEvent = new PaymentEvent(BUYER_ID, CHECKOUT_ID, List.of(paymentOrder), List.of(paymentCoupon));
 
 		// Act: 실제로 저장 메서드를 호출하고 결과를 얻습니다.
 		Mono<PaymentEvent> save = paymentPersistentAdapter.save(paymentEvent);
@@ -59,7 +59,7 @@ class PaymentPersistentAdapterTest {
 
 		PaymentOrder paymentOrder = new PaymentOrder(PRODUCT_ID, amount);
 		PaymentCoupon paymentCoupon = new PaymentCoupon(COUPON_ID, percentage);
-		PaymentEvent paymentEvent = new PaymentEvent(BUYER_ID, ORDER_ID, List.of(paymentOrder), List.of(paymentCoupon));
+		PaymentEvent paymentEvent = new PaymentEvent(BUYER_ID, UUID.randomUUID().toString(), List.of(paymentOrder), List.of(paymentCoupon));
 
 		// Act: 실제로 저장 메서드를 호출하고 결과를 얻습니다.
 		Mono<PaymentEvent> save = paymentPersistentAdapter.save(paymentEvent);
@@ -75,10 +75,6 @@ class PaymentPersistentAdapterTest {
 
 	@Test
 	void Payment_이벤트_객체를_findId로_통해서_모두_복원하는지() {
-		int percentage = 20;
-		int amount = 100;
-
-
 		Mono<PaymentEvent> findPaymentEventMono = paymentPersistentAdapter.findById(paymentEvent.getId());
 		PaymentEvent findPaymentEvent = findPaymentEventMono.block();
 
@@ -89,10 +85,24 @@ class PaymentPersistentAdapterTest {
 
 	@Test
 	void vaild_검증(){
-		Mono<Boolean> vaild = paymentPersistentAdapter.isVaild(ORDER_ID, paymentEvent.getTotalAmount());
+		Mono<Boolean> vaild = paymentPersistentAdapter.isVaild(CHECKOUT_ID, paymentEvent.getTotalAmount());
 		StepVerifier.create(vaild)
 			.assertNext(
 				it -> assertEquals(true, it)
+			).verifyComplete();
+	}
+
+
+	@Test
+	void checkoutId로_payment_검사(){
+		Mono<PaymentEvent> paymentByCheckoutId = paymentPersistentAdapter.getPaymentByCheckoutId(CHECKOUT_ID);
+		StepVerifier.create(paymentByCheckoutId)
+			.assertNext(
+				it -> {
+					assertEquals(paymentEvent.getCheckoutId(), it.getCheckoutId());
+					assertEquals(paymentEvent.getTotalAmount(), it.getTotalAmount());
+					assertEquals(paymentEvent.getCreatedAt(), it.getCreatedAt());
+				}
 			).verifyComplete();
 	}
 }

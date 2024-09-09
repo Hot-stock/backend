@@ -6,7 +6,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,6 @@ import com.bjcareer.payment.application.domain.entity.coupon.PaymentCoupon;
 import com.bjcareer.payment.application.domain.entity.order.PaymentOrder;
 
 import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Component
-@Data
 public class PaymentEvent {
 
 	@Id
@@ -33,20 +30,20 @@ public class PaymentEvent {
 	@Column("buyer_id")
 	private String buyerId;
 
-	@Column("order_id")
-	private String orderId; //checkout_id uuid를 사용한다고 가정
+	@Column("checkout_id")
+	private String checkoutId; // checkout_id uuid를 사용
 
 	@Column("payment_key")
 	private String paymentKey;
 
 	@Column("payment_method")
-	private PaymentMethod paymentMethod;
+	private PaymentMethod paymentMethod = PaymentMethod.CREDIT_CARD; // 기본값 설정
 
 	@Column("is_payment_done")
-	private boolean isPaymentDone;
+	private boolean isPaymentDone = false; // 기본값 설정
 
 	@Column("created_at")
-	private LocalDateTime createAt;
+	private LocalDateTime createdAt;
 
 	@Column("updated_at")
 	private LocalDateTime updatedAt;
@@ -57,43 +54,35 @@ public class PaymentEvent {
 	@Transient
 	private List<PaymentCoupon> coupons = new ArrayList<>();
 
+	public PaymentEvent(String buyerId, String checkoutId, List<PaymentOrder> orders, List<PaymentCoupon> coupons) {
+		this.buyerId = buyerId;
+		this.checkoutId = checkoutId;
+		this.orders = orders;
+		this.coupons = coupons;
 
-	public PaymentEvent(String buyerId, String orderId, List<PaymentOrder> orders, List<PaymentCoupon> coupon) {
-		this(null, buyerId, orderId, orders, coupon);
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
 	}
 
-	public PaymentEvent(Long Id, String buyerId, String orderId, List<PaymentOrder> orders, List<PaymentCoupon> coupon) {
-		this(Id, buyerId, orderId, null, orders, coupon);
-	}
-	public PaymentEvent(Long Id, String buyerId, String orderId, String paymentKey, List<PaymentOrder> orders, List<PaymentCoupon> coupon) {
-		this.id = Id;
-		this.paymentKey = paymentKey;
-		initVariable(buyerId, orderId, orders, coupon);
+	public PaymentEvent(PaymentEvent paymentEvent, List<PaymentOrder> orders, List<PaymentCoupon> coupons) {
+		this(paymentEvent.getBuyerId(), paymentEvent.getCheckoutId(), orders, coupons);
+		this.id = paymentEvent.getId();
+		this.isPaymentDone = paymentEvent.isPaymentDone();
+		this.createdAt = paymentEvent.getCreatedAt();
+		this.updatedAt = paymentEvent.getUpdatedAt();
+		this.paymentMethod = paymentEvent.getPaymentMethod();
 	}
 
-
-	public Long getTotalAmount(){
+	public Long getTotalAmount() {
 		return orders.stream().mapToLong(PaymentOrder::getAmount).sum();
 	}
 
-	public void updatePaymentKey(String paymentKey){
+	public void updatePaymentKey(String paymentKey) {
 		this.paymentKey = paymentKey;
 	}
 
-	private void initVariable(String buyerId, String orderId, List<PaymentOrder> orders, List<PaymentCoupon> coupon) {
-		this.buyerId = buyerId;
-		this.orderId = orderId;
-		this.orders = orders;
-		this.coupons = coupon;
-
-		this.createAt = LocalDateTime.now();
-		this.isPaymentDone = false;
-		this.updatedAt = LocalDateTime.now();
-		this.paymentMethod = PaymentMethod.CREDIT_CARD;
-	}
-
-	public void setPaymnetFinish(){
+	public void setPaymentFinished() {
 		this.isPaymentDone = true;
+		this.updatedAt = LocalDateTime.now(); // 결제 완료 시점으로 업데이트
 	}
-
 }

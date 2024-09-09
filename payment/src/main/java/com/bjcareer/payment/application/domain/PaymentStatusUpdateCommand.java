@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class PaymentStatusUpdateCommand {
-	private final String orderId;
+	private final String checkoutId;
 	private final PaymentStatus status;
 	private final LocalDateTime approvedAt;
 }
