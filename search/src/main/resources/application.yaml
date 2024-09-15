@@ -8,29 +8,38 @@ spring:
     password: timo
     url: jdbc:postgresql://localhost:5432/search_service
 
-
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true
+        format_sql: true
+#        use_sql_comments: true
+    show-sql: true
 
 redis:
-  address: redis://localhost:6379,redis://localhost:6381
+  address: redis://localhost:6379
   password: changeme
   database: 0
 
 mongodb:
   database: keywords
-  uri: mongodb://changeme:changeme@localhost:27017,mongodb://changeme:changeme@localhost:27018
-
+  uri: mongodb://changeme:changeme@localhost:27017
 
 logging:
   level:
-    com.bjcareer.search : debug
+#    org.hibernate.SQL: debug # SQL 쿼리 로그 출력
+    org.hibernate.orm.jdbc.bind: TRACE
 
-# 추가된 설정 항목
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+
 database:
-  number: ${DATABASE_NUMBER:2}
+  number: 1
+  shardingKey: id
