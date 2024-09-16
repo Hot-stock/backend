@@ -22,12 +22,13 @@ import lombok.RequiredArgsConstructor;
 public class ThemaController {
 	private final ThemaService themaService;
 
-	@GetMapping("/search")
-	public Response<?> searchThema(@RequestParam String thema, @RequestParam(required = false) Long marketAmount) {
+	@GetMapping("")
+	public Response<?> searchThema(@RequestParam(name = "q") String thema, @RequestParam(required = false) Long marketAmount) {
 		if (thema.isEmpty()) {
 			return new Response<>(HttpStatus.BAD_REQUEST, "thema is empty", null);
 		}
 		List<ThemaInfo> themaInfos = themaService.searchThema(thema);
-		return new Response<>(HttpStatus.OK, "OK", new SearchThemaResponseDTO(themaInfos));
+		SearchThemaResponseDTO searchThemaResponseDTO = new SearchThemaResponseDTO(themaInfos);
+		return new Response<>(HttpStatus.OK, "OK", searchThemaResponseDTO.response);
 	}
 }
