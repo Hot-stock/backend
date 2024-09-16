@@ -23,10 +23,10 @@ public class StockController {
 	private final StockService stockService;
 
 	@GetMapping("")
-	public Response<?> getStockOfThema(@RequestParam String q) {
-		log.info("q: {}", q);
-		List<Thema> stockOfThema = stockService.getStockOfThema(q);
+	public Response<?> getStockOfThema(@RequestParam(name = "q") String stock) {
+		log.info("q: {}", stock);
+		List<Thema> stockOfThema = stockService.getStockOfThema(stock);
 		SearchStockResponseDTO searchStockResponseDTO = new SearchStockResponseDTO(stockOfThema);
-		return new Response<>(HttpStatus.OK, "OK", searchStockResponseDTO);
+		return new Response<>(HttpStatus.OK, "OK", searchStockResponseDTO.responses);
 	}
 }
