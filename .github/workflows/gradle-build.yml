@@ -67,19 +67,12 @@ jobs:
             DOCKERFILE_DIR="./$CLEAN_TAG"
             
             cd "$DOCKERFILE_DIR"
-            echo "Current directory is: $(pwd)"
-          
-            ls -la  # 현재 디렉토리의 파일 및 폴더 출력
             
-            # CLEAN_TAG를 소문자로 변환 (빌드 직전에 적용)
             LOWERCASE_TAG=$(echo "$CLEAN_TAG" | tr '[:upper:]' '[:lower:]')
             docker build -f Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:${{ github.sha }} .
-          
-            echo "Docker image built successfully."
             docker push ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:${{ github.sha }}
-              
-            echo "Docker image pushed successfully."
+          
             cd -
           done
-
-
+          
+          
