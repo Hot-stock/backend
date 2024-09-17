@@ -68,6 +68,8 @@ public class ScheduleCrawlingService {
 		long endTime = System.currentTimeMillis(); // 종료 시간 측정
 		long duration = endTime - startTime; // 수행 시간 계산
 		log.info("CrawlingService finished in " + duration + " ms");
+		stockRepository.saveAll(new ArrayList<>(stocks.values()));
+		themaInfoRepository.saveAll(new ArrayList<>(themaInfos.values()));
 		themaRepository.saveAll(new ArrayList<>(themas.values()));
 		log.info("CrawlingService saved themas");
 	}
