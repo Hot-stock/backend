@@ -6,10 +6,12 @@ import java.util.List;
 
 import org.hibernate.annotations.BatchSize;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -38,7 +40,7 @@ public class Stock {
 	private Long price;
 	private Long marketCapitalization;
 
-	@OneToMany(mappedBy = "stock")
+	@OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@BatchSize(size = 10)
 	List<Thema> themas = new ArrayList<>();
 
@@ -49,7 +51,16 @@ public class Stock {
 		this.href = href;
 		this.issuedShares = issuedShares;
 		this.price = price;
-		this.marketCapitalization = issuedShares * price;
+
+		if (issuedShares != null && price != null) {
+			this.marketCapitalization = issuedShares * price;
+		}else {
+			this.marketCapitalization = 0L;
+		}
+	}
+
+	public Stock(String code, String name) {
+		this(code, name, null, null, null, null);
 	}
 
 	@Override
@@ -64,5 +75,9 @@ public class Stock {
 			", price=" + price +
 			", marketCapitalization=" + marketCapitalization +
 			'}';
+	}
+
+	public boolean validStock() {
+		return issuedShares != null && price != null;
 	}
 }

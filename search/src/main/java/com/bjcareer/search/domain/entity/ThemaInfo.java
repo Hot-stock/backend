@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.annotations.BatchSize;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,13 +28,17 @@ public class ThemaInfo {
 	private String name;
 	private String href;
 
-	@OneToMany(mappedBy = "themaInfo")
+	@OneToMany(mappedBy = "themaInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@BatchSize(size = 10)
 	private List<Thema> themas = new ArrayList<>();
 
 	public ThemaInfo(String name, String href) {
 		this.name = name;
 		this.href = href;
+	}
+
+	public ThemaInfo(String name) {
+		this(name, null);
 	}
 
 	@Override

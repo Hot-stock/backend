@@ -30,11 +30,11 @@ public class Thema {
 	@GeneratedValue
 	private Long id;
 
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "STOCK_ID")
 	private Stock stock;
 
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "THEMA_INFO_ID")
 	private ThemaInfo themaInfo;
 
