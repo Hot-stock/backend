@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
+@Slf4j
 public class RedisConfig {
 
 	@Value("#{'${redis.address}'.split(',')}")
@@ -30,7 +33,6 @@ public class RedisConfig {
 		List<RedissonClient> redissonClients = new ArrayList<>();
 
 		for (String address : adddress) {
-			System.out.println("\"연결되는 중\" + address = " + "연결되는 중" + address);
 			Config config = new Config();
 			SingleServerConfig singleServerConfig = config.useSingleServer();
 			singleServerConfig.setAddress(address);
@@ -40,7 +42,7 @@ public class RedisConfig {
 			redissonClients.add(Redisson.create(config));
 		}
 
-		System.out.println("redissonClients = " + redissonClients);
+		log.debug("redissonClients = {}", redissonClients);
 		return redissonClients;
 	}
 
