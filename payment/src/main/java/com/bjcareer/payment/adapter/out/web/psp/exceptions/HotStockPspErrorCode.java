@@ -1,6 +1,8 @@
-package com.bjcareer.payment.adapter.out.web.toss.exception;
+package com.bjcareer.payment.adapter.out.web.psp.exceptions;
 
-public enum TossErrorCode {
+import com.bjcareer.payment.adapter.out.web.psp.toss.exception.TossErrorCode;
+
+public enum HotStockPspErrorCode {
 	ACCOUNT_OWNER_CHECK_FAILED("계좌 소유주를 가져오는데 실패했습니다. 은행코드, 계좌번호를 확인해주세요."),
 	ALREADY_COMPLETED_PAYMENT("이미 완료된 결제 입니다."),
 	ALREADY_EXIST_SUBMALL("이미 존재하는 서브몰입니다."),
@@ -23,35 +25,33 @@ public enum TossErrorCode {
 
 	private final String koreanMessage;
 
-	TossErrorCode(String koreanMessage) {
+	HotStockPspErrorCode(String koreanMessage) {
 		this.koreanMessage = koreanMessage;
 	}
 
 
-	public TossErrorCode getErrorCode(String msg) {
-		return TossErrorCode.valueOf(msg);
+	public HotStockPspErrorCode getErrorCode(String msg) {
+		return HotStockPspErrorCode.valueOf(msg);
 	}
 
 	public Boolean isSuccess(){
-		return this == TossErrorCode.ALREADY_COMPLETED_PAYMENT;
+		return this == HotStockPspErrorCode.ALREADY_COMPLETED_PAYMENT;
 	}
 
-	public Boolean isSFailure(){
-		switch (this){
-			case BELOW_MINIMUM_AMOUNT:
-			case BELOW_ZERO_AMOUNT:
-			case EXCEED_MAX_AMOUNT:
-			case INVALID_CARD:
-			case INVALID_ACCOUNT_NUMBER:
-			case INVALID_PASSWORD:
-			case NOT_FOUND:
-				return true;
-		}
+	public Boolean isFailure(){
+		return switch (this) {
+			case BELOW_MINIMUM_AMOUNT, BELOW_ZERO_AMOUNT, EXCEED_MAX_AMOUNT, INVALID_CARD, INVALID_ACCOUNT_NUMBER,
+				 INVALID_PASSWORD, NOT_FOUND -> true;
+			default -> false;
+		};
 
-		return false;
 	}
 
 	public Boolean isUnknown(){
-		return !isSuccess() && !isSFailure();
+		return !isSuccess() && !isFailure();
+	}
+
+	public static HotStockPspErrorCode valueOf(TossErrorCode tossErrorCode){
+		return HotStockPspErrorCode.valueOf(tossErrorCode.name());
 	}
 }

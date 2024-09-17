@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.payment.adapter.out.web.toss.exception.PspConfirmationException;
+import com.bjcareer.payment.adapter.out.web.psp.exceptions.PspConfirmationException;
 import com.bjcareer.payment.application.domain.PaymentConfirmResult;
 import com.bjcareer.payment.application.domain.PaymentExecutionResult;
 import com.bjcareer.payment.application.domain.PaymentStatusUpdateCommand;
@@ -30,49 +30,32 @@ public class PaymentConfirmService implements PaymentConfirmUsecase {
 	private final PaymentStatusUpdatePort paymentStatusUpdatePort;
 	private final PaymentValidationPort paymentValidationPort;
 	private final PaymentExecutionPort paymentExecutionPort;
+	private final PaymentConfirmErrorHandlingService paymentErrorHandlingService;
 
 	@Override
 	public Mono<PaymentExecutionResult> confirm(PaymentConfirmCommand command) {
-		return validatePayment(command)
-			.filter(isValid -> isValid)
-			.flatMap(isValid -> processPayment(command))
-			.onErrorResume(throwable -> {
-				PaymentStatusUpdateCommand updateCmd;
-				if (throwable instanceof PaymentValidationException) {
-					updateCmd = createUpdateStatusCommandWhenErrorRaise(command.getCheckoutId(), PaymentStatus.FAILURE, throwable.getMessage());
-				} else if (throwable instanceof PspConfirmationException pspException) {
-					updateCmd = createUpdateStatusCommandWhenErrorRaise(command.getCheckoutId(), pspException.getPaymentStatus(),
-						pspException.getErrrMsg());
-				} else if (throwable instanceof TimeoutException) {
-					updateCmd = createUpdateStatusCommandWhenErrorRaise(command.getCheckoutId(), PaymentStatus.EXECUTING,
-						"TimeoutException");
-				}else{
-					updateCmd = createUpdateStatusCommandWhenErrorRaise(command.getCheckoutId(), PaymentStatus.UNKNOWN, throwable.getMessage());
-				}
-				return paymentStatusUpdatePort.updatePaymentStatus(updateCmd)
-					.then(Mono.error(throwable));
-			});
-	}
 
-	private Mono<Boolean> validatePayment(PaymentConfirmCommand command) {
 		return paymentValidationPort.isValid(command.getCheckoutId(), command.getAmount())
-			.filterWhen(valid -> {
-				if (!valid) {
-					return Mono.error(new PaymentValidationException("요청한 결제 정보가 잘못됐습니다"));
-				}
-				return Mono.just(true);
-			});
+			.filter(isValid -> isValid)
+			.switchIfEmpty(Mono.error(new PaymentValidationException("요청한 결제 정보가 잘못됐습니다")))  // 조건이 false일 때 에러 발생
+			.flatMap(isValid -> processPayment(command)); //processPayment는 항상  PspConfirmationExceptiond만 riase함
 	}
 
+	//processPayment는 에러 처리 후 PaymentExecutionResult만 던짐
 	private Mono<PaymentExecutionResult> processPayment(PaymentConfirmCommand command) {
 		return updatePaymentStatusToExecuting(command)
 			.flatMap(this::executePayment)
-			.flatMap(this::finalizePaymentStatus);
+			.flatMap(this::finalizePaymentStatus)
+			.onErrorResume(PspConfirmationException.class, throwable -> {
+				PaymentStatusUpdateCommand updateCommand = paymentErrorHandlingService.handle(throwable, command);
+				paymentStatusUpdatePort.updatePaymentStatus(updateCommand);
+				return Mono.just(new PaymentExecutionResult(command, throwable));  // 예외 발생 시 처리
+			});
 	}
 
 	private Mono<PaymentConfirmResult> updatePaymentStatusToExecuting(PaymentConfirmCommand command) {
-		PaymentStatusUpdateCommand updateCommand = new PaymentStatusUpdateCommand(command.getCheckoutId(), PaymentStatus.EXECUTING, LocalDateTime.now(), "Confirm 요청");
-		return paymentStatusUpdatePort.updatePaymentStatusToExecuting(updateCommand, command.getPaymentKey())
+		PaymentStatusUpdateCommand updateCommand = new PaymentStatusUpdateCommand(command.getCheckoutId(), PaymentStatus.EXECUTING, LocalDateTime.now(), "Confirm 요청", command.getPaymentKey());
+		return paymentStatusUpdatePort.updatePaymentStatus(updateCommand)
 			.thenReturn(new PaymentConfirmResult(command.getPaymentKey(), command.getCheckoutId(), command.getAmount()));
 	}
 
@@ -84,9 +67,5 @@ public class PaymentConfirmService implements PaymentConfirmUsecase {
 		PaymentStatusUpdateCommand updateCommand = new PaymentStatusUpdateCommand(executionResult.getCheckoutId(), executionResult.getStatus(), executionResult.getApprovedAt(), "Confirm 응답 기록");
 		return paymentStatusUpdatePort.updatePaymentStatus(updateCommand)
 			.thenReturn(executionResult);
-	}
-
-	public PaymentStatusUpdateCommand createUpdateStatusCommandWhenErrorRaise(String checkoutId, PaymentStatus status, String reason) {
-		return new PaymentStatusUpdateCommand(checkoutId, status, LocalDateTime.now(), reason);
 	}
 }
