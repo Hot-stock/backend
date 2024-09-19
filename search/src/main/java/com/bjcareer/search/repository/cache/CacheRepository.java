@@ -3,39 +3,37 @@ package com.bjcareer.search.repository.cache;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.redisson.api.RBucket;
+import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.repository.noSQL.DocumentRepository;
 import com.bjcareer.search.retrieval.cache.CacheNode;
 import com.bjcareer.search.retrieval.noSQL.DocumentQueryKeywords;
 
-import lombok.RequiredArgsConstructor;
-
 @Repository
 public class CacheRepository {
-	private final List<RedissonClient> redissonClients;
+	public static final String RANK_BUCKET = "RANKING_KEYWORD";
+	public static final String TRIE_BUCKET = "TRIE:";
+
+	private final RedissonClient redissonClient;
 	private final DocumentRepository repository;
-	private static final String BUCKET = "TRIE:";
 	private final Map<String, Integer> shardingKey;
 
-	public CacheRepository(
-		@Qualifier("primaryRedissonClient")List<RedissonClient> redissonClients, DocumentRepository repository,
+	public CacheRepository(RedissonClient redissonClient, DocumentRepository repository,
 		Map<String, Integer> shardingKey) {
-		this.redissonClients = redissonClients;
+		this.redissonClient = redissonClient;
 		this.repository = repository;
 		this.shardingKey = shardingKey;
 	}
 
 	public Optional<CacheNode> findByKeyword(String keyword) {
-		String BUCKET_KEY = BUCKET + keyword;
-
-		RedissonClient redissonClient = getRedissonClient(keyword);
-		RBucket<Object> bucket = redissonClient.getBucket(BUCKET_KEY);
+		String key = TRIE_BUCKET + keyword;
+		RBucket<Object> bucket = redissonClient.getBucket(key);
 
 		if (bucket.isExists()) {
 			return Optional.of((CacheNode)bucket.get());
@@ -49,17 +47,18 @@ public class CacheRepository {
 	}
 
 	public void saveKeyword(CacheNode node) {
-		String BUCKET_KEY = BUCKET + node.getKeyword();
-		RedissonClient redissonClient = getRedissonClient(node.getKeyword());
+		String BUCKET_KEY = TRIE_BUCKET + node.getKeyword();
 		RBucket<Object> bucket = redissonClient.getBucket(BUCKET_KEY);
 		bucket.set(node);
 	}
 
-	private RedissonClient getRedissonClient(String keyword) {
-		Integer i = shardingKey.get(keyword);
-		System.out.println("i = " + i);
-		System.out.println("redissonClients = " + redissonClients);
-		RedissonClient redissonClient = redissonClients.get(i);
-		return redissonClient;
+	public Double updateRanking(String keyword) {
+		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
+		return scoredSortedSet.addScore(keyword, -1);
+	}
+
+	public List<String> getRanking(Integer rank) {
+		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
+		return scoredSortedSet.valueRange(0, rank).stream().map(Object::toString).collect(Collectors.toList());
 	}
 }
