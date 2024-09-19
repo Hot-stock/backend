@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: search
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+redis:
+  address: ${REDIS_ADDRESS}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
+
+mongodb:
+  database: ${MONGODB_DATABASE}
+  uri: ${MONGODB_URI}
+
+logging:
+  level:
+    com.bjcareer.search.*: info
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
