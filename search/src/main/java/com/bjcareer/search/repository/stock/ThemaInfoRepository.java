@@ -13,7 +13,6 @@ public interface ThemaInfoRepository extends JpaRepository<ThemaInfo, Long> {
 	@Query("SELECT t FROM ThemaInfo t join fetch t.themas s join fetch s.stock  WHERE t.name LIKE %:thema%")
 	List<ThemaInfo> findByNameContains(String thema);
 
-
 	@Query("SELECT t FROM ThemaInfo t WHERE t.name = :thema")
 	Optional<ThemaInfo> findByThemaName(String thema);
 }
