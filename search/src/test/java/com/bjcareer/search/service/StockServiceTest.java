@@ -1,5 +1,7 @@
-import static org.mockito.Mockito.*;
+package com.bjcareer.search.service;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,15 +13,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
+import com.bjcareer.search.event.SearchedKeyword;
+import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
 import com.bjcareer.search.repository.stock.StockRepository;
 import com.bjcareer.search.repository.stock.ThemaInfoRepository;
 import com.bjcareer.search.repository.stock.ThemaRepository;
-import com.bjcareer.search.out.crawling.naver.CrawlingThema;
-import com.bjcareer.search.service.StockService;
 import com.bjcareer.search.service.exceptions.InvalidStockInformation;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +41,10 @@ class StockServiceTest {
 	private StockRepository stockRepository;
 
 	@Mock
-	private CrawlingThema crawlingThema;
+	private CrawlingNaverFinance crawlingNaverFinance;
+
+	@Mock
+	private ApplicationEventPublisher eventListener;
 
 	@InjectMocks
 	private StockService stockService;
@@ -66,10 +72,11 @@ class StockServiceTest {
 		// Then
 		assertEquals(1, result.size());
 		verify(themaRepository, times(1)).findByStockNameContaining(query);
+		verify(eventListener, times(1)).publishEvent(any(SearchedKeyword.class));
 	}
 
 	@Test
-	void testAddStockThema_ExistingStockAndThema() {
+	void testAddStockThemaExistingStockAndThema() {
 		when(stockRepository.findByName(STOCK_NAME)).thenReturn(Optional.of(stock));
 		when(themaInfoRepository.findByThemaName(THEMA)).thenReturn(Optional.of(themaInfo));
 		when(themaRepository.findByStockNameAndThemaName(STOCK_NAME, THEMA)).thenReturn(Optional.of(existingThema));
@@ -83,12 +90,12 @@ class StockServiceTest {
 	}
 
 	@Test
-	void testAddStockThema_NewStockAndNewThema() {
+	void testAddStockThemaNewStockAndNewThema() {
 		// Given
 		Thema newThema = new Thema(stock, themaInfo);
 
 		when(stockRepository.findByName(STOCK_NAME)).thenReturn(Optional.empty());
-		when(crawlingThema.getStock(STOCK_CODE, STOCK_NAME)).thenReturn(stock);
+		when(crawlingNaverFinance.getStock(STOCK_CODE, STOCK_NAME)).thenReturn(stock);
 		when(stockRepository.save(stock)).thenReturn(stock);
 
 		when(themaInfoRepository.findByThemaName(THEMA)).thenReturn(Optional.empty());
@@ -103,7 +110,7 @@ class StockServiceTest {
 		assertNotNull(result);
 		assertEquals(newThema, result);
 		verifyCommonRepositoryCalls();
-		verify(crawlingThema, times(1)).getStock(STOCK_CODE, STOCK_NAME);
+		verify(crawlingNaverFinance, times(1)).getStock(STOCK_CODE, STOCK_NAME);
 		verify(stockRepository, times(1)).save(stock);
 		verify(themaInfoRepository, times(1)).save(any(ThemaInfo.class));
 		verify(themaRepository, times(1)).save(any(Thema.class));
@@ -116,12 +123,11 @@ class StockServiceTest {
 		Stock stock = new Stock(INVALID_CODE, STOCK_NAME);
 
 		when(stockRepository.findByName(STOCK_NAME)).thenReturn(Optional.empty());
-		when(crawlingThema.getStock(INVALID_CODE, STOCK_NAME)).thenReturn(stock);
+		when(crawlingNaverFinance.getStock(INVALID_CODE, STOCK_NAME)).thenReturn(stock);
 
 		// Then
 		assertThrows(InvalidStockInformation.class, () -> stockService.addStockThema(INVALID_CODE, STOCK_NAME, THEMA));
 	}
-
 
 	// Common repository calls verification
 	private void verifyCommonRepositoryCalls() {

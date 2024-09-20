@@ -21,11 +21,12 @@ public class ThemaController {
 	private final ThemaService themaService;
 
 	@GetMapping("")
-	public Response<?> searchThema(@RequestParam(name = "q") String thema, @RequestParam(required = false) Long marketAmount) {
-		if (thema.isEmpty()) {
+	public Response<?> searchThema(@RequestParam(name = "q") String themaKeyword,
+		@RequestParam(required = false) Long marketAmount) {
+		if (themaKeyword.isEmpty()) {
 			return new Response<>(HttpStatus.BAD_REQUEST, "thema is empty", null);
 		}
-		List<ThemaInfo> themaInfos = themaService.searchThema(thema);
+		List<ThemaInfo> themaInfos = themaService.searchThema(themaKeyword);
 		SearchThemaResponseDTO searchThemaResponseDTO = new SearchThemaResponseDTO(themaInfos);
 		return new Response<>(HttpStatus.OK, "OK", searchThemaResponseDTO.response);
 	}

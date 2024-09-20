@@ -43,10 +43,6 @@ public class ThemaInfo {
 
 	@Override
 	public String toString() {
-		return "ThemaInfo{" +
-			"id=" + id +
-			", name='" + name + '\'' +
-			", href='" + href + '\'' +
-			'}';
+		return "ThemaInfo{" + "id=" + id + ", name='" + name + '\'' + ", href='" + href + '\'' + '}';
 	}
 }

@@ -2,7 +2,6 @@ package com.bjcareer.search.controller.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -16,7 +15,8 @@ public class StockControllerAdvice {
 
 	@ExceptionHandler(InvalidStockInformation.class)
 	public ResponseEntity<Object> handleIllegalArgumentException(InvalidStockInformation ex) {
-		return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()),
+			HttpStatus.BAD_REQUEST);
 	}
 
 	@Getter

@@ -15,9 +15,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-#        use_sql_comments: true
     show-sql: true
-
+    
 redis:
   address: redis://localhost:6379
   password: changeme
@@ -29,7 +28,7 @@ mongodb:
 
 logging:
   level:
-#    org.hibernate.SQL: debug # SQL 쿼리 로그 출력
+    org.hibernate.SQL: debug # SQL 쿼리 로그 출력
     org.hibernate.orm.jdbc.bind: TRACE
 
 server:
@@ -39,7 +38,14 @@ server:
       force: true
       enabled: true
 
-
-database:
-  number: 1
-  shardingKey: id
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always

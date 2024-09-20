@@ -1,10 +1,14 @@
 package com.bjcareer.search.schedule;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,67 +16,94 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.out.crawling.naver.CrawlingThema;
+import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
 import com.bjcareer.search.repository.stock.StockRepository;
 import com.bjcareer.search.repository.stock.ThemaInfoRepository;
 import com.bjcareer.search.repository.stock.ThemaRepository;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RequiredArgsConstructor
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ScheduleCrawlingService {
-	public final Integer MAX_PAGE = 8;
 
-	private final ThemaInfoRepository themaInfoRepository;
+	private final MeterRegistry meterRegistry;
 	private final StockRepository stockRepository;
+	private final ThemaInfoRepository themaInfoRepository;
 	private final ThemaRepository themaRepository;
 
-	@Scheduled(cron = "0 30 4 * * *")
+	@Scheduled(cron = "35 3 * * * *")
 	@Transactional
 	public void run() {
-		long startTime = System.currentTimeMillis(); // 시작 시간 측정
-		log.info("CrawlingService run");
+		log.debug("CrawlingService started");
 
-		Map<String, Stock> stocks = stockRepository.findAll()
-			.stream()
-			.collect(Collectors.toMap(Stock::getCode, stock -> stock));
+		Timer timer = Timer.builder("crawling.thema")
+			.description("Crawling thema execution time")
+			.register(meterRegistry);
 
-		Map<String, ThemaInfo> themaInfos = themaInfoRepository.findAll()
-			.stream()
-			.collect(Collectors.toMap(ThemaInfo::getName, themaInfo -> themaInfo));
+		timer.record(this::executeCrawlingTask);
 
-		Map<String, Thema> themas = themaRepository.findAll()
-			.stream()
-			.collect(Collectors.toMap(Thema::getKey, thema -> thema));
+		log.debug("CrawlingService finished");
+	}
 
+	// Main crawling task executor
+	private void executeCrawlingTask() {
+		int limit = 8;
 
-		CrawlingThema crawlingThema = new CrawlingThema(stocks, themaInfos, themas);
+		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);
+		Map<String, ThemaInfo> themaInfos = loadEntities(themaInfoRepository.findAll(), ThemaInfo::getName);
+		Map<String, Thema> themas = loadEntities(themaRepository.findAll(), Thema::getKey);
 
+		CrawlingNaverFinance crawlingNaverFinance = new CrawlingNaverFinance(stocks, themaInfos, themas);
 
-		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) { // 경량 쓰레드 전용 Executor 사용
-			for (int i = 1; i <= MAX_PAGE; i++) {
-				int page = i;
-				executor.submit(() -> {
-					try {
-						crawlingThema.crawlingThema(page); // 크롤링 작업을 경량 쓰레드에서 실행
-					} catch (Exception e) {
-						log.error("Error while crawling page: " + page, e);
-					}
-				});
+		// Execute tasks concurrently using virtual threads
+		runConcurrentCrawling(crawlingNaverFinance, limit);
+
+		// Save the results
+		saveAllEntities(stocks, themaInfos, themas);
+	}
+
+	// Run crawling tasks concurrently using virtual threads
+	private void runConcurrentCrawling(CrawlingNaverFinance crawlingNaverFinance, int limit) {
+		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+			for (int i = 1; i <= limit; i++) {
+				submitCrawlingTask(executor, crawlingNaverFinance, i);
 			}
+		} catch (Exception e) {
+			log.error("Error while executing concurrent crawling tasks", e);
 		}
+	}
 
-		long endTime = System.currentTimeMillis(); // 종료 시간 측정
-		long duration = endTime - startTime; // 수행 시간 계산
-		log.info("CrawlingService finished in " + duration + " ms");
+	// Submit individual crawling task
+	private void submitCrawlingTask(ExecutorService executor, CrawlingNaverFinance crawlingNaverFinance, int page) {
+		executor.submit(() -> {
+			try {
+				crawlingNaverFinance.crawlingThema(page);
+			} catch (Exception e) {
+				log.error("Error while crawling page: " + page, e);
+			}
+		});
+	}
 
-		stockRepository.saveAll(new ArrayList<>(stocks.values()));
-		themaInfoRepository.saveAll(new ArrayList<>(themaInfos.values()));
-		themaRepository.saveAll(new ArrayList<>(themas.values()));
+	// Generic method to load entities into a map
+	private <T, K> Map<K, T> loadEntities(List<T> entities, Function<T, K> keyMapper) {
+		return entities.stream().collect(Collectors.toMap(keyMapper, Function.identity()));
+	}
 
-		log.info("CrawlingService saved themas");
+	// Save all entities to their respective repositories
+	private void saveAllEntities(Map<String, Stock> stocks, Map<String, ThemaInfo> themaInfos,
+		Map<String, Thema> themas) {
+		try {
+			stockRepository.saveAll(new ArrayList<>(stocks.values()));
+			themaInfoRepository.saveAll(new ArrayList<>(themaInfos.values()));
+			themaRepository.saveAll(new ArrayList<>(themas.values()));
+			log.info("Entities saved successfully");
+		} catch (DataAccessException e) {
+			log.error("Error while saving entities", e);
+		}
 	}
 }

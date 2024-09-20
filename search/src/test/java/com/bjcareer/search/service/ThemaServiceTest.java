@@ -10,12 +10,12 @@ import com.bjcareer.search.domain.entity.ThemaInfo;
 
 @SpringBootTest
 class ThemaServiceTest {
-	@Autowired ThemaService service;
+	@Autowired
+	ThemaService service;
 
 	@Test
-	void test_search() {
+	void testSearch() {
 		List<ThemaInfo> themaInfos = service.searchThema("출산");
-		System.out.println("themaInfos = " + themaInfos);
 	}
 
 }
