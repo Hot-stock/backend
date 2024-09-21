@@ -23,9 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 public class StockController {
 	private final StockService stockService;
 
-	//주식 추가
 	@PostMapping
-	public ResponseEntity addStockOfThema(@Valid @RequestBody StockAdditionRequestDTO requestDTO) {
+	public ResponseEntity<StockAdditionResponseDTO>addStockOfThema(@Valid @RequestBody StockAdditionRequestDTO requestDTO) {
 		log.debug("request: {}", requestDTO);
 
 		Thema thema = stockService.addStockThema(requestDTO.getCode(), requestDTO.getStockName(),
@@ -33,7 +32,7 @@ public class StockController {
 
 		StockAdditionResponseDTO responseDTO = new StockAdditionResponseDTO(thema.getId(),
 			thema.getStock().getName(), thema.getThemaInfo().getName(), thema.getStock().getCode());
-		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(new Response<>(HttpStatus.CREATED, "CREATED", responseDTO));
+
+		return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 	}
 }

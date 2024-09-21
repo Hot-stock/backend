@@ -13,6 +13,7 @@ import com.bjcareer.search.controller.dto.SearchResultResponseDTO;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.service.SearchService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchController {
 	private final SearchService searchService;
 
-	//추천 검색어 기능을 위한 것
 	@GetMapping("/api/v0/search")
-	public ResponseEntity search(@RequestParam(name = "q") String query) {
+	@Operation(summary = "검색어 후보 기능", description = "사용자가 검색을 할 때, 검색어를 입력하면 검색어 후보를 Return합니다.")
+	public ResponseEntity<QueryResponseDTO> search(@RequestParam(name = "q") String query) {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
 		}
@@ -35,9 +36,9 @@ public class SearchController {
 		return new ResponseEntity<>(queryResponseDTO, HttpStatus.OK);
 	}
 
-	//검색 결과를 요청하는 곳임
 	@GetMapping("/api/v0/sr")
-	public ResponseEntity searchResult(@RequestParam(name = "q") String query) {
+	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
+	public ResponseEntity<SearchResultResponseDTO> searchResult(@RequestParam(name = "q") String query) {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
 		}

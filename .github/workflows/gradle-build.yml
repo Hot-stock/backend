@@ -38,41 +38,74 @@ jobs:
           fi
         shell: bash
 
-      # 4. Set up JDK 17
+      # 4. Set server host based on extracted hash tag
+      - name: Set server host based on hash tag
+        run: |
+          if [[ "${{ env.HASH_TAGS }}" == *"#search"* ]]; then
+            echo "SERVER_HOST=${{ secrets.SEARCH_SERVER_HOST }}" >> $GITHUB_ENV
+          elif [[ "${{ env.HASH_TAGS }}" == *"#timeDeal"* ]]; then
+            echo "SERVER_HOST=${{ secrets.TIMEDEAL_SERVER_HOST }}" >> $GITHUB_ENV
+          else
+            echo "SERVER_HOST=${{ secrets.DEFAULT_SERVER_HOST }}" >> $GITHUB_ENV
+          fi
+
+      # 5. Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 5. Setup Gradle
+      # 6. Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
-      # 6. Build with Gradle
+      # 7. Build with Gradle
       - name: Build with Gradle
         run: ./gradlew build -x test
 
-      # 7. Log in to Docker Hub
+      # 8. Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # 9. Build Docker images for each hash tag and set LOWERCASE_TAG as environment variable
       - name: Build Docker images for each hash tag
         run: |
           for tag in "${{ env.HASH_TAGS }}"; do
             CLEAN_TAG=$(echo "$tag" | sed 's/#//g' | xargs)  # '#'을 제거하고 공백 제거
             DOCKERFILE_DIR="./$CLEAN_TAG"
-            
-            cd "$DOCKERFILE_DIR"
-            
-            LOWERCASE_TAG=$(echo "$CLEAN_TAG" | tr '[:upper:]' '[:lower:]')
-            docker build -f Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:${{ github.sha }} .
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:${{ github.sha }}
           
-            cd -
+            if [ -d "$DOCKERFILE_DIR" ]; then
+              cd "$DOCKERFILE_DIR"
+          
+              LOWERCASE_TAG=$(echo "$CLEAN_TAG" | tr '[:upper:]' '[:lower:]')
+              echo "Setting LOWERCASE_TAG: $LOWERCASE_TAG"
+              echo "LOWERCASE_TAG=$LOWERCASE_TAG" >> $GITHUB_ENV  # 환경 변수로 설정
+          
+              docker build -f Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:latest .
+              docker push ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:latest
+          
+              cd -
+            else
+              echo "Directory $DOCKERFILE_DIR does not exist, skipping..."
+            fi
           done
-          
-          
+
+      # 10. Deploy to Remote Server
+      - name: Deploy to Remote Server
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          LOWERCASE_TAG: ${{ env.LOWERCASE_TAG }}
+        with:
+          host: ${{ env.SERVER_HOST }}  # 동적으로 설정된 서버 호스트
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: LOWERCASE_TAG
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:latest
+            docker compose down
+            docker compose up -d
+            
