@@ -2,7 +2,6 @@ package com.bjcareer.search.service;
 
 import java.util.Optional;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +27,6 @@ public class StockService {
 	private final StockRepository stockRepository;
 	private final CrawlingNaverFinance crawlingNaverFinance;
 
-	private final ApplicationEventPublisher eventPublisher;
 
 	public Thema addStockThema(String stockCode, String stockName, String themeName) {
 		Optional<Stock> byStockCode = stockRepository.findByCode(stockCode);

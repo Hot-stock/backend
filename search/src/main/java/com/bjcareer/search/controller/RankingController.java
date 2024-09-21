@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.service.RankingService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,7 +21,8 @@ public class RankingController {
 	private final RankingService rankingService;
 
 	@GetMapping
-	public ResponseEntity<?> getRanking(
+	@Operation(summary = "랭킹 조회 기능", description = "사용자의 검색어 랭킹을 조회할 수 있습니다" + "지금은 폴링이지만 나중에는 웹소켓으로 연동 가능.")
+	public ResponseEntity<Map<String, List<String>>> getRanking(
 		@RequestParam(name = "q", required = false, defaultValue = "10") Integer index) {
 		List<String> rankKeyword = rankingService.getRankKeyword(index);
 		Map<String, List<String>> response = Map.of("rank", rankKeyword);

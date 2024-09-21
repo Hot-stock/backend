@@ -12,6 +12,7 @@ import com.bjcareer.search.controller.dto.StockAdditionResponseDTO;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.service.StockService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class StockController {
 	private final StockService stockService;
 
 	@PostMapping
+	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")
 	public ResponseEntity<StockAdditionResponseDTO>addStockOfThema(@Valid @RequestBody StockAdditionRequestDTO requestDTO) {
 		log.debug("request: {}", requestDTO);
 
