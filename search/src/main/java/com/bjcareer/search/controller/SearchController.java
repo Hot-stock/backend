@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchController {
 	private final SearchService searchService;
 
+
 	@GetMapping("/api/v0/search")
 	@Operation(summary = "검색어 후보 기능", description = "사용자가 검색을 할 때, 검색어를 입력하면 검색어 후보를 Return합니다.")
 	public ResponseEntity<QueryResponseDTO> search(@RequestParam(name = "q") String query) {
