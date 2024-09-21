@@ -1,6 +1,5 @@
 package com.bjcareer.search.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -10,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.event.SearchedKeyword;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
 import com.bjcareer.search.repository.stock.StockRepository;
 import com.bjcareer.search.repository.stock.ThemaInfoRepository;
@@ -32,17 +30,6 @@ public class StockService {
 
 	private final ApplicationEventPublisher eventPublisher;
 
-	public List<Thema> getStockOfThema(String stockKeyword) {
-		log.debug("stock: {}", stockKeyword);
-		List<Thema> result = themaRepository.findByStockNameContaining(stockKeyword);
-
-		if (!result.isEmpty()) {
-			eventPublisher.publishEvent(new SearchedKeyword(stockKeyword));
-		}
-
-		return result;
-	}
-
 	public Thema addStockThema(String stockCode, String stockName, String themeName) {
 		Optional<Stock> byStockCode = stockRepository.findByCode(stockCode);
 		Stock stock = byStockCode.orElseGet(() -> {
@@ -57,7 +44,7 @@ public class StockService {
 				"Invalid stock information provided for stock: " + stockName + " with code: " + stockCode);
 		});
 
-		Optional<ThemaInfo> byThemaName = themaInfoRepository.findByThemaName(themeName);
+		Optional<ThemaInfo> byThemaName = themaInfoRepository.findByName(themeName);
 		ThemaInfo themaInfo = byThemaName.orElseGet(
 			() -> themaInfoRepository.save(new ThemaInfo(themeName, "USER CREATED")));
 

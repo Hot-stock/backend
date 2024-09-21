@@ -18,6 +18,7 @@ class CrawlingNaverFinanceTest {
 
 		when(mock.getStock("267790", "Barrel")).thenReturn(stock);
 
+		mock.getStock("267790", "Barrel");
 		verify(mock, times(1)).getStock("267790", "Barrel");
 	}
 
