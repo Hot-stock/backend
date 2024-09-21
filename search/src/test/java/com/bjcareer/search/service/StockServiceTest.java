@@ -3,8 +3,6 @@ package com.bjcareer.search.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.event.SearchedKeyword;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
 import com.bjcareer.search.repository.stock.StockRepository;
 import com.bjcareer.search.repository.stock.ThemaInfoRepository;
@@ -61,24 +58,9 @@ class StockServiceTest {
 	}
 
 	@Test
-	void testGetStockOfThema() {
-		String query = "stock";
-		// Given
-		when(themaRepository.findByStockNameContaining(query)).thenReturn(Arrays.asList(existingThema));
-
-		// When
-		List<Thema> result = stockService.getStockOfThema(query);
-
-		// Then
-		assertEquals(1, result.size());
-		verify(themaRepository, times(1)).findByStockNameContaining(query);
-		verify(eventListener, times(1)).publishEvent(any(SearchedKeyword.class));
-	}
-
-	@Test
 	void testAddStockThemaExistingStockAndThema() {
 		when(stockRepository.findByName(STOCK_NAME)).thenReturn(Optional.of(stock));
-		when(themaInfoRepository.findByThemaName(THEMA)).thenReturn(Optional.of(themaInfo));
+		when(themaInfoRepository.findByName(THEMA)).thenReturn(Optional.of(themaInfo));
 		when(themaRepository.findByStockNameAndThemaName(STOCK_NAME, THEMA)).thenReturn(Optional.of(existingThema));
 
 		// When
@@ -98,7 +80,7 @@ class StockServiceTest {
 		when(crawlingNaverFinance.getStock(STOCK_CODE, STOCK_NAME)).thenReturn(stock);
 		when(stockRepository.save(stock)).thenReturn(stock);
 
-		when(themaInfoRepository.findByThemaName(THEMA)).thenReturn(Optional.empty());
+		when(themaInfoRepository.findByName(THEMA)).thenReturn(Optional.empty());
 		when(themaInfoRepository.save(any(ThemaInfo.class))).thenReturn(themaInfo);
 		when(themaRepository.findByStockNameAndThemaName(STOCK_NAME, THEMA)).thenReturn(Optional.empty());
 		when(themaRepository.save(any(Thema.class))).thenReturn(newThema);
@@ -132,7 +114,7 @@ class StockServiceTest {
 	// Common repository calls verification
 	private void verifyCommonRepositoryCalls() {
 		verify(stockRepository, times(1)).findByName(STOCK_NAME);
-		verify(themaInfoRepository, times(1)).findByThemaName(THEMA);
+		verify(themaInfoRepository, times(1)).findByName(THEMA);
 		verify(themaRepository, times(1)).findByStockNameAndThemaName(STOCK_NAME, THEMA);
 	}
 }
