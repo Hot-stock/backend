@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.domain.entity.Thema;
+import com.bjcareer.search.event.SearchedKeyword;
 import com.bjcareer.search.repository.noSQL.DocumentRepository;
 import com.bjcareer.search.repository.stock.ThemaRepository;
 import com.bjcareer.search.retrieval.Trie;
@@ -24,7 +25,7 @@ public class SearchService {
 		List<Thema> resultOfSearch = themaRepository.findAllByKeywordContaining(keyword);
 
 		if (!resultOfSearch.isEmpty()) {
-			eventPublisher.publishEvent(keyword);
+			eventPublisher.publishEvent(new SearchedKeyword(keyword));
 		}
 		return resultOfSearch;
 	}
