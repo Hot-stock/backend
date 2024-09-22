@@ -19,16 +19,13 @@ import com.bjcareer.search.retrieval.noSQL.DocumentQueryKeywords;
 public class CacheRepository {
 	public static final String RANK_BUCKET = "RANKING_KEYWORD";
 	public static final String TRIE_BUCKET = "TRIE:";
-
+	public static final int UPDATE_COUNT = -1;
 	private final RedissonClient redissonClient;
 	private final DocumentRepository repository;
-	private final Map<String, Integer> shardingKey;
 
-	public CacheRepository(RedissonClient redissonClient, DocumentRepository repository,
-		Map<String, Integer> shardingKey) {
+	public CacheRepository(RedissonClient redissonClient, DocumentRepository repository) {
 		this.redissonClient = redissonClient;
 		this.repository = repository;
-		this.shardingKey = shardingKey;
 	}
 
 	public Optional<CacheNode> findByKeyword(String keyword) {
@@ -47,14 +44,14 @@ public class CacheRepository {
 	}
 
 	public void saveKeyword(CacheNode node) {
-		String BUCKET_KEY = TRIE_BUCKET + node.getKeyword();
-		RBucket<Object> bucket = redissonClient.getBucket(BUCKET_KEY);
+		String key = TRIE_BUCKET + node.getKeyword();
+		RBucket<Object> bucket = redissonClient.getBucket(key);
 		bucket.set(node);
 	}
 
 	public Double updateRanking(String keyword) {
 		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
-		return scoredSortedSet.addScore(keyword, -1);
+		return scoredSortedSet.addScore(keyword, UPDATE_COUNT);
 	}
 
 	public List<String> getRanking(Integer rank) {

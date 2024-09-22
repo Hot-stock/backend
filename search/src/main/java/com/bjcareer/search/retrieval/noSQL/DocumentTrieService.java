@@ -16,19 +16,19 @@ public class DocumentTrieService implements Trie {
 
 	@Override
 	public void insert(String keyword, Long searchCount){
-		String query = "";
+		StringBuilder query = new StringBuilder();
 		ObjectId parendId = null;
 		Document lastDocument = null;
 
 		for (int i = 0; i < keyword.length(); i++) {
-			query += keyword.charAt(i);
+			query.append(keyword.charAt(i));
 
-			Document parentNode = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, query);
+			Document parentNode = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, query.toString());
 
 			if(parentNode != null){
 				parendId = parentNode.getObjectId(DocumentQueryKeywords.KEY);
 			}else{
-				lastDocument = changeNodeToDocument(query, parendId);
+				lastDocument = changeNodeToDocument(query.toString(), parendId);
 				parendId = repository.saveDocument(keyword, lastDocument);
 			}
 		}
@@ -43,6 +43,7 @@ public class DocumentTrieService implements Trie {
 		updateParentToChild(keyword, lastDocument, parendId);
 	}
 
+	@Override
 	public List<String> search(String keyword){
 		Document rootDocument = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, keyword);
 		return repository.getkeyworkList(keyword,rootDocument);
