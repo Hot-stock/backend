@@ -20,7 +20,7 @@ public class SearchService {
 	private final Trie trie;
 
 	public List<Thema> getSearchResult(String keyword) {
-		List<Thema> resultOfSearch = themaRepository.findAllByKeywordContaining(keyword);
+		List<Thema> resultOfSearch = themaRepository.findAllByKeywordExactlySame(keyword);
 
 		if (!resultOfSearch.isEmpty()) {
 			eventPublisher.publishEvent(new SearchedKeyword(keyword));
