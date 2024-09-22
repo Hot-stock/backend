@@ -9,12 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import com.bjcareer.search.domain.entity.Thema;
 
 public interface ThemaRepository extends JpaRepository<Thema, Long> {
-	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch  t.themaInfo ti WHERE t.stock.name LIKE %:name%")
-	List<Thema> findByStockNameContaining(String name);
-
 	@Query("SELECT t FROM Thema t WHERE t.stock.name = :stockName AND t.themaInfo.name = :themaName")
 	Optional<Thema> findByStockNameAndThemaName(String stockName, String themaName);
 
 	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name LIKE %:keyword% OR ti.name LIKE %:keyword%")
 	List<Thema> findAllByKeywordContaining(String keyword);
+
+	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name = :keyword OR ti.name = :keyword")
+	List<Thema> findAllByKeywordExactlySame(String keyword);
 }

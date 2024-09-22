@@ -1,4 +1,4 @@
-package com.bjcareer.search.retrieval.noSQL;
+package com.bjcareer.search.candidate.noSQL;
 
 public class DocumentQueryKeywords {
 	public static final String KEYWORD = "keyword";

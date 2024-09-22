@@ -1,11 +1,12 @@
 package com.bjcareer.search.service;
 
-import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
-import com.bjcareer.search.repository.stock.ThemaRepository;
-import com.bjcareer.search.retrieval.Trie;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,12 +14,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.bjcareer.search.candidate.Trie;
+import com.bjcareer.search.domain.entity.Stock;
+import com.bjcareer.search.domain.entity.Thema;
+import com.bjcareer.search.domain.entity.ThemaInfo;
+import com.bjcareer.search.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.repository.stock.ThemaRepository;
 
 class SearchServiceTest {
 

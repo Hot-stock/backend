@@ -1,4 +1,4 @@
-package com.bjcareer.search.retrieval.cache;
+package com.bjcareer.search.candidate.cache;
 
 import java.util.List;
 
