@@ -20,11 +20,11 @@ jobs:
       # 1. Checkout the code
       - uses: actions/checkout@v4
 
-      # 2. Get the last commit message and escape special characters
+    # 2. Get last commit message from the source branch
       - name: Get last commit message
         id: commit_msg
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_MSG=$(git log -1 --pretty=%B HEAD^2)  # 소스 브랜치의 마지막 커밋 메시지 가져오기
           echo "COMMIT_MSG=$(echo "$COMMIT_MSG" | sed 's/#/%23/g' | tr -d '\n')" >> $GITHUB_ENV
 
       # 3. Extract all hash tags from commit message
