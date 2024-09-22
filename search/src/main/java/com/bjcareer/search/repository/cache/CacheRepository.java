@@ -1,7 +1,6 @@
 package com.bjcareer.search.repository.cache;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,9 +10,8 @@ import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
+import com.bjcareer.search.candidate.cache.CacheNode;
 import com.bjcareer.search.repository.noSQL.DocumentRepository;
-import com.bjcareer.search.retrieval.cache.CacheNode;
-import com.bjcareer.search.retrieval.noSQL.DocumentQueryKeywords;
 
 @Repository
 public class CacheRepository {
@@ -30,14 +28,14 @@ public class CacheRepository {
 
 	public Optional<CacheNode> findByKeyword(String keyword) {
 		String key = TRIE_BUCKET + keyword;
-		RBucket<Object> bucket = redissonClient.getBucket(key);
+		RBucket<CacheNode> bucket = redissonClient.getBucket(key);
 
 		if (bucket.isExists()) {
-			return Optional.of((CacheNode)bucket.get());
+			return Optional.of(bucket.get());
 		}
 
-		Document singleByKeyword = repository.findSingleByKeyword(DocumentQueryKeywords.KEYWORD, keyword);
-		CacheNode node = new CacheNode(keyword, repository.getkeyworkList(keyword, singleByKeyword));
+		Document singleByKeyword = repository.findSingleByKeyword(keyword);
+		CacheNode node = new CacheNode(keyword, repository.getkeyworkList(singleByKeyword));
 		saveKeyword(node);
 
 		return Optional.empty();

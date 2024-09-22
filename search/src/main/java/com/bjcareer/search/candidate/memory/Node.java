@@ -12,9 +12,9 @@ public class Node {
 	public Node() {
 	}
 
-	public Node(String keyword, Long search_count, boolean endOfWord) {
+	public Node(String keyword, Long searchCount, boolean endOfWord) {
 		this.keyword = keyword;
-		this.searchCount = search_count;
+		this.searchCount = searchCount;
 		this.endOfWord = endOfWord;
 	}
 
