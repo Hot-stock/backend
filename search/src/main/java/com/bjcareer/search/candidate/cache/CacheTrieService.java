@@ -1,21 +1,27 @@
-package com.bjcareer.search.retrieval.cache;
+package com.bjcareer.search.candidate.cache;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.bson.Document;
+
+import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.repository.cache.CacheRepository;
-import com.bjcareer.search.retrieval.Trie;
+import com.bjcareer.search.repository.noSQL.DocumentRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CacheTrieService implements Trie {
 	private final CacheRepository repository;
+	private final DocumentRepository documentRepository;
 
 	@Override
-	public void insert(String str, Long searchCount) {
-		return;
+	public void update(String keyword) {
+		Document singleByKeyword = documentRepository.findSingleByKeyword(keyword);
+		CacheNode node = new CacheNode(keyword, documentRepository.getkeyworkList(singleByKeyword));
+		repository.saveKeyword(node);
 	}
 
 	@Override

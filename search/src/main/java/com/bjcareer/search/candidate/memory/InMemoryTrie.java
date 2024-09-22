@@ -1,25 +1,25 @@
-package com.bjcareer.search.retrieval.memory;
+package com.bjcareer.search.candidate.memory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.bjcareer.search.retrieval.Trie;
+import com.bjcareer.search.candidate.Trie;
 
 public class InMemoryTrie implements Trie {
 	private Node root = new Node();
 
-	public void insert(String str, Long searchCount){
+	public void update(String str) {
 		Node current = root;
-		
+
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 
 			boolean containKey = current.child.containsKey(c);
 
-			if(containKey){
+			if (containKey) {
 				current = current.child.get(c);
-			}else{
+			} else {
 				Node newNode = new Node();
 				newNode.keyword = current.keyword + c;
 
@@ -28,11 +28,11 @@ public class InMemoryTrie implements Trie {
 			}
 		}
 
-		current.searchCount = searchCount;
+		current.searchCount = 0L;
 		current.endOfWord = true;
 	}
 
-	public List<String> search(String query){
+	public List<String> search(String query) {
 		Node current = root;
 		List<String> result = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public class InMemoryTrie implements Trie {
 			char c = query.charAt(i);
 			boolean containKey = current.child.containsKey(c);
 
-			if(!containKey){
+			if (!containKey) {
 				return result;
 			}
 			current = current.child.get(c);
@@ -49,10 +49,10 @@ public class InMemoryTrie implements Trie {
 		return result;
 	}
 
-	private void search(Node node, List<String> result, int idx){
+	private void search(Node node, List<String> result, int idx) {
 		Node current = node;
 
-		if(current.endOfWord){
+		if (current.endOfWord) {
 			result.add(current.keyword);
 		}
 
@@ -61,7 +61,7 @@ public class InMemoryTrie implements Trie {
 		for (Character character : characters) {
 			Node next = current.child.get(character);
 
-			if (next == null){
+			if (next == null) {
 				continue;
 			}
 

@@ -1,4 +1,4 @@
-package com.bjcareer.search.retrieval.memory;
+package com.bjcareer.search.candidate.memory;
 
 import java.util.HashMap;
 import java.util.Map;
