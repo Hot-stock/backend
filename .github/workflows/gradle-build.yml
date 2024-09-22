@@ -20,13 +20,14 @@ jobs:
       # 1. Checkout the code
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}  # PR의 소스 브랜치를 명시적으로 체크아웃
           fetch-depth: 0  # 전체 커밋 내역을 가져옴
 
-    # 2. Get last commit message from the source branch
+      # 2. Get last commit message from the source branch
       - name: Get last commit message
         id: commit_msg
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B HEAD^2)  # 소스 브랜치의 마지막 커밋 메시지 가져오기
+          COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "COMMIT_MSG=$(echo "$COMMIT_MSG" | sed 's/#/%23/g' | tr -d '\n')" >> $GITHUB_ENV
 
       # 3. Extract all hash tags from commit message
