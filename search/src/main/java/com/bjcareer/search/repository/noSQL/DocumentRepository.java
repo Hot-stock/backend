@@ -125,6 +125,12 @@ public class DocumentRepository {
 		return result;
 	}
 
+	public List<Document> findAll() {
+		List<Document> documents = new ArrayList<>();
+		collection.find().iterator().forEachRemaining(documents::add);
+		return documents;
+	}
+
 	public void deleteOne(ObjectId objectId) {
 		collection.deleteOne(eq(DocumentQueryKeywords.KEY, objectId));
 	}

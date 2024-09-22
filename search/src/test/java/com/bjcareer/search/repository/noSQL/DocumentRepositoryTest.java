@@ -111,6 +111,23 @@ class DocumentRepositoryTest {
 			() -> documentRepository.updateSearchCount(TEST_KEYWORD));
 	}
 
+	@Test
+	void findAll() {
+		// given
+		Document secondDocument = createTestDocument("another_keyword", SEARCH_COUNT, END_OF_WORD);
+		ObjectId secondDocumentId = documentRepository.saveDocument(secondDocument);
+
+		// when
+		List<Document> allDocuments = documentRepository.findAll();
+
+		// then
+		assertNotNull(allDocuments);
+		assertTrue(allDocuments.size() > 0);
+
+		// 추가: 저장된 모든 데이터 삭제
+		documentRepository.deleteOne(secondDocumentId);
+	}
+
 	// Helper method to create a test document
 	private Document createTestDocument(String keyword, int searchCount, boolean endOfWord) {
 		Document document = new Document();
