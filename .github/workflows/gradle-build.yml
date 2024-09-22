@@ -19,6 +19,8 @@ jobs:
     steps:
       # 1. Checkout the code
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 커밋 내역을 가져옴
 
     # 2. Get last commit message from the source branch
       - name: Get last commit message
