@@ -32,6 +32,11 @@ public class ThemaInfo {
 	@BatchSize(size = 10)
 	private List<Thema> themas = new ArrayList<>();
 
+
+	@OneToMany(mappedBy = "themaInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@BatchSize(size = 10)
+	private List<ThemaInfoSearchCount> searchCounts = new ArrayList<>();
+
 	public ThemaInfo(String name, String href) {
 		this.name = name;
 		this.href = href;
