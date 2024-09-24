@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -34,4 +34,12 @@ server:
       charset: UTF-8
       force: true
       enabled: true
+
+naver:
+  keyword-custom-id: ${NAVER_KEYWORD_CUSTOM_ID}
+  keyword-access-key: ${NAVER_KEYWORD_ACCESSKEY_KEY}
+  keyword-secret-key: ${NAVER_KEYWORD_SECRET_KEY}
+
+  trend-client-id: ${NAVER_TREND_CLIENT_ID}
+  trend-client-secret: ${NAVER_TREND_CLIENT_SECRET}
 

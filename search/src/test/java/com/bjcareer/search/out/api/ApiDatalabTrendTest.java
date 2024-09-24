@@ -14,8 +14,9 @@ import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 
 @SpringBootTest
-class ApiExamDatalabTrendTest {
-	@Autowired ApiExamDatalabTrend apiExamDatalabTrend;
+class ApiDatalabTrendTest {
+	@Autowired
+	ApiDatalabTrend apiDatalabTrend;
 
 
 	@Test
@@ -25,7 +26,7 @@ class ApiExamDatalabTrendTest {
 
 		List<DataLabTrendRequestDTO.KeywordGroup> keywordGroups = new ArrayList<>(List.of(keywordGroup));
 		DataLabTrendRequestDTO request = new DataLabTrendRequestDTO("2017-01-01", "2017-04-30", keywordGroups);
-		Optional<DataLabTrendResponseDTO> dataLabTrendResponseDTO = apiExamDatalabTrend.fetchTrends(request);
+		Optional<DataLabTrendResponseDTO> dataLabTrendResponseDTO = apiDatalabTrend.fetchTrends(request);
 
 		assertTrue(dataLabTrendResponseDTO.isPresent());
 	}
