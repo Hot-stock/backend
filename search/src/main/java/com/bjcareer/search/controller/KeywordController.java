@@ -2,6 +2,7 @@ package com.bjcareer.search.controller;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
+import com.bjcareer.search.event.SearchedKeyword;
 import com.bjcareer.search.service.ConverterSearchCountService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KeywordController {
 	private final ConverterSearchCountService converterSearchCountService;
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	@GetMapping
 	@Operation(
@@ -29,6 +32,7 @@ public class KeywordController {
 			"유료 결제 회원만 사용 가능합니다"
 	)
 	public ResponseEntity<List<AbsoluteRankKeyword>> getSearchCount(@RequestParam(name = "q") String keyword) {
+		applicationEventPublisher.publishEvent(new SearchedKeyword(keyword));
 		List<AbsoluteRankKeyword> absoluteValueOfKeyword = converterSearchCountService.getAbsoluteValueOfKeyword(
 			keyword);
 		return ResponseEntity.ok(absoluteValueOfKeyword);
