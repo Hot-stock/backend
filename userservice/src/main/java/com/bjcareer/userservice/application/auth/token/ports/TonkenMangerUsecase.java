@@ -1,8 +1,8 @@
-package com.bjcareer.userservice.application.token.ports;
+package com.bjcareer.userservice.application.auth.token.ports;
 
 import java.util.List;
 
-import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.RoleType;
 
 import io.jsonwebtoken.Claims;

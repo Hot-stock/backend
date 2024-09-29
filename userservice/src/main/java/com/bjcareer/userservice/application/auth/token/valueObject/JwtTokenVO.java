@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.token.valueObject;
+package com.bjcareer.userservice.application.auth.token.valueObject;
 
 import java.util.List;
 

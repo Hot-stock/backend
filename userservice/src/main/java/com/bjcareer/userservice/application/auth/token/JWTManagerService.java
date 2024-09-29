@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.token;
+package com.bjcareer.userservice.application.auth.token;
 
 import java.util.Date;
 import java.util.List;
@@ -9,8 +9,8 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.userservice.application.token.ports.TonkenMangerUsecase;
-import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.ports.TonkenMangerUsecase;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.RoleType;
 
 import io.jsonwebtoken.Claims;
