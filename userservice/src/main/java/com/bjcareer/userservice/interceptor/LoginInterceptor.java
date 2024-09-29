@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.bjcareer.userservice.application.token.ports.TokenUsecase;
+import com.bjcareer.userservice.application.auth.token.ports.TokenUsecase;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

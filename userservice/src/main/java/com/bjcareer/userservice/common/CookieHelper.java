@@ -1,6 +1,6 @@
 package com.bjcareer.userservice.common;
 
-import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

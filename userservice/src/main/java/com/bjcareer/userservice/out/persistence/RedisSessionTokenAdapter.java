@@ -8,7 +8,7 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
-import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

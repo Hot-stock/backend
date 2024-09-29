@@ -2,7 +2,7 @@ package com.bjcareer.userservice.out.persistence;
 
 import java.util.Optional;
 
-import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 
 public interface CacheTokenRepository {
 	void saveToken(String key, JwtTokenVO token, Long expirationTime);

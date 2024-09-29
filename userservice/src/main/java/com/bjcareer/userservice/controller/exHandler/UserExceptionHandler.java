@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.bjcareer.userservice.application.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.controller.UserController;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
 

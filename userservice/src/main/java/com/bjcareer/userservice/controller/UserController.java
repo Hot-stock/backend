@@ -7,15 +7,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bjcareer.userservice.application.auth.ports.AuthWithTokenUsecase;
 import com.bjcareer.userservice.application.auth.ports.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.LoginUsecase;
-import com.bjcareer.userservice.application.token.ports.TokenUsecase;
-import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.ports.TokenRefreshCommand;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.common.CookieHelper;
 import com.bjcareer.userservice.controller.dto.UserDto.LoginRequest;
 import com.bjcareer.userservice.controller.dto.UserDto.LoginResponse;
 import com.bjcareer.userservice.domain.entity.RoleType;
-import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.security.HasRole;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,21 +26,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/api/v0/user")
 public class UserController {
-    private final LoginUsecase loginUsecase;
-    private final TokenUsecase tokenUsecase;
+    private final AuthWithTokenUsecase usecase;
 
     @PostMapping("/login")
     @HasRole(RoleType.ALL)
     public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response) {
         LoginCommand command = new LoginCommand(request.getId(), request.getPassword());
-        User user = loginUsecase.login(command);
-        JwtTokenVO jwtTokenVO = tokenUsecase.generateToken(user);
+        JwtTokenVO jwt = usecase.login(command);
 
-        CookieHelper.setCookieForRefreshToken(response, jwtTokenVO);
-        CookieHelper.setCookieForSessionId(response, jwtTokenVO);
+        CookieHelper.setCookieForRefreshToken(response, jwt);
+        CookieHelper.setCookieForSessionId(response, jwt);
 
-
-        LoginResponse res = new LoginResponse(jwtTokenVO.getAccessToken());
+        LoginResponse res = new LoginResponse(jwt.getAccessToken());
 
         return ResponseEntity.ok(res);
     }
@@ -50,7 +46,8 @@ public class UserController {
     @HasRole(RoleType.ALL)
     public ResponseEntity<?> refreshLogin(@CookieValue("sessionId") String sessionId,
         @CookieValue("refreshToken") String refreshToken) {
-        JwtTokenVO jwtTokenVO = tokenUsecase.generateAccessTokenViaRefresh(sessionId, refreshToken);
+        TokenRefreshCommand command = new TokenRefreshCommand(sessionId, refreshToken);
+        JwtTokenVO jwtTokenVO = usecase.generateAccessTokenViaRefresh(command);
         LoginResponse res = new LoginResponse(jwtTokenVO.getAccessToken());
         return ResponseEntity.ok(res);
     }

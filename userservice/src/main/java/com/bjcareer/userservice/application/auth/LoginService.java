@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.userservice.application.auth.ports.LoginCommand;
 import com.bjcareer.userservice.application.auth.ports.LoginUsecase;
-import com.bjcareer.userservice.application.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.repository.DatabaseRepository;
 
