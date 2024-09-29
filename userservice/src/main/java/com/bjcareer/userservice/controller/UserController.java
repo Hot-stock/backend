@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.userservice.application.auth.LoginUsecase;
-import com.bjcareer.userservice.application.token.TokenUsecase;
+import com.bjcareer.userservice.application.auth.ports.LoginCommand;
+import com.bjcareer.userservice.application.auth.ports.LoginUsecase;
+import com.bjcareer.userservice.application.token.ports.TokenUsecase;
 import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.controller.dto.UserDto.LoginRequest;
 import com.bjcareer.userservice.controller.dto.UserDto.LoginResponse;
@@ -32,8 +33,8 @@ public class UserController {
     @PostMapping("/login")
     @HasRole(RoleType.ALL)
     public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response) {
-        User user = new User(request.getId(), request.getPassword(), null);
-        loginUsecase.login(user);
+        LoginCommand command = new LoginCommand(request.getId(), request.getPassword());
+        User user = loginUsecase.login(command);
         JwtTokenVO jwtTokenVO = tokenUsecase.generateToken(user);
 
         setCookieForRefreshToken(response, jwtTokenVO);

@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.userservice.application.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.token.ports.TokenUsecase;
+import com.bjcareer.userservice.application.token.ports.TonkenMangerUsecase;
 import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.out.persistence.CacheTokenRepository;

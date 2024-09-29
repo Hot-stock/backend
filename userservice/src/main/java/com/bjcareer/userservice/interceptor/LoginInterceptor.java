@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.bjcareer.userservice.application.token.TokenUsecase;
+import com.bjcareer.userservice.application.token.ports.TokenUsecase;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     private final TokenUsecase tokenUsecase;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         Cookie[] cookies = request.getCookies();
 
         if (cookies == null){

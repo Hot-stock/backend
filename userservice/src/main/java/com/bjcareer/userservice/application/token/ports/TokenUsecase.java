@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.token;
+package com.bjcareer.userservice.application.token.ports;
 
 import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
