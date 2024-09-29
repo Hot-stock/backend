@@ -1,12 +1,12 @@
 package com.bjcareer.userservice.controller;
 
 
+import com.bjcareer.userservice.application.auth.LoginUsecase;
 import com.bjcareer.userservice.controller.dto.UserDto.*;
 import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.security.HasRole;
 import com.bjcareer.userservice.service.JwtService;
-import com.bjcareer.userservice.service.UserService;
 import com.bjcareer.userservice.service.vo.JwtTokenVO;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,14 +23,14 @@ import javax.security.sasl.AuthenticationException;
 @Slf4j
 @RequestMapping("/api/v0/user")
 public class UserController {
-    private final UserService userService;
+    private final LoginUsecase loginUsecase;
     private final JwtService jwtService;
 
     @PostMapping("/login")
     @HasRole(RoleType.ALL)
     public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response) throws AuthenticationException {
         User user = new User(request.getId(), request.getPassword(), null);
-        userService.login(user);
+        loginUsecase.login(user);
         JwtTokenVO jwtTokenVO = jwtService.generateToken(user);
 
         setCookieForRefreshToken(response, jwtTokenVO);
