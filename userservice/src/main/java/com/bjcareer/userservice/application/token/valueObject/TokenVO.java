@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.service.vo;
+package com.bjcareer.userservice.application.token.valueObject;
 
 import lombok.Data;
 

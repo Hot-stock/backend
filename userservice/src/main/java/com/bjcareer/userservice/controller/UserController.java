@@ -1,22 +1,25 @@
 package com.bjcareer.userservice.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.userservice.application.auth.LoginUsecase;
-import com.bjcareer.userservice.controller.dto.UserDto.*;
+import com.bjcareer.userservice.application.token.TokenUsecase;
+import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.controller.dto.UserDto.LoginRequest;
+import com.bjcareer.userservice.controller.dto.UserDto.LoginResponse;
 import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.security.HasRole;
-import com.bjcareer.userservice.service.JwtService;
-import com.bjcareer.userservice.service.vo.JwtTokenVO;
+
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.security.sasl.AuthenticationException;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,14 +27,14 @@ import javax.security.sasl.AuthenticationException;
 @RequestMapping("/api/v0/user")
 public class UserController {
     private final LoginUsecase loginUsecase;
-    private final JwtService jwtService;
+    private final TokenUsecase tokenUsecase;
 
     @PostMapping("/login")
     @HasRole(RoleType.ALL)
-    public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response) throws AuthenticationException {
+    public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response) {
         User user = new User(request.getId(), request.getPassword(), null);
         loginUsecase.login(user);
-        JwtTokenVO jwtTokenVO = jwtService.generateToken(user);
+        JwtTokenVO jwtTokenVO = tokenUsecase.generateToken(user);
 
         setCookieForRefreshToken(response, jwtTokenVO);
         setCookieForSessionId(response, jwtTokenVO);
@@ -43,24 +46,12 @@ public class UserController {
 
     @PostMapping("/refresh")
     @HasRole(RoleType.ALL)
-    public ResponseEntity<?> refreshLogin(@CookieValue("sessionId") String sessionId, @CookieValue("refreshToken") String refreshToken) throws AuthenticationException {
-        JwtTokenVO jwtTokenVO = jwtService.generateAccessTokenViaRefresh(sessionId, refreshToken);
+    public ResponseEntity<?> refreshLogin(@CookieValue("sessionId") String sessionId,
+        @CookieValue("refreshToken") String refreshToken) {
+        JwtTokenVO jwtTokenVO = tokenUsecase.generateAccessTokenViaRefresh(sessionId, refreshToken);
         LoginResponse res = new LoginResponse(jwtTokenVO.getAccessToken());
         return ResponseEntity.ok(res);
     }
-
-    @PostMapping("/test")
-    @HasRole(RoleType.ALL)
-    public ResponseEntity<?> Login(HttpServletRequest request)  {
-        return ResponseEntity.ok(null);
-    }
-
-    @PostMapping("/admin")
-    @HasRole(RoleType.ADMIN)
-    public ResponseEntity<?> admin(HttpServletRequest request)  {
-        return ResponseEntity.ok(null);
-    }
-
 
     private void setCookieForRefreshToken(HttpServletResponse response, JwtTokenVO jwtTokenVO) {
         Cookie cookie = new Cookie("refreshToken", jwtTokenVO.getRefreshToken());

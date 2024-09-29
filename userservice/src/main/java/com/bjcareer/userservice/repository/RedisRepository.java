@@ -1,17 +1,18 @@
 package com.bjcareer.userservice.repository;
 
-import com.bjcareer.userservice.service.vo.JwtTokenVO;
-import com.bjcareer.userservice.service.vo.TokenVO;
-import com.bjcareer.userservice.domain.entity.User;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
-import java.time.Duration;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import com.bjcareer.userservice.application.token.valueObject.TokenVO;
+import com.bjcareer.userservice.domain.entity.User;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,21 +35,6 @@ public class RedisRepository {
 
     public Optional<TokenVO> findTokenByTelegramId(String telegramId) {
         return findFromRedis(telegramId, TokenVO.class);
-    }
-
-    public void saveJWT(String key, JwtTokenVO token, Long expirationTime) {
-        log.debug("Saving JWT with key = {}", key);
-        saveToRedis(key, token, expirationTime);
-    }
-
-    public Optional<JwtTokenVO> findAuthTokenBySessionId(String key) {
-        log.debug("Finding JWT with key = {}", key);
-        return findFromRedis(key, JwtTokenVO.class);
-    }
-
-    public boolean removeJWT(String key) {
-        log.debug("Removing JWT with key = {}", key);
-        return redissonClient.getBucket(key).expire(Duration.ZERO);
     }
 
     private <T> void saveToRedis(String key, T value, long expirationTime) {

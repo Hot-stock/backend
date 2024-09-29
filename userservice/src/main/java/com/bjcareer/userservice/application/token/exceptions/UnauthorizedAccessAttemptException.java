@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.exceptions;
+package com.bjcareer.userservice.application.token.exceptions;
 
 public class UnauthorizedAccessAttemptException extends RuntimeException {
     public UnauthorizedAccessAttemptException(String message) {

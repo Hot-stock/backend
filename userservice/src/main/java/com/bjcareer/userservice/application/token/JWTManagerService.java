@@ -1,28 +1,29 @@
-package com.bjcareer.userservice.domain;
+package com.bjcareer.userservice.application.token;
 
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.RoleType;
-import com.bjcareer.userservice.service.vo.JwtTokenVO;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 @Component
-public class AuthTokenManager {
+public class JWTManagerService implements TonkenMangerUsecase {
     private final SecretKey signingKey;
-    public static final Long ACCESS_TOKEN_EXPIRE_DURATION_SEC = 30 * 60L; //30분
-    public static final Long REFRESH_TOKEN_EXPIRE_DURATION_SEC = 15 * 24 * 3500L; //15일
 
-    public AuthTokenManager(@Value("${secret.key}") String secretKey) {
+    public JWTManagerService(@Value("${secret.key}") String secretKey) {
         signingKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
     }
 

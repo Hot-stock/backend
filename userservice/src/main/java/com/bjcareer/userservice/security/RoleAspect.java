@@ -1,27 +1,27 @@
 package com.bjcareer.userservice.security;
 
-import com.bjcareer.userservice.domain.entity.RoleAssignments;
-import com.bjcareer.userservice.domain.entity.RoleType;
-import com.bjcareer.userservice.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.service.vo.JwtTokenVO;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.List;
+
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import com.bjcareer.userservice.application.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.domain.entity.RoleType;
+import com.bjcareer.userservice.out.persistence.CacheTokenRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
 @Aspect
 @Slf4j
 public class RoleAspect {
-    private final RedisRepository redisRepository;
+    private final CacheTokenRepository tokenRepository;
 
     @Before("@annotation(hasRole) && args(request, ..)")
     public void checkRole(HasRole hasRole, HttpServletRequest request) {
@@ -42,7 +42,7 @@ public class RoleAspect {
         String sessionId = (String) request.getAttribute("sessionId");
         log.debug("Session ID: {}", sessionId);
 
-        JwtTokenVO authToken = redisRepository.findAuthTokenBySessionId(sessionId)
+        JwtTokenVO authToken = tokenRepository.findTokenBySessionId(sessionId)
             .orElseThrow(() -> {
                 log.warn("Session ID not found or user not authenticated.");
                 return new UnauthorizedAccessAttemptException("User not authenticated");

@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.userservice.application.token.valueObject.TokenVO;
 import com.bjcareer.userservice.domain.RandomCodeGenerator;
 import com.bjcareer.userservice.domain.Redis;
 import com.bjcareer.userservice.domain.Telegram;
@@ -14,7 +15,6 @@ import com.bjcareer.userservice.exceptions.TelegramCommunicationException;
 import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
 import com.bjcareer.userservice.repository.DatabaseRepository;
 import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.service.vo.TokenVO;
 
 import lombok.Data;
 

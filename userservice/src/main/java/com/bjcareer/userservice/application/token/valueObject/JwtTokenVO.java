@@ -1,11 +1,11 @@
-package com.bjcareer.userservice.service.vo;
+package com.bjcareer.userservice.application.token.valueObject;
+
+import java.util.List;
 
 import com.bjcareer.userservice.domain.entity.RoleType;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
