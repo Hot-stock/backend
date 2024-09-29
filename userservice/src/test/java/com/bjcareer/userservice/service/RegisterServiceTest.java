@@ -1,24 +1,27 @@
 package com.bjcareer.userservice.service;
 
-import com.bjcareer.userservice.domain.RandomCodeGenerator;
-import com.bjcareer.userservice.domain.Redis;
-import com.bjcareer.userservice.domain.Telegram;
-import com.bjcareer.userservice.domain.entity.*;
-import com.bjcareer.userservice.repository.DatabaseRepository;
-import com.bjcareer.userservice.repository.RedisRepository;
-import com.bjcareer.userservice.exceptions.RedisLockAcquisitionException;
-import com.bjcareer.userservice.exceptions.TelegramCommunicationException;
-import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
-import com.bjcareer.userservice.service.vo.TokenVO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.anyLong;
+import static org.mockito.BDDMockito.anyString;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.BDDMockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.bjcareer.userservice.application.register.RegisterService;
+import com.bjcareer.userservice.domain.RandomCodeGenerator;
+import com.bjcareer.userservice.domain.Redis;
+import com.bjcareer.userservice.domain.Telegram;
+import com.bjcareer.userservice.domain.entity.User;
+import com.bjcareer.userservice.exceptions.RedisLockAcquisitionException;
+import com.bjcareer.userservice.exceptions.TelegramCommunicationException;
+import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
+import com.bjcareer.userservice.repository.DatabaseRepository;
+import com.bjcareer.userservice.repository.RedisRepository;
+import com.bjcareer.userservice.service.vo.TokenVO;
 
 class RegisterServiceTest {
     public static final int EXPIRATION_TIME = 60;
@@ -61,7 +64,7 @@ class RegisterServiceTest {
         Long generate = RandomCodeGenerator.generate();
         String telegramID = "test1234";
 
-        given(redisRepository.findTokebByTelegramId(telegramID)).willReturn(Optional.of(new TokenVO(telegramID, generate)));
+        given(redisRepository.findTokenByTelegramId(telegramID)).willReturn(Optional.of(new TokenVO(telegramID, generate)));
 
         //when
         boolean b = registerService.verifyToken(telegramID, generate);
@@ -76,7 +79,7 @@ class RegisterServiceTest {
         String telegramID = "test1234";
         Long wrongToken = 1L;
 
-        given(redisRepository.findTokebByTelegramId(telegramID)).willReturn(Optional.of(new TokenVO(telegramID, wrongToken)));
+        given(redisRepository.findTokenByTelegramId(telegramID)).willReturn(Optional.of(new TokenVO(telegramID, wrongToken)));
 
         //when
         boolean b = registerService.verifyToken(telegramID, generate);
