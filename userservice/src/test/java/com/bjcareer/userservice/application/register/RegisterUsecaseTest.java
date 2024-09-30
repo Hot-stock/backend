@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.userservice.application.ports.in.RegisterRequestCommand;
 import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
 import com.bjcareer.userservice.commonTest.UsecaseTest;
 import com.bjcareer.userservice.domain.entity.User;
@@ -25,11 +26,11 @@ class RegisterUsecaseTest {
 
 	@Test
 	void testRegisterService() {
-		String alias = "test";
+		String email = "wodhksqw@naver.com";
 		String password = "test";
+		RegisterRequestCommand command = new RegisterRequestCommand(email, password);
 
-		User user = new User(alias, password);
-		Long s = registerUsecase.registerService(user);
+		Long s = registerUsecase.registerService(command);
 		assertNotNull(s);
 	}
 }

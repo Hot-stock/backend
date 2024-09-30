@@ -29,7 +29,6 @@ public class UserController {
     private final AuthWithTokenUsecase usecase;
 
     @PostMapping("/login")
-    @HasRole(RoleType.ALL)
     public ResponseEntity<?> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
         LoginCommand command = new LoginCommand(request.getId(), request.getPassword());
         JwtTokenVO jwt = usecase.login(command);
@@ -43,7 +42,6 @@ public class UserController {
     }
 
     @PostMapping("/refresh")
-    @HasRole(RoleType.ALL)
     public ResponseEntity<?> refreshLogin(@CookieValue("sessionId") String sessionId,
         @CookieValue("refreshToken") String refreshToken) {
         TokenRefreshCommand command = new TokenRefreshCommand(sessionId, refreshToken);

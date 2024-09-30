@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
+import com.bjcareer.userservice.application.ports.in.RegisterRequestCommand;
 import com.bjcareer.userservice.application.ports.out.CreateUserPort;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
@@ -75,16 +76,18 @@ class RegisterServiceTest {
 
 	@Test
 	void testRegisterServiceWhenFindUser() {
-		String alias = "test";
+		String email = "test";
 		String password = "test";
 
-		User user = new User(alias, password);
+		User user = new User(email, password);
+
+		RegisterRequestCommand command = new RegisterRequestCommand(email, password);
 
 		when(redis.tryLock(anyString())).thenReturn(true);
-		when(loadUserPort.findByUserAlias(anyString())).thenReturn(Optional.of(user));
+		when(loadUserPort.findByEmail(anyString())).thenReturn(Optional.of(user));
 
 		assertThrows(UserAlreadyExistsException.class, () -> {
-			registerService.registerService(user);
+			registerService.registerService(command);
 		});
 	}
 }
