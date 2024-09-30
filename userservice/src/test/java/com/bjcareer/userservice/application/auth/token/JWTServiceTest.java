@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.application.auth.token.ports.TonkenManagerUsecase;
+import com.bjcareer.userservice.application.ports.in.TonkenManagerUsecase;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.out.persistance.repository.CacheTokenRepository;

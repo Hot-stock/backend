@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.bjcareer.userservice.application.auth.token.ports.TokenUsecase;
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
 
 import lombok.RequiredArgsConstructor;

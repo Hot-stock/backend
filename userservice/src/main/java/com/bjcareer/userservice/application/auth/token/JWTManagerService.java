@@ -9,7 +9,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.userservice.application.auth.token.ports.TonkenManagerUsecase;
+import com.bjcareer.userservice.application.ports.in.TonkenManagerUsecase;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.RoleType;
 

@@ -8,12 +8,11 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.bjcareer.userservice.application.auth.ports.in.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.in.LoginUsecase;
+import com.bjcareer.userservice.application.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.application.register.ports.out.LoadUserPort;
+import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
-import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
 
 class LoginServiceTest {
 	LoginUsecase loginUsecase;

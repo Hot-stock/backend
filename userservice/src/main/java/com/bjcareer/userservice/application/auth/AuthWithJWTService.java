@@ -2,11 +2,11 @@ package com.bjcareer.userservice.application.auth;
 
 import org.springframework.stereotype.Service;
 
-import com.bjcareer.userservice.application.auth.ports.in.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.in.LoginUsecase;
-import com.bjcareer.userservice.application.auth.ports.in.AuthWithTokenUsecase;
-import com.bjcareer.userservice.application.auth.ports.in.TokenRefreshCommand;
-import com.bjcareer.userservice.application.auth.token.ports.TokenUsecase;
+import com.bjcareer.userservice.application.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.ports.in.LoginUsecase;
+import com.bjcareer.userservice.application.ports.in.AuthWithTokenUsecase;
+import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
 

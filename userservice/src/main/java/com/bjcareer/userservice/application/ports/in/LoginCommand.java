@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.auth.ports.in;
+package com.bjcareer.userservice.application.ports.in;
 
 import lombok.Getter;
 

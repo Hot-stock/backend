@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.userservice.application.auth.ports.in.AuthWithTokenUsecase;
-import com.bjcareer.userservice.application.auth.ports.in.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.in.TokenRefreshCommand;
+import com.bjcareer.userservice.application.ports.in.AuthWithTokenUsecase;
+import com.bjcareer.userservice.application.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.commonTest.UsecaseTest;

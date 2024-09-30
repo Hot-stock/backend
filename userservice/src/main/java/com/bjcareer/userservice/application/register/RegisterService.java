@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.userservice.application.auth.token.valueObject.TokenVO;
-import com.bjcareer.userservice.application.register.ports.in.RegisterUsecase;
-import com.bjcareer.userservice.application.register.ports.out.CreateUserPort;
-import com.bjcareer.userservice.application.register.ports.out.LoadTokenPort;
-import com.bjcareer.userservice.application.register.ports.out.LoadUserPort;
-import com.bjcareer.userservice.application.register.ports.out.SaveTokenPort;
+import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
+import com.bjcareer.userservice.application.ports.out.CreateUserPort;
+import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
+import com.bjcareer.userservice.application.ports.out.LoadUserPort;
+import com.bjcareer.userservice.application.ports.out.SaveTokenPort;
 import com.bjcareer.userservice.domain.RandomCodeGenerator;
 import com.bjcareer.userservice.domain.Redis;
 import com.bjcareer.userservice.domain.Telegram;
@@ -40,7 +40,7 @@ public class RegisterService implements RegisterUsecase {
 			throw new TelegramCommunicationException("통신 에러");
 		}
 
-		saveTokenPort.save(new TokenVO(telegramId, generate), EXPIRATION_TIME);
+		saveTokenPort.saveAuthToken(new TokenVO(telegramId, generate), EXPIRATION_TIME);
 		return generate;
 	}
 

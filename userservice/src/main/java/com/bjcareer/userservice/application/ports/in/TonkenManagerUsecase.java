@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.auth.token.ports;
+package com.bjcareer.userservice.application.ports.in;
 
 import java.util.List;
 

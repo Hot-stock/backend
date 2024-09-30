@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.domain.entity.RoleType;
-import com.bjcareer.userservice.out.persistance.repository.CacheTokenRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Slf4j
 public class RoleAspect {
-    private final CacheTokenRepository tokenRepository;
+    private final LoadTokenPort loadTokenPort;
 
     @Before("@annotation(hasRole) && args(request, ..)")
     public void checkRole(HasRole hasRole, HttpServletRequest request) {
@@ -42,7 +42,7 @@ public class RoleAspect {
         String sessionId = (String) request.getAttribute("sessionId");
         log.debug("Session ID: {}", sessionId);
 
-        JwtTokenVO authToken = tokenRepository.findTokenBySessionId(sessionId)
+        JwtTokenVO authToken = loadTokenPort.findTokenBySessionId(sessionId)
             .orElseThrow(() -> {
                 log.warn("Session ID not found or user not authenticated.");
                 return new UnauthorizedAccessAttemptException("User not authenticated");

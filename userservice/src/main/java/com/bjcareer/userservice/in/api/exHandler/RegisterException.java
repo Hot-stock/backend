@@ -1,7 +1,14 @@
 package com.bjcareer.userservice.in.api.exHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import com.bjcareer.userservice.in.api.RegisterController;
-import com.bjcareer.userservice.exceptions.*;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.DatabaseOperationException;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.RedisLockAcquisitionException;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.TelegramCommunicationException;
@@ -9,13 +16,6 @@ import com.bjcareer.userservice.out.persistance.repository.exceptions.UserAlread
 import com.bjcareer.userservice.out.persistance.repository.exceptions.UserNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {RegisterController.class})

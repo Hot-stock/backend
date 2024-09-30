@@ -5,12 +5,11 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.userservice.application.auth.ports.in.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.in.LoginUsecase;
+import com.bjcareer.userservice.application.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.application.register.ports.out.LoadUserPort;
+import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
-import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
 
 import lombok.RequiredArgsConstructor;
 

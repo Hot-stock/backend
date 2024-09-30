@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.userservice.application.auth.aop.HasRole;
-import com.bjcareer.userservice.application.register.ports.in.RegisterUsecase;
+import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
 import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.in.api.request.MobileAuthenticationVerifyRequestDTO;

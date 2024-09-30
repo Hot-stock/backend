@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.userservice.application.auth.aop.HasRole;
-import com.bjcareer.userservice.application.auth.ports.in.AuthWithTokenUsecase;
-import com.bjcareer.userservice.application.auth.ports.in.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.in.TokenRefreshCommand;
+import com.bjcareer.userservice.application.ports.in.AuthWithTokenUsecase;
+import com.bjcareer.userservice.application.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.common.CookieHelper;
 import com.bjcareer.userservice.domain.entity.RoleType;
