@@ -31,8 +31,8 @@ public class RegisterController {
     @HasRole(RoleType.ALL)
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO request) {
         User requestUser = new User(request.getUserId(), request.getPassword(), request.getTelegramId());
-        String id = registerUsecase.registerService(requestUser);
-        return new ResponseEntity<>(new RegisterResponseDTO(id), HttpStatus.OK);
+        Long id = registerUsecase.registerService(requestUser);
+        return new ResponseEntity<>(new RegisterResponseDTO(id.toString()), HttpStatus.OK);
     }
 
     @PostMapping("/telegram-authentication")

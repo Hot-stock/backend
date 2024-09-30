@@ -29,12 +29,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User {
-
     public static final String SHA_256 = "SHA-256";
+
     @Id
     @Column(name = "user_id")
     @GeneratedValue
-    private String id;
+    private Long id;
 
     @Column(unique = true)
     private String alias;

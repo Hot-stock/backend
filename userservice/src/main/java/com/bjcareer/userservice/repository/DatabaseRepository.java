@@ -1,17 +1,24 @@
 package com.bjcareer.userservice.repository;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Repository;
+
 import com.bjcareer.userservice.domain.entity.Role;
 import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.exceptions.DatabaseOperationException;
 import com.bjcareer.userservice.exceptions.UserAlreadyExistsException;
 import com.bjcareer.userservice.repository.queryConst.DatabaseQuery;
-import jakarta.persistence.*;
+
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -25,7 +32,7 @@ public class DatabaseRepository {
         try {
             em.persist(user);
         } catch (EntityExistsException e) {
-            handleException(e, "User already exists: {}", user.getId(),
+            handleException(e, "User already exists: {}", user.getId().toString(),
                 new UserAlreadyExistsException("User already exists with ID: " + user.getId()));
         } catch (PersistenceException e) {
             handleException(e, "PersistenceException during user save", e.getMessage(),
@@ -39,7 +46,7 @@ public class DatabaseRepository {
     public Optional<User> findByUserId(String userId) {
         try {
             TypedQuery<User> query = em.createQuery(DatabaseQuery.finedUsertQuery, User.class);
-            query.setParameter("alais", userId);
+            query.setParameter("alias", userId);
             return Optional.of(query.getSingleResult());
         } catch (NoResultException e) {
             log.warn("No user found with userId: {}", userId);
