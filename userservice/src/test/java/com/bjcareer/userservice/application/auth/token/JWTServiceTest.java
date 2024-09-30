@@ -48,7 +48,7 @@ class JWTServiceTest {
 		sessionId = UUID.randomUUID().toString();
 		refreshToken = "testRefreshToken";
 
-		testUser = new User("testUser", "testPassword", "testEmail");
+		testUser = new User("testUser", "testPassword");
 
 		jwtTokenVO = new JwtTokenVO("accessToken", refreshToken, sessionId, 3600000L, testUser.getRoles());
 	}

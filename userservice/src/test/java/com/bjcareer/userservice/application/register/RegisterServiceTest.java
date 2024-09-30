@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.bjcareer.userservice.application.ports.out.CreateUserPort;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
@@ -39,9 +40,10 @@ class RegisterServiceTest {
 
 		telegram = mock(Telegram.class);
 		redis = mock(Redis.class);
+		ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
 
-		registerService = new RegisterService(saveTokenPort, loadTokenPort, loadUserPort, createUserPort, telegram,
-			redis);
+		registerService = new RegisterService(saveTokenPort, loadTokenPort, loadUserPort, createUserPort,
+			applicationEventPublisher, redis);
 	}
 
 	@Test
@@ -75,9 +77,8 @@ class RegisterServiceTest {
 	void testRegisterServiceWhenFindUser() {
 		String alias = "test";
 		String password = "test";
-		String telegramId = "telegramId";
 
-		User user = new User(alias, password, telegramId);
+		User user = new User(alias, password);
 
 		when(redis.tryLock(anyString())).thenReturn(true);
 		when(loadUserPort.findByUserAlias(anyString())).thenReturn(Optional.of(user));

@@ -27,9 +27,8 @@ class RegisterUsecaseTest {
 	void testRegisterService() {
 		String alias = "test";
 		String password = "test";
-		String telegramId = "telegramId";
 
-		User user = new User(alias, password, telegramId);
+		User user = new User(alias, password);
 		Long s = registerUsecase.registerService(user);
 		assertNotNull(s);
 	}

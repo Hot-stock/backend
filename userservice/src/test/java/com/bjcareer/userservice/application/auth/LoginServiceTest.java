@@ -36,7 +36,7 @@ class LoginServiceTest {
 	@Test
 	void login_faild_when_invaild_password() {
 		LoginCommand command = new LoginCommand("test", "test1");
-		User user = new User("test", "test2", null);
+		User user = new User("test", "test2");
 
 		when(loadUserPort.findByUserAlias(command.getId())).thenReturn(Optional.of(user));
 		assertThrows(UnauthorizedAccessAttemptException.class, () -> loginUsecase.login(command),
