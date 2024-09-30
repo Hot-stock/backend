@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.controller.exHandler;
+package com.bjcareer.userservice.in.api.exHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.controller.UserController;
+import com.bjcareer.userservice.in.api.UserController;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
 
 import io.jsonwebtoken.ExpiredJwtException;
