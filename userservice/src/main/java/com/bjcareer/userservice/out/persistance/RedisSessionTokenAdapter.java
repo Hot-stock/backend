@@ -61,6 +61,7 @@ public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, R
 	}
 
 	private <T> Optional<T> findFromRedis(String key) {
+		key = makeKey(key);
 		RBucket<T> bucket = redissonClient.getBucket(key);
 		if (bucket.isExists()) {
 			return Optional.of(bucket.get());

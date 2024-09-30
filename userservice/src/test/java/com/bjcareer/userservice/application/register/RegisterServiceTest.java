@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.bjcareer.userservice.application.ports.out.CreateUserPort;
+import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.application.ports.out.SaveTokenPort;
 import com.bjcareer.userservice.domain.Redis;

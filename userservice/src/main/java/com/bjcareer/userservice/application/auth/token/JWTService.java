@@ -50,7 +50,6 @@ public class JWTService implements TokenUsecase {
 		}
 
 		saveTokenPort.saveJWT(sessionId, jwtTokenVO, jwtTokenVO.getRefreshTokenExpireTime());
-
 		return tokenManager.generateToken(sessionId, jwtTokenVO.getRoleType());
 	}
 

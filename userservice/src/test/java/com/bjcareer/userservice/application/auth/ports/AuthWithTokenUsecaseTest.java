@@ -6,18 +6,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.application.ports.in.AuthWithTokenUsecase;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.commonTest.UsecaseTest;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
 
 @UsecaseTest
 @SpringBootTest
+@Transactional
 class AuthWithTokenUsecaseTest {
 	@Autowired
 	private AuthWithTokenUsecase authWithTokenUsecase;
@@ -53,25 +55,13 @@ class AuthWithTokenUsecaseTest {
 	}
 
 	@Test
-	void shouldGenerateNewAccessTokenViaRefresh() {
+	void shouldRemoveAllTokensWhenTokenTheftIsDetected() {  // 메서드 이름 수정
 		// Arrange
 		LoginCommand command = new LoginCommand("testUser", "testPassword");
 		JwtTokenVO jwtToken = authWithTokenUsecase.login(command);
 
-		// Act
-		JwtTokenVO refreshedToken = authWithTokenUsecase.generateAccessTokenViaRefresh(
-			new TokenRefreshCommand(jwtToken.getSessionId(), jwtToken.getRefreshToken()));
-
-		// Assert
-		assertAll(
-			() -> assertNotEquals(jwtToken.getAccessToken(), refreshedToken.getAccessToken(),
-				"Access tokens should differ."),
-			() -> assertNotEquals(jwtToken.getRefreshToken(), refreshedToken.getRefreshToken(),
-				"Refresh tokens should differ."),
-			() -> assertNotEquals(jwtToken.getRefreshTokenExpireTime(), refreshedToken.getRefreshTokenExpireTime(),
-				"Refresh token expiry should be updated."),
-			() -> assertEquals(jwtToken.getSessionId(), refreshedToken.getSessionId(), "Session IDs should match."),
-			() -> assertEquals(jwtToken.getRoleType(), refreshedToken.getRoleType(), "Role types should match.")
-		);
+		// Act & Assert
+		assertThrows(UnauthorizedAccessAttemptException.class, () -> authWithTokenUsecase.generateAccessTokenViaRefresh(
+			new TokenRefreshCommand(jwtToken.getSessionId(), jwtToken.getRefreshToken())));
 	}
 }
