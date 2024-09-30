@@ -5,8 +5,6 @@ import com.bjcareer.userservice.domain.entity.User;
 
 public interface TokenUsecase {
 	JwtTokenVO generateToken(User user);
-
 	JwtTokenVO generateAccessTokenViaRefresh(String sessionId, String refreshToken);
-
 	boolean verifyAccessToken(String accessToken);
 }

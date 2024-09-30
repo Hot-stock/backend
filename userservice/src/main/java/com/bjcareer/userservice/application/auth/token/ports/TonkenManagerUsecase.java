@@ -9,7 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 
-public interface TonkenMangerUsecase {
+public interface TonkenManagerUsecase {
 	Long ACCESS_TOKEN_EXPIRE_DURATION_SEC = 30 * 60L; //30분
 	Long REFRESH_TOKEN_EXPIRE_DURATION_SEC = 15 * 24 * 3500L; //15일
 	JwtTokenVO generateToken(String sessionId, List<RoleType> roles);

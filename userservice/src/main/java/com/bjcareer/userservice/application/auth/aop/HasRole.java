@@ -1,10 +1,11 @@
-package com.bjcareer.userservice.security;
-import com.bjcareer.userservice.domain.entity.RoleType;
+package com.bjcareer.userservice.application.auth.aop;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.bjcareer.userservice.domain.entity.RoleType;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

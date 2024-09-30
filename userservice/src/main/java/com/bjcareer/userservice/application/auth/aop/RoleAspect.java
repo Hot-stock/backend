@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.security;
+package com.bjcareer.userservice.application.auth.aop;
 
 import java.util.Arrays;
 import java.util.List;
