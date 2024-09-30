@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.userservice.application.register.ports.in.RegisterUsecase;
 import com.bjcareer.userservice.commonTest.UsecaseTest;
 import com.bjcareer.userservice.domain.entity.User;
 

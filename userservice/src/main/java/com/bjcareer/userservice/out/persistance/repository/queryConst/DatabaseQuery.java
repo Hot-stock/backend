@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.repository.queryConst;
+package com.bjcareer.userservice.out.persistance.repository.queryConst;
 
 public class DatabaseQuery {
     public static final String finedUsertQuery = "select u from User u where u.alias = :alias";

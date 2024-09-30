@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.exceptions;
+package com.bjcareer.userservice.out.persistance.repository.exceptions;
 
 public class RedisLockAcquisitionException extends RuntimeException{
     public RedisLockAcquisitionException() {

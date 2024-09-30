@@ -18,7 +18,7 @@ import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAc
 import com.bjcareer.userservice.application.auth.token.ports.TonkenManagerUsecase;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
-import com.bjcareer.userservice.out.persistence.CacheTokenRepository;
+import com.bjcareer.userservice.out.persistance.repository.CacheTokenRepository;
 
 class JWTServiceTest {
 

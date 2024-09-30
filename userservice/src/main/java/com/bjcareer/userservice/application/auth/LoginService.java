@@ -5,22 +5,23 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.userservice.application.auth.ports.LoginCommand;
-import com.bjcareer.userservice.application.auth.ports.LoginUsecase;
+import com.bjcareer.userservice.application.auth.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.auth.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.register.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
-import com.bjcareer.userservice.repository.DatabaseRepository;
+import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class LoginService implements LoginUsecase {
-	private final DatabaseRepository databaseRepository;
+	private final LoadUserPort loadUserPort;
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
-		Optional<User> userFromDatabase = databaseRepository.findByUserId(command.getId());
+		Optional<User> userFromDatabase = loadUserPort.findByUserAlias(command.getId());
 
 		if (userFromDatabase.isEmpty()) {
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다.");

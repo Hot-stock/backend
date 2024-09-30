@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.auth.ports;
+package com.bjcareer.userservice.application.auth.ports.in;
 
 import com.bjcareer.userservice.domain.entity.User;
 

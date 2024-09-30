@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.out.persistence;
+package com.bjcareer.userservice.out.persistance;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -9,6 +9,8 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.TokenVO;
+import com.bjcareer.userservice.out.persistance.repository.CacheTokenRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisSessionTokenAdapter implements CacheTokenRepository {
 	private final RedissonClient redissonClient;
 	private final String OBJECT_KEY = "USER:LOGIN:";
+
+	@Override
+	public Optional<TokenVO> loadByTelemgramId(String token) {
+		return Optional.empty();
+	}
+
+	@Override
+	public void save(TokenVO token, Long expirationTime) {
+
+	}
 
 	@Override
 	public void saveToken(String sessionId, JwtTokenVO token, Long expirationTime) {
@@ -52,6 +64,7 @@ public class RedisSessionTokenAdapter implements CacheTokenRepository {
 
 		return Optional.empty();
 	}
+
 
 	private String makeKey(String target) {
 		return OBJECT_KEY + target;
