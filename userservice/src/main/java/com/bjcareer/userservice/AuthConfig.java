@@ -14,11 +14,21 @@ import lombok.RequiredArgsConstructor;
 public class AuthConfig implements WebMvcConfigurer {
     private final TokenUsecase tokenUsecase;
 
+    private static final String[] EXCLUDE_PATHS = {
+        "/api/v0/user/login",
+        "/api/v0/user/logout",
+        "/api/v0/auth/register",
+        "/swagger-ui/**",
+        "/favicon.ico",
+        "/api-docs/**",
+        "/error"
+    };
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor(tokenUsecase))
-                .order(1)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/api/v0/user/login", "/api/v0/user/logout", "/api/v0/auth/register");
+            .order(1)
+            .addPathPatterns("/**")
+            .excludePathPatterns(EXCLUDE_PATHS);
     }
 }
