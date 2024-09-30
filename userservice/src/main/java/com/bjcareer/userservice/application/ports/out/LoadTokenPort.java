@@ -7,5 +7,5 @@ import com.bjcareer.userservice.application.auth.token.valueObject.TokenVO;
 
 public interface LoadTokenPort {
 	Optional<JwtTokenVO> findTokenBySessionId(String sessionId);
-	Optional<TokenVO> loadByTelemgramId(String token);
+	Optional<TokenVO> loadVerificationTokenByEmail(String email);
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class TokenVO {
-    private final String telegramId;
+    private final String email;
     private final Long token;
 }

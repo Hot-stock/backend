@@ -1,13 +1,13 @@
 package com.bjcareer.userservice.application.ports.in;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-public class LoginCommand {
+@Data
+public class RegisterRequestCommand {
 	private final String email;
 	private final String password;
 
-	public LoginCommand(String email, String password) {
+	public RegisterRequestCommand(String email, String password) {
 		this.email = email;
 		this.password = password;
 	}

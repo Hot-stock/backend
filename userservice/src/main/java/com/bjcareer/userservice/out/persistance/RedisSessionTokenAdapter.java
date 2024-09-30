@@ -21,47 +21,46 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Repository
 public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, RemoveTokenPort {
+	public static final long EXPIRATION_SEC = 3600L;
 	private final RedissonClient redissonClient;
-	private final String OBJECT_KEY = "USER:LOGIN:";
+	private final String OBJECT_LOGIN_KEY = "USER:LOGIN:";
+	private final String OBJECT_REGISTER_KEY = "USER:REGISTER:";
 
 
 	@Override
 	public void saveJWT(String sessionId, JwtTokenVO token, Long expirationTime) {
 		log.debug("Saving JWT with sessionId = {}", sessionId);
-		saveToRedis(sessionId, token, expirationTime);
-	}
-
-	@Override
-	public void saveAuthToken(TokenVO token, Long expirationTime) {
-		log.debug("Saving AuthToken with telegramId = {}", token.getTelegramId());
-		saveToRedis(token.getTelegramId(), token, expirationTime);
+		saveToRedis(OBJECT_LOGIN_KEY + sessionId, token, expirationTime);
 	}
 
 	@Override
 	public Optional<JwtTokenVO> findTokenBySessionId(String sessionId) {
 		log.debug("Finding JWT with sessionId = {}", sessionId);
-		return findFromRedis(sessionId);
+		return findFromRedis(OBJECT_LOGIN_KEY + sessionId);
 	}
 
 	@Override
 	public boolean removeToken(String sessionId) {
 		log.debug("Removing JWT with key = {}", sessionId);
-		return redissonClient.getBucket(sessionId).expire(Duration.ZERO);
+		return redissonClient.getBucket(OBJECT_LOGIN_KEY + sessionId).expire(Duration.ZERO);
 	}
 
 	@Override
-	public Optional<TokenVO> loadByTelemgramId(String token) {
-		return Optional.empty();
+	public void saveVerificationToken(TokenVO tokenVO) {
+		saveToRedis(OBJECT_REGISTER_KEY + tokenVO.getEmail(), tokenVO, EXPIRATION_SEC);
 	}
 
-	private <T> void saveToRedis(String key, T value, long expirationTime) {
-		key = makeKey(key);
+	@Override
+	public Optional<TokenVO> loadVerificationTokenByEmail(String email) {
+		return findFromRedis(OBJECT_REGISTER_KEY + email);
+	}
+
+	private <T> void saveToRedis(String key, T value, long expirationSec) {
 		RBucket<Object> bucket = redissonClient.getBucket(key);
-		bucket.set(value, Duration.of(expirationTime, TimeUnit.SECONDS.toChronoUnit()));
+		bucket.set(value, Duration.of(expirationSec, TimeUnit.SECONDS.toChronoUnit()));
 	}
 
 	private <T> Optional<T> findFromRedis(String key) {
-		key = makeKey(key);
 		RBucket<T> bucket = redissonClient.getBucket(key);
 		if (bucket.isExists()) {
 			return Optional.of(bucket.get());
@@ -70,8 +69,4 @@ public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, R
 		return Optional.empty();
 	}
 
-
-	private String makeKey(String target) {
-		return OBJECT_KEY + target;
-	}
 }

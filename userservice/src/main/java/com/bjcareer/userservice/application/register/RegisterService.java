@@ -2,21 +2,21 @@ package com.bjcareer.userservice.application.register;
 
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.userservice.application.auth.token.valueObject.TokenVO;
+import com.bjcareer.userservice.application.ports.in.RegisterRequestCommand;
 import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
 import com.bjcareer.userservice.application.ports.out.CreateUserPort;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.application.ports.out.SaveTokenPort;
+import com.bjcareer.userservice.application.ports.out.message.AuthCodeSentEvent;
 import com.bjcareer.userservice.domain.RandomCodeGenerator;
 import com.bjcareer.userservice.domain.Redis;
-import com.bjcareer.userservice.domain.Telegram;
 import com.bjcareer.userservice.domain.entity.User;
-import com.bjcareer.userservice.out.persistance.repository.exceptions.RedisLockAcquisitionException;
-import com.bjcareer.userservice.out.persistance.repository.exceptions.TelegramCommunicationException;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.UserAlreadyExistsException;
 
 import lombok.Data;
@@ -29,52 +29,48 @@ public class RegisterService implements RegisterUsecase {
 	private final LoadUserPort loadUserPort;
 	private final CreateUserPort createUserPort;
 
-	private final Telegram telegramDomain;
+	private final ApplicationEventPublisher eventPublisher;
 	private final Redis redisDomain;
 
-	public Long generateRandomTokenForAuthentication(String telegramId) {
-		Long EXPIRATION_TIME = 60L;
+	public Long generateRandomTokenForAuthentication(String emailId) {
 		Long generate = RandomCodeGenerator.generate();
-		boolean isSend = telegramDomain.sendCode(telegramId, generate);
-		if (!isSend) {
-			throw new TelegramCommunicationException("통신 에러");
-		}
-
-		saveTokenPort.saveAuthToken(new TokenVO(telegramId, generate), EXPIRATION_TIME);
+		saveTokenPort.saveVerificationToken(new TokenVO(emailId, generate));
+		eventPublisher.publishEvent(new AuthCodeSentEvent(emailId, generate));
 		return generate;
 	}
 
-	public boolean verifyToken(String telegramId, Long token) {
-		Optional<TokenVO> tokebByTelegramId = loadToken.loadByTelemgramId(telegramId);
+	public boolean verifyToken(String email, Long token) {
+		Optional<TokenVO> tokebByemail = loadToken.loadVerificationTokenByEmail(email);
 
-		if (tokebByTelegramId.isEmpty()) {
+		if (tokebByemail.isEmpty()) {
 			return false;
 		}
 
-		TokenVO tokenVO = tokebByTelegramId.get();
-		return token.equals(tokenVO.getToken());
+		TokenVO tokenVO = tokebByemail.get();
+		boolean is_same = token.equals(tokenVO.getToken());
+
+		if (is_same) {
+			saveTokenPort.saveVerificationToken(tokenVO);
+			return true;
+		}
+
+		return false;
 	}
 
 	@Transactional
-	public Long registerService(User user) {
-		String LOCK_KEY = "auth:register:lock";
-		boolean isLock = redisDomain.tryLock(LOCK_KEY);
+	public Long registerService(RegisterRequestCommand command) {
+		loadToken.loadVerificationTokenByEmail(command.getEmail())
+			.orElseThrow(() -> new RuntimeException("Token not found"));
 
-		if (!isLock) {
-			redisDomain.releaselock(LOCK_KEY);
-			throw new RedisLockAcquisitionException("Server is busy");
-		}
-
-		Optional<User> userIdInDatabase = loadUserPort.findByUserAlias(user.getAlias());
+		Optional<User> userIdInDatabase = loadUserPort.findByEmail(command.getEmail());
 
 		userIdInDatabase.ifPresent(u -> {
-			redisDomain.releaselock(LOCK_KEY);
-			throw new UserAlreadyExistsException("ID already exists: " + user.getAlias());
+			throw new UserAlreadyExistsException("ID already exists: " + command.getEmail());
 		});
 
+		User user = new User(command.getEmail(), command.getPassword());
 		createUserPort.save(user);
 
-		redisDomain.releaselock(LOCK_KEY);
 		return user.getId();
 	}
 }

@@ -29,7 +29,7 @@ class AuthWithTokenUsecaseTest {
 
 	@BeforeEach
 	void setUp() {
-		testUser = new User("testUser", "testPassword", "testEmail");
+		testUser = new User("testUser", "testPassword");
 		databaseRepository.save(testUser);
 	}
 

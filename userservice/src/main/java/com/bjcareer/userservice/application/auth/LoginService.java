@@ -20,7 +20,7 @@ public class LoginService implements LoginUsecase {
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
-		Optional<User> userFromDatabase = loadUserPort.findByUserAlias(command.getId());
+		Optional<User> userFromDatabase = loadUserPort.findByEmail(command.getEmail());
 
 		if (userFromDatabase.isEmpty()) {
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다.");

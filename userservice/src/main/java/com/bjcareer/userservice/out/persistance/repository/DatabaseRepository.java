@@ -7,5 +7,5 @@ import org.springframework.data.repository.CrudRepository;
 import com.bjcareer.userservice.domain.entity.User;
 
 public interface DatabaseRepository extends CrudRepository<User, Long> {
-	Optional<User> findByAlias(String alias);
+	Optional<User> findByemail(String email);
 }

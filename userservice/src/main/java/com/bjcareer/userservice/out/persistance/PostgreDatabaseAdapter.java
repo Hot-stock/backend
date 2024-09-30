@@ -9,8 +9,8 @@ import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.Role;
 import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.domain.entity.User;
-import com.bjcareer.userservice.out.persistance.repository.exceptions.DatabaseOperationException;
 import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
+import com.bjcareer.userservice.out.persistance.repository.exceptions.DatabaseOperationException;
 import com.bjcareer.userservice.out.persistance.repository.queryConst.DatabaseQuery;
 
 import jakarta.persistence.EntityManager;
@@ -35,8 +35,8 @@ public class PostgreDatabaseAdapter implements LoadUserPort, CreateUserPort {
 	}
 
 	@Override
-	public Optional<User> findByUserAlias(String alais) {
-		return databaseRepository.findByAlias(alais);
+	public Optional<User> findByEmail(String email) {
+		return databaseRepository.findByemail(email);
 	}
 
 	public Optional<Role> findRoleByRoleType(RoleType roleType) {

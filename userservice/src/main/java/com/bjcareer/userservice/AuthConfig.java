@@ -17,7 +17,7 @@ public class AuthConfig implements WebMvcConfigurer {
     private static final String[] EXCLUDE_PATHS = {
         "/api/v0/user/login",
         "/api/v0/user/logout",
-        "/api/v0/register/verify-email",
+        "/api/v0/register/**",
         "/swagger-ui/**",
         "/favicon.ico",
         "/api-docs/**",

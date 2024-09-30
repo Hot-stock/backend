@@ -20,7 +20,7 @@ public class AuthWithJWTService implements AuthWithTokenUsecase {
 
 	@Override
 	public JwtTokenVO login(LoginCommand loginCommand) {
-		LoginCommand command = new LoginCommand(loginCommand.getId(), loginCommand.getPassword());
+		LoginCommand command = new LoginCommand(loginCommand.getEmail(), loginCommand.getPassword());
 		User user = loginUsecase.login(command);
 		return tokenUsecase.generateToken(user);
 	}

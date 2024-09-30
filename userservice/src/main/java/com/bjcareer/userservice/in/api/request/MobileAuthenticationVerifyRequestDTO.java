@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class MobileAuthenticationVerifyRequestDTO {
 	private final Long token;
-	private final String telegramId;
+	private final String email;
 }
