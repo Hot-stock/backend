@@ -1,14 +1,17 @@
 package com.bjcareer.userservice.interceptor;
 
-import com.bjcareer.userservice.service.JwtService;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.servlet.HandlerInterceptor;
-import java.util.Arrays;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,10 +19,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String SESSION_ID = "sessionId";
 
-    private final JwtService jwtService;
+    private final TokenUsecase tokenUsecase;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         Cookie[] cookies = request.getCookies();
 
         if (cookies == null){
@@ -42,6 +45,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        return jwtService.verifyAccessToken(accessToken.get().getValue());
+        return tokenUsecase.verifyAccessToken(accessToken.get().getValue());
     }
 }

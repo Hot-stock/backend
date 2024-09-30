@@ -33,4 +33,9 @@ logging:
     org.hibernate.SQL: debug
     com.bjcareer.userservice: debug   # Set the log level for your specific package
 
-# springdoc.swagger-ui.path=/docs
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
