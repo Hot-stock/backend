@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.ports.TokenUsecase;
-import com.bjcareer.userservice.application.auth.token.ports.TonkenMangerUsecase;
+import com.bjcareer.userservice.application.auth.token.ports.TonkenManagerUsecase;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.out.persistence.CacheTokenRepository;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JWTService implements TokenUsecase {
-	private final TonkenMangerUsecase tokenManager;
+	private final TonkenManagerUsecase tokenManager;
 	private final CacheTokenRepository tokenRepository;
 
 	@Override

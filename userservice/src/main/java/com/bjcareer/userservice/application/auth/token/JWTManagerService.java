@@ -9,7 +9,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.userservice.application.auth.token.ports.TonkenMangerUsecase;
+import com.bjcareer.userservice.application.auth.token.ports.TonkenManagerUsecase;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.RoleType;
 
@@ -21,7 +21,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
 @Component
-public class JWTManagerService implements TonkenMangerUsecase {
+public class JWTManagerService implements TonkenManagerUsecase {
     private final SecretKey signingKey;
 
     public JWTManagerService(@Value("${secret.key}") String secretKey) {
@@ -37,7 +37,7 @@ public class JWTManagerService implements TonkenMangerUsecase {
         return new JwtTokenVO(accessToken, refreshToken, sessionId, currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC * 1000L, roles);
     }
 
-    public Claims verifyToken(String token) throws SignatureException, ExpiredJwtException {
+    public Claims verifyToken(String token) {
         return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
     }
 
