@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class RegisterRequestDTO {
-	private final String userId;
+	private final String email;
 	private final String password;
-	public final String telegramId;
 }

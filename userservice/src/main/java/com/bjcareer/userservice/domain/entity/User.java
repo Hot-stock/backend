@@ -37,12 +37,9 @@ public class User {
     private Long id;
 
     @Column(unique = true)
-    private String alias;
+    private String email;
 
-    private String passwordHash;  // Store the hashed password
-
-    @Column(name = "telegram_id")
-    private String telegramId;
+    private String password;  // Store the hashed password
 
     @Version
     private Long version;
@@ -53,17 +50,16 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RoleAssignments> assignments = new ArrayList<>();
 
-    public User(String alias, String password, String telegramId)  {
-        this.alias = alias;
-        this.passwordHash = hashPassword(password);  // Hash the password directly
-        this.telegramId = telegramId;
+    public User(String email, String password) {
+        this.email = email;
+        this.password = hashPassword(password);  // Hash the password directly
         this.userType = UserType.NORMAL;
     }
 
     // Verify the password by re-hashing it and comparing it with the stored hash
     public boolean verifyPassword(String password)  {
         String hashedPassword = hashPassword(password);
-        return this.passwordHash.equals(hashedPassword);
+        return this.password.equals(hashedPassword);
     }
 
     // Hash the password using MessageDigest with SHA-256
@@ -89,8 +85,7 @@ public class User {
     public String toString() {
         return "User{" +
             "id='" + id + '\'' +
-            ", alias='" + alias + '\'' +
-            ", telegramId='" + telegramId + '\'' +
+            ", alias='" + email + '\'' +
             ", version=" + version +
             '}';
     }
