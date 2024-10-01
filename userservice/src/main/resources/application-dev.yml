@@ -37,7 +37,7 @@ redis:
 
 logging:
   level:
-    com.bjcareer.userservice.*: info
+    com.bjcareer.userservice: info
 
 server:
   servlet:
