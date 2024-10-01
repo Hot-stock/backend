@@ -52,12 +52,17 @@ public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, R
 	}
 
 	@Override
-	public void saveVerificationUser(TokenVO tokenVO) {
+	public Optional<TokenVO> loadVerificationTokenByEmail(String email) {
+		return findFromRedis(OBJECT_REGISTER_KEY + email);
+	}
+
+	@Override
+	public void saveVerifiedUser(TokenVO tokenVO) {
 		saveToRedis(OBJECT_VERIFY_USER_KEY + tokenVO.getEmail(), tokenVO, EXPIRATION_SEC);
 	}
 
 	@Override
-	public Optional<TokenVO> loadVerificationTokenByEmail(String email) {
+	public Optional<TokenVO> loadVerifiedUserByEmail(String email) {
 		return findFromRedis(OBJECT_VERIFY_USER_KEY + email);
 	}
 

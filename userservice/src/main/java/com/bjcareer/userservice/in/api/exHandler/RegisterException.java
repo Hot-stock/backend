@@ -38,7 +38,7 @@ public class RegisterException {
 
     @ExceptionHandler
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
-        return buildErrorResponse("이미 존재하는 사용자입니다", HttpStatus.BAD_REQUEST, e);
+        return buildErrorResponse("이미 존재하는 사용자입니다", HttpStatus.CONFLICT, e);
     }
 
     @ExceptionHandler

@@ -42,26 +42,31 @@ public class RegisterService implements RegisterUsecase {
 	}
 
 	public boolean verifyToken(String email, Long token) {
+		log.debug("verifyToken email: {}, token: {}", email, token);
 		Optional<TokenVO> tokebByemail = loadToken.loadVerificationTokenByEmail(email);
 
 		if (tokebByemail.isEmpty()) {
+			log.error("Token not found");
 			return false;
 		}
+		log.debug("tokebByemail: {}", tokebByemail);
 
 		TokenVO tokenVO = tokebByemail.get();
 		boolean is_same = token.equals(tokenVO.getToken());
 
 		if (is_same) {
 			log.info("Token verified");
-			saveTokenPort.saveVerificationUser(tokenVO);
+			saveTokenPort.saveVerifiedUser(tokenVO);
 			return true;
 		}
+
+		log.error("Token not verified {} {}", token, tokenVO.getToken());
 		return false;
 	}
 
 	@Transactional
 	public Long registerService(RegisterRequestCommand command) {
-		loadToken.loadVerificationTokenByEmail(command.getEmail())
+		loadToken.loadVerifiedUserByEmail(command.getEmail())
 			.orElseThrow(() -> new VerifyTokenDoesNotExist("Token not found"));
 
 		Optional<User> userIdInDatabase = loadUserPort.findByEmail(command.getEmail());

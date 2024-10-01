@@ -8,4 +8,5 @@ import com.bjcareer.userservice.application.auth.token.valueObject.TokenVO;
 public interface LoadTokenPort {
 	Optional<JwtTokenVO> findTokenBySessionId(String sessionId);
 	Optional<TokenVO> loadVerificationTokenByEmail(String email);
+	Optional<TokenVO> loadVerifiedUserByEmail(String email);
 }

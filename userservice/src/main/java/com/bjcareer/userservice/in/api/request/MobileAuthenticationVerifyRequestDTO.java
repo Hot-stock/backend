@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class MobileAuthenticationVerifyRequestDTO {
-	private final Long token;
-	private final String email;
+	private String email;
+	private Long token;
 }

@@ -30,7 +30,8 @@ class RegisterUsecaseTest {
 		//인증 요청
 		Long verifyToken = registerUsecase.generateRandomTokenForAuthentication(email);
 		//인증 성공
-		registerUsecase.verifyToken(email, verifyToken);
+		boolean result = registerUsecase.verifyToken(email, verifyToken);
+		assertTrue(result);
 
 		//회원가입
 		Long id = registerUsecase.registerService(new RegisterRequestCommand(email, "test"));
