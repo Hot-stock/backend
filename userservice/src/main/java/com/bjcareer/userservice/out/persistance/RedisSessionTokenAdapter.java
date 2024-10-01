@@ -21,10 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Repository
 public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, RemoveTokenPort {
-	public static final long EXPIRATION_SEC = 3600L;
+	public static final long EXPIRATION_SEC = 500L;
 	private final RedissonClient redissonClient;
 	private final String OBJECT_LOGIN_KEY = "USER:LOGIN:";
 	private final String OBJECT_REGISTER_KEY = "USER:REGISTER:";
+	private final String OBJECT_VERIFY_USER_KEY = "USER:VERIFY:";
 
 
 	@Override
@@ -51,8 +52,13 @@ public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, R
 	}
 
 	@Override
+	public void saveVerificationUser(TokenVO tokenVO) {
+		saveToRedis(OBJECT_VERIFY_USER_KEY + tokenVO.getEmail(), tokenVO, EXPIRATION_SEC);
+	}
+
+	@Override
 	public Optional<TokenVO> loadVerificationTokenByEmail(String email) {
-		return findFromRedis(OBJECT_REGISTER_KEY + email);
+		return findFromRedis(OBJECT_VERIFY_USER_KEY + email);
 	}
 
 	private <T> void saveToRedis(String key, T value, long expirationSec) {

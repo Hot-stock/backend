@@ -20,9 +20,11 @@ import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.UserAlreadyExistsException;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Data
+@Slf4j
 public class RegisterService implements RegisterUsecase {
 	private final SaveTokenPort saveTokenPort;
 	private final LoadTokenPort loadToken;
@@ -50,17 +52,17 @@ public class RegisterService implements RegisterUsecase {
 		boolean is_same = token.equals(tokenVO.getToken());
 
 		if (is_same) {
-			saveTokenPort.saveVerificationToken(tokenVO);
+			log.info("Token verified");
+			saveTokenPort.saveVerificationUser(tokenVO);
 			return true;
 		}
-
 		return false;
 	}
 
 	@Transactional
 	public Long registerService(RegisterRequestCommand command) {
 		loadToken.loadVerificationTokenByEmail(command.getEmail())
-			.orElseThrow(() -> new RuntimeException("Token not found"));
+			.orElseThrow(() -> new VerifyTokenDoesNotExist("Token not found"));
 
 		Optional<User> userIdInDatabase = loadUserPort.findByEmail(command.getEmail());
 
@@ -70,7 +72,6 @@ public class RegisterService implements RegisterUsecase {
 
 		User user = new User(command.getEmail(), command.getPassword());
 		createUserPort.save(user);
-
 		return user.getId();
 	}
 }
