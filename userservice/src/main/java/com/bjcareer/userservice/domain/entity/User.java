@@ -3,6 +3,7 @@ package com.bjcareer.userservice.domain.entity;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -29,7 +30,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User {
-    public static final String SHA_256 = "SHA-256";
+    public static final String HASH_ALGORITHM = "SHA-256";
+    public static final int SALT_SIZE = 16;
 
     @Id
     @Column(name = "user_id")
@@ -39,10 +41,8 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    private String salt;  // Store the hashed password
     private String password;  // Store the hashed password
-
-    @Version
-    private Long version;
 
     @Enumerated(EnumType.STRING)
     private UserType userType;
@@ -50,29 +50,41 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RoleAssignments> assignments = new ArrayList<>();
 
+    @Version
+    private Long version;
+
     public User(String email, String password) {
         this.email = email;
-        this.password = hashPassword(password);  // Hash the password directly
+        this.salt = generateSalt();  // Generate a random salt
+        this.password = hashPassword(password, salt);  // Hash the password directly
         this.userType = UserType.NORMAL;
     }
 
     // Verify the password by re-hashing it and comparing it with the stored hash
     public boolean verifyPassword(String password)  {
-        String hashedPassword = hashPassword(password);
+        String hashedPassword = hashPassword(password, this.salt);
         return this.password.equals(hashedPassword);
     }
 
-    // Hash the password using MessageDigest with SHA-256
-    private static String hashPassword(String password)  {
+    // 비밀번호와 salt를 사용해 해시값 생성
+    private String hashPassword(String password, String salt) {
         try {
-            MessageDigest digest = MessageDigest.getInstance(SHA_256);
-            byte[] hashBytes = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
+            String passwordWithSalt = password + salt;
+            byte[] hashBytes = digest.digest(passwordWithSalt.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(hashBytes);
         } catch (NoSuchAlgorithmException e) {
-            throw new NoHashFuctionException("No such hash function: " + SHA_256);
+            throw new NoHashFuctionException("No such hash function: " + HASH_ALGORITHM);
         }
     }
 
+    // 16바이트 salt 생성
+    private String generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[SALT_SIZE];
+        random.nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
+    }
 
     // Retrieve the user's roles from their assignments
     public List<RoleType> getRoles() {
