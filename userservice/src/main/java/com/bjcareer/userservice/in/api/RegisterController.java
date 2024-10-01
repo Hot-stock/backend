@@ -58,7 +58,7 @@ public class RegisterController {
         RegisterRequestCommand command = new RegisterRequestCommand(request.getEmail(), request.getPassword());
         Long id = registerUsecase.registerService(command);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(new RegisterResponseDTO(id.toString()));  // 상태 코드를 201로 설정하여 리소스 생성 응답을 명확히
+            .body(new RegisterResponseDTO(id));  // 상태 코드를 201로 설정하여 리소스 생성 응답을 명확히
     }
 
 }
