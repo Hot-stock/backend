@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: userservice
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+secret:
+  key: ${SECRET_KEY}
+
+databbase:
+  name: user_service # database 이름 정의
+
+redis:
+  address: ${REDIS_ADDRESS}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
+
+logging:
+  level:
+    com.bjcareer.userservice.*: info
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
