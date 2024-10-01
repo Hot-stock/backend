@@ -49,6 +49,8 @@ jobs:
             echo "SERVER_HOST=${{ secrets.SEARCH_SERVER_HOST }}" >> $GITHUB_ENV
           elif [[ "${{ env.HASH_TAGS }}" == *"#timeDeal"* ]]; then
             echo "SERVER_HOST=${{ secrets.TIMEDEAL_SERVER_HOST }}" >> $GITHUB_ENV
+          elif [[ "${{ env.HASH_TAGS }}" == *"#userservice"* ]]; then
+            echo "SERVER_HOST=${{ secrets.AUTH_SERVER_HOST }}" >> $GITHUB_ENV
           else
             echo "SERVER_HOST=${{ secrets.DEFAULT_SERVER_HOST }}" >> $GITHUB_ENV
           fi

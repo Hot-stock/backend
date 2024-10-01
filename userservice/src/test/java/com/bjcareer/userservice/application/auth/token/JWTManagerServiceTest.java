@@ -10,7 +10,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.RoleType;
@@ -25,9 +24,6 @@ import io.jsonwebtoken.security.Keys;
 class JWTManagerServiceTest {
 	@InjectMocks
 	private JWTManagerService jwtManagerService;
-
-	@Mock
-	private Claims mockClaims;
 
 	private String secretKey = "WUyQS4wsRsm5tiwG49Etyj_Vp3g1kgaEAKZuXwz8sqc=";
 

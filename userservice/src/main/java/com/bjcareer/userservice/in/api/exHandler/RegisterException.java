@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.bjcareer.userservice.application.register.VerifyTokenDoesNotExist;
 import com.bjcareer.userservice.in.api.RegisterController;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.DatabaseOperationException;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.RedisLockAcquisitionException;
@@ -43,6 +44,11 @@ public class RegisterException {
     @ExceptionHandler
     public ResponseEntity<Map<String, Object>> handleUserNotFoundException(UserNotFoundException e) {
         return buildErrorResponse("찾고자 하는 사용자가 없습니다", HttpStatus.NOT_FOUND, e);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, Object>> handleVerifyTokenDoesNotExist(VerifyTokenDoesNotExist e) {
+        return buildErrorResponse("인증을 받지 않은 사용자입니다", HttpStatus.BAD_REQUEST, e);
     }
 
     private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status, Exception e) {
