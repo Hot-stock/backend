@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8080",
+      "url": "http://3.34.191.223:8080",
       "description": "Generated server url"
     }
   ],
@@ -79,71 +79,13 @@
         }
       }
     },
-    "/api/v0/auth/verify-token": {
+    "/api/v0/register": {
       "post": {
         "tags": [
           "register-controller"
         ],
-        "operationId": "verifyTelegramAccount",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MobileAuthenticationVerifyRequestDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/auth/telegram-authentication": {
-      "post": {
-        "tags": [
-          "register-controller"
-        ],
-        "operationId": "generateTokenForRegister",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterRequestDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/auth/register": {
-      "post": {
-        "tags": [
-          "register-controller"
-        ],
+        "summary": "회원가입",
+        "description": "사용자가 입력한 이메일 및 패스워드로 회원가입을 진행합니다.",
         "operationId": "register",
         "requestBody": {
           "content": {
@@ -161,7 +103,71 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/RegisterResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/register/verify-token": {
+      "post": {
+        "tags": [
+          "register-controller"
+        ],
+        "summary": "이메일 인증 토큰 검증",
+        "description": "사용자가 입력한 이메일로 발송된 토큰을 검증합니다.",
+        "operationId": "verifyEmailToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileAuthenticationVerifyRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAuthenticationVerifyResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/register/verify-email": {
+      "post": {
+        "tags": [
+          "register-controller"
+        ],
+        "summary": "이메일 인증 토큰 생성",
+        "description": "사용자가 입력한 이메일로 회원가입 인증을 위한 랜덤 토큰을 생성하고 전송합니다. 중복된 이메일이 있으면 에러를 반환합니다.",
+        "operationId": "generateTokenForRegister",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -183,6 +189,26 @@
           }
         }
       },
+      "RegisterRequestDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "MobileAuthenticationVerifyRequestDTO": {
         "type": "object",
         "properties": {
@@ -190,21 +216,23 @@
             "type": "integer",
             "format": "int64"
           },
-          "telegramId": {
+          "email": {
             "type": "string"
           }
         }
       },
-      "RegisterRequestDTO": {
+      "MobileAuthenticationVerifyResponseDTO": {
         "type": "object",
         "properties": {
-          "userId": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "telegramId": {
+          "result": {
+            "type": "boolean"
+          }
+        }
+      },
+      "VerifyEmailRequestDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
             "type": "string"
           }
         }
