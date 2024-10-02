@@ -4,7 +4,7 @@ import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.domain.entity.User;
 
 public interface TokenUsecase {
-	JwtTokenVO generateToken(User user);
-	JwtTokenVO generateAccessTokenViaRefresh(String sessionId, String refreshToken);
+	JwtTokenVO generateJWT(User user);
+	JwtTokenVO generateAccessTokenViaRefresh(TokenRefreshCommand command);
 	boolean verifyAccessToken(String accessToken);
 }
