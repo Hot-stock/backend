@@ -60,7 +60,7 @@ Spring boot, Maven, Mybatis, Redis, Docker, MariaDB, Jenkins, Java8, Naver Cloud
 <br>
 
 ## Wiki
-<https://github.com/f-lab-edu/food-delivery/wiki><br>
+<[https://github.com/Hot-stock/backend/wiki](https://github.com/Hot-stock/backend/wiki)><br>
 Wiki에 기술 이슈에 대한 고민과 해결 방법을 포스팅한 개인 블로그의 url이 포함되어있습니다.<br>
 <br>
 ## CI
@@ -84,4 +84,3 @@ docker 컨테이너를 사용하고 있습니다.
 
 ## 프로젝트 DB ERD
 2019-11-08 수정 (쿠폰 스키마 추가)
-![배달의민족_20191108_33_53](https://user-images.githubusercontent.com/46917538/68458221-9429fc80-0245-11ea-9cc3-92f7a35fd534.png)
