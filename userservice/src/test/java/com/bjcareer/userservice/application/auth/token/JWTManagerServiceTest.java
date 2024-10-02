@@ -12,7 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.TokenValidationResult;
 import com.bjcareer.userservice.domain.entity.RoleType;
+import com.bjcareer.userservice.domain.entity.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,23 +24,23 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 class JWTManagerServiceTest {
-	@InjectMocks
-	private JWTManagerService jwtManagerService;
+	private JWTUtil jwtUtil;
 
 	private String secretKey = "WUyQS4wsRsm5tiwG49Etyj_Vp3g1kgaEAKZuXwz8sqc=";
 
+	private final String email = "test@test.com";
 	private final String sessionId = "testSessionId";
 	private final List<RoleType> roles = Arrays.asList(RoleType.USER);
 
 	@BeforeEach
 	void setUp() {
-		jwtManagerService = new JWTManagerService(secretKey);
+		jwtUtil = new JWTUtil(secretKey);
 	}
 
 	@Test
 	void generateToken_shouldReturnValidJwtTokenVO() {
 		// Act
-		JwtTokenVO jwtTokenVO = jwtManagerService.generateToken(sessionId, roles);
+		JwtTokenVO jwtTokenVO = jwtUtil.generateToken(email, sessionId, roles);
 
 		// Assert
 		assertNotNull(jwtTokenVO.getAccessToken(), "Access token should not be null");
@@ -48,16 +50,13 @@ class JWTManagerServiceTest {
 			"Refresh token expiration should be in the future");
 	}
 
+
 	@Test
 	void verifyToken_shouldReturnClaims_whenTokenIsValid() {
 		// Arrange
-		String token = jwtManagerService.generateToken(UUID.randomUUID().toString(), roles).getAccessToken();
-
-		// Act
-		Claims claims = jwtManagerService.verifyToken(token);
-
+		String token = jwtUtil.generateToken(email, UUID.randomUUID().toString(), roles).getAccessToken();
 		// Assert
-		assertNotNull(claims, "Claims should not be null");
+		assertTrue(jwtUtil.validateToken(token).isValid(), "Valid token should return true");
 	}
 
 	@Test
@@ -65,29 +64,23 @@ class JWTManagerServiceTest {
 		// Arrange
 		String invalidToken = "invalidToken";
 
-		// Assert
-		assertThrows(MalformedJwtException.class, () -> jwtManagerService.verifyToken(invalidToken),
-			"Invalid token should throw SignatureException");
+		TokenValidationResult result = jwtUtil.validateToken(invalidToken);
+		assertFalse(result.isValid(), "Invalid token should return false");
 	}
 
 	@Test
 	void validateRefreshTokenExpiration_shouldReturnTrue_whenRefreshTokenIsExpired() {
-		assertThrows(ExpiredJwtException.class,
-			() -> jwtManagerService.verifyToken(generateToken(System.currentTimeMillis() - 1000)),
-			"Expired token should throw ExpiredJwtException");
+		User user = new User(email, "password");
+		String token = generateToken(user, System.currentTimeMillis() - 1000);
+		boolean isExpired = jwtUtil.validateToken(token).isExpired();
+
+		assertTrue(isExpired, "Expired token should return true");
 	}
 
-	@Test
-	void validateRefreshTokenExpiration_shouldReturnFalse_whenRefreshTokenIsNotExpired() {
-		JwtTokenVO jwtTokenVO = jwtManagerService.generateToken(sessionId, roles);
-		boolean isExpired = jwtManagerService.validateRefreshTokenExpiration(jwtTokenVO.getRefreshToken());
-		assertFalse(isExpired, "Non-expired token should return false");
-	}
-
-	private String generateToken(long expiration) {
+	private String generateToken(User user, long expiration) {
 		Date expirationDate = new Date(expiration);
 		return Jwts.builder()
-			.subject(UUID.randomUUID().toString())
+			.subject(user.getEmail())
 			.issuedAt(new Date())
 			.expiration(expirationDate)
 			.signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))

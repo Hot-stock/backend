@@ -15,7 +15,7 @@ public class AuthConfig implements WebMvcConfigurer {
     private final TokenUsecase tokenUsecase;
 
     private static final String[] EXCLUDE_PATHS = {
-        "/api/v0/user/**",
+        "/api/v0/auth/**",
         "/api/v0/register/**",
         "/swagger-ui/**",
         "/favicon.ico",

@@ -39,6 +39,7 @@ public class UserController {
     })
     public ResponseEntity<?> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
         LoginCommand command = new LoginCommand(request.getEmail(), request.getPassword());
+        log.debug("Login request: {}", command.getEmail());
 
         User user = loginUsecase.login(command);
         JwtTokenVO jwt = tokenUsecase.generateJWT(user);
@@ -54,6 +55,7 @@ public class UserController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshLogin(@CookieValue("sessionId") String sessionId,
         @CookieValue("refreshToken") String refreshToken) {
+        log.debug("Refresh token request: {} {}", sessionId, refreshToken);
         TokenRefreshCommand command = new TokenRefreshCommand(sessionId, refreshToken);
         JwtTokenVO jwtTokenVO = tokenUsecase.generateAccessTokenViaRefresh(command);
         LoginResponseDTO res = new LoginResponseDTO(jwtTokenVO.getAccessToken());

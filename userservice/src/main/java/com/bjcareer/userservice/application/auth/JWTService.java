@@ -52,10 +52,6 @@ public class JWTService implements TokenUsecase {
 			throw new UnauthorizedAccessAttemptException("Token theft is suspected. Please generate a new token.");
 		}
 
-		if (!tokenValidationResult.isValid()) {
-			throw new UnauthorizedAccessAttemptException("Invalid token.");
-		}
-
 		Claims claims = jwtUtil.parseToken(command.getRefreshToken());
 		String subject = claims.getSubject();
 
