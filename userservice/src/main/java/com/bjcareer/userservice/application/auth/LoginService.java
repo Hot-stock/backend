@@ -35,7 +35,7 @@ public class LoginService implements LoginUsecase {
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다2.");
 		}
 
-		tokenUsecase.generateToken(storedUser);
+		tokenUsecase.generateJWT(storedUser);
 
 		return storedUser;
 	}

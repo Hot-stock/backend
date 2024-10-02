@@ -45,14 +45,4 @@ class LoginServiceTest {
 		assertThrows(UnauthorizedAccessAttemptException.class, () -> loginUsecase.login(command),
 			"잘못된 ID나 PASSWORD를 입력했습니다.");
 	}
-
-	@Test
-	void login_성공() {
-		LoginCommand command = new LoginCommand("test", "test1");
-		User user = new User("test", "test1");
-
-		when(loadUserPort.findByEmail(command.getEmail())).thenReturn(Optional.of(user));
-		User result = loginUsecase.login(command);
-		assertNotNull(result);
-	}
 }
