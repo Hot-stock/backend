@@ -22,8 +22,8 @@ import io.jsonwebtoken.security.SignatureException;
 
 @Component
 public class JWTUtil {
-    public static final Long ACCESS_TOKEN_EXPIRE_DURATION_SEC = 30 * 60L; //30분
-    public static final Long REFRESH_TOKEN_EXPIRE_DURATION_SEC = 15 * 24 * 3500L; //15일
+    public static final int ACCESS_TOKEN_EXPIRE_DURATION_SEC = 30 * 60 * 1000; //30분
+    public static final int REFRESH_TOKEN_EXPIRE_DURATION_SEC = 15 * 24 * 3500 * 1000; //15일
 
     private final SecretKey signingKey;
 
@@ -34,8 +34,8 @@ public class JWTUtil {
     public JwtTokenVO generateToken(String email, String sessionId, List<RoleType> roles) {
         long currentTimeMillis = System.currentTimeMillis();
 
-        String accessToken = generateToken(email, currentTimeMillis + ACCESS_TOKEN_EXPIRE_DURATION_SEC * 1000L);
-        String refreshToken = generateToken(email, currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC * 1000L);
+        String accessToken = generateToken(email, currentTimeMillis + ACCESS_TOKEN_EXPIRE_DURATION_SEC);
+        String refreshToken = generateToken(email, currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC);
 
         return new JwtTokenVO(accessToken, refreshToken, sessionId, currentTimeMillis + REFRESH_TOKEN_EXPIRE_DURATION_SEC * 1000L, roles);
     }

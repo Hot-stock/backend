@@ -29,7 +29,7 @@ public class RedisSessionTokenAdapter implements LoadTokenPort, SaveTokenPort, R
 
 
 	@Override
-	public void saveJWT(String sessionId, JwtTokenVO token, Long expirationTime) {
+	public void saveJWT(String sessionId, JwtTokenVO token, int expirationTime) {
 		log.debug("Saving JWT with sessionId = {}", sessionId);
 		saveToRedis(OBJECT_LOGIN_KEY + sessionId, token, expirationTime);
 	}

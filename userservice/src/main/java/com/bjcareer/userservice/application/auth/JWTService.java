@@ -55,7 +55,7 @@ public class JWTService implements TokenUsecase {
 		Claims claims = jwtUtil.parseToken(command.getRefreshToken());
 		String subject = claims.getSubject();
 
-		saveTokenPort.saveJWT(command.getSessionId(), jwtTokenVO, jwtTokenVO.getRefreshTokenExpireTime());
+		saveTokenPort.saveJWT(command.getSessionId(), jwtTokenVO, JWTUtil.REFRESH_TOKEN_EXPIRE_DURATION_SEC);
 		return jwtUtil.generateToken(subject, command.getSessionId(), jwtTokenVO.getRoleType());
 	}
 
