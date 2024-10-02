@@ -74,6 +74,10 @@ public class UserController {
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "토큰 갱신 요청", description = "토큰 갱신 요청기능입니다.", responses = {
+        @ApiResponse(responseCode = "200", description = "갱신 성공"),
+        @ApiResponse(responseCode = "401", description = "갱신 실패로 모든 토큰 폐기")
+    })
     public ResponseEntity<?> refreshLogin(@CookieValue("sessionId") String sessionId,
         @CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
         log.debug("Refresh token request: {} {}", sessionId, refreshToken);
