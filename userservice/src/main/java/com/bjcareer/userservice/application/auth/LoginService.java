@@ -5,9 +5,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
 
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoginService implements LoginUsecase {
 	private final LoadUserPort loadUserPort;
+	private final TokenUsecase tokenUsecase;
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
@@ -32,6 +34,8 @@ public class LoginService implements LoginUsecase {
 		if (!isVerify) {
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다2.");
 		}
+
+		tokenUsecase.generateToken(storedUser);
 
 		return storedUser;
 	}
