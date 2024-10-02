@@ -1,19 +1,22 @@
-package com.bjcareer.userservice.application.auth.token;
+package com.bjcareer.userservice.application.auth;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.userservice.application.auth.token.JWTUtil;
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
+import com.bjcareer.userservice.application.auth.token.valueObject.TokenValidationResult;
+import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.userservice.application.ports.in.TokenUsecase;
-import com.bjcareer.userservice.application.ports.in.TonkenManagerUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.application.ports.out.RemoveTokenPort;
 import com.bjcareer.userservice.application.ports.out.SaveTokenPort;
 import com.bjcareer.userservice.domain.entity.User;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,36 +24,43 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JWTService implements TokenUsecase {
-	private final TonkenManagerUsecase tokenManager;
+	private final JWTUtil jwtUtil;
 	private final SaveTokenPort saveTokenPort;
 	private final LoadTokenPort loadTokenPort;
 	private final RemoveTokenPort removeTokenPort;
 
 	@Override
-	public JwtTokenVO generateToken(User user) {
+	public JwtTokenVO generateJWT(User user) {
 		String sessionId = UUID.randomUUID().toString();
-		JwtTokenVO jwtTokenVO = tokenManager.generateToken(sessionId, user.getRoles());
-		saveTokenPort.saveJWT(sessionId, jwtTokenVO, tokenManager.REFRESH_TOKEN_EXPIRE_DURATION_SEC);
+		JwtTokenVO jwtTokenVO = jwtUtil.generateToken(user.getEmail(), sessionId, user.getRoles());
+		saveTokenPort.saveJWT(sessionId, jwtTokenVO, JWTUtil.REFRESH_TOKEN_EXPIRE_DURATION_SEC);
 		return jwtTokenVO;
 	}
 
 	@Override
-	public JwtTokenVO generateAccessTokenViaRefresh(String sessionId, String refreshToken) {
-		JwtTokenVO jwtTokenVO = validateSessionAndToken(sessionId, refreshToken, true);
+	public JwtTokenVO generateAccessTokenViaRefresh(TokenRefreshCommand command) {
+		JwtTokenVO jwtTokenVO = validateSessionAndToken(command.getSessionId(), command.getRefreshToken(), true);
+		TokenValidationResult tokenValidationResult = jwtUtil.validateToken(jwtTokenVO.getAccessToken());
 
-		boolean isVerify = tokenManager.validateRefreshTokenExpiration(refreshToken);
-
-		if (!isVerify) {
+		if (!tokenValidationResult.isExpired()) {
 			boolean isRemoved = removeTokenPort.removeToken(jwtTokenVO.getSessionId());
 
 			if (!isRemoved) {
 				log.error("Failed to remove JWT from Redis. Please contact the developer.");
 			}
+
 			throw new UnauthorizedAccessAttemptException("Token theft is suspected. Please generate a new token.");
 		}
 
-		saveTokenPort.saveJWT(sessionId, jwtTokenVO, jwtTokenVO.getRefreshTokenExpireTime());
-		return tokenManager.generateToken(sessionId, jwtTokenVO.getRoleType());
+		if (!tokenValidationResult.isValid()) {
+			throw new UnauthorizedAccessAttemptException("Invalid token.");
+		}
+
+		Claims claims = jwtUtil.parseToken(command.getRefreshToken());
+		String subject = claims.getSubject();
+
+		saveTokenPort.saveJWT(command.getSessionId(), jwtTokenVO, jwtTokenVO.getRefreshTokenExpireTime());
+		return jwtUtil.generateToken(subject, command.getSessionId(), jwtTokenVO.getRoleType());
 	}
 
 	@Override
