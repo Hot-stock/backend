@@ -98,7 +98,7 @@ public class User {
         return "User{" +
             "id='" + id + '\'' +
             ", alias='" + email + '\'' +
-            ", version=" + version +
+            ", userType=" + userType +
             '}';
     }
 }

@@ -8,20 +8,23 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
 
 class LoginServiceTest {
 	LoginUsecase loginUsecase;
 	LoadUserPort loadUserPort;
+	TokenUsecase tokenUsecase;
 
 	@BeforeEach
 	void setUp() {
 		loadUserPort = mock(LoadUserPort.class);
-		loginUsecase = new LoginService(loadUserPort);
+		tokenUsecase = mock(TokenUsecase.class);
+		loginUsecase = new LoginService(loadUserPort, tokenUsecase);
 	}
 
 	@Test
@@ -42,5 +45,4 @@ class LoginServiceTest {
 		assertThrows(UnauthorizedAccessAttemptException.class, () -> loginUsecase.login(command),
 			"잘못된 ID나 PASSWORD를 입력했습니다.");
 	}
-
 }

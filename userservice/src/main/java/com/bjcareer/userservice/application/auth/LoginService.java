@@ -5,24 +5,30 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoginService implements LoginUsecase {
 	private final LoadUserPort loadUserPort;
+	private final TokenUsecase tokenUsecase;
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
+		log.debug("Login request: {}", command.getEmail());
 		Optional<User> userFromDatabase = loadUserPort.findByEmail(command.getEmail());
 
 		if (userFromDatabase.isEmpty()) {
+			log.error("User not found: {}", command.getEmail());
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다.");
 		}
 
@@ -30,9 +36,11 @@ public class LoginService implements LoginUsecase {
 		boolean isVerify = storedUser.verifyPassword(command.getPassword());
 
 		if (!isVerify) {
+			log.error("Password not matched: {}", command.getEmail());
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다2.");
 		}
 
+		tokenUsecase.generateJWT(storedUser);
 		return storedUser;
 	}
 }
