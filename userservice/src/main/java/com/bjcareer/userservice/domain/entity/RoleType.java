@@ -1,7 +1,5 @@
 package com.bjcareer.userservice.domain.entity;
 
-import java.io.Serializable;
-
 public enum RoleType {
     ALL("All User asscess"),
     ADMIN("Administrator with full access"),

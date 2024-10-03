@@ -7,24 +7,28 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
+import com.bjcareer.userservice.application.ports.out.message.UserLoggedInRecorderEvent;
 import com.bjcareer.userservice.domain.entity.User;
 
 class LoginServiceTest {
 	LoginUsecase loginUsecase;
 	LoadUserPort loadUserPort;
 	TokenUsecase tokenUsecase;
+	ApplicationEventPublisher publisher;
 
 	@BeforeEach
 	void setUp() {
 		loadUserPort = mock(LoadUserPort.class);
 		tokenUsecase = mock(TokenUsecase.class);
-		loginUsecase = new LoginService(loadUserPort, tokenUsecase);
+		publisher = mock(ApplicationEventPublisher.class);
+		loginUsecase = new LoginService(loadUserPort, tokenUsecase, publisher);
 	}
 
 	@Test
@@ -44,5 +48,18 @@ class LoginServiceTest {
 		when(loadUserPort.findByEmail(command.getEmail())).thenReturn(Optional.of(user));
 		assertThrows(UnauthorizedAccessAttemptException.class, () -> loginUsecase.login(command),
 			"잘못된 ID나 PASSWORD를 입력했습니다.");
+	}
+
+	@Test
+	void login_success() {
+		LoginCommand command = new LoginCommand("test", "test1");
+		User user = new User("test", "test1");
+
+		when(loadUserPort.findByEmail(command.getEmail())).thenReturn(Optional.of(user));
+
+		loginUsecase.login(command);
+
+		verify(tokenUsecase, times(1)).generateJWT(user);
+		verify(publisher).publishEvent(any(UserLoggedInRecorderEvent.class));
 	}
 }
