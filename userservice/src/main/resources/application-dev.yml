@@ -52,3 +52,8 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus  # Prometheus 메트릭 엔드포인트만 개방

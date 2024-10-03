@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -46,4 +46,8 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Expose all endpoints
