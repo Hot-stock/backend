@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ class UserRecordRepositoryTest {
 
 	@Test
 	@Transactional(readOnly = false)
-	void test() {
+	void 일간사용자저장() {
 		User user = createUser();
 
 		UserActive userActive = new UserActive(user);
@@ -41,6 +42,13 @@ class UserRecordRepositoryTest {
 		UserActive userActive2 = activeUserRepository.findByUserInLocalDate(user, localDate).get();
 
 		assertNotNull(userActive2);
+	}
+
+	@Test
+	@Transactional()
+	void 저장된_일간_사용자가_없을떄() {
+		List<UserActive> dailyActiveUsers = activeUserRepository.findDailyActiveUsers(LocalDate.now());
+		assertEquals(0, dailyActiveUsers.size());
 	}
 
 	private User createUser() {

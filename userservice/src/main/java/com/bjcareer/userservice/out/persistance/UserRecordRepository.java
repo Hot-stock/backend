@@ -1,6 +1,7 @@
 package com.bjcareer.userservice.out.persistance;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -25,5 +26,10 @@ public class UserRecordRepository implements PersistActiveUserPort {
 	@Override
 	public Optional<UserActive> findUserByLocaleDate(User user, LocalDate localDate) {
 		return repository.findByUserInLocalDate(user, localDate);
+	}
+
+	@Override
+	public List<UserActive> findDailyActiveUsers(LocalDate localDate) {
+		return repository.findDailyActiveUsers(localDate);
 	}
 }
