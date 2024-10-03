@@ -2,6 +2,8 @@ package com.bjcareer.userservice.application.auth.ports;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
-import com.bjcareer.userservice.application.ports.in.AuthWithTokenUsecase;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
+import com.bjcareer.userservice.application.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
+import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.commonTest.UsecaseTest;
 import com.bjcareer.userservice.domain.entity.User;
+import com.bjcareer.userservice.out.persistance.repository.ActiveUserRepository;
 import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
 
 @UsecaseTest
@@ -22,9 +26,15 @@ import com.bjcareer.userservice.out.persistance.repository.DatabaseRepository;
 @Transactional
 class AuthWithTokenUsecaseTest {
 	@Autowired
-	private AuthWithTokenUsecase authWithTokenUsecase;
+	LoginUsecase loginUsecase;
+	@Autowired
+	TokenUsecase jwtTokenUsecase;
 	@Autowired
 	private DatabaseRepository databaseRepository;
+
+	@Autowired
+	private ActiveUserRepository activeUserRepository;
+
 	private User testUser;
 
 	@BeforeEach
@@ -37,12 +47,14 @@ class AuthWithTokenUsecaseTest {
 	void shouldLoginSuccessfully() {
 		// Arrange
 		LoginCommand command = new LoginCommand("testUser", "testPassword");
-
+		LocalDate localDate = LocalDate.now();
 		// Act
-		JwtTokenVO jwtToken = authWithTokenUsecase.login(command);
+		User login = loginUsecase.login(command);
+		JwtTokenVO jwtTokenVO = jwtTokenUsecase.generateJWT(login);
+		activeUserRepository.findByUserInLocalDate(login, localDate);
 
 		// Assert
-		assertNotNull(jwtToken);
+		assertNotNull(jwtTokenVO);
 	}
 
 	@Test
@@ -51,17 +63,18 @@ class AuthWithTokenUsecaseTest {
 		LoginCommand invalidCommand = new LoginCommand("invalidUser", "wrongPassword");
 
 		// Act & Assert
-		assertThrows(UnauthorizedAccessAttemptException.class, () -> authWithTokenUsecase.login(invalidCommand));
+		assertThrows(UnauthorizedAccessAttemptException.class, () -> loginUsecase.login(invalidCommand));
 	}
 
 	@Test
 	void shouldRemoveAllTokensWhenTokenTheftIsDetected() {  // 메서드 이름 수정
 		// Arrange
 		LoginCommand command = new LoginCommand("testUser", "testPassword");
-		JwtTokenVO jwtToken = authWithTokenUsecase.login(command);
+		User login = loginUsecase.login(command);
+		JwtTokenVO jwtToken = jwtTokenUsecase.generateJWT(login);
 
 		// Act & Assert
-		assertThrows(UnauthorizedAccessAttemptException.class, () -> authWithTokenUsecase.generateAccessTokenViaRefresh(
+		assertThrows(UnauthorizedAccessAttemptException.class, () -> jwtTokenUsecase.generateAccessTokenViaRefresh(
 			new TokenRefreshCommand(jwtToken.getSessionId(), jwtToken.getRefreshToken())));
 	}
 }

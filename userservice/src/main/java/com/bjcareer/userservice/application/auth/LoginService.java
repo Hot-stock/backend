@@ -2,6 +2,7 @@ package com.bjcareer.userservice.application.auth;
 
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +11,7 @@ import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
+import com.bjcareer.userservice.application.ports.out.message.UserLoggedInRecorderEvent;
 import com.bjcareer.userservice.domain.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginService implements LoginUsecase {
 	private final LoadUserPort loadUserPort;
 	private final TokenUsecase tokenUsecase;
+	private final ApplicationEventPublisher publisher;
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
@@ -40,7 +43,9 @@ public class LoginService implements LoginUsecase {
 			throw new UnauthorizedAccessAttemptException("잘못된 ID나 PASSWORD를 입력했습니다2.");
 		}
 
+		publisher.publishEvent(new UserLoggedInRecorderEvent(storedUser));
 		tokenUsecase.generateJWT(storedUser);
+
 		return storedUser;
 	}
 }
