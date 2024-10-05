@@ -2,6 +2,11 @@ spring:
   application:
     name: gateway
 
+redis:
+  address: redis://localhost:6379
+  password: changeme
+  database: 0
+
 auth:
   url: http://3.34.191.223:8080
 
@@ -11,9 +16,13 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-
 secret:
     key: 3ac4218e586878871ab0e9febefe81d83740ece704704af22d6a69db940fefc0
 logging:
   level:
     com.bjcareer.gateway.*: debug
+
+bucket:
+  token:
+    max-limit: 10
+    refill-minute: 5
