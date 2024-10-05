@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bjcareer.gateway.application.ports.in.AuthUsecase;
 import com.bjcareer.gateway.application.ports.in.LoginCommand;
 import com.bjcareer.gateway.application.ports.in.LogoutCommand;
+import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.common.CookieHelper;
-import com.bjcareer.gateway.domain.LoginResponseDomain;
+import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.in.api.request.LoginRequestDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,13 +38,13 @@ public class AuthController {
 	public ResponseEntity<?> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
 		log.debug("Login request: {}", request.getEmail());
 		LoginCommand command = new LoginCommand(request.getEmail(), request.getPassword());
-		LoginResponseDomain loginResponseDomain = authUsecase.loginUsecase(command);
+		JWTDomain tokenDomain = authUsecase.loginUsecase(command);
 
-		CookieHelper.setCookieAuthClient(response, CookieHelper.ACCESS_TOKEN, loginResponseDomain.getAccessToken(),
+		CookieHelper.setCookieAuthClient(response, CookieHelper.ACCESS_TOKEN, tokenDomain.getAccessToken(),
 			CookieHelper.ACCESS_TOKEN_EXPIRE_DURATION_MILLIS);
-		CookieHelper.setCookieAuthClient(response, CookieHelper.REFRESH_TOKEN, loginResponseDomain.getAccessToken(),
+		CookieHelper.setCookieAuthClient(response, CookieHelper.REFRESH_TOKEN, tokenDomain.getAccessToken(),
 			CookieHelper.REFRESH_TOKEN_EXPIRE_DURATION_MILLIS);
-		CookieHelper.setCookieAuthClient(response, CookieHelper.SESSION_ID, loginResponseDomain.getAccessToken(),
+		CookieHelper.setCookieAuthClient(response, CookieHelper.SESSION_ID, tokenDomain.getAccessToken(),
 			CookieHelper.REFRESH_TOKEN_EXPIRE_DURATION_MILLIS);
 
 		return ResponseEntity.ok().build();
@@ -69,5 +70,27 @@ public class AuthController {
 		}
 
 		return ResponseEntity.badRequest().build();
+	}
+
+	@PostMapping("/refresh")
+	@Operation(summary = "토큰 갱신 요청", description = "토큰 갱신 요청기능입니다.", responses = {
+		@ApiResponse(responseCode = "200", description = "갱신 성공"),
+		@ApiResponse(responseCode = "401", description = "갱신 실패로 모든 토큰 폐기")
+	})
+	public ResponseEntity<?> refreshLogin(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
+		@CookieValue(CookieHelper.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
+		log.debug("Refresh token request: {} {}", sessionId, refreshToken);
+
+		TokenRefreshCommand command = new TokenRefreshCommand(sessionId, refreshToken);
+		JWTDomain tokenDomain = authUsecase.refreshUsecase(command);
+
+		CookieHelper.setCookieAuthClient(response, CookieHelper.ACCESS_TOKEN, tokenDomain.getAccessToken(),
+			CookieHelper.ACCESS_TOKEN_EXPIRE_DURATION_MILLIS);
+		CookieHelper.setCookieAuthClient(response, CookieHelper.REFRESH_TOKEN, tokenDomain.getAccessToken(),
+			CookieHelper.REFRESH_TOKEN_EXPIRE_DURATION_MILLIS);
+		CookieHelper.setCookieAuthClient(response, CookieHelper.SESSION_ID, tokenDomain.getAccessToken(),
+			CookieHelper.REFRESH_TOKEN_EXPIRE_DURATION_MILLIS);
+
+		return ResponseEntity.ok().build();
 	}
 }

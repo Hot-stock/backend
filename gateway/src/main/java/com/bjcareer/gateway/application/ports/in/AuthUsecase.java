@@ -1,8 +1,9 @@
 package com.bjcareer.gateway.application.ports.in;
 
-import com.bjcareer.gateway.domain.LoginResponseDomain;
+import com.bjcareer.gateway.domain.JWTDomain;
 
 public interface AuthUsecase {
-	LoginResponseDomain loginUsecase(LoginCommand loginCommand);
+	JWTDomain loginUsecase(LoginCommand loginCommand);
 	boolean logoutUsercase(LogoutCommand logoutCommand);
+	JWTDomain refreshUsecase(TokenRefreshCommand command);
 }

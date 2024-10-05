@@ -6,10 +6,11 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.gateway.application.ports.in.LogoutCommand;
+import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
 import com.bjcareer.gateway.application.ports.out.LoginCommandPort;
 import com.bjcareer.gateway.common.CookieHelper;
-import com.bjcareer.gateway.domain.LoginResponseDomain;
+import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.exceptions.UnauthorizedAccessAttemptException;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 	private final WebClient webClient;
 
 	@Override
-	public LoginResponseDomain login(LoginCommandPort loginCommand) {
+	public JWTDomain login(LoginCommandPort loginCommand) {
 		ClientResponse response = getClientResponse(AuthServerURI.LOGIN, loginCommand);
 
 		if (response.statusCode().is2xxSuccessful()) {
@@ -29,7 +30,7 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 			String refreshToken = getCookie(response, CookieHelper.REFRESH_TOKEN);
 			String sessionId = getCookie(response, CookieHelper.SESSION_ID);
 
-			return new LoginResponseDomain(accessToken, refreshToken, sessionId);
+			return new JWTDomain(accessToken, refreshToken, sessionId);
 		}
 
 		throw new UnauthorizedAccessAttemptException("로그인에 실패했습니다.");
@@ -48,6 +49,21 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 		}
 
 		return false;
+	}
+
+	@Override
+	public JWTDomain refresh(TokenRefreshCommand command) {
+		ClientResponse response = getClientResponse(AuthServerURI.REFRESH, command);
+
+		if (response.statusCode().is2xxSuccessful()) {
+			String accessToken = getCookie(response, CookieHelper.ACCESS_TOKEN);
+			String refreshToken = getCookie(response, CookieHelper.REFRESH_TOKEN);
+			String sessionId = getCookie(response, CookieHelper.SESSION_ID);
+
+			return new JWTDomain(accessToken, refreshToken, sessionId);
+		}
+
+		throw new UnauthorizedAccessAttemptException("로그인에 실패했습니다.");
 	}
 
 	private ClientResponse getClientResponse(String uri, Object command) {
