@@ -24,14 +24,10 @@ project(':search') {
 project(':userservice') {
 }
 
-project(':timeDeal') {
-	dependencies {
-		implementation project(':proto')
-	}
+project(':gateway') {
 }
 
-
-project(':gateway') {
+project(':timeDeal') {
 	dependencies {
 		implementation project(':proto')
 	}
