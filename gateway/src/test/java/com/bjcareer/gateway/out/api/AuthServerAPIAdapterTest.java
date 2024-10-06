@@ -9,15 +9,11 @@ import com.bjcareer.gateway.application.ports.out.LoginCommandPort;
 import com.bjcareer.gateway.domain.JWTDomain;
 
 class AuthServerAPIAdapterTest {
-
-	/*
-		이렇게 되면 설정에 따라서 바뀜
-	 */
 	@Test
 	void login() {
 		// Given
 		LoginCommandPort loginCommand = new LoginCommandPort("wodhksqw@naver.com", "friend77asd@");
-		WebClient webClient = createWebClient();
+		WebClient webClient = createWebClient("http://3.34.191.223:8080");
 		AuthServerAPIAdapter authServerAPIAdapter = new AuthServerAPIAdapter(webClient);
 		JWTDomain res = authServerAPIAdapter.login(loginCommand);
 
@@ -26,10 +22,9 @@ class AuthServerAPIAdapterTest {
 		assertNotNull(res.getSessionId());
 	}
 
-
-	WebClient createWebClient() {
+	WebClient createWebClient(String baseUrl) {
 		return WebClient.builder()
-			.baseUrl("http://3.34.191.223:8080")
+			.baseUrl(baseUrl)
 			.defaultHeader("Content-Type", "application/json")
 			.build();
 	}
