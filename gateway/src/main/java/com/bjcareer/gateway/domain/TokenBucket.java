@@ -1,23 +1,22 @@
 package com.bjcareer.gateway.domain;
 
-import java.time.Clock;
 import java.time.Instant;
 
 import com.bjcareer.gateway.exceptions.TooManyRequestsException;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Slf4j
 public class TokenBucket {
 	public static final int MAX_REQUESTS = 10;
 	public static final int REFILL_INTERVAL_SECONDS = 60 * 5;
 
 	private long lastRequestTimestamp; // 마지막 요청 시간 (초 단위)
 	private int availableTokens;  // 남은 API 호출 가능 횟수 (토큰)
-	private final Clock clock;  // Clock을 사용하여 시간을 제어
 
-	public TokenBucket(Clock clock) {
-		this.clock = clock;
+	public TokenBucket() {
 		this.lastRequestTimestamp = getCurrentTimestamp();
 		this.availableTokens = MAX_REQUESTS;
 	}
@@ -44,17 +43,17 @@ public class TokenBucket {
 		long currentTimestamp = getCurrentTimestamp();  // 현재 시간 (초 단위)
 		long elapsedTimeSinceLastCall = currentTimestamp - lastRequestTimestamp;  // 마지막 요청으로부터 경과한 시간
 
-		System.out.println("elapsedTimeSinceLastCall = " + currentTimestamp);
-		System.out.println("elapsedTimeSinceLastCall = " + elapsedTimeSinceLastCall);
+		log.debug("elapsedTimeSinceLastCall = {}", currentTimestamp);
+		log.debug("elapsedTimeSinceLastCall = {}", elapsedTimeSinceLastCall);
 		// 5분(300초) 단위로 경과 시간을 계산하여 리필할 토큰 수 계산
 		long refillableTokens = elapsedTimeSinceLastCall / REFILL_INTERVAL_SECONDS;
-		System.out.println("refillableTokens = " + refillableTokens);
+		log.debug("refillableTokens = {}", refillableTokens);
 
 		// 남은 호출 가능 횟수를 리필하되 최대치를 넘지 않도록 제한
 		availableTokens = (int)Math.min(MAX_REQUESTS, availableTokens + refillableTokens);
 	}
 
 	private long getCurrentTimestamp() {
-		return Instant.now(clock).getEpochSecond();
+		return Instant.now().getEpochSecond();
 	}
 }

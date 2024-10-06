@@ -2,7 +2,6 @@ package com.bjcareer.gateway.out.persistence;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -29,6 +28,6 @@ public class RedisRepositoryAdapter implements RateLimitPort {
 	public void saveTokenBucket(String key, TokenBucket tokenBucket) {
 		String buketKey = RateLimitPort.BUCKET_KEY + key;
 		RBucket<TokenBucket> bucket = redissonClient.getBucket(buketKey);
-		bucket.set(tokenBucket, Duration.of(expirationSec, TimeUnit.SECONDS.toChronoUnit()));
+		bucket.set(tokenBucket, Duration.ofSeconds(RateLimitPort.expirationSec));
 	}
 }
