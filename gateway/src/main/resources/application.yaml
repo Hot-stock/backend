@@ -7,9 +7,6 @@ redis:
   password: changeme
   database: 0
 
-auth:
-  url: http://3.34.191.223:8080
-
 springdoc:
   api-docs:
     path: /api-docs
@@ -26,3 +23,10 @@ bucket:
   token:
     max-limit: 10
     refill-minute: 5
+
+
+auth:
+  url: http://3.34.191.223:8080
+
+search:
+  url: http://43.201.52.244:8080
