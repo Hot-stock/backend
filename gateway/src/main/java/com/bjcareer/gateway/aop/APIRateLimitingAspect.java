@@ -1,6 +1,5 @@
 package com.bjcareer.gateway.aop;
 
-import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -29,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class APIRateLimitingAspect {
 	private final JWTUtil jwtUtil;
 	private final RateLimitPort rateLimitPort;
-	private final Clock clock;
 
 	@Pointcut("@annotation(com.bjcareer.gateway.aop.APIRateLimit)")
 	private void cut() {
@@ -75,7 +73,7 @@ public class APIRateLimitingAspect {
 		//레디스에 keyset없으면
 		if (tokenBucket.isEmpty()) {
 			log.debug("Token Bucket is Empty");
-			rateLimitPort.saveTokenBucket(key, new TokenBucket(clock));
+			rateLimitPort.saveTokenBucket(key, new TokenBucket());
 		} else {
 			log.debug("Token Bucket is Not Empty");
 			TokenBucket apiTokenBuket = tokenBucket.get();
