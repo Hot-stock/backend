@@ -1,8 +1,17 @@
-FROM --platform=linux/amd64 openjdk:17
+# Build Stage
+FROM --platform=linux/amd64 openjdk:17 AS build
 
-COPY build /app
+# Build environment setup
+COPY . /app
 WORKDIR /app
 
-RUN cp /app/build/libs/gateway-0.0.1-SNAPSHOT.jar /app/app.jar
+# Package Stage
+FROM --platform=linux/amd64 openjdk:17-jdk-slim
+
+# Copy the jar from the build stage
+COPY --from=build /app/build/libs/gateway-0.0.1-SNAPSHOT.jar /app/app.jar
+
+# Set the working directory
+WORKDIR /app
 
 ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "./app.jar"]
