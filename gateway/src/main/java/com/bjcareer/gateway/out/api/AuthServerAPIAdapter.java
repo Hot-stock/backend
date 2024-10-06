@@ -13,13 +13,16 @@ import com.bjcareer.gateway.common.CookieHelper;
 import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.exceptions.UnauthorizedAccessAttemptException;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class AuthServerAPIAdapter implements AuthServerPort {
-	@Qualifier("authWebClient")
 	private final WebClient webClient;
+
+	public AuthServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient) {
+		this.webClient = webClient;
+	}
 
 	@Override
 	public JWTDomain login(LoginCommandPort loginCommand) {
@@ -32,7 +35,7 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 
 			return new JWTDomain(accessToken, refreshToken, sessionId);
 		}
-
+		log.info("Login status code: {}", response.statusCode());
 		throw new UnauthorizedAccessAttemptException("로그인에 실패했습니다.");
 	}
 

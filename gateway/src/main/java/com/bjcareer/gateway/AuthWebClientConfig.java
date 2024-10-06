@@ -10,7 +10,7 @@ public class AuthWebClientConfig {
 	@Value("${auth.url}")
 	private String baseURL;
 
-	@Bean(name = "authWebClient")
+	@Bean("authWebClient")
 	public WebClient webClient(WebClient.Builder builder) {
 		builder.baseUrl(baseURL)
 			.defaultHeader("Content-Type", "application/json");

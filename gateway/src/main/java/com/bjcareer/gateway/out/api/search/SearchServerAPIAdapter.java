@@ -14,13 +14,13 @@ import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 
-import lombok.RequiredArgsConstructor;
-
 @Component
-@RequiredArgsConstructor
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
-	@Qualifier("searchWebClient")
 	private final WebClient webClient;
+
+	public SearchServerAPIAdapter(@Qualifier("searchWebClient") WebClient webClient) {
+		this.webClient = webClient;
+	}
 
 	@Override
 	public List<AbsoluteRankKeyword> searchCount(KeywordCommand command) {
