@@ -37,59 +37,70 @@ public class APIRateLimitingAspect {
 	@Before("cut()")
 	public void rateLimiting(JoinPoint joinPoint) {
 		Signature signature = joinPoint.getSignature();
-		log.debug("Rate Limiting Aspect {}", signature.getName());
+		log.debug("Rate Limiting Aspect invoked for method: {}", signature.getName());
 
-		//매개변수들 읽음
-		Object[] args = joinPoint.getArgs();
-		HttpServletRequest request = null;
-		for (Object arg : args) {
-			if (arg instanceof HttpServletRequest) {
-				request = (HttpServletRequest)arg;
-			}
-		}
+		HttpServletRequest request = extractHttpServletRequest(joinPoint.getArgs());
 
 		if (request == null) {
-			log.debug("Request is Null");
+			log.warn("HttpServletRequest is missing from method arguments.");
 			return;
 		}
 
 		String clientIp = request.getHeader(REAL_IP);
-		log.debug("Rate Limiting: " + clientIp);
-		Optional<Cookie> accessToken = Optional.empty();
+		log.debug("Client IP: {}", clientIp);
 
-		if (request.getCookies() == null) {
-			log.debug("Cookies is Null");
-		}else{
-			accessToken = Arrays.stream(request.getCookies())
-				.filter(c -> c.getName().equals(CookieHelper.ACCESS_TOKEN))
-				.findFirst();
-		}
+		String key = generateRateLimitKey(request);
+		processTokenBucket(key);
+	}
 
-		String key = "";
+	// HttpServletRequest 추출 메서드
+	private HttpServletRequest extractHttpServletRequest(Object[] args) {
+		return Arrays.stream(args)
+			.filter(arg -> arg instanceof HttpServletRequest)
+			.map(arg -> (HttpServletRequest)arg)
+			.findFirst()
+			.orElse(null);
+	}
+
+	// Rate Limit 키 생성 메서드
+	private String generateRateLimitKey(HttpServletRequest request) {
+		Optional<Cookie> accessToken = extractAccessToken(request);
+
 		if (accessToken.isEmpty()) {
-			log.debug("Access Token is Empty Using IP Address");
-			key = RateLimitPort.BUCKET_KEY + request.getRemoteAddr();
+			log.debug("No access token found. Using client IP address for rate limit key.");
+			return RateLimitPort.BUCKET_KEY + request.getRemoteAddr();
 		} else {
-			log.debug("Access Token is Not Empty Using Access Token");
+			log.debug("Access token found. Using token for rate limit key.");
 			Claims claims = jwtUtil.parseToken(accessToken.get().getValue());
-			key = RateLimitPort.BUCKET_KEY + claims.getSubject();
+			return RateLimitPort.BUCKET_KEY + claims.getSubject();
+		}
+	}
+
+	// 쿠키에서 Access Token 추출
+	private Optional<Cookie> extractAccessToken(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies == null) {
+			log.warn("No cookies present in the request.");
+			return Optional.empty();
 		}
 
+		return Arrays.stream(cookies)
+			.filter(cookie -> CookieHelper.ACCESS_TOKEN.equals(cookie.getName()))
+			.findFirst();
+	}
+
+	// 토큰 버킷 처리 메서드
+	private void processTokenBucket(String key) {
 		Optional<TokenBucket> tokenBucket = rateLimitPort.loadTokenBucket(key);
 
-		//레디스에 keyset없으면
 		if (tokenBucket.isEmpty()) {
-			log.debug("Token Bucket is Empty");
+			log.debug("No token bucket found for key: {}. Creating new token bucket.", key);
 			rateLimitPort.saveTokenBucket(key, new TokenBucket());
 		} else {
-			log.debug("Token Bucket is Not Empty");
-			TokenBucket apiTokenBuket = tokenBucket.get();
-			log.debug("Starting API LIMIT : {}", apiTokenBuket.getAvailableTokens());
-			apiTokenBuket.attemptApiCall();
-
-			rateLimitPort.saveTokenBucket(key, apiTokenBuket);
+			TokenBucket apiTokenBucket = tokenBucket.get();
+			log.debug("Existing token bucket found. Available tokens: {}", apiTokenBucket.getAvailableTokens());
+			apiTokenBucket.attemptApiCall();
+			rateLimitPort.saveTokenBucket(key, apiTokenBucket);
 		}
-
-		log.debug("Rate Limiting Aspect");
 	}
 }

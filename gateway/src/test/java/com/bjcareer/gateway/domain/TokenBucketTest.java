@@ -24,7 +24,7 @@ class TokenBucketTest {
 		when(clock.instant()).thenReturn(initialInstant);  // 초기 시간을 설정
 		when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
-		tokenBucket = new TokenBucket(clock);  // 모킹된 Clock을 사용하여 TokenBucket 초기화
+		tokenBucket = new TokenBucket();  // 모킹된 Clock을 사용하여 TokenBucket 초기화
 	}
 
 	@Test
