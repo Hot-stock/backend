@@ -48,16 +48,18 @@
 - 비동기 처리를 통해 외부 API 호출의 효율성 증가
 ---
 ## 브랜치 관리 전략
-GitHub Flow를 사용하여 브랜치를 관리합니다.<br>
-모든 브랜치는 Pull Request를 통해 코드 리뷰 후 merge됩니다.<br>
-메인 브랜치인 `develop`에는 많은 내용이 merge되지 않았습니다. 현재 진행 중인 개발 사항은 PR을 확인하세요.
+저희는 GitHub Flow를 사용하여 브랜치를 관리하고 있습니다. <br>
+
+Main: 항상 배포 가능한 상태의 코드를 포함합니다. <br>
+Feature: 새로운 기능 개발이나 버그 수정을 위해 `Main` 브랜치에서 파생되는 브랜치입니다.
 
 - **Main**: 배포에 사용됩니다.
 - **Feature**: 각 기능 개발을 진행할 때 사용하는 브랜치입니다.
+![workFlow](img.png)
 ---
 ## 테스트
 - Mockito Framework를 활용하여 고립된 테스트 코드 작성
-- Jenkins CI를 사용하여 테스트 자동화
+- Git Runner CI를 사용하여 테스트 자동화
 - 협업하는 동료의 소스코드에 테스트 코드를 작성하여 코드 이해도를 높이고 있습니다.
 ---
 ## 성능 테스트
@@ -72,11 +74,9 @@ GitHub Flow를 사용하여 브랜치를 관리합니다.<br>
 프로젝트에 대한 자세한 기술 이슈와 해결 방법은 [Wiki](https://github.com/Hot-stock/backend/wiki)에서 확인하실 수 있습니다.<br>
 ---
 ## CI
-- **Jenkins**: PR 시 자동으로 Build 및 Test 진행
-- **Naver Cloud Platform**: 현재 CI 서버로 사용
-- PR 마다 자동 빌드 및 테스트가 진행됩니다.
+- **Git Runner**: PR 시 자동으로 Build 및 Test 진행
 ---
 ## CD
-- **Docker**: CI 서버에서 빌드된 이미지를 Docker Hub에 push 후 Delfood 메인 서버에 배포합니다.
+- **Docker**: CI 서버에서 빌드된 이미지를 Docker Hub에 push 후 각 서버스의 서버에 서버에 배포합니다.
 - Docker Hub에서 자동으로 이미지를 받아 실행하는 방식으로 배포가 진행됩니다.
 ---
