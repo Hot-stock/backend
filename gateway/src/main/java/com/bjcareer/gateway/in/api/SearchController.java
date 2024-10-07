@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
-import com.bjcareer.gateway.application.ports.in.KeywordUsecase;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
+import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.SearchCandidate;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SearchController {
-	private final KeywordUsecase keywordUsecase;
+	private final KeywordServerPort keywordServerPort;
 	private final SearchServerPort searchServerPort;
 
 	@GetMapping("/api/v0/keyword")
@@ -41,7 +41,11 @@ public class SearchController {
 	)
 	public ResponseEntity<List<KeywordCountResponseDTO>> getKeywordCount(@RequestParam(name = "q") String keyword,
 		HttpServletRequest request) {
-		List<AbsoluteRankKeyword> searchCount = keywordUsecase.getSearchCount(keyword);
+		if (validationKeyword(keyword)) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		List<AbsoluteRankKeyword> searchCount = keywordServerPort.searchCount(new KeywordCommand(keyword));
 
 		List<KeywordCountResponseDTO> absoluteValueOfKeyword = searchCount.stream()
 			.map(it -> new KeywordCountResponseDTO(it.getAbsoluteKeywordCount(), it.getPeriod()))
