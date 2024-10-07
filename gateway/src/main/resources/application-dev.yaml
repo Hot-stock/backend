@@ -23,7 +23,7 @@ search:
 
 logging:
   level:
-    com.bjcareer.gateway.*: error
+    com.bjcareer.gateway.*: debug
 
 springdoc:
   api-docs:
