@@ -1,4 +1,4 @@
-package com.bjcareer.gateway.aop;
+package com.bjcareer.gateway.aop.APILimit;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class APIRateLimitingAspect {
 	private final JWTUtil jwtUtil;
 	private final RateLimitPort rateLimitPort;
 
-	@Pointcut("@annotation(com.bjcareer.gateway.aop.APIRateLimit)")
+	@Pointcut("@annotation(com.bjcareer.gateway.aop.APILimit.APIRateLimit)")
 	private void cut() {
 	}
 

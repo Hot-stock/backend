@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.gateway.aop.APIRateLimit;
+import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
 import com.bjcareer.gateway.application.ports.in.KeywordUsecase;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;

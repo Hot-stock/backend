@@ -1,4 +1,4 @@
-package com.bjcareer.gateway.aop;
+package com.bjcareer.gateway.aop.APILimit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
