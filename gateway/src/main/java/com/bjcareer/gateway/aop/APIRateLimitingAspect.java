@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class APIRateLimitingAspect {
+	public static final String REAL_IP = "X-Forwarded-For";
 	private final JWTUtil jwtUtil;
 	private final RateLimitPort rateLimitPort;
 
@@ -52,11 +53,17 @@ public class APIRateLimitingAspect {
 			return;
 		}
 
-		// 여러 메서드 시그니처에서도 HttpServletRequest만 있으면 실행됨
-		log.debug("Rate Limiting: " + request.getRemoteAddr());
-		Optional<Cookie> accessToken = Arrays.stream(request.getCookies())
-			.filter(c -> c.getName().equals(CookieHelper.ACCESS_TOKEN))
-			.findFirst();
+		String clientIp = request.getHeader(REAL_IP);
+		log.debug("Rate Limiting: " + clientIp);
+		Optional<Cookie> accessToken = Optional.empty();
+
+		if (request.getCookies() == null) {
+			log.debug("Cookies is Null");
+		}else{
+			accessToken = Arrays.stream(request.getCookies())
+				.filter(c -> c.getName().equals(CookieHelper.ACCESS_TOKEN))
+				.findFirst();
+		}
 
 		String key = "";
 		if (accessToken.isEmpty()) {
