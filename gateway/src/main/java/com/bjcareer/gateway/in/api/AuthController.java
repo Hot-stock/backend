@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bjcareer.gateway.aop.JWT.JWTLogin;
 import com.bjcareer.gateway.application.ports.in.AuthUsecase;
 import com.bjcareer.gateway.application.ports.in.LoginCommand;
 import com.bjcareer.gateway.application.ports.in.LogoutCommand;
@@ -51,6 +52,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
+	@JWTLogin
 	@Operation(summary = "로그아웃 요청", description = "로그아웃 요청 기능입니다.", responses = {
 		@ApiResponse(responseCode = "200", description = "로그아웃 성공"),
 		@ApiResponse(responseCode = "400", description = "로그아웃 실패")
@@ -73,6 +75,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh")
+	@JWTLogin
 	@Operation(summary = "토큰 갱신 요청", description = "토큰 갱신 요청기능입니다.", responses = {
 		@ApiResponse(responseCode = "200", description = "갱신 성공"),
 		@ApiResponse(responseCode = "401", description = "갱신 실패로 모든 토큰 폐기")

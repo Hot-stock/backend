@@ -1,6 +1,5 @@
 package com.bjcareer.gateway.aop.APILimit;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import org.aspectj.lang.JoinPoint;
@@ -10,8 +9,8 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.gateway.aop.CommonAOP;
 import com.bjcareer.gateway.aop.ports.out.RateLimitPort;
-import com.bjcareer.gateway.common.CookieHelper;
 import com.bjcareer.gateway.common.JWTUtil;
 import com.bjcareer.gateway.domain.TokenBucket;
 
@@ -39,7 +38,7 @@ public class APIRateLimitingAspect {
 		Signature signature = joinPoint.getSignature();
 		log.debug("Rate Limiting Aspect invoked for method: {}", signature.getName());
 
-		HttpServletRequest request = extractHttpServletRequest(joinPoint.getArgs());
+		HttpServletRequest request = CommonAOP.extractHttpServletRequest(joinPoint.getArgs());
 
 		if (request == null) {
 			log.warn("HttpServletRequest is missing from method arguments.");
@@ -53,18 +52,9 @@ public class APIRateLimitingAspect {
 		processTokenBucket(key);
 	}
 
-	// HttpServletRequest 추출 메서드
-	private HttpServletRequest extractHttpServletRequest(Object[] args) {
-		return Arrays.stream(args)
-			.filter(arg -> arg instanceof HttpServletRequest)
-			.map(arg -> (HttpServletRequest)arg)
-			.findFirst()
-			.orElse(null);
-	}
-
 	// Rate Limit 키 생성 메서드
 	private String generateRateLimitKey(HttpServletRequest request) {
-		Optional<Cookie> accessToken = extractAccessToken(request);
+		Optional<Cookie> accessToken = CommonAOP.extractAccessToken(request);
 
 		if (accessToken.isEmpty()) {
 			log.debug("No access token found. Using client IP address for rate limit key.");
@@ -74,19 +64,6 @@ public class APIRateLimitingAspect {
 			Claims claims = jwtUtil.parseToken(accessToken.get().getValue());
 			return RateLimitPort.BUCKET_KEY + claims.getSubject();
 		}
-	}
-
-	// 쿠키에서 Access Token 추출
-	private Optional<Cookie> extractAccessToken(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies == null) {
-			log.warn("No cookies present in the request.");
-			return Optional.empty();
-		}
-
-		return Arrays.stream(cookies)
-			.filter(cookie -> CookieHelper.ACCESS_TOKEN.equals(cookie.getName()))
-			.findFirst();
 	}
 
 	// 토큰 버킷 처리 메서드
