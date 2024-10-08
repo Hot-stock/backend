@@ -42,3 +42,7 @@ naver:
 
   trend-client-id: ${NAVER_TREND_CLIENT_ID}
   trend-client-secret: ${NAVER_TREND_CLIENT_SECRET}
+
+GPT:
+  api-key: ${GPT_API_KEY}
+
