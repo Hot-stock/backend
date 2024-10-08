@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.gateway.application.ports.in.LoginCommand;
-import com.bjcareer.gateway.application.ports.out.LoginCommandPort;
 import com.bjcareer.gateway.domain.JWTDomain;
+import com.bjcareer.gateway.out.api.auth.AuthServerAPIAdapter;
 
 class AuthServerAPIAdapterTest {
 	@Test

@@ -2,6 +2,7 @@ package com.bjcareer.gateway.aop.JWT;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
@@ -17,12 +18,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Aspect
 @Component
 @RequiredArgsConstructor
 public class JWTLoginAspect {
 	private final JWTUtil jwtUtil;
 
-	@Pointcut("@annotation(JWTLogin)")
+	@Pointcut("@annotation(com.bjcareer.gateway.aop.JWT.JWTLogin)")
 	private void cut() {
 	}
 
