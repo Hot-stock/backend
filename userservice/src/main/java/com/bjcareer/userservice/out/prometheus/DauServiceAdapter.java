@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.userservice.application.ports.out.PersistActiveUserPort;
 import com.bjcareer.userservice.domain.entity.UserActive;
-import com.bjcareer.userservice.out.persistance.repository.ActiveUserRepository;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;

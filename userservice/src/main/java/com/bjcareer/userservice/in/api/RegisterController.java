@@ -34,7 +34,7 @@ public class RegisterController {
         @ApiResponse(responseCode = "200", description = "토큰 생성 성공"),
     })
     @HasRole(RoleType.ALL)
-    public ResponseEntity generateTokenForRegister(@RequestBody VerifyEmailRequestDTO request) {
+    public ResponseEntity<?> generateTokenForRegister(@RequestBody VerifyEmailRequestDTO request) {
         log.debug("이메일 {}에 대한 인증 토큰 생성", request.getEmail());
         registerUsecase.generateRandomTokenForAuthentication(request.getEmail());
         return ResponseEntity.ok().build();  // 상태 코드를 명확하게 명시하여 응답을 전송
@@ -49,11 +49,6 @@ public class RegisterController {
     public ResponseEntity<MobileAuthenticationVerifyResponseDTO> verifyEmailToken(@RequestBody MobileAuthenticationVerifyRequestDTO request) {
         log.debug("이메일 {}에 대해 입력된 토큰 값: {}", request.getEmail(), request.getToken());
         boolean isVerified = registerUsecase.verifyToken(request.getEmail(), request.getToken());
-
-        if (!isVerified) {
-            return new ResponseEntity<>(new MobileAuthenticationVerifyResponseDTO(isVerified),
-                HttpStatus.BAD_REQUEST);  // 상태 코드를 명확하게 명시하여 에러 응답을 전송
-        }
 
         log.debug("이메일 {}에 대해 입력된 토큰 값 검증 결과: {}", request.getEmail(), isVerified);
         return ResponseEntity.ok(new MobileAuthenticationVerifyResponseDTO(isVerified));
