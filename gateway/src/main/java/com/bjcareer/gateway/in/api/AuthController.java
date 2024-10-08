@@ -1,5 +1,6 @@
 package com.bjcareer.gateway.in.api;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
 import com.bjcareer.gateway.domain.JWTDomain;
+import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.in.api.request.LoginRequestDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +38,7 @@ public class AuthController {
 		@ApiResponse(responseCode = "401", description = "로그인 실패"),
 		@ApiResponse(responseCode = "500", description = "서버 오류")
 	})
-	public ResponseEntity<?> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
+	public ResponseEntity<ResponseDomain<String>> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
 		log.debug("Login request: {}", request.getEmail());
 		LoginCommand command = new LoginCommand(request.getEmail(), request.getPassword());
 		JWTDomain tokenDomain = port.login(command);
@@ -48,7 +50,7 @@ public class AuthController {
 		CookieHelper.setCookieAuthClient(response, CookieHelper.SESSION_ID, tokenDomain.getAccessToken(),
 			CookieHelper.REFRESH_TOKEN_EXPIRE_DURATION_MILLIS);
 
-		return ResponseEntity.ok().build();
+		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, "Login SUCCESS", null), HttpStatus.OK);
 	}
 
 	@PostMapping("/logout")
@@ -57,7 +59,7 @@ public class AuthController {
 		@ApiResponse(responseCode = "200", description = "로그아웃 성공"),
 		@ApiResponse(responseCode = "400", description = "로그아웃 실패")
 	})
-	public ResponseEntity<?> Logout(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
+	public ResponseEntity<ResponseDomain<Boolean>> Logout(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
 		@CookieValue(CookieHelper.ACCESS_TOKEN) String accessToken, HttpServletResponse response) {
 		log.debug("Logout request: {}", sessionId);
 		LogoutCommand command = new LogoutCommand(sessionId, accessToken);
@@ -67,11 +69,9 @@ public class AuthController {
 			CookieHelper.removeCookieForAuthClient(response, CookieHelper.ACCESS_TOKEN);
 			CookieHelper.removeCookieForAuthClient(response, CookieHelper.SESSION_ID);
 			CookieHelper.removeCookieForAuthClient(response, CookieHelper.REFRESH_TOKEN);
-
-			return ResponseEntity.ok().build();
 		}
 
-		return ResponseEntity.badRequest().build();
+		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, res, null), HttpStatus.OK);
 	}
 
 	@PostMapping("/refresh")
@@ -80,7 +80,7 @@ public class AuthController {
 		@ApiResponse(responseCode = "200", description = "갱신 성공"),
 		@ApiResponse(responseCode = "401", description = "갱신 실패로 모든 토큰 폐기")
 	})
-	public ResponseEntity<?> refreshLogin(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
+	public ResponseEntity<ResponseDomain<Boolean>> refreshLogin(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
 		@CookieValue(CookieHelper.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
 		log.debug("Refresh token request: {} {}", sessionId, refreshToken);
 
@@ -94,6 +94,6 @@ public class AuthController {
 		CookieHelper.setCookieAuthClient(response, CookieHelper.SESSION_ID, tokenDomain.getAccessToken(),
 			CookieHelper.REFRESH_TOKEN_EXPIRE_DURATION_MILLIS);
 
-		return ResponseEntity.ok().build();
+		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, true, null), HttpStatus.OK);
 	}
 }

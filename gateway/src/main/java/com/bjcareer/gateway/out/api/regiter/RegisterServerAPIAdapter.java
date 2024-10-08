@@ -22,7 +22,7 @@ public class RegisterServerAPIAdapter implements RegisterServerPort {
 		this.webClient = webClient;
 	}
 
-	public ResponseDomain<?> register(RegisterCommand command) {
+	public ResponseDomain<RegisterDomain> register(RegisterCommand command) {
 		ClientResponse response = webClient.post()
 			.uri(RegisterServerURI.REGISTER)
 			.bodyValue(command)
@@ -40,7 +40,7 @@ public class RegisterServerAPIAdapter implements RegisterServerPort {
 	}
 
 	@Override
-	public ResponseDomain<?> verifyEmail(EmailCommand command) {
+	public ResponseDomain<Boolean> verifyEmail(EmailCommand command) {
 		ClientResponse response = webClient.post()
 			.uri(RegisterServerURI.VERIFY_EMAIL)
 			.bodyValue(command)
@@ -48,7 +48,7 @@ public class RegisterServerAPIAdapter implements RegisterServerPort {
 			.block();
 
 		if (response.statusCode().is2xxSuccessful()) {
-			return new ResponseDomain<>(response.statusCode(), "OK", null);
+			return new ResponseDomain<>(response.statusCode(), true, null);
 		} else {
 			ErrorDomain error = response.bodyToMono(ErrorDomain.class).block();
 			return new ResponseDomain<>(response.statusCode(), null, error);
@@ -56,7 +56,7 @@ public class RegisterServerAPIAdapter implements RegisterServerPort {
 	}
 
 	@Override
-	public ResponseDomain<?> verifyToken(VerifyTokenCommand command) {
+	public ResponseDomain<MobileAuthenticationVerifyResponseDTO> verifyToken(VerifyTokenCommand command) {
 		ClientResponse response = webClient.post()
 			.uri(RegisterServerURI.VERIFY_TOKEN)
 			.bodyValue(command)
