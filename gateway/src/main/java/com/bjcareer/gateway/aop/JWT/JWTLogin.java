@@ -1,4 +1,4 @@
-package com.bjcareer.gateway.aop;
+package com.bjcareer.gateway.aop.JWT;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface APIRateLimit {
+public @interface JWTLogin {
 }

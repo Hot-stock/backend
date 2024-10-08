@@ -5,14 +5,20 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.bjcareer.gateway.application.ports.in.StockInfoCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
+import com.bjcareer.gateway.domain.ErrorDomain;
+import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
+import com.bjcareer.gateway.in.api.request.StockAdditionRequestDTO;
+import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 
 @Component
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
@@ -54,5 +60,22 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 			.block();  // 동기적으로 결과 대기
 
 		return result;
+	}
+
+	@Override
+	public ResponseDomain<StockAdditionResponseDTO> addStockInfo(StockInfoCommand command) {
+		ClientResponse res = webClient.post()
+			.uri(SearchServerURI.ADD_STOCK)
+			.bodyValue(command)
+			.exchange()
+			.block();
+
+		if (res.statusCode().is2xxSuccessful()) {
+			StockAdditionResponseDTO responseDTO = res.bodyToMono(StockAdditionResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
 	}
 }

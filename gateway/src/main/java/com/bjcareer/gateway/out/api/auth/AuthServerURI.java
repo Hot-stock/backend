@@ -1,4 +1,4 @@
-package com.bjcareer.gateway.out.api;
+package com.bjcareer.gateway.out.api.auth;
 
 public class AuthServerURI {
 	public static final String LOGIN = "/api/v0/auth/login";

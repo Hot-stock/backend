@@ -1,14 +1,14 @@
-package com.bjcareer.gateway.out.api;
+package com.bjcareer.gateway.out.api.auth;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.bjcareer.gateway.application.ports.in.LoginCommand;
 import com.bjcareer.gateway.application.ports.in.LogoutCommand;
 import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
-import com.bjcareer.gateway.application.ports.out.LoginCommandPort;
 import com.bjcareer.gateway.common.CookieHelper;
 import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.exceptions.UnauthorizedAccessAttemptException;
@@ -25,7 +25,7 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 	}
 
 	@Override
-	public JWTDomain login(LoginCommandPort loginCommand) {
+	public JWTDomain login(LoginCommand loginCommand) {
 		ClientResponse response = getClientResponse(AuthServerURI.LOGIN, loginCommand);
 
 		if (response.statusCode().is2xxSuccessful()) {

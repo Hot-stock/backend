@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.gateway.aop.APIRateLimit;
-import com.bjcareer.gateway.application.ports.in.KeywordUsecase;
+import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
+import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
+import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.KeywordCountResponseDTO;
@@ -27,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SearchController {
-	private final KeywordUsecase keywordUsecase;
+	private final KeywordServerPort keywordServerPort;
 	private final SearchServerPort searchServerPort;
 
 	@GetMapping("/api/v0/keyword")
@@ -39,40 +40,44 @@ public class SearchController {
 			"따라서 느릴 수 있습니다" +
 			"유료 결제 회원만 사용 가능합니다"
 	)
-	public ResponseEntity<List<KeywordCountResponseDTO>> getKeywordCount(@RequestParam(name = "q") String keyword,
+	public ResponseEntity<ResponseDomain<List<KeywordCountResponseDTO>>> getKeywordCount(@RequestParam(name = "q") String keyword,
 		HttpServletRequest request) {
-		List<AbsoluteRankKeyword> searchCount = keywordUsecase.getSearchCount(keyword);
+		if (validationKeyword(keyword)) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		List<AbsoluteRankKeyword> searchCount = keywordServerPort.searchCount(new KeywordCommand(keyword));
 
 		List<KeywordCountResponseDTO> absoluteValueOfKeyword = searchCount.stream()
 			.map(it -> new KeywordCountResponseDTO(it.getAbsoluteKeywordCount(), it.getPeriod()))
 			.collect(Collectors.toList());
 
-		return new ResponseEntity<>(absoluteValueOfKeyword, HttpStatus.OK);
+		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, absoluteValueOfKeyword, null), HttpStatus.OK);
 	}
 
 	@GetMapping("/api/v0/search")
 	@APIRateLimit
 	@Operation(summary = "검색어 후보 기능", description = "사용자가 검색을 할 때, 검색어를 입력하면 검색어 후보를 Return합니다.")
-	public ResponseEntity<SearchCandidate> search(@RequestParam(name = "q") String query, HttpServletRequest request) {
+	public ResponseEntity<ResponseDomain<SearchCandidate>> search(@RequestParam(name = "q") String query, HttpServletRequest request) {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
 		}
 
 		SearchCandidate searchCandidate = searchServerPort.searchCandidate(new KeywordCommand(query));
-		return new ResponseEntity<>(searchCandidate, HttpStatus.OK);
+		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, searchCandidate, null), HttpStatus.OK);
 	}
 
 	@GetMapping("/api/v0/sr")
 	@APIRateLimit
 	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
-	public ResponseEntity<SearchResult> searchResult(@RequestParam(name = "q") String query,
+	public ResponseEntity<ResponseDomain<SearchResult>> searchResult(@RequestParam(name = "q") String query,
 		HttpServletRequest request) {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
 		}
 
 		SearchResult result = searchServerPort.searchResult(new KeywordCommand(query));
-		return ResponseEntity.ok(result);
+		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, result, null), HttpStatus.OK);
 	}
 
 	private boolean validationKeyword(String query) {
