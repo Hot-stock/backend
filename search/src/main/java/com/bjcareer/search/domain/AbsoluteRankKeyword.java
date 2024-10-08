@@ -1,17 +1,14 @@
-package com.bjcareer.gateway.domain;
+package com.bjcareer.search.domain;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 public class AbsoluteRankKeyword {
-	private Long absoluteKeywordCount;
-	private String period;
+	private final Long absoluteKeywordCount;
+	private final String period;
 
 	public AbsoluteRankKeyword(Double absoluteKeyword, String period) {
 		this.absoluteKeywordCount = absoluteKeyword.longValue();
 		this.period = period;
 	}
-
 }
