@@ -10,10 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class StockRaiseReasonEntity {
 	@Id
 	@GeneratedValue
@@ -40,7 +42,7 @@ public class StockRaiseReasonEntity {
 	//뉴스 발행일
 	private LocalDate localDate;
 
-	public StockRaiseReason(Stock stock, Thema thema, String reason, LocalDate next, String newsLink,
+	public StockRaiseReasonEntity(Stock stock, Thema thema, String reason, LocalDate next, String newsLink,
 		LocalDate localDate) {
 		this.stock = stock;
 		this.thema = thema;
@@ -48,5 +50,9 @@ public class StockRaiseReasonEntity {
 		this.next = next;
 		this.newsLink = newsLink;
 		this.localDate = localDate;
+	}
+
+	public StockRaiseReasonEntity(String reason, LocalDate next, String newsLink, LocalDate localDate) {
+		this(null, null, reason, next, newsLink, localDate);
 	}
 }
