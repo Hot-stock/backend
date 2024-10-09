@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
+import com.bjcareer.search.out.api.naver.ApiAdkeyword;
 
 @SpringBootTest
 class ApiAdkeywordTest {
-
 	@Autowired
 	private ApiAdkeyword apiAdkeyword;
 
