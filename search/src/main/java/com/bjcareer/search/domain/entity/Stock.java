@@ -44,6 +44,10 @@ public class Stock {
 	@BatchSize(size = 10)
 	List<Thema> themas = new ArrayList<>();
 
+	@OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@BatchSize(size = 10)
+	List<StockRaiseReason> raiseReasons = new ArrayList<>();
+
 	public Stock(String code, String name, Market market, String href, Long issuedShares, Long price) {
 		this.code = code;
 		this.name = name;
