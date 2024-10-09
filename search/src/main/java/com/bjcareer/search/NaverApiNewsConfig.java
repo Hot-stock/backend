@@ -5,18 +5,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
+import com.bjcareer.search.out.api.naver.ApiNaverNews;
 
 @Configuration
-public class NaverApiTrendConfig {
+public class NaverApiNewsConfig {
 
-	@Value("${naver.client-id}")
+	@Value("${naver.client-new-id}")
 	private String CLIENT_ID;
-	@Value("${naver.client-secret}")
+	@Value("${naver.client-new-secret}")
 	private String SECRET_KEY;
 
 	@Bean
-	public ApiDatalabTrend apiExamDatalabTrend(RestTemplate restTemplate) {
-		return new ApiDatalabTrend(CLIENT_ID, SECRET_KEY, restTemplate);
+	public ApiNaverNews apiNaverNews(RestTemplate restTemplate) {
+		return new ApiNaverNews(CLIENT_ID, SECRET_KEY, restTemplate);
 	}
 }
