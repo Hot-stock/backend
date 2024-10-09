@@ -1,24 +1,23 @@
 package com.bjcareer.search.out.api.gpt;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.web.reactive.function.client.WebClient;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.bjcareer.search.GPTWebTestConfig;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 class ChatGPTTest {
-
 	@Test
-	void test() throws JsonProcessingException {
-		WebClient.Builder builder = WebClient.builder();
-		GPTWebTestConfig config = new GPTWebTestConfig();
-		WebClient webClient = config.webClient(builder);
+	void testParser() throws JsonProcessingException {
+		String jsonData = MockData.GPT_RESPONSE;
 
-		ChatGPT chatGPT = new ChatGPT(webClient);
-		chatGPT.getStockReason("https://www.newsway.co.kr/news/view?ud=2024100811542097961");
+		ObjectMapper mapper = new ObjectMapper();
+		GPTResponseDTO gptResponseDTO = mapper.readValue(jsonData, GPTResponseDTO.class);
 
-		// GPTResponseDTO gptResponseDTO = MockData.getGPTResponseDTO();
-		// System.out.println("gptResponseDTO = " + gptResponseDTO);
+		GPTResponseDTO.Content parsedContent = gptResponseDTO.getChoices().getFirst().getMessage().getParsedContent();
+
+		assertEquals("그린리소스", parsedContent.getName());
+		assertEquals("2024-10-01", parsedContent.getNext());
 	}
-
 }

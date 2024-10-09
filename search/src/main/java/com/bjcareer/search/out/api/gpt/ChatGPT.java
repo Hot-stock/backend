@@ -1,11 +1,14 @@
 package com.bjcareer.search.out.api.gpt;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.bjcareer.search.domain.GTPNewsDomain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,28 +22,35 @@ public class ChatGPT {
 	private static final String URI = "/chat/completions";
 	private static final String SYSTEM_ROLE = "system";
 	private static final String USER_ROLE = "user";
-	private static final String SYSTEM_MESSAGE_TEXT = "You are a stock analyst. Your task is to summarize news articles, identify the next key event date for the stock, analyze the reasons for its rise, and determine which thematic category the stock belongs to.";
-	private static final String USER_MESSAGE_TEXT = "Read this news article and explain using Korean.";
+	private static final String SYSTEM_MESSAGE_TEXT = "You are a stock analyst. Your task is to summarize news articles, identify the next key event date for the stock, analyze the reasons for its rise, and determine which thematic category the stock belongs to. 반듯이 한글로 답변해";
 
 	private final WebClient webClient;
 
-	public GPTResponseDTO getStockReason(String stockLink) {
-		GPTRequestDTO requestDTO = createRequestDTO(stockLink);
+	public Optional<GTPNewsDomain> getStockReason(String message, String name) {
+		GPTRequestDTO requestDTO = createRequestDTO(message, name);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
-			return handleSuccessResponse(response);
+			GPTResponseDTO gptResponseDTO = handleSuccessResponse(response);
+			GPTResponseDTO.Content parsedContent = gptResponseDTO.getChoices()
+				.getFirst()
+				.getMessage()
+				.getParsedContent();
+
+			return Optional.of(
+				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getThema(),
+					parsedContent.getNext(), parsedContent.getNextReason()));
 		} else {
 			handleErrorResponse(response);
-			return null; // 실패 시 null 반환 또는 예외 처리
+			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
 		}
 	}
 
-	private GPTRequestDTO createRequestDTO(String stockLink) {
+	private GPTRequestDTO createRequestDTO(String message, String name) {
 		GPTRequestDTO.Message systemMessage = new GPTRequestDTO.Message(SYSTEM_ROLE, SYSTEM_MESSAGE_TEXT);
-		GPTRequestDTO.Message userMessage = new GPTRequestDTO.Message(USER_ROLE, USER_MESSAGE_TEXT);
+		GPTRequestDTO.Message userMessage = new GPTRequestDTO.Message(USER_ROLE, name + "위주로 분석 " + message);
 		GPTResponseFormatDTO gptResponseFormatDTO = new GPTResponseFormatDTO();
 
 		return new GPTRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseFormatDTO);

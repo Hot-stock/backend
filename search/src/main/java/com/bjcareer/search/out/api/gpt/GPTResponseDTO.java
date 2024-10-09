@@ -1,50 +1,39 @@
 package com.bjcareer.search.out.api.gpt;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
 public class GPTResponseDTO {
-	private String id;
-	private String object;
-	private long created;
-	private String model;
-	private Usage usage;
-	private Choice[] choices;
-	private String systemFingerprint;
+	private List<Choice> choices = new ArrayList<>();
 
 	@Data
+	@JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
 	public static class Choice {
-		private int index;
 		private Message message;
-		private String finishReason;
 	}
 
 	@Data
+	@JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
 	public static class Message {
-		private String role;
 		private String content;  // content는 문자열로 파싱된 JSON입니다.
-		private String refusal;
-	}
 
-	@Data
-	public static class Usage {
-		private int promptTokens;
-		private int completionTokens;
-		private int totalTokens;
-		private PromptTokensDetails promptTokensDetails;
-		private CompletionTokensDetails completionTokensDetails;
-	}
-
-	@Data
-	public static class PromptTokensDetails {
-		private int cachedTokens;
-	}
-
-	@Data
-	public static class CompletionTokensDetails {
-		private int reasoningTokens;
+		public Content getParsedContent() {
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				return mapper.readValue(content, Content.class);  // content를 Content 객체로 변환
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
 	}
 
 	@Data
@@ -52,6 +41,8 @@ public class GPTResponseDTO {
 		private String name;
 		private String reason;
 		private String thema;
-		private LocalDate next;
+		private String next;
+		@JsonProperty("next_reason")  // JSON의 next_reason 필드를 nextReason 필드에 매핑
+		private String nextReason;
 	}
 }

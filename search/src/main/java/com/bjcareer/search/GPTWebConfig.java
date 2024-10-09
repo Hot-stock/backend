@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class GPTWebConfig {
-	@Value("${openai.api.key}")
+	@Value("${GPT.api-key}")
 	private String API_KEY;
 	private String baseURL = "https://api.openai.com/v1/";
 
