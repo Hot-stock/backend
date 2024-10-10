@@ -43,7 +43,7 @@ naver:
   client-id: ${NAVER_CLIENT_ID}
   client-secret: ${NAVER_CLIENT_SECRET}
 
-  client-new-id: ${NAVER_CLIENT_ID}
-  client-new-secret: ${NAVER_CLIENT_SECRET}
+  client-new-id: ${NAVER_NEWS_CLIENT_ID}
+  client-new-secret: ${NAVER_NEWS_CLIENT_SECRET}
 GPT:
   api-key: ${GPT_API_KEY}
