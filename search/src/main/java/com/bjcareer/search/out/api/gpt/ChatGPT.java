@@ -1,5 +1,6 @@
 package com.bjcareer.search.out.api.gpt;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +27,8 @@ public class ChatGPT {
 
 	private final WebClient webClient;
 
-	public Optional<GTPNewsDomain> getStockReason(String message, String name) {
-		GPTRequestDTO requestDTO = createRequestDTO(message, name);
+	public Optional<GTPNewsDomain> getStockReason(String message, String name, LocalDate pubDate) {
+		GPTRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -48,9 +49,10 @@ public class ChatGPT {
 		}
 	}
 
-	private GPTRequestDTO createRequestDTO(String message, String name) {
+	private GPTRequestDTO createRequestDTO(String message, String name, LocalDate pubDate) {
 		GPTRequestDTO.Message systemMessage = new GPTRequestDTO.Message(SYSTEM_ROLE, SYSTEM_MESSAGE_TEXT);
-		GPTRequestDTO.Message userMessage = new GPTRequestDTO.Message(USER_ROLE, name + "위주로 분석 " + message);
+		GPTRequestDTO.Message userMessage = new GPTRequestDTO.Message(USER_ROLE,
+			"오늘의 날짜는 뉴스 발행일은 " + pubDate.toString() + name + "위주로 분석 " + message);
 		GPTResponseFormatDTO gptResponseFormatDTO = new GPTResponseFormatDTO();
 
 		return new GPTRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseFormatDTO);

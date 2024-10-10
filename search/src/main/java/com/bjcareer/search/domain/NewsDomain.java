@@ -12,12 +12,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
+@ToString
 public class NewsDomain {
-	public static final String META_NAME_DESCRIPTION = "meta[name=description]";
+	public static final String META_NAME_DESCRIPTION = "meta[name=twitter:description]";
 	public static final String ATTRIBUTE_KEY = "content";
 
 	private final String title;
@@ -40,6 +42,7 @@ public class NewsDomain {
 	 * @return 추출된 내용 또는 기본 설명 (meta description) 반환
 	 */
 	public Optional<String> getContent() {
+		log.info("{} 기사 내용 추출을 시작합니다: {}", this.pubDate, this.link);
 		Document document = fetchDocumentFromLink();
 
 		if (document == null) {
@@ -65,7 +68,7 @@ public class NewsDomain {
 		try {
 			return Jsoup.connect(this.link).get();
 		} catch (IOException e) {
-			log.error("링크에서 내용을 가져오는 중 오류가 발생했습니다: {}", this.link, e);
+			log.error("링크에서 내용을 가져오는 중 오류가 발생했습니다: {}", this.link);
 			return null;
 		}
 	}
@@ -92,8 +95,10 @@ public class NewsDomain {
 
 		if (targetIndex != -1) {
 			// 메타 설명 이후의 본문 텍스트 반환
+			log.info("메타 설명 이후의 내용을 찾았습니다: {}", this.link);
 			return cleanedContent.substring(targetIndex);
 		} else {
+			log.info("메타 설명 이후의 내용을 찾을 수 없습니다: {}", this.link);
 			return null;
 		}
 	}
