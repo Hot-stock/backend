@@ -40,9 +40,10 @@ naver:
   keyword-access-key: ${NAVER_KEYWORD_ACCESSKEY_KEY}
   keyword-secret-key: ${NAVER_KEYWORD_SECRET_KEY}
 
-  trend-client-id: ${NAVER_TREND_CLIENT_ID}
-  trend-client-secret: ${NAVER_TREND_CLIENT_SECRET}
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
 
+  client-new-id: ${NAVER_CLIENT_ID}
+  client-new-secret: ${NAVER_CLIENT_SECRET}
 GPT:
   api-key: ${GPT_API_KEY}
-

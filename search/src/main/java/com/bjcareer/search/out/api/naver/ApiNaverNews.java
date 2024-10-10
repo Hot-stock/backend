@@ -28,7 +28,7 @@ public class ApiNaverNews {
 	public List<NewsDomain> fetchNews(String keyword) {
 		List<NewsDomain> result = new ArrayList<>();
 		HttpHeaders headers = createHeaders();
-		String url = API_URL + "?display=10&start=1&sort=sim&query=" + keyword;
+		String url = API_URL + "?display=30&start=1&sort=sim&query=" + keyword;
 		NewsResponseDTO body = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers),
 			NewsResponseDTO.class).getBody();
 		body.getItems().forEach(item ->
