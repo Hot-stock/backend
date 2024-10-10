@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class ChatGPT {
-	private static final String MODEL = "gpt-4o";
+	private static final String MODEL = "gpt-4o-mini";
 	private static final String URI = "/chat/completions";
 	private static final String SYSTEM_ROLE = "system";
 	private static final String USER_ROLE = "user";
