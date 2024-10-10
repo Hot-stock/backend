@@ -13,12 +13,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
-import com.bjcareer.search.out.api.ApiAdkeyword;
-import com.bjcareer.search.out.api.ApiDatalabTrend;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO.KeywordDto;
+import com.bjcareer.search.out.api.naver.ApiAdkeyword;
+import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
 import com.bjcareer.search.out.data.MockingData;
 import com.bjcareer.search.service.exceptions.HttpCommunicationException;
 

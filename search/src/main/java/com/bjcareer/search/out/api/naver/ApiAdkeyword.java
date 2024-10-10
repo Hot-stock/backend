@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api;
+package com.bjcareer.search.out.api.naver;
 
 import java.security.SignatureException;
 import java.util.Optional;
@@ -59,7 +59,6 @@ public class ApiAdkeyword {
 		} catch (SignatureException e) {
 			log.error("Error encoding signature", e);
 		}
-
 		return headers;
 	}
 }

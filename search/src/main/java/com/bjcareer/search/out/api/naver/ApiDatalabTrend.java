@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api;
+package com.bjcareer.search.out.api.naver;
 
 import java.util.Optional;
 

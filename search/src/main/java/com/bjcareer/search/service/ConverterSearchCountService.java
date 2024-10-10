@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
-import com.bjcareer.search.out.api.ApiAdkeyword;
-import com.bjcareer.search.out.api.ApiDatalabTrend;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
+import com.bjcareer.search.out.api.naver.ApiAdkeyword;
+import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
 import com.bjcareer.search.service.exceptions.HttpCommunicationException;
 
 import lombok.RequiredArgsConstructor;
