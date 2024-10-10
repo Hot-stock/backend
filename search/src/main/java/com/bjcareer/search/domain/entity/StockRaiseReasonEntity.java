@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class StockRaiseReasonEntity {
 	@Id
 	@GeneratedValue
-	@Column(name = "STOCK_RAISE_REASON")
+	@Column(name = "STOCK_RAISE_REASON_ID")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -27,32 +27,36 @@ public class StockRaiseReasonEntity {
 	private Stock stock;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "THEMA_ID")
-	private Thema thema;
+	@JoinColumn(name = "THEMA_INFO_ID")
+	private ThemaInfo themaInfo;
 
 	//상승이유
 	private String reason;
 
-	//다음 시작일
-	private LocalDate next;
-
 	//뉴스 링크
 	private String newsLink;
 
-	//뉴스 발행일
-	private LocalDate localDate;
+	//다음 상승 이유
+	private String nextReason;
 
-	public StockRaiseReasonEntity(Stock stock, Thema thema, String reason, LocalDate next, String newsLink,
-		LocalDate localDate) {
+	//다음 이벤트 시작일
+	private LocalDate next;
+	//뉴스 발행일
+	private LocalDate newsPubDate;
+
+	public StockRaiseReasonEntity(Stock stock, ThemaInfo themaInfo, String reason, String newsLink, String nextReason,
+		LocalDate next, LocalDate newsPubDate) {
 		this.stock = stock;
-		this.thema = thema;
+		this.themaInfo = themaInfo;
 		this.reason = reason;
-		this.next = next;
 		this.newsLink = newsLink;
-		this.localDate = localDate;
+		this.nextReason = nextReason;
+		this.next = next;
+		this.newsPubDate = newsPubDate;
 	}
 
-	public StockRaiseReasonEntity(String reason, LocalDate next, String newsLink, LocalDate localDate) {
-		this(null, null, reason, next, newsLink, localDate);
+	public StockRaiseReasonEntity(String reason, String newsLink, String nextReason,
+		LocalDate next, LocalDate localDate) {
+		this(null, null, reason, newsLink, nextReason, next, localDate);
 	}
 }

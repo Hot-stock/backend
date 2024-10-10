@@ -25,6 +25,7 @@ public class ThemaInfo {
 	@Column(name = "THEMA_INFO_ID")
 	private Long id;
 
+	@Column(unique = true)
 	private String name;
 	private String href;
 
