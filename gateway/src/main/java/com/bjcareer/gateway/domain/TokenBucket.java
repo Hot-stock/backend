@@ -2,13 +2,13 @@ package com.bjcareer.gateway.domain;
 
 import java.time.Instant;
 
+import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.exceptions.TooManyRequestsException;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@Slf4j
 public class TokenBucket {
 	public static final int MAX_REQUESTS = 10;
 	public static final int REFILL_INTERVAL_SECONDS = 60 * 5;
@@ -22,8 +22,8 @@ public class TokenBucket {
 	}
 
 	// API 호출 메서드
-	public void attemptApiCall() {
-		refillTokens();  // 토큰 리필
+	public void attemptApiCall(Logger log) {
+		refillTokens(log);  // 토큰 리필
 
 		if (isRateLimitExceeded()) {
 			throw new TooManyRequestsException("API 호출 횟수 초과");
@@ -39,7 +39,7 @@ public class TokenBucket {
 	}
 
 	// 남은 호출 가능 횟수(토큰)를 리필하는 메서드
-	private void refillTokens() {
+	private void refillTokens(Logger log) {
 		long currentTimestamp = getCurrentTimestamp();  // 현재 시간 (초 단위)
 		long elapsedTimeSinceLastCall = currentTimestamp - lastRequestTimestamp;  // 마지막 요청으로부터 경과한 시간
 

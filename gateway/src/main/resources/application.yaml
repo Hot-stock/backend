@@ -17,7 +17,7 @@ secret:
     key: 3ac4218e586878871ab0e9febefe81d83740ece704704af22d6a69db940fefc0
 logging:
   level:
-    com.bjcareer.gateway.*: debug
+    com.bjcareer.gateway.*: info
 
 bucket:
   token:

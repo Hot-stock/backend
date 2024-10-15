@@ -16,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 public class CommnonControllerException {
 	@ExceptionHandler(TooManyRequestsException.class)
 	public ResponseEntity<ResponseDomain<?>> apiLimitErrorResponse(TooManyRequestsException e) {
+		log.error("API LIMIT: {}", e.getMessage());
 		return buildErrorResponse(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS, e);
 	}
 
 	public static ResponseEntity<ResponseDomain<?>> buildErrorResponse(String message, HttpStatus status, Exception e) {
-		log.error("Error: {}", e.getMessage());
 		ResponseDomain<Object> objectResponseDomain = new ResponseDomain<>(status, null, new ErrorDomain(message));
 		return new ResponseEntity<>(objectResponseDomain, status);
 	}

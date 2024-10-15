@@ -14,22 +14,23 @@ import com.bjcareer.gateway.application.ports.in.LogoutCommand;
 import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
+import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.in.api.request.LoginRequestDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @RequestMapping("/api/v0/auth")
 public class AuthController {
 	private final AuthServerPort port;
+	private final Logger log;
 
 	@PostMapping("/login")
 	@Operation(summary = "로그인 요청", description = "로그인 요청 기능입니다.", responses = {
@@ -38,9 +39,11 @@ public class AuthController {
 		@ApiResponse(responseCode = "401", description = "로그인 실패"),
 		@ApiResponse(responseCode = "500", description = "서버 오류")
 	})
-	public ResponseEntity<ResponseDomain<String>> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
-		log.debug("Login request: {}", request.getEmail());
-		LoginCommand command = new LoginCommand(request.getEmail(), request.getPassword());
+	public ResponseEntity<ResponseDomain<String>> Login(HttpServletRequest request,
+		@RequestBody LoginRequestDTO requestDTO, HttpServletResponse response) {
+		log.info("Login Request: {}", requestDTO.getEmail());
+		LoginCommand command = new LoginCommand(requestDTO.getEmail(), requestDTO.getPassword());
+
 		JWTDomain tokenDomain = port.login(command);
 
 		CookieHelper.setCookieAuthClient(response, CookieHelper.ACCESS_TOKEN, tokenDomain.getAccessToken(),
@@ -61,7 +64,7 @@ public class AuthController {
 	})
 	public ResponseEntity<ResponseDomain<Boolean>> Logout(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
 		@CookieValue(CookieHelper.ACCESS_TOKEN) String accessToken, HttpServletResponse response) {
-		log.debug("Logout request: {}", sessionId);
+		log.info("Logout request: {} {}", sessionId, accessToken);
 		LogoutCommand command = new LogoutCommand(sessionId, accessToken);
 		boolean res = port.logout(command);
 
@@ -69,6 +72,10 @@ public class AuthController {
 			CookieHelper.removeCookieForAuthClient(response, CookieHelper.ACCESS_TOKEN);
 			CookieHelper.removeCookieForAuthClient(response, CookieHelper.SESSION_ID);
 			CookieHelper.removeCookieForAuthClient(response, CookieHelper.REFRESH_TOKEN);
+
+			log.debug("Remove accessToken: {}", CookieHelper.ACCESS_TOKEN);
+			log.debug("Remove sessionId: {}", CookieHelper.SESSION_ID);
+			log.debug("Remove refreshToken: {}", CookieHelper.REFRESH_TOKEN);
 		}
 
 		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, res, null), HttpStatus.OK);
@@ -82,7 +89,7 @@ public class AuthController {
 	})
 	public ResponseEntity<ResponseDomain<Boolean>> refreshLogin(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
 		@CookieValue(CookieHelper.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
-		log.debug("Refresh token request: {} {}", sessionId, refreshToken);
+		log.info("Logout request: {} {}", sessionId, refreshToken);
 
 		TokenRefreshCommand command = new TokenRefreshCommand(sessionId, refreshToken);
 		JWTDomain tokenDomain = port.refresh(command);
