@@ -12,22 +12,22 @@ import org.springframework.stereotype.Component;
 import com.bjcareer.gateway.aop.CommonAOP;
 import com.bjcareer.gateway.aop.ports.out.RateLimitPort;
 import com.bjcareer.gateway.common.JWTUtil;
+import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.TokenBucket;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Aspect
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class APIRateLimitingAspect {
 	public static final String REAL_IP = "X-Forwarded-For";
 	private final JWTUtil jwtUtil;
 	private final RateLimitPort rateLimitPort;
+	private final Logger log;
 
 	@Pointcut("@annotation(com.bjcareer.gateway.aop.APILimit.APIRateLimit)")
 	private void cut() {
@@ -76,7 +76,7 @@ public class APIRateLimitingAspect {
 		} else {
 			TokenBucket apiTokenBucket = tokenBucket.get();
 			log.debug("Existing token bucket found. Available tokens: {}", apiTokenBucket.getAvailableTokens());
-			apiTokenBucket.attemptApiCall();
+			apiTokenBucket.attemptApiCall(this.log);
 			rateLimitPort.saveTokenBucket(key, apiTokenBucket);
 		}
 	}

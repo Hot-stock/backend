@@ -10,32 +10,34 @@ import com.bjcareer.gateway.application.ports.in.LogoutCommand;
 import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
+import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.exceptions.UnauthorizedAccessAttemptException;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class AuthServerAPIAdapter implements AuthServerPort {
 	private final WebClient webClient;
+	private final Logger log;
 
-	public AuthServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient) {
+	public AuthServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient, Logger log) {
+		this.log = log;
 		this.webClient = webClient;
 	}
 
 	@Override
 	public JWTDomain login(LoginCommand loginCommand) {
 		ClientResponse response = getClientResponse(AuthServerURI.LOGIN, loginCommand);
+		log.info("Response status of Auth Server for login Request: {}", response.statusCode());
 
 		if (response.statusCode().is2xxSuccessful()) {
 			String accessToken = getCookie(response, CookieHelper.ACCESS_TOKEN);
 			String refreshToken = getCookie(response, CookieHelper.REFRESH_TOKEN);
 			String sessionId = getCookie(response, CookieHelper.SESSION_ID);
 
+			log.debug("Cookies {} {} {}", accessToken, refreshToken, sessionId);
 			return new JWTDomain(accessToken, refreshToken, sessionId);
 		}
-		log.info("Login status code: {}", response.statusCode());
+
 		throw new UnauthorizedAccessAttemptException("로그인에 실패했습니다.");
 	}
 
@@ -47,6 +49,7 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 			.cookies(c -> c.add(CookieHelper.SESSION_ID, logoutCommand.getSessionId()))
 			.exchange().block();
 
+		log.info("Response status of Auth Server for logout Request: {}", clientResponse.statusCode());
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 			return true;
 		}
@@ -57,12 +60,14 @@ public class AuthServerAPIAdapter implements AuthServerPort {
 	@Override
 	public JWTDomain refresh(TokenRefreshCommand command) {
 		ClientResponse response = getClientResponse(AuthServerURI.REFRESH, command);
+		log.info("Response status of Auth Server for refresh Request: {}", response.statusCode());
 
 		if (response.statusCode().is2xxSuccessful()) {
 			String accessToken = getCookie(response, CookieHelper.ACCESS_TOKEN);
 			String refreshToken = getCookie(response, CookieHelper.REFRESH_TOKEN);
 			String sessionId = getCookie(response, CookieHelper.SESSION_ID);
 
+			log.debug("Cookies {} {} {}", accessToken, refreshToken, sessionId);
 			return new JWTDomain(accessToken, refreshToken, sessionId);
 		}
 

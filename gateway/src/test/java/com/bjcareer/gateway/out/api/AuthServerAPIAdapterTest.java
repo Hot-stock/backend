@@ -15,7 +15,7 @@ class AuthServerAPIAdapterTest {
 		// Given
 		LoginCommand loginCommand = new LoginCommand("wodhksqw@naver.com", "friend77asd");
 		WebClient webClient = createWebClient("http://3.34.191.223:8080");
-		AuthServerAPIAdapter authServerAPIAdapter = new AuthServerAPIAdapter(webClient);
+		AuthServerAPIAdapter authServerAPIAdapter = new AuthServerAPIAdapter(webClient, null);
 		JWTDomain res = authServerAPIAdapter.login(loginCommand);
 
 		assertNotNull(res.getAccessToken());

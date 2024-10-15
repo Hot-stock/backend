@@ -13,6 +13,7 @@ import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
+import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchCandidate;
@@ -26,10 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 public class SearchController {
 	private final KeywordServerPort keywordServerPort;
 	private final SearchServerPort searchServerPort;
+	private final Logger log;
 
 	@GetMapping("/api/v0/keyword")
 	@APIRateLimit
@@ -42,7 +43,9 @@ public class SearchController {
 	)
 	public ResponseEntity<ResponseDomain<List<KeywordCountResponseDTO>>> getKeywordCount(@RequestParam(name = "q") String keyword,
 		HttpServletRequest request) {
+		log.info("Request keyword: {}", keyword);
 		if (validationKeyword(keyword)) {
+			log.debug("Request keyword is empty");
 			return ResponseEntity.badRequest().build();
 		}
 
@@ -51,7 +54,7 @@ public class SearchController {
 		List<KeywordCountResponseDTO> absoluteValueOfKeyword = searchCount.stream()
 			.map(it -> new KeywordCountResponseDTO(it.getAbsoluteKeywordCount(), it.getPeriod()))
 			.collect(Collectors.toList());
-
+		log.info("Response keyword: {}", absoluteValueOfKeyword);
 		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, absoluteValueOfKeyword, null), HttpStatus.OK);
 	}
 
@@ -59,7 +62,9 @@ public class SearchController {
 	@APIRateLimit
 	@Operation(summary = "검색어 후보 기능", description = "사용자가 검색을 할 때, 검색어를 입력하면 검색어 후보를 Return합니다.")
 	public ResponseEntity<ResponseDomain<SearchCandidate>> search(@RequestParam(name = "q") String query, HttpServletRequest request) {
+		log.info("Request query: {}", query);
 		if (validationKeyword(query)) {
+			log.debug("Request query is empty");
 			return ResponseEntity.badRequest().build();
 		}
 
@@ -72,7 +77,9 @@ public class SearchController {
 	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
 	public ResponseEntity<ResponseDomain<SearchResult>> searchResult(@RequestParam(name = "q") String query,
 		HttpServletRequest request) {
+		log.info("Request query: {}", query);
 		if (validationKeyword(query)) {
+			log.debug("Request query is empty");
 			return ResponseEntity.badRequest().build();
 		}
 
