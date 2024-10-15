@@ -3,6 +3,7 @@ package com.bjcareer.gateway.common;
 import static org.springframework.context.annotation.ScopedProxyMode.*;
 import static org.springframework.web.context.WebApplicationContext.*;
 
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,10 +45,11 @@ public class Logger {
 
 	@PostConstruct
 	public void init() {
-		this.prefix = "[" + java.util.UUID.randomUUID().toString().substring(0, 8) + "]";
+		String uuid = java.util.UUID.randomUUID().toString().substring(0, 8);
+		MDC.put("traceId", uuid);
 	}
 
 	private String getPrefix() {
-		return this.prefix + " " + this.url + " ";
+		return "[" + this.url + "] ";
 	}
 }

@@ -1,14 +1,13 @@
 <configuration>
     <!-- 로그 패턴에 색상 적용 %clr(pattern){color} -->
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
-    <!-- log 변수 값 설정 -->
-    <property name="CONSOLE_LOG_PATTERN"
-              value="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative]  %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr([%15.15thread]){faint} %clr(%-40.40logger{36}){cyan} %clr(:){faint} %msg%n"/>
 
-    <!-- 콘솔 출력 -->
+    <property name="log_format"
+              value="* %-20(%cyan(%date{HH:mm:ss.SSS}) [%thread] [traceId=%X{traceId}]) %highlight(%-5level) %magenta(%marker|%logger{36}): %msg%n%rEx"/>
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <pattern>${log_format}</pattern>
         </encoder>
     </appender>
 
@@ -24,7 +23,7 @@
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <pattern>${log_format}</pattern>
         </encoder>
 
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -46,7 +45,7 @@
             <level>ERROR</level>
         </filter>
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <pattern>${log_format}</pattern>
         </encoder>
     </appender>
 
