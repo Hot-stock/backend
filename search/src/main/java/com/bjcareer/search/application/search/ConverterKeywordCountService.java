@@ -8,12 +8,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.application.port.in.KeywordUsecase;
+import com.bjcareer.search.application.port.out.NaverAdPort;
+import com.bjcareer.search.application.port.out.NaverDataTrendPort;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
-import com.bjcareer.search.out.api.naver.ApiAdkeyword;
-import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
+import com.bjcareer.search.out.api.naver.ApiAdkeywordAdapter;
+import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
 import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class ConverterKeywordCountService implements KeywordUsecase {
-	private final ApiDatalabTrend apiDatalabTrend;
-	private final ApiAdkeyword apiAdkeyword;
+	private final NaverDataTrendPort naverDataTrendPort;
+	private final NaverAdPort naverAdPort;
 
 	public List<AbsoluteRankKeyword> getAbsoluteValueOfKeyword(String keyword) {
 		LocalDateTime endDate = LocalDateTime.now().minusDays(1);
@@ -33,8 +35,8 @@ public class ConverterKeywordCountService implements KeywordUsecase {
 		keyword = trimKeyword(keyword);
 		DataLabTrendRequestDTO request = getRequestOfNaverTrend(keyword, startDate, endDate);
 
-		Optional<DataLabTrendResponseDTO> response = apiDatalabTrend.fetchTrends(request);
-		Optional<KeywordResponseDTO> keywordsCount = apiAdkeyword.getKeywordsCount(keyword);
+		Optional<DataLabTrendResponseDTO> response = naverDataTrendPort.fetchTrends(request);
+		Optional<KeywordResponseDTO> keywordsCount = naverAdPort.getKeywordsCount(keyword);
 
 		if (vaildationFetchData(response, keywordsCount))
 			throw new HttpCommunicationException("Error fetching data");

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.bjcareer.search.application.port.out.GPTAPIPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChatGPT {
+public class ChatGPTAdapter implements GPTAPIPort {
 	private static final String MODEL = "gpt-4o-mini";
 	private static final String URI = "/chat/completions";
 	private static final String SYSTEM_ROLE = "system";
@@ -27,7 +28,8 @@ public class ChatGPT {
 
 	private final WebClient webClient;
 
-	public Optional<GTPNewsDomain> getStockReason(String message, String name, LocalDate pubDate) {
+	@Override
+	public Optional<GTPNewsDomain> findStockRaiseReason(String message, String name, LocalDate pubDate) {
 		GPTRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림

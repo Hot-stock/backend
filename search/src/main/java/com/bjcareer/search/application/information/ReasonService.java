@@ -10,13 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.in.ReasonUsecase;
+import com.bjcareer.search.application.port.out.GPTAPIPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.NewsDomain;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.out.api.gpt.ChatGPT;
+import com.bjcareer.search.out.api.gpt.ChatGPTAdapter;
 import com.bjcareer.search.out.api.naver.ApiNaverNews;
 import com.bjcareer.search.repository.gpt.StockRaiseRepository;
 import com.bjcareer.search.repository.stock.StockRepository;
@@ -35,7 +36,7 @@ public class ReasonService implements ReasonUsecase {
 	private final ThemaRepository themaRepository;
 	private final ThemaInfoRepository themaInfoRepository;
 	private final StockRaiseRepository stockRaiseRepository;
-	private final ChatGPT chatGPT;
+	private final GPTAPIPort port;
 
 	@Transactional
 	public Map<LocalDate, GTPNewsDomain> findSearchRaiseReason(String stockName) {
@@ -89,7 +90,7 @@ public class ReasonService implements ReasonUsecase {
 			Optional<String> content = news.getContent();
 
 			if (content.isPresent()) {
-				Optional<GTPNewsDomain> stockReason = chatGPT.getStockReason(content.get(), stockName, pubDate);
+				Optional<GTPNewsDomain> stockReason = port.findStockRaiseReason(content.get(), stockName, pubDate);
 				stockReason.ifPresent(gtpNewsDomain -> {
 					gtpNewsDomain.addNewsDomain(news);
 					dateMap.put(pubDate, gtpNewsDomain);

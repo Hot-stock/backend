@@ -12,12 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
-import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
+import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
 
 @SpringBootTest
 class ApiDatalabTrendTest {
 	@Autowired
-	ApiDatalabTrend apiDatalabTrend;
+	ApiDatalabTrendAdapter apiDatalabTrend;
 
 	@Test
 	void fetchTrends() {

@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
-import com.bjcareer.search.out.api.naver.ApiAdkeyword;
+import com.bjcareer.search.out.api.naver.ApiAdkeywordAdapter;
 
 @SpringBootTest
 class ApiAdkeywordTest {
 	@Autowired
-	private ApiAdkeyword apiAdkeyword;
+	private ApiAdkeywordAdapter apiAdkeywordAdapter;
 
 	@Test
 	void fetchAdKeywords() {
@@ -22,7 +22,7 @@ class ApiAdkeywordTest {
 		String keyword = "강아지";
 
 		// When
-		Optional<KeywordResponseDTO> keywordsCount = apiAdkeyword.getKeywordsCount(keyword);
+		Optional<KeywordResponseDTO> keywordsCount = apiAdkeywordAdapter.getKeywordsCount(keyword);
 
 		// Then
 		assertTrue(keywordsCount.isPresent(), "검색 결과가 있어야 합니다.");

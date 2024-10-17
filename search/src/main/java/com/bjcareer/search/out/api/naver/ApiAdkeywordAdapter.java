@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.bjcareer.search.application.port.out.NaverAdPort;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
 import com.bjcareer.search.out.api.utils.Signatures;
@@ -16,7 +17,7 @@ import com.bjcareer.search.out.api.utils.Signatures;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ApiAdkeyword {
+public class ApiAdkeywordAdapter implements NaverAdPort {
 	private static final String API_URL = "https://api.searchad.naver.com";
 	private static final String API_PATH = "/keywordstool";
 
@@ -25,7 +26,7 @@ public class ApiAdkeyword {
 	private final String SECRET_KEY;
 	private final RestTemplate restTemplate;
 
-	public ApiAdkeyword(String customerId, String accessKey, String secretKey, RestTemplate restTemplate) {
+	public ApiAdkeywordAdapter(String customerId, String accessKey, String secretKey, RestTemplate restTemplate) {
 		this.CUSTOMER_ID = customerId;
 		this.ACCESS_KEY = accessKey;
 		this.SECRET_KEY = secretKey;

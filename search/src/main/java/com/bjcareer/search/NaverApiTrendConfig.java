@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
+import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
 
 @Configuration
 public class NaverApiTrendConfig {
@@ -16,7 +16,7 @@ public class NaverApiTrendConfig {
 	private String SECRET_KEY;
 
 	@Bean
-	public ApiDatalabTrend apiExamDatalabTrend(RestTemplate restTemplate) {
-		return new ApiDatalabTrend(CLIENT_ID, SECRET_KEY, restTemplate);
+	public ApiDatalabTrendAdapter apiExamDatalabTrend(RestTemplate restTemplate) {
+		return new ApiDatalabTrendAdapter(CLIENT_ID, SECRET_KEY, restTemplate);
 	}
 }

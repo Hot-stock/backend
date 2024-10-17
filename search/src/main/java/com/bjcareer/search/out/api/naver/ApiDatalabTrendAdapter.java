@@ -17,14 +17,14 @@ import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ApiDatalabTrend {
+public class ApiDatalabTrendAdapter implements NaverAPIPort {
 	private static final String API_URL = "https://openapi.naver.com/v1/datalab/search";
 	private final String clientId;
 	private final String clientSecret;
 
 	private final RestTemplate restTemplate;
 
-	public ApiDatalabTrend(String clientId, String clientSecret, RestTemplate restTemplate) {
+	public ApiDatalabTrendAdapter(String clientId, String clientSecret, RestTemplate restTemplate) {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 		this.restTemplate = restTemplate;
