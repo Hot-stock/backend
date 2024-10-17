@@ -3,12 +3,14 @@ package com.bjcareer.search.application.search;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.event.SearchedKeyword;
-import com.bjcareer.search.out.repository.stock.ThemaRepository;
+import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 import com.bjcareer.search.application.port.in.SearchUsecase;
 
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,9 @@ public class SearchService implements SearchUsecase {
 	private final ThemaRepository themaRepository;
 	private final Trie trie;
 
-	public List<Thema> getSearchResult(String keyword) {
-		List<Thema> resultOfSearch = themaRepository.findAllByKeywordExactlySame(keyword);
+	public List<Thema> getSearchResult(String keyword, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		List<Thema> resultOfSearch = themaRepository.findAllByKeywordContaining(keyword, pageable);
 
 		if (!resultOfSearch.isEmpty()) {
 			eventPublisher.publishEvent(new SearchedKeyword(keyword));

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.port.in.SearchUsecase;
+import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.in.api.controller.dto.QueryResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
-import com.bjcareer.search.domain.entity.Thema;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +39,14 @@ public class SearchController {
 
 	@GetMapping("/api/v0/sr")
 	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
-	public ResponseEntity<SearchResultResponseDTO> searchResult(@RequestParam(name = "q") String query) {
+	public ResponseEntity<SearchResultResponseDTO> searchResult(@RequestParam(name = "q") String query,
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "size", defaultValue = "5") int size) {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
 		}
 
-		List<Thema> searchResult = usecase.getSearchResult(query);
+		List<Thema> searchResult = usecase.getSearchResult(query, page, size);
 		return ResponseEntity.ok(new SearchResultResponseDTO(query, searchResult));
 	}
 
