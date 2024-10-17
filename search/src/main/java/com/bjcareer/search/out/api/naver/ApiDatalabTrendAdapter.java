@@ -11,13 +11,14 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.bjcareer.search.application.port.out.NaverDataTrendPort;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ApiDatalabTrendAdapter implements NaverAPIPort {
+public class ApiDatalabTrendAdapter implements NaverDataTrendPort {
 	private static final String API_URL = "https://openapi.naver.com/v1/datalab/search";
 	private final String clientId;
 	private final String clientSecret;

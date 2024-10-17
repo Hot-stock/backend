@@ -17,12 +17,11 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.out.api.gpt.ChatGPTAdapter;
 import com.bjcareer.search.out.api.naver.ApiNaverNews;
-import com.bjcareer.search.repository.gpt.StockRaiseRepository;
-import com.bjcareer.search.repository.stock.StockRepository;
-import com.bjcareer.search.repository.stock.ThemaInfoRepository;
-import com.bjcareer.search.repository.stock.ThemaRepository;
+import com.bjcareer.search.out.repository.gpt.StockRaiseRepository;
+import com.bjcareer.search.out.repository.stock.StockRepository;
+import com.bjcareer.search.out.repository.stock.ThemaInfoRepository;
+import com.bjcareer.search.out.repository.stock.ThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

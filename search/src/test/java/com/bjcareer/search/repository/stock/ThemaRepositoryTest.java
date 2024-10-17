@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.domain.entity.Thema;
+import com.bjcareer.search.out.repository.stock.ThemaRepository;
 
 @SpringBootTest
 @Transactional

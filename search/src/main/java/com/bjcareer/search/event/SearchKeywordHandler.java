@@ -7,7 +7,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.repository.noSQL.DocumentRepository;
 import com.bjcareer.search.service.RankingService;
 
 import lombok.RequiredArgsConstructor;

@@ -18,8 +18,8 @@ import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
-import com.bjcareer.search.repository.stock.ThemaRepository;
+import com.bjcareer.search.out.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.repository.stock.ThemaRepository;
 
 class SearchServiceTest {
 

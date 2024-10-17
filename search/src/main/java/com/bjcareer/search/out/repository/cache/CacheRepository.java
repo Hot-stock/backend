@@ -1,4 +1,4 @@
-package com.bjcareer.search.repository.cache;
+package com.bjcareer.search.out.repository.cache;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.candidate.cache.CacheNode;
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.repository.noSQL.DocumentRepository;
 
 @Repository
 public class CacheRepository {

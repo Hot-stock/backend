@@ -14,8 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.bjcareer.search.repository.cache.CacheRepository;
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.repository.cache.CacheRepository;
+import com.bjcareer.search.out.repository.noSQL.DocumentRepository;
 
 class CacheTrieServiceTest {
 

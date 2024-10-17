@@ -1,4 +1,4 @@
-package com.bjcareer.search.repository.stock;
+package com.bjcareer.search.out.repository.stock;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.bjcareer.search.repository.gpt;
+package com.bjcareer.search.out.repository.gpt;
 
 import org.springframework.stereotype.Repository;
 

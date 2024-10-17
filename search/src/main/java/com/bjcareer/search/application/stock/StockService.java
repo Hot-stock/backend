@@ -10,9 +10,9 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
-import com.bjcareer.search.repository.stock.StockRepository;
-import com.bjcareer.search.repository.stock.ThemaInfoRepository;
-import com.bjcareer.search.repository.stock.ThemaRepository;
+import com.bjcareer.search.out.repository.stock.StockRepository;
+import com.bjcareer.search.out.repository.stock.ThemaInfoRepository;
+import com.bjcareer.search.out.repository.stock.ThemaRepository;
 import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 
 import lombok.RequiredArgsConstructor;

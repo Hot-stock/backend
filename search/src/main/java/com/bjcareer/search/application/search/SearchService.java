@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.event.SearchedKeyword;
-import com.bjcareer.search.repository.stock.ThemaRepository;
+import com.bjcareer.search.out.repository.stock.ThemaRepository;
 import com.bjcareer.search.application.port.in.SearchUsecase;
 
 import lombok.RequiredArgsConstructor;

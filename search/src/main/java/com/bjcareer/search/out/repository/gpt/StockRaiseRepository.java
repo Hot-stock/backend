@@ -1,5 +1,5 @@
 
-package com.bjcareer.search.repository.gpt;
+package com.bjcareer.search.out.repository.gpt;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
