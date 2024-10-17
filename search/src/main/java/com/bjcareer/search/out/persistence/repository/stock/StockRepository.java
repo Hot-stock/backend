@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.repository.stock;
+package com.bjcareer.search.out.persistence.repository.stock;
 
 import java.util.Optional;
 

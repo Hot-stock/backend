@@ -1,8 +1,9 @@
-package com.bjcareer.search.out.repository.stock;
+package com.bjcareer.search.out.persistence.repository.stock;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,7 +14,7 @@ public interface ThemaRepository extends JpaRepository<Thema, Long> {
 	Optional<Thema> findByStockNameAndThemaName(String stockName, String themaName);
 
 	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name LIKE %:keyword% OR ti.name LIKE %:keyword%")
-	List<Thema> findAllByKeywordContaining(String keyword);
+	List<Thema> findAllByKeywordContaining(String keyword, Pageable pageable);
 
 	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name = :keyword OR ti.name = :keyword")
 	List<Thema> findAllByKeywordExactlySame(String keyword);
