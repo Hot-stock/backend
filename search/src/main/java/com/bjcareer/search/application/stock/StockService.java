@@ -5,15 +5,15 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 import com.bjcareer.search.application.port.in.AddStockUsecase;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
-import com.bjcareer.search.out.repository.stock.StockRepository;
-import com.bjcareer.search.out.repository.stock.ThemaInfoRepository;
-import com.bjcareer.search.out.repository.stock.ThemaRepository;
-import com.bjcareer.search.application.exceptions.InvalidStockInformation;
+import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
+import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

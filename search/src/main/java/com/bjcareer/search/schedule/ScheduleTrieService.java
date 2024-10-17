@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.candidate.noSQL.DocumentQueryKeywords;
-import com.bjcareer.search.out.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
