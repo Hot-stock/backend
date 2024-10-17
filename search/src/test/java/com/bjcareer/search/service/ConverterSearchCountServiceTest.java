@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.bjcareer.search.application.search.ConverterKeywordCountService;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
@@ -20,7 +21,7 @@ import com.bjcareer.search.out.api.dto.KeywordResponseDTO.KeywordDto;
 import com.bjcareer.search.out.api.naver.ApiAdkeyword;
 import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
 import com.bjcareer.search.out.data.MockingData;
-import com.bjcareer.search.service.exceptions.HttpCommunicationException;
+import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
 class ConverterSearchCountServiceTest {
 
@@ -31,7 +32,7 @@ class ConverterSearchCountServiceTest {
 	private ApiAdkeyword apiAdkeyword;
 
 	@InjectMocks
-	private ConverterSearchCountService converterSearchCountService;
+	private ConverterKeywordCountService converterSearchCountService;
 
 	@BeforeEach
 	void setUp() {

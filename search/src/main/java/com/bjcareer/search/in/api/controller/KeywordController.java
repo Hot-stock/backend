@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.event.SearchedKeyword;
-import com.bjcareer.search.service.ConverterSearchCountService;
+import com.bjcareer.search.application.search.ConverterKeywordCountService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v0/keyword")
 @RequiredArgsConstructor
 public class KeywordController {
-	private final ConverterSearchCountService converterSearchCountService;
+	private final ConverterKeywordCountService converterSearchCountService;
 	private final ApplicationEventPublisher applicationEventPublisher;
 
 	@GetMapping

@@ -1,4 +1,4 @@
-package com.bjcareer.search.service;
+package com.bjcareer.search.application.search;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,13 +7,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.search.application.port.in.KeywordUsecase;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
 import com.bjcareer.search.out.api.naver.ApiAdkeyword;
 import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
-import com.bjcareer.search.service.exceptions.HttpCommunicationException;
+import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ConverterSearchCountService {
+public class ConverterKeywordCountService implements KeywordUsecase {
 	private final ApiDatalabTrend apiDatalabTrend;
 	private final ApiAdkeyword apiAdkeyword;
 

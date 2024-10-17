@@ -1,4 +1,4 @@
-package com.bjcareer.search.service.exceptions;
+package com.bjcareer.search.application.exceptions;
 
 public class HttpCommunicationException extends RuntimeException {
 	public HttpCommunicationException() {

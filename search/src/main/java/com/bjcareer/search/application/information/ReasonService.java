@@ -1,4 +1,4 @@
-package com.bjcareer.search.service;
+package com.bjcareer.search.application.information;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.search.application.port.in.ReasonUsecase;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.NewsDomain;
 import com.bjcareer.search.domain.entity.Stock;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GPTService {
+public class ReasonService implements ReasonUsecase {
 	private final ApiNaverNews apiNaverNews;
 	private final StockRepository stockRepository;
 	private final ThemaRepository themaRepository;

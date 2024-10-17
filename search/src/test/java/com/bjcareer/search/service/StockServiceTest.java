@@ -12,10 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.bjcareer.search.application.stock.StockService;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
 import com.bjcareer.search.repository.stock.StockRepository;
-import com.bjcareer.search.service.exceptions.InvalidStockInformation;
+import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 
 @ExtendWith(MockitoExtension.class)
 class StockServiceTest {

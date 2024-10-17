@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.bjcareer.search.in.api.controller.StockController;
-import com.bjcareer.search.service.exceptions.InvalidStockInformation;
+import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package com.bjcareer.search.application.port.search;
+package com.bjcareer.search.application.search;
 
 import java.util.List;
 
