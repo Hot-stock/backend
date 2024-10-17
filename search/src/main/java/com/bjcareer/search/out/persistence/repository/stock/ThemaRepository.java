@@ -13,7 +13,10 @@ public interface ThemaRepository extends JpaRepository<Thema, Long> {
 	@Query("SELECT t FROM Thema t WHERE t.stock.name = :stockName AND t.themaInfo.name = :themaName")
 	Optional<Thema> findByStockNameAndThemaName(String stockName, String themaName);
 
-	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name LIKE %:keyword% OR ti.name LIKE %:keyword%")
+	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE ti.name LIKE %:keyword% ORDER BY "
+		+ "CASE WHEN ti.name = :keyword THEN 1 "
+		+ "WHEN ti.name LIKE :keyword% THEN 2 "
+		+ "ELSE 3 END")
 	List<Thema> findAllByKeywordContaining(String keyword, Pageable pageable);
 
 	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name = :keyword OR ti.name = :keyword")

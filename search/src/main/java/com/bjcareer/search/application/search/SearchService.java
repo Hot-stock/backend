@@ -1,5 +1,6 @@
 package com.bjcareer.search.application.search;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,6 +26,7 @@ public class SearchService implements SearchUsecase {
 	public List<Thema> getSearchResult(String keyword, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		List<Thema> resultOfSearch = themaRepository.findAllByKeywordContaining(keyword, pageable);
+
 
 		if (!resultOfSearch.isEmpty()) {
 			eventPublisher.publishEvent(new SearchedKeyword(keyword));
