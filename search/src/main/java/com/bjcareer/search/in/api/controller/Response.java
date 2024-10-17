@@ -1,4 +1,4 @@
-package com.bjcareer.search.controller;
+package com.bjcareer.search.in.api.controller;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,4 +1,4 @@
-package com.bjcareer.search.controller.dto;
+package com.bjcareer.search.in.api.controller.dto;
 
 import java.util.ArrayList;
 import java.util.List;

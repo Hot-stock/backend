@@ -1,11 +1,11 @@
-package com.bjcareer.search.controller.advice;
+package com.bjcareer.search.in.api.exHandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.bjcareer.search.controller.StockController;
+import com.bjcareer.search.in.api.controller.StockController;
 import com.bjcareer.search.service.exceptions.InvalidStockInformation;
 
 import lombok.Getter;

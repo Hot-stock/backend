@@ -1,4 +1,4 @@
-package com.bjcareer.search.service;
+package com.bjcareer.search.application.port.search;
 
 import java.util.List;
 
@@ -9,12 +9,13 @@ import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.event.SearchedKeyword;
 import com.bjcareer.search.repository.stock.ThemaRepository;
+import com.bjcareer.search.application.port.in.SearchUsecase;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SearchService {
+public class SearchService implements SearchUsecase {
 	private final ApplicationEventPublisher eventPublisher;
 	private final ThemaRepository themaRepository;
 	private final Trie trie;

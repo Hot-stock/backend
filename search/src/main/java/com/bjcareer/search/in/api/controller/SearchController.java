@@ -1,4 +1,4 @@
-package com.bjcareer.search.controller;
+package com.bjcareer.search.in.api.controller;
 
 import java.util.List;
 
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.search.controller.dto.QueryResponseDTO;
-import com.bjcareer.search.controller.dto.SearchResultResponseDTO;
+import com.bjcareer.search.application.port.in.SearchUsecase;
+import com.bjcareer.search.in.api.controller.dto.QueryResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.service.SearchService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SearchController {
-	private final SearchService searchService;
+	private final SearchUsecase usecase;
 
 
 	@GetMapping("/api/v0/search")
@@ -31,7 +31,7 @@ public class SearchController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		List<String> suggestionKeyword = searchService.getSuggestionKeyword(query);
+		List<String> suggestionKeyword = usecase.getSuggestionKeyword(query);
 		QueryResponseDTO queryResponseDTO = new QueryResponseDTO(suggestionKeyword, suggestionKeyword.size());
 
 		return new ResponseEntity<>(queryResponseDTO, HttpStatus.OK);
@@ -44,7 +44,7 @@ public class SearchController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		List<Thema> searchResult = searchService.getSearchResult(query);
+		List<Thema> searchResult = usecase.getSearchResult(query);
 		return ResponseEntity.ok(new SearchResultResponseDTO(query, searchResult));
 	}
 

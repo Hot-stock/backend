@@ -1,8 +1,6 @@
-package com.bjcareer.search.controller;
+package com.bjcareer.search.in.api.controller;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -14,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.search.controller.dto.QueryToFindRaiseReasonResponseDTO;
-import com.bjcareer.search.controller.dto.StockAdditionRequestDTO;
-import com.bjcareer.search.controller.dto.StockAdditionResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
+import com.bjcareer.search.in.api.controller.dto.StockAdditionResponseDTO;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.service.GPTService;
