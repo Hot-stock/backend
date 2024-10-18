@@ -1,4 +1,4 @@
-package com.bjcareer.stockservice.timeDeal.service;
+package com.bjcareer.stockservice.timeDeal.application.ports;
 
 import java.util.Iterator;
 import java.util.List;
@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.stockservice.timeDeal.application.ports.in.TimeDealEventUsecase;
+import com.bjcareer.stockservice.timeDeal.application.ports.in.AddParticipantCommand;
+import com.bjcareer.stockservice.timeDeal.application.ports.in.CouponUsecase;
+import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventCommand;
+import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventUsecase;
+import com.bjcareer.stockservice.timeDeal.application.ports.out.LoadUserPort;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
@@ -26,11 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TimeDealService implements TimeDealEventUsecase {
+public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     public static final String REDIS_QUEUE_NAME = "EVENT:QUEUE:";
     public static final String REDIS_PARTICIPANT_SET = "EVENT:PARTICIPANT:";
-
     private static final long ALIVE_MINUTE = 5L;
+
+    private final LoadUserPort loadUserPort;
 
     private final CouponRepository couponRepository;
     private final EventRepository eventRepository;
@@ -39,16 +44,39 @@ public class TimeDealService implements TimeDealEventUsecase {
     private final Redis redis;
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
-    public Event createEvent(int publishedCouponNum, int discountRate) {
-        Event event = new Event(publishedCouponNum, discountRate);
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Event createEvent(CreateEventCommand command) {
+        Event event = new Event(command.getPublishedCouponNum(), command.getDiscountRate());
         return eventRepository.save(event);
     }
 
-    public int addParticipation(Long eventId, String clientPK) {
-        String queueKey = TimeDealService.REDIS_QUEUE_NAME + eventId;
-        String eventParticipantSetKey = TimeDealService.REDIS_PARTICIPANT_SET + eventId;
-		return redisQueue.addParticipation(queueKey,  eventParticipantSetKey, clientPK) + 1;
+    @Override
+    public int addParticipation(AddParticipantCommand command) {
+        String queueKey = TimeDealService.REDIS_QUEUE_NAME + command.getEventId();
+        String eventParticipantSetKey = TimeDealService.REDIS_PARTICIPANT_SET + command.getEventId();
+
+        //port to AuthServerforGetUserId
+        Long clientPK = loadUserPort.loadUserUsingSessionId(command.getSessionId());
+
+        return redisQueue.addParticipation(queueKey, eventParticipantSetKey, clientPK.toString()) + 1;
+    }
+
+    public void generateCouponUsecase(AddParticipantCommand command) {
+        Long eventId = command.getEventId();
+        String sessionId = command.getSessionId();
+
+        Event event = inMemoryEventRepository.findById(eventId)
+            .orElseThrow(() -> new InvalidEventException("Event not found in in-memory storage for id: " + eventId));
+
+        Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId, sessionId);
+
+        if (byEventIdAndUserId.isPresent()) {
+            log.debug("The user has already participated. No additional coupons can be issued");
+            return;
+        }
+
+        Coupon coupon = new Coupon(event, sessionId);
+        couponRepository.save(coupon);
     }
 
     @Transactional
