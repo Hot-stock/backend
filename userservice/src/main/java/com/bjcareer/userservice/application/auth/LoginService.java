@@ -27,7 +27,6 @@ public class LoginService implements LoginUsecase {
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
-		log.debug("Login request: {}", command.getEmail());
 		Optional<User> userFromDatabase = loadUserPort.findByEmail(command.getEmail());
 
 		if (userFromDatabase.isEmpty()) {
@@ -44,7 +43,6 @@ public class LoginService implements LoginUsecase {
 		}
 
 		publisher.publishEvent(new UserLoggedInRecorderEvent(storedUser));
-		tokenUsecase.generateJWT(storedUser);
 
 		return storedUser;
 	}
