@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.in.api.AuthController;
-import com.bjcareer.userservice.interceptor.LoginInterceptor;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -18,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {AuthController.class, LoginInterceptor.class})
+@RestControllerAdvice(assignableTypes = {AuthController.class})
 public class AuthExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<Map<String, Object>> handleJwtException(JwtException e) {
