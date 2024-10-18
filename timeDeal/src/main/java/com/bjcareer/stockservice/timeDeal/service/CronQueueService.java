@@ -10,6 +10,7 @@ import org.redisson.api.RScoredSortedSet;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;

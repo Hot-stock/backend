@@ -50,3 +50,6 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+
+auth:
+  url: http://localhost:8080
