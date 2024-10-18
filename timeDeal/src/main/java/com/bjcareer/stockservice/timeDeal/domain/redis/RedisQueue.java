@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.DuplicateParticipationException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
-import com.bjcareer.stockservice.timeDeal.service.TimeDealService;
+import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
 import com.bjcareer.stockservice.timeDeal.service.exception.RedisCommunicationExcpetion;
 
 import lombok.RequiredArgsConstructor;
