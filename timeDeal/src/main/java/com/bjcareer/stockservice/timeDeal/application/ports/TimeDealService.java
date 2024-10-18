@@ -19,6 +19,7 @@ import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
+import com.bjcareer.stockservice.timeDeal.out.api.authServer.UserResponseDTO;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
 import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
@@ -56,9 +57,10 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
         String eventParticipantSetKey = TimeDealService.REDIS_PARTICIPANT_SET + command.getEventId();
 
         //port to AuthServerforGetUserId
-        Long clientPK = loadUserPort.loadUserUsingSessionId(command.getSessionId());
+        UserResponseDTO userResponseDTO = loadUserPort.loadUserUsingSessionId(command.getSessionId());
+        log.info("User {} request coupon {}", command.getEventId(), userResponseDTO.getId());
 
-        return redisQueue.addParticipation(queueKey, eventParticipantSetKey, clientPK.toString()) + 1;
+        return redisQueue.addParticipation(queueKey, eventParticipantSetKey, userResponseDTO.getId().toString()) + 1;
     }
 
     public void generateCouponUsecase(AddParticipantCommand command) {

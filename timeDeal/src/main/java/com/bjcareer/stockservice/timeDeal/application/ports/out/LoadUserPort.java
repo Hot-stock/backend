@@ -1,5 +1,7 @@
 package com.bjcareer.stockservice.timeDeal.application.ports.out;
 
+import com.bjcareer.stockservice.timeDeal.out.api.authServer.UserResponseDTO;
+
 public interface LoadUserPort {
-	Long loadUserUsingSessionId(String sessionId);
+	UserResponseDTO loadUserUsingSessionId(String sessionId);
 }

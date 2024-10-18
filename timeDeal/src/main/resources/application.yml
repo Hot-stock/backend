@@ -52,4 +52,4 @@ server:
       enabled: true
 
 auth:
-  url: http://localhost:8080
+  url: http://3.34.191.223:8080
