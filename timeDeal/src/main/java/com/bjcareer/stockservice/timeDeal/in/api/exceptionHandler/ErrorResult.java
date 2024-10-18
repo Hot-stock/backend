@@ -1,4 +1,4 @@
-package com.bjcareer.stockservice.timeDeal.controller.exceptionHandler;
+package com.bjcareer.stockservice.timeDeal.in.api.exceptionHandler;
 
 
 import lombok.AllArgsConstructor;

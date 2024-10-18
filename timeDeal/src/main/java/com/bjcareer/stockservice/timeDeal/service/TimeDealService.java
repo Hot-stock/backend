@@ -5,10 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.bjcareer.stockservice.timeDeal.application.ports.in.TimeDealEventUsecase;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
+import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
 import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
@@ -18,13 +23,10 @@ import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisition
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TimeDealService {
+public class TimeDealService implements TimeDealEventUsecase {
     public static final String REDIS_QUEUE_NAME = "EVENT:QUEUE:";
     public static final String REDIS_PARTICIPANT_SET = "EVENT:PARTICIPANT:";
 
@@ -36,7 +38,8 @@ public class TimeDealService {
     private final RedisQueue redisQueue;
     private final Redis redis;
 
-    @Transactional
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Event createEvent(int publishedCouponNum, int discountRate) {
         Event event = new Event(publishedCouponNum, discountRate);
         return eventRepository.save(event);
