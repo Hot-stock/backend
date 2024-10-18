@@ -5,13 +5,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 
