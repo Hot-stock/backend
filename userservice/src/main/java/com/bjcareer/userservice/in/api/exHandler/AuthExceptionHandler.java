@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
-import com.bjcareer.userservice.in.api.UserController;
+import com.bjcareer.userservice.in.api.AuthController;
 import com.bjcareer.userservice.interceptor.LoginInterceptor;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -18,8 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-@RestControllerAdvice(assignableTypes={UserController.class, LoginInterceptor.class})
-public class UserExceptionHandler {
+@RestControllerAdvice(assignableTypes = {AuthController.class, LoginInterceptor.class})
+public class AuthExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<Map<String, Object>> handleJwtException(JwtException e) {
         return buildErrorResponse("Please try logging in again.", HttpStatus.UNAUTHORIZED, e);

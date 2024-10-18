@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v0/auth")
-public class UserController {
+public class AuthController {
     private final LoginUsecase loginUsecase;
     private final LogoutUsecase logoutUsecase;
     private final TokenUsecase tokenUsecase;
