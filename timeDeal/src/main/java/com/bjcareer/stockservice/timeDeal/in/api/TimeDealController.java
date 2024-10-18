@@ -1,16 +1,22 @@
-package com.bjcareer.stockservice.timeDeal.controller;
+package com.bjcareer.stockservice.timeDeal.in.api;
 
-
-import com.bjcareer.stockservice.timeDeal.controller.dto.TimeDealDTO;
-import com.bjcareer.stockservice.timeDeal.controller.dto.TimeDealDTO.*;
-import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
-import com.bjcareer.stockservice.timeDeal.domain.event.Event;
-import com.bjcareer.stockservice.timeDeal.service.TimeDealService;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bjcareer.stockservice.timeDeal.application.ports.in.TimeDealEventUsecase;
+import com.bjcareer.stockservice.timeDeal.domain.event.Event;
+import com.bjcareer.stockservice.timeDeal.in.api.dto.TimeDealDTO.CreateTimeDealEventRequest;
+import com.bjcareer.stockservice.timeDeal.in.api.dto.TimeDealDTO.CreateTimeDealEventResponse;
+import com.bjcareer.stockservice.timeDeal.in.api.dto.TimeDealDTO.GenerateCouponResponse;
+import com.bjcareer.stockservice.timeDeal.service.TimeDealService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,18 +24,15 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class TimeDealController {
     private final TimeDealService timeDealService;
-
-    @GetMapping("start-time")
-    public void getTimeDealStartTime(){
-    }
-
+    private final TimeDealEventUsecase usecase;
 
     @PostMapping("/open")
     public ResponseEntity<?> openTimeDealEvent(@RequestBody CreateTimeDealEventRequest request){
         validateOpenEventInputs(request);
 
-        Event timeDealEvent = timeDealService.createEvent(request.getPublishedCouponNumber(), request.getDiscountRate());
-        CreateTimeDealEventResponse response = new CreateTimeDealEventResponse(timeDealEvent.getId(), timeDealEvent.getPublishedCouponNum());
+        Event event = usecase.createEvent(request.getPublishedCouponNumber(), request.getDiscountRate());
+        CreateTimeDealEventResponse response = new CreateTimeDealEventResponse(event.getId(),
+            event.getPublishedCouponNum());
 
         return new ResponseEntity(response, HttpStatus.OK);
     }

@@ -4,16 +4,15 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: timo
-    password: timo
-    url: jdbc:postgresql://localhost:5432/stock_service
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 
@@ -42,8 +41,10 @@ springdoc:
     path: /docs
 
 redis:
-  address: redis://localhost:6379
-  password: changeme
+  address:
+    master: "changme"
+    slave:  "changme"
+  password: "changeme"
   database: 0
 
 server:
