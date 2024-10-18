@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
 import com.bjcareer.userservice.application.ports.in.TokenUsecase;
@@ -27,7 +27,6 @@ public class LoginService implements LoginUsecase {
 
 	@Transactional(readOnly = true)
 	public User login(LoginCommand command) {
-		log.debug("Login request: {}", command.getEmail());
 		Optional<User> userFromDatabase = loadUserPort.findByEmail(command.getEmail());
 
 		if (userFromDatabase.isEmpty()) {
@@ -44,7 +43,6 @@ public class LoginService implements LoginUsecase {
 		}
 
 		publisher.publishEvent(new UserLoggedInRecorderEvent(storedUser));
-		tokenUsecase.generateJWT(storedUser);
 
 		return storedUser;
 	}

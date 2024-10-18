@@ -7,7 +7,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.domain.entity.RoleType;

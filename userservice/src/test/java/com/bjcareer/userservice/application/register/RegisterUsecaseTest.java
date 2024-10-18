@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.userservice.application.exceptions.VerifyTokenDoesNotExist;
 import com.bjcareer.userservice.application.ports.in.RegisterRequestCommand;
 import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
 import com.bjcareer.userservice.commonTest.UsecaseTest;

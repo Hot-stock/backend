@@ -1,4 +1,4 @@
-package com.bjcareer.userservice.application.register;
+package com.bjcareer.userservice.application.exceptions;
 
 public class VerifyTokenDoesNotExist extends RuntimeException {
 	public VerifyTokenDoesNotExist() {
