@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.userservice.application.auth.token.JWTUtil;
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.application.auth.token.valueObject.TokenValidationResult;
 import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;

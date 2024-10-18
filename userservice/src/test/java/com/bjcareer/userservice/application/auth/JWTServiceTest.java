@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import com.bjcareer.userservice.application.auth.token.JWTUtil;
-import com.bjcareer.userservice.application.auth.token.exceptions.UnauthorizedAccessAttemptException;
+import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;

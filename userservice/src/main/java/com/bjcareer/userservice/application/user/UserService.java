@@ -5,11 +5,13 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.userservice.application.auth.token.JWTUtil;
+import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.application.ports.in.user.SessionUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.domain.entity.User;
+import com.bjcareer.userservice.out.persistance.repository.exceptions.UserNotFoundException;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class UserService implements SessionUsecase {
 
 		if (tokenBySessionId.isEmpty()) {
 			log.error("Invalid session id {}", sessionId);
-			throw new RuntimeException("Invalid session");
+			throw new UnauthorizedAccessAttemptException("Invalid session");
 		}
 
 		JwtTokenVO jwtTokenVO = tokenBySessionId.get();
@@ -40,7 +42,7 @@ public class UserService implements SessionUsecase {
 
 		if (optUser.isEmpty()){
 			log.error("Invalid email {}", userEmail);
-			throw new RuntimeException("Invalid session");
+			throw new UserNotFoundException("Invalid session");
 		}
 
 		return optUser.get();

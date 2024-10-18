@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.bjcareer.userservice.application.register.VerifyTokenDoesNotExist;
+import com.bjcareer.userservice.application.exceptions.VerifyTokenDoesNotExist;
 import com.bjcareer.userservice.in.api.RegisterController;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.DatabaseOperationException;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.RedisLockAcquisitionException;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {RegisterController.class})
-public class RegisterException {
+public class RegisterExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Map<String, Object>> handleDatabaseOperationException(DatabaseOperationException e) {
         return buildErrorResponse("서버와 접속이 불안정합니다. 잠시 후 다시 시도해주세요", HttpStatus.SERVICE_UNAVAILABLE, e);

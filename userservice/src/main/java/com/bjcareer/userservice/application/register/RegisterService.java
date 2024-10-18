@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.userservice.application.auth.token.valueObject.TokenVO;
+import com.bjcareer.userservice.application.exceptions.VerifyTokenDoesNotExist;
 import com.bjcareer.userservice.application.ports.in.RegisterRequestCommand;
 import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
 import com.bjcareer.userservice.application.ports.out.CreateUserPort;
