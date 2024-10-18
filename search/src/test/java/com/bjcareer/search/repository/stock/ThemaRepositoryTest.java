@@ -7,9 +7,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.domain.entity.Thema;
+import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 @SpringBootTest
 @Transactional
@@ -24,7 +26,7 @@ class ThemaRepositoryTest {
 
 		allThemas.forEach(thema -> {
 			long durationInMillis = measureExecutionTime(() -> {
-				themaRepository.findAllByKeywordContaining(thema.getStock().getName());
+				themaRepository.findAllByKeywordContaining(thema.getStock().getName(), PageRequest.of(0, 10000));
 			});
 
 			assertThat(durationInMillis)

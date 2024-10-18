@@ -13,13 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 
+import com.bjcareer.search.application.search.SearchService;
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
-import com.bjcareer.search.repository.stock.ThemaRepository;
+import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 class SearchServiceTest {
 
@@ -55,10 +57,10 @@ class SearchServiceTest {
 		ThemaInfo themaInfo = new ThemaInfo(THEMA_NAME, USER_CREATED);
 
 		List<Thema> mockThemas = List.of(new Thema(stock, themaInfo)); // 검색 결과로 반환할 Thema 목록
-		when(themaRepository.findAllByKeywordContaining(anyString())).thenReturn(mockThemas);
+		when(themaRepository.findAllByKeywordContaining(anyString(), any(Pageable.class))).thenReturn(mockThemas);
 
 		// When: 검색 결과가 있는 경우
-		List<Thema> result = searchService.getSearchResult(CODE);
+		List<Thema> result = searchService.getSearchResult(CODE, 0, 10);
 
 		// Then: 검색 결과를 반환하고, 이벤트가 호출되었는지 확인
 		assertFalse(result.isEmpty());  // 검색 결과가 비어있지 않음을 검증
@@ -68,10 +70,11 @@ class SearchServiceTest {
 	@Test
 	void testGetSearchResultWithNoResults() {
 		// Given: ThemaRepository가 빈 결과를 반환하는 경우
-		when(themaRepository.findAllByKeywordContaining(anyString())).thenReturn(Collections.emptyList());
+		when(themaRepository.findAllByKeywordContaining(anyString(), any(Pageable.class))).thenReturn(
+			Collections.emptyList());
 
 		// When: 검색 결과가 없는 경우
-		List<Thema> result = searchService.getSearchResult(anyString());
+		List<Thema> result = searchService.getSearchResult(anyString(), anyInt(), anyInt());
 
 		// Then: 검색 결과가 없고, 이벤트가 호출되지 않았는지 확인
 		assertTrue(result.isEmpty());  // 검색 결과가 비어있음을 검증

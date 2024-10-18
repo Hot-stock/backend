@@ -12,26 +12,27 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.bjcareer.search.application.search.ConverterKeywordCountService;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO.KeywordDto;
-import com.bjcareer.search.out.api.naver.ApiAdkeyword;
-import com.bjcareer.search.out.api.naver.ApiDatalabTrend;
+import com.bjcareer.search.out.api.naver.ApiAdkeywordAdapter;
+import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
 import com.bjcareer.search.out.data.MockingData;
-import com.bjcareer.search.service.exceptions.HttpCommunicationException;
+import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
 class ConverterSearchCountServiceTest {
 
 	@Mock
-	private ApiDatalabTrend apiDatalabTrend;
+	private ApiDatalabTrendAdapter apiDatalabTrend;
 
 	@Mock
-	private ApiAdkeyword apiAdkeyword;
+	private ApiAdkeywordAdapter apiAdkeywordAdapter;
 
 	@InjectMocks
-	private ConverterSearchCountService converterSearchCountService;
+	private ConverterKeywordCountService converterSearchCountService;
 
 	@BeforeEach
 	void setUp() {
@@ -56,7 +57,7 @@ class ConverterSearchCountServiceTest {
 		// Mocking external APIs
 		when(apiDatalabTrend.fetchTrends(any(DataLabTrendRequestDTO.class))).thenReturn(
 			Optional.of(dataLabTrendResponseDTO));
-		when(apiAdkeyword.getKeywordsCount(anyString())).thenReturn(Optional.of(keywordResponseDTO));
+		when(apiAdkeywordAdapter.getKeywordsCount(anyString())).thenReturn(Optional.of(keywordResponseDTO));
 
 		// When
 		List<AbsoluteRankKeyword> result = converterSearchCountService.getAbsoluteValueOfKeyword(keyword);
@@ -71,7 +72,7 @@ class ConverterSearchCountServiceTest {
 		String keyword = "example";
 
 		when(apiDatalabTrend.fetchTrends(any(DataLabTrendRequestDTO.class))).thenReturn(Optional.empty());
-		when(apiAdkeyword.getKeywordsCount(anyString())).thenReturn(Optional.empty());
+		when(apiAdkeywordAdapter.getKeywordsCount(anyString())).thenReturn(Optional.empty());
 
 		// When & Then
 		assertThrows(HttpCommunicationException.class, () -> {

@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.out.api.naver.ApiAdkeyword;
+import com.bjcareer.search.out.api.naver.ApiAdkeywordAdapter;
 
 @Configuration
 public class NaverApiAdConfig {
@@ -17,7 +17,7 @@ public class NaverApiAdConfig {
 	private String SECRET_KEY;
 
 	@Bean
-	public ApiAdkeyword apiAdkeyword(RestTemplate restTemplate) {
-		return new ApiAdkeyword(CUSTOMER_ID, ACCESS_KEY, SECRET_KEY, restTemplate);
+	public ApiAdkeywordAdapter apiAdkeyword(RestTemplate restTemplate) {
+		return new ApiAdkeywordAdapter(CUSTOMER_ID, ACCESS_KEY, SECRET_KEY, restTemplate);
 	}
 }

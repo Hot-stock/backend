@@ -6,8 +6,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.candidate.cache.CacheTrieService;
-import com.bjcareer.search.repository.cache.CacheRepository;
-import com.bjcareer.search.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.repository.cache.CacheRepository;
+import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
