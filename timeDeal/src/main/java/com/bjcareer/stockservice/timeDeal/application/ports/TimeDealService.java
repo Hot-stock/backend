@@ -1,12 +1,12 @@
 package com.bjcareer.stockservice.timeDeal.application.ports;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.stockservice.timeDeal.application.ports.in.AddParticipantCommand;
@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     public static final String REDIS_QUEUE_NAME = "EVENT:QUEUE:";
     public static final String REDIS_PARTICIPANT_SET = "EVENT:PARTICIPANT:";
@@ -45,7 +46,7 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     private final Redis redis;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public Event createEvent(CreateEventCommand command) {
         Event event = new Event(command.getPublishedCouponNum(), command.getDiscountRate());
         return eventRepository.save(event);
@@ -63,6 +64,7 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
         return redisQueue.addParticipation(queueKey, eventParticipantSetKey, userResponseDTO.getId().toString()) + 1;
     }
 
+    @Transactional
     public void generateCouponUsecase(AddParticipantCommand command) {
         Long eventId = command.getEventId();
         String sessionId = command.getSessionId();
@@ -106,7 +108,6 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
         }
     }
 
-
     public void validateEventParticipant(Long eventId, Map<String, Double> participations) {
         Iterator<Map.Entry<String, Double>> iterator = participations.entrySet().iterator();
 
@@ -121,7 +122,9 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
         }
     }
 
+    @Transactional
     public void bulkGenerateCoupon(Long eventId, List<String> clients) {
+        List<Coupon> coupons = new ArrayList<>();
         Event event = inMemoryEventRepository.findById(eventId)
             .orElseThrow(() -> new InvalidEventException("Event not found in in-memory storage for id: " + eventId));
 
@@ -134,8 +137,9 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
                 return;
             }
 
-            Coupon coupon = new Coupon(event, client);
-            couponRepository.save(coupon);
+            coupons.add(new Coupon(event, client));
         });
+
+        couponRepository.saveAll(coupons);
     }
 }
