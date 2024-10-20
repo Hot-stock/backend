@@ -10,29 +10,25 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
 logging:
   level:
     org.hibernate.SQL: info
     org.springframework.web: error
-    com.bjcareer.stockservice.timeDeal: debug
+    com.bjcareer.stockservice.timeDeal: info
 
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-  info:
-    env:
-      enabled: true
-  endpoint:
-    health:
-      show-details: always
 
 springdoc:
   api-docs:
@@ -41,13 +37,14 @@ springdoc:
     path: /docs
 
 redis:
-  address:
-    master: "changme"
-    slave:  "changme"
-  password: "changeme"
-  database: 0
+  address: ${REDIS_ADDRESS}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
 
 server:
   tomcat:
     mbeanregistry:
       enabled: true
+
+auth:
+  url: ${AUTH_URL}
