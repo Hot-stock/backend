@@ -10,12 +10,14 @@ import org.redisson.api.RScoredSortedSet;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.stockservice.TopicConfig;
 import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
 import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
+import com.bjcareer.stockservice.timeDeal.service.out.MessagePort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +31,13 @@ public class CronQueueService {
 	private final RedisQueue redisQueue;
 	private final Redis redis;
 	private final TimeDealService timeDealService;
+	private final MessagePort messagePort;
 
 	@Scheduled(cron = "0/10 * * * * *")
 	public void processParticipationQueue() {
 		log.debug("Cron job started: processParticipationQueue");
 
 		String key = redis.getSingleKeyUsingScan(TimeDealService.REDIS_QUEUE_NAME + "*");
-
 		if (key == null) {
 			log.debug("No matching queue found.");
 			return;
@@ -53,6 +55,9 @@ public class CronQueueService {
 
 		List<String> validParticipants = calculateValidCouponParticipants(participations, excessCoupons.get());
 		timeDealService.bulkGenerateCoupon(eventId, validParticipants);
+
+		validParticipants.forEach(participant -> messagePort.sendCouponMessage(TopicConfig.COUPON_TOPIC, true));
+
 		redisQueue.removeParticipation(key);
 	}
 
