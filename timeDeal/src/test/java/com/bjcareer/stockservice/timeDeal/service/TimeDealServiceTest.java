@@ -13,8 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.redisson.api.RedissonClient;
 
+import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
+import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventCommand;
+import com.bjcareer.stockservice.timeDeal.application.ports.out.LoadUserPort;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
@@ -41,13 +43,17 @@ public class TimeDealServiceTest {
     @Mock
     private RedisQueue redisQueue;
 
+    @Mock
+    private LoadUserPort loadUserPort;
+
     @InjectMocks
     private TimeDealService timeDealService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        timeDealService = new TimeDealService(couponRepository, eventRepository, inMemoryEventRepository, redisQueue, redis);
+        timeDealService = new TimeDealService(loadUserPort, couponRepository, eventRepository, inMemoryEventRepository,
+            redisQueue, redis);
     }
 
     @Test
@@ -59,8 +65,9 @@ public class TimeDealServiceTest {
         Event event = new Event(publishedCouponNum, discountRate);
         when(eventRepository.save(any(Event.class))).thenReturn(event);
 
+        CreateEventCommand createEventCommand = new CreateEventCommand(publishedCouponNum, discountRate);
         // Act
-        Event createdEvent = timeDealService.createEvent(publishedCouponNum, discountRate);
+        Event createdEvent = timeDealService.createEvent(createEventCommand);
 
         // Assert
         assertNotNull(createdEvent);

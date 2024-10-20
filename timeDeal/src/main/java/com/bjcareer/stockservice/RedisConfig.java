@@ -8,11 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.bjcareer.stockservice.timeDeal.listener.RedisListenerService;
-import com.bjcareer.stockservice.timeDeal.repository.CouponRepository;
-import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
-import com.bjcareer.stockservice.timeDeal.repository.InMemoryEventRepository;
-
 @Configuration
 public class RedisConfig {
 
@@ -39,10 +34,4 @@ public class RedisConfig {
 		return Redisson.create(config);
 	}
 
-	@Bean
-	public RedisListenerService setUpredisListenerService(InMemoryEventRepository memoryEventRepository, EventRepository repository, CouponRepository couponRepository) {
-		RedisListenerService redisListenerService = new RedisListenerService(memoryEventRepository, repository,
-			couponRepository);
-		return redisListenerService;
-	}
 }
