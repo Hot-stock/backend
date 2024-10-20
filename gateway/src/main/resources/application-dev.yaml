@@ -2,6 +2,10 @@ spring:
   application:
     name: gateway
 
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_ADDRESS}
+
 redis:
   address: ${REDIS_ADDRESS}
   password: ${REDIS_PASSWORD}
@@ -20,6 +24,9 @@ auth:
 
 search:
   url: ${SEARCH_URL}
+
+time-deal:
+  url: ${TIME_DEAL_URL}
 
 logging:
   level:
