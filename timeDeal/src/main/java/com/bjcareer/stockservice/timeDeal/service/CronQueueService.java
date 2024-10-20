@@ -12,11 +12,12 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.stockservice.TopicConfig;
 import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
+import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
-import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
 import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
+import com.bjcareer.stockservice.timeDeal.service.out.CouponMessageCommand;
 import com.bjcareer.stockservice.timeDeal.service.out.MessagePort;
 
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class CronQueueService {
 			return;
 		}
 
-		Map<String, Double> participations = extractParticipationFromPQ(key);
+		Map<String, ParticipationDomain> participations = extractParticipationFromPQ(key);
 		Long eventId = extractEventIdFromKey(key);
 
 		timeDealService.validateEventParticipant(eventId, participations);
@@ -53,31 +54,35 @@ public class CronQueueService {
 			return;
 		}
 
-		List<String> validParticipants = calculateValidCouponParticipants(participations, excessCoupons.get());
+		List<ParticipationDomain> validParticipants = calculateValidCouponParticipants(participations,
+			excessCoupons.get());
 		timeDealService.bulkGenerateCoupon(eventId, validParticipants);
-
-		validParticipants.forEach(participant -> messagePort.sendCouponMessage(TopicConfig.COUPON_TOPIC, true));
-
+		validParticipants.forEach(participant -> messagePort.sendCouponMessage(TopicConfig.COUPON_TOPIC,
+			new CouponMessageCommand(participant.getSessionId(), true,
+				"쿠폰 발급을 성공했습니다")));
 		redisQueue.removeParticipation(key);
 	}
 
-	private Map<String, Double> extractParticipationFromPQ(String key) {
-		Map<String, Double> participations = new HashMap<>(INITIAL_CAPACITY);
+	private Map<String, ParticipationDomain> extractParticipationFromPQ(String key) {
+		Map<String, ParticipationDomain> participations = new HashMap<>(INITIAL_CAPACITY);
 
 		for (int i = 0; i < INITIAL_CAPACITY; i++) {
-			ParticipationVO participationVO = redisQueue.getClientInfoUsingBatch(key);
+			ParticipationDomain participationDomain = redisQueue.getClientInfoUsingBatch(key);
 
-			if (participationVO == null || participationVO.getScore() == null) {
+			if (participationDomain == null) {
 				break;
 			}
-			participations.put(participationVO.getClientId(), participationVO.getScore());
+
+			participations.put(participationDomain.getClientId(), participationDomain);
 		}
 
 		return participations;
 	}
 
-	private static List<String> calculateValidCouponParticipants(Map<String, Double> participations, Integer excessCoupons) {
-		List<String> validParticipants = new ArrayList<>(participations.keySet());
+	private static List<ParticipationDomain> calculateValidCouponParticipants(
+		Map<String, ParticipationDomain> participations,
+		Integer excessCoupons) {
+		List<ParticipationDomain> validParticipants = new ArrayList<>(participations.values());
 
 		if (excessCoupons > 0) {
 			int validParticipantsCount = participations.size() - excessCoupons;
@@ -87,8 +92,9 @@ public class CronQueueService {
 		return validParticipants;
 	}
 
-	private Optional<Integer> updateEventStatus(Long eventId, Map<String, Double> participations, String key) {
-		RScoredSortedSet<String> pq = redisQueue.getScoredSortedSet(key);
+	private Optional<Integer> updateEventStatus(Long eventId, Map<String, ParticipationDomain> participations,
+		String key) {
+		RScoredSortedSet<ParticipationDomain> pq = redisQueue.getScoredSortedSet(key);
 
 		try {
 			return Optional.of(timeDealService.updateDeliveryEventCoupon(eventId, participations.size()));
@@ -101,8 +107,9 @@ public class CronQueueService {
 		return Optional.empty();
 	}
 
-	private void restoreParticipationQueue(Map<String, Double> participationScores, RScoredSortedSet<String> pq) {
-		participationScores.forEach((key,value) -> pq.add(value, key));
+	private void restoreParticipationQueue(Map<String, ParticipationDomain> participationScores,
+		RScoredSortedSet<ParticipationDomain> pq) {
+		participationScores.forEach((key, value) -> pq.add(value.getParticipationIndex(), value));
 	}
 
 	private Long extractEventIdFromKey(String key) {

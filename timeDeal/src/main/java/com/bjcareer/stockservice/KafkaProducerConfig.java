@@ -13,6 +13,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import com.bjcareer.stockservice.timeDeal.service.out.CouponMessageCommand;
+
 @Configuration
 public class KafkaProducerConfig {
 
@@ -20,7 +22,7 @@ public class KafkaProducerConfig {
 	private String address;
 
 	@Bean
-	public ProducerFactory<String, Boolean> producerFactory() {
+	public ProducerFactory<String, CouponMessageCommand> producerFactory() {
 		Map<String, Object> config = new HashMap<>();
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, address);
 		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -29,8 +31,8 @@ public class KafkaProducerConfig {
 	}
 
 	@Bean
-	public KafkaTemplate<String, Boolean> kafkaTemplate() {
-		KafkaTemplate<String, Boolean> template = new KafkaTemplate<>(producerFactory());
+	public KafkaTemplate<String, CouponMessageCommand> kafkaTemplate() {
+		KafkaTemplate<String, CouponMessageCommand> template = new KafkaTemplate<>(producerFactory());
 		template.setDefaultTopic(TopicConfig.COUPON_TOPIC);
 		return template;
 	}

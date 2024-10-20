@@ -14,6 +14,7 @@ import com.bjcareer.stockservice.timeDeal.application.ports.in.CouponUsecase;
 import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventCommand;
 import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventUsecase;
 import com.bjcareer.stockservice.timeDeal.application.ports.out.LoadUserPort;
+import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
@@ -61,7 +62,9 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
         UserResponseDTO userResponseDTO = loadUserPort.loadUserUsingSessionId(command.getSessionId());
         log.info("User {} request coupon {}", command.getEventId(), userResponseDTO.getId());
 
-        return redisQueue.addParticipation(queueKey, eventParticipantSetKey, userResponseDTO.getId().toString()) + 1;
+        ParticipationDomain participation = new ParticipationDomain(command.getEventId().toString(),
+            command.getSessionId());
+        return redisQueue.addParticipation(queueKey, eventParticipantSetKey, participation) + 1;
     }
 
     @Transactional
@@ -108,11 +111,11 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
         }
     }
 
-    public void validateEventParticipant(Long eventId, Map<String, Double> participations) {
-        Iterator<Map.Entry<String, Double>> iterator = participations.entrySet().iterator();
+    public void validateEventParticipant(Long eventId, Map<String, ParticipationDomain> participations) {
+        Iterator<Map.Entry<String, ParticipationDomain>> iterator = participations.entrySet().iterator();
 
         while (iterator.hasNext()) {
-            Map.Entry<String, Double> entry = iterator.next();
+            Map.Entry<String, ParticipationDomain> entry = iterator.next();
             Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId, entry.getKey());
 
             if (byEventIdAndUserId.isPresent()) {
@@ -123,21 +126,22 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     }
 
     @Transactional
-    public void bulkGenerateCoupon(Long eventId, List<String> clients) {
+    public void bulkGenerateCoupon(Long eventId, List<ParticipationDomain> clients) {
         List<Coupon> coupons = new ArrayList<>();
         Event event = inMemoryEventRepository.findById(eventId)
             .orElseThrow(() -> new InvalidEventException("Event not found in in-memory storage for id: " + eventId));
 
 
         clients.forEach(client -> {
-            Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId, client);
+            Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId,
+                client.getClientId());
 
             if (byEventIdAndUserId.isPresent()) {
                 log.debug("The user has already participated. No additional coupons can be issued");
                 return;
             }
 
-            coupons.add(new Coupon(event, client));
+            coupons.add(new Coupon(event, client.getClientId()));
         });
 
         couponRepository.saveAll(coupons);
