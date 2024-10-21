@@ -62,7 +62,7 @@ class OutboxServiceTest {
 		// Arrange
 		ParticipationDomain participationDomain = new ParticipationDomain(UUID.randomUUID().toString(),
 			UUID.randomUUID().toString());
-		OutboxCoupon outboxCoupon = new OutboxCoupon(mapper.writeValueAsString(participationDomain), false);
+		OutboxCoupon outboxCoupon = new OutboxCoupon(mapper.writeValueAsString(participationDomain));
 		List<OutboxCoupon> outboxCoupons = List.of(outboxCoupon);
 
 		when(port.load()).thenReturn(outboxCoupons);
@@ -85,8 +85,8 @@ class OutboxServiceTest {
 		ParticipationDomain domain2 = new ParticipationDomain(UUID.randomUUID().toString(),
 			UUID.randomUUID().toString());
 
-		OutboxCoupon coupon1 = new OutboxCoupon(mapper.writeValueAsString(domain1), false);
-		OutboxCoupon coupon2 = new OutboxCoupon(mapper.writeValueAsString(domain2), true);
+		OutboxCoupon coupon1 = new OutboxCoupon(mapper.writeValueAsString(domain1));
+		OutboxCoupon coupon2 = new OutboxCoupon(mapper.writeValueAsString(domain2));
 
 		return List.of(coupon1, coupon2);
 	}

@@ -31,7 +31,7 @@ class OutboxCouponTest {
 	void outbox_message_저장_테스트() throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String payload = objectMapper.writeValueAsString(participation);
-		OutboxCoupon outboxCoupon = new OutboxCoupon(payload, false);
+		OutboxCoupon outboxCoupon = new OutboxCoupon(payload);
 		em.persist(outboxCoupon);
 		assertNotNull(outboxCoupon.getId());
 	}
@@ -41,7 +41,7 @@ class OutboxCouponTest {
 	void outbox_message_조회_테스트() throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String payload = objectMapper.writeValueAsString(participation);
-		OutboxCoupon outboxCoupon = new OutboxCoupon(payload, false);
+		OutboxCoupon outboxCoupon = new OutboxCoupon(payload);
 		em.persist(outboxCoupon);
 
 		OutboxCoupon outboxCoupon1 = em.find(OutboxCoupon.class, outboxCoupon.getId());
