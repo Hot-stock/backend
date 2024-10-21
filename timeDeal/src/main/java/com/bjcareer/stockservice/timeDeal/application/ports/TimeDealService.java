@@ -137,10 +137,12 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
                 client.getClientId());
 
             if (byEventIdAndUserId.isPresent()) {
+                client.setResult(false);
                 log.debug("The user has already participated. No additional coupons can be issued");
                 return;
             }
 
+            client.setResult(true);
             coupons.add(new Coupon(event, client.getClientId()));
         });
 
