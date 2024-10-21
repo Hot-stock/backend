@@ -28,4 +28,8 @@ public class OutboxCoupon {
 		this.payload = payload;
 		this.isDelivered = isDelivered;
 	}
+
+	public void delivered() {
+		this.isDelivered = true;
+	}
 }
