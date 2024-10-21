@@ -4,37 +4,31 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: timo
-    password: timo
-    url: jdbc:postgresql://localhost:5432/stock_service
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
 logging:
   level:
     org.hibernate.SQL: info
     org.springframework.web: error
-    com.bjcareer.stockservice.timeDeal: debug
+    com.bjcareer.stockservice.timeDeal: info
 
 management:
   endpoints:
     web:
       exposure:
         include: "*"
-  info:
-    env:
-      enabled: true
-  endpoint:
-    health:
-      show-details: always
 
 springdoc:
   api-docs:
@@ -43,9 +37,9 @@ springdoc:
     path: /docs
 
 redis:
-  address: redis://localhost:6379
-  password: changeme
-  database: 0
+  address: ${REDIS_ADDRESS}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
 
 server:
   tomcat:
@@ -53,4 +47,4 @@ server:
       enabled: true
 
 auth:
-  url: http://3.34.191.223:8080
+  url: ${AUTH_URL}

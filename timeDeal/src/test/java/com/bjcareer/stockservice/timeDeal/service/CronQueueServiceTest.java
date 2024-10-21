@@ -1,24 +1,28 @@
 package com.bjcareer.stockservice.timeDeal.service;
 
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
+import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
+import com.bjcareer.stockservice.timeDeal.repository.EventRepository;
+import com.bjcareer.stockservice.timeDeal.service.out.MessagePort;
 
 @SpringBootTest
 class CronQueueServiceTest {
-	public static final String TEST_KEY = TimeDealService.REDIS_QUEUE_NAME + "987654321";
-	public static final String TEST_PARTICIPANT = TimeDealService.REDIS_PARTICIPANT_SET + "987654321";
+	public static final String TEST_KEY = TimeDealService.REDIS_QUEUE_NAME + "1";
+	public static final String TEST_PARTICIPANT = TimeDealService.REDIS_PARTICIPANT_SET + "1";
 
 	@Autowired
 	private TimeDealService timeDealService;
@@ -33,12 +37,18 @@ class CronQueueServiceTest {
 	private CronQueueService cronQueueService;
 
 	@Autowired
+	private MessagePort messagePort;
+
+	@Autowired
 	private RedissonClient client;
+
+	@Autowired
+	private EventRepository eventRepository;
 
 
 	@BeforeEach
 	void setUp() {
-		cronQueueService = new CronQueueService(redisQueue, redis, timeDealService);
+		cronQueueService = new CronQueueService(redisQueue, redis, timeDealService, messagePort);
 	}
 
 	@AfterEach
@@ -52,7 +62,8 @@ class CronQueueServiceTest {
 	@Transactional
 	void 처음_신청한_유저인_경우_쿠폰을_발급_받을_수_있어야_함(){
 		String clientId = "1";
-		redisQueue.addParticipation(TEST_KEY, TEST_PARTICIPANT, clientId);
+		ParticipationDomain participationDomain = new ParticipationDomain(clientId, UUID.randomUUID().toString());
+		redisQueue.addParticipation(TEST_KEY, TEST_PARTICIPANT, participationDomain);
 		cronQueueService.processParticipationQueue();
 
 		RScoredSortedSet<Object> scoredSortedSet = client.getScoredSortedSet(TEST_KEY);

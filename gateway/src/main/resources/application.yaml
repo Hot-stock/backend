@@ -1,6 +1,9 @@
 spring:
   application:
     name: gateway
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
 
 redis:
   address: redis://localhost:6379
@@ -30,3 +33,7 @@ auth:
 
 search:
   url: http://43.201.52.244:8080
+
+
+time-deal:
+  url: http://localhost:8090

@@ -1,12 +1,8 @@
-package com.bjcareer.stockservice.timeDeal.controller.dto;
+package com.bjcareer.stockservice.timeDeal.in.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
-
-import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 
 public class TimeDealDTO {
 
@@ -27,12 +23,10 @@ public class TimeDealDTO {
 
     @Data
     public static class GenerateCouponResponse {
-        private String userId;
         private String message;
 
-        public GenerateCouponResponse(String userId, int i) {
-            this.userId = userId;
-            this.message = userId + "는 " + i + "번째로 신청했습니다.";
+        public GenerateCouponResponse(int i) {
+            this.message = i + "번째로 신청했습니다.";
         }
     }
 

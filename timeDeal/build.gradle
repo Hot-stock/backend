@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.redisson:redisson-spring-boot-starter:3.33.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.kafka:spring-kafka'
 
 	//lombok
 	compileOnly 'org.projectlombok:lombok'

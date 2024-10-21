@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -14,13 +15,13 @@ import org.redisson.api.RScoredSortedSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
+import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 
 @SpringBootTest
 class RedisQueueTest {
 	public static final String TEST_KEY = "TEST_KEY";
 	@Autowired RedisQueue redisQueue;
-	private RScoredSortedSet<String> scoredSortedSet;
+	private RScoredSortedSet<ParticipationDomain> scoredSortedSet;
 
 	@BeforeEach
 	void setUp() {
@@ -30,39 +31,39 @@ class RedisQueueTest {
 	@Test
 	void testRetrieveInTimeOrder() {
 		for (int i = 0; i < 10; i++) {
-			scoredSortedSet.add(i, "USER" + i);
+			scoredSortedSet.add(i, new ParticipationDomain("USER" + i, UUID.randomUUID().toString()));
 		}
 
 		for (int i = 0; i < 10; i++) {
 			Double v = scoredSortedSet.firstScore();
-			String s = scoredSortedSet.pollFirst();
-			ParticipationVO participationVO = new ParticipationVO(s, v);
+			ParticipationDomain participationDomain = scoredSortedSet.pollFirst();
 
-			assertEquals("USER" + i, participationVO.getClientId());
-			assertEquals(i, participationVO.getScore());
+			assertEquals("USER" + i, participationDomain.getClientId());
+			assertEquals(i, participationDomain.getParticipationIndex());
 		}
 	}
 
 	@Test
 	void testBatchOperation() {
 		int i = 0;
-		scoredSortedSet.add(i, "USER" + i);
-		ParticipationVO clientInfoUsingBatch = redisQueue.getClientInfoUsingBatch(TEST_KEY);
-		assertEquals(i, clientInfoUsingBatch.getScore());
+
+		scoredSortedSet.add(i, new ParticipationDomain("USER" + i, UUID.randomUUID().toString()));
+		ParticipationDomain clientInfoUsingBatch = redisQueue.getClientInfoUsingBatch(TEST_KEY);
+		assertEquals(i, clientInfoUsingBatch.getParticipationIndex());
 	}
 
 	@Test
 	void testForConcurrencyIssues() {
-		List<ParticipationVO> list = new ArrayList<>();
+		List<ParticipationDomain> list = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			scoredSortedSet.add(i, "USER" + i);
+			scoredSortedSet.add(i, new ParticipationDomain("USER" + i, UUID.randomUUID().toString()));
 		}
 
 		ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 		for (int i = 0; i < 10; i++) {
 			executorService.submit(() -> {
-				ParticipationVO clientInfoUsingBatch = redisQueue.getClientInfoUsingBatch(TEST_KEY);
+				ParticipationDomain clientInfoUsingBatch = redisQueue.getClientInfoUsingBatch(TEST_KEY);
 				list.add(clientInfoUsingBatch);
 			});
 		}
@@ -74,10 +75,10 @@ class RedisQueueTest {
 			throw new RuntimeException(e);
 		}
 
-		for (ParticipationVO participationVO : list) {
-			String answer = "USER" + participationVO.getScore().intValue();
-			assertTrue(answer.equals(participationVO.getClientId()));
-			System.out.println(answer.equals(participationVO.getClientId()));
+		for (ParticipationDomain participationDomain : list) {
+			String answer = "USER" + participationDomain.getParticipationIndex().intValue();
+			assertTrue(answer.equals(participationDomain.getClientId()));
+			System.out.println(answer.equals(participationDomain.getClientId()));
 		}
 	}
 }

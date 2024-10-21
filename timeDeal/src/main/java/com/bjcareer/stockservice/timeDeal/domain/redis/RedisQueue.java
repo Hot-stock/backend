@@ -14,9 +14,9 @@ import org.redisson.api.RSetAsync;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
+import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.DuplicateParticipationException;
-import com.bjcareer.stockservice.timeDeal.domain.redis.VO.ParticipationVO;
-import com.bjcareer.stockservice.timeDeal.service.TimeDealService;
 import com.bjcareer.stockservice.timeDeal.service.exception.RedisCommunicationExcpetion;
 
 import lombok.RequiredArgsConstructor;
@@ -35,22 +35,22 @@ public class RedisQueue {
 		return (RScoredSortedSet<T>) cachePQ.computeIfAbsent(name, client::getScoredSortedSet);
 	}
 
-	public Integer addParticipation(String eventQueueKey, String participantSetKey, String clientPK) {
+	public Integer addParticipation(String eventQueueKey, String participantSetKey, ParticipationDomain participation) {
 		RBatch batch = createBatch();
 
 		log.debug("{} {}", eventQueueKey, participantSetKey);
 
 		RSetAsync<String> set = batch.getSet(participantSetKey);
-		RFuture<Boolean> booleanRFuture = set.addAsync(clientPK);
+		RFuture<Boolean> booleanRFuture = set.addAsync(participation.getClientId());
 
-		RScoredSortedSetAsync<String> scoredSortedSet = batch.getScoredSortedSet(eventQueueKey);
+		RScoredSortedSetAsync<ParticipationDomain> scoredSortedSet = batch.getScoredSortedSet(eventQueueKey);
 		RFuture<Integer> turnFuture = scoredSortedSet.sizeAsync();
 		CompletionStage<Boolean> booleanCompletionStage = booleanRFuture.thenCompose(isNonParticipant -> {
 			if (!isNonParticipant) {
 				log.debug("이미 참가 신청을 한 유저입니다{} {}", eventQueueKey, participantSetKey);
 				throw new DuplicateParticipationException("이미 참가 신청이 됐습니다!");
 			}
-			return turnFuture.thenCompose(t -> scoredSortedSet.addAsync(t.doubleValue() + 1, clientPK));
+			return turnFuture.thenCompose(t -> scoredSortedSet.addAsync(t.doubleValue() + 1, participation));
 		});
 
 		executeBatch(batch);
@@ -62,13 +62,12 @@ public class RedisQueue {
 		return getFutureResult(turnFuture, "Cant get participation");
 	}
 
-	public ParticipationVO getClientInfoUsingBatch(String key) {
-		String eventId = getEventId(key);
+	public ParticipationDomain getClientInfoUsingBatch(String key) {
 		RBatch batch = createBatch();
-		RScoredSortedSetAsync<String> scoredSortedSet = batch.getScoredSortedSet(key);
+		RScoredSortedSetAsync<ParticipationDomain> scoredSortedSet = batch.getScoredSortedSet(key);
 
 		RFuture<Double> scoreFuture = scoredSortedSet.firstScoreAsync();
-		RFuture<String> nameFuture = scoredSortedSet.pollFirstAsync();
+		RFuture<ParticipationDomain> nameFuture = scoredSortedSet.pollFirstAsync();
 		executeBatch(batch);
 
 		return getClientScoreVOUsingAsync(scoreFuture, nameFuture);
@@ -120,12 +119,19 @@ public class RedisQueue {
 		}
 	}
 
-
-	private ParticipationVO getClientScoreVOUsingAsync(RFuture<Double> scoreFuture, RFuture<String> nameFuture) {
+	private ParticipationDomain getClientScoreVOUsingAsync(RFuture<Double> scoreFuture,
+		RFuture<ParticipationDomain> nameFuture) {
 		try {
 			Double score = scoreFuture.get();
-			String name = nameFuture.get();
-			return new ParticipationVO(name, score);
+
+			if (score == null) {
+				return null;
+			}
+
+			ParticipationDomain participationDomain = nameFuture.get();
+			participationDomain.addParticipationIndex(score.longValue());
+
+			return participationDomain;
 		} catch (InterruptedException | ExecutionException e) {
 			log.error("Error retrieving client score: {}", e.getMessage(), e);
 			Thread.currentThread().interrupt();
