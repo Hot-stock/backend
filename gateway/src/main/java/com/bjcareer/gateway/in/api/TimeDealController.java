@@ -2,6 +2,7 @@ package com.bjcareer.gateway.in.api;
 
 import java.io.IOException;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +41,7 @@ public class TimeDealController {
 		return new ResponseEntity<>(responseDomain, responseDomain.getStatusCode());
 	}
 
-	@GetMapping(value = "/tickets/result", produces = "text/event-stream")
+	@GetMapping(value = "/tickets/result", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	@Operation(summary = "event의 참여에 대한 결과를 응답 받을 수 있는 api", description = "sse방식으로 서버에서 관리하는 단방향 통신임")
 	public SseEmitter getResultOfCoupon(@CookieValue(CookieHelper.SESSION_ID) String sessionId) throws IOException {
 		log.info("getResultOfCoupon Request: {}", sessionId);
