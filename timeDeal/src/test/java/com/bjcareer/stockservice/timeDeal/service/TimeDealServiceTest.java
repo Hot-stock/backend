@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
 import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventCommand;
 import com.bjcareer.stockservice.timeDeal.application.ports.out.LoadUserPort;
+import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
@@ -97,7 +99,7 @@ public class TimeDealServiceTest {
     void bulkGenerateCoupon_ShouldGenerateCouponsForClients() {
         // Arrange
         Long eventId = 1L;
-        List<String> clients = Arrays.asList("client1", "client2");
+        List<ParticipationDomain> clients = Arrays.asList(new ParticipationDomain("client1", UUID.randomUUID().toString()), new ParticipationDomain("client1", UUID.randomUUID().toString()));
         Event event = mock(Event.class);
 
         when(inMemoryEventRepository.findById(anyLong())).thenReturn(Optional.of(event));
