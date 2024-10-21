@@ -30,7 +30,7 @@ public class OutboxService {
 	private final String successMessage = "쿠폰 발급에 성공했습니다";
 
 	@Scheduled(fixedRate = 3000)
-	@Transactional(rollbackFor = JsonProcessingException.class)
+	@Transactional
 	public void processOutboxMessage() throws JsonProcessingException {
 		List<OutboxCoupon> load = port.load();
 

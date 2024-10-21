@@ -70,7 +70,7 @@ public class CronQueueService {
 		List<OutboxCoupon> messages = participations.values().stream().map(participation -> {
 			try {
 				String payload = objectMapper.writeValueAsString(participation);
-				return new OutboxCoupon(payload, participation.isResult());
+				return new OutboxCoupon(payload);
 			} catch (JsonProcessingException e) {
 				throw new RuntimeException(e);
 			}

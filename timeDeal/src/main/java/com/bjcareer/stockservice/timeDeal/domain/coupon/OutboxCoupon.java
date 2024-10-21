@@ -24,9 +24,9 @@ public class OutboxCoupon {
 	private String payload; //json
 	private boolean isDelivered;
 
-	public OutboxCoupon(String payload, boolean isDelivered) {
+	public OutboxCoupon(String payload) {
 		this.payload = payload;
-		this.isDelivered = isDelivered;
+		this.isDelivered = false;
 	}
 
 	public void delivered() {
