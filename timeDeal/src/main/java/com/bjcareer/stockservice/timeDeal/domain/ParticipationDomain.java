@@ -12,7 +12,7 @@ public class ParticipationDomain {
 	private String clientId;
 	private String sessionId;
 
-	private boolean result;
+	private boolean result = false;
 	private Long participationIndex;
 
 	public ParticipationDomain(String clientId, String sessionId) {

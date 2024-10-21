@@ -5,20 +5,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.redisson.api.RScoredSortedSet;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.bjcareer.stockservice.TopicConfig;
 import com.bjcareer.stockservice.timeDeal.application.ports.TimeDealService;
+import com.bjcareer.stockservice.timeDeal.application.ports.out.OutboxCouponPort;
 import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
+import com.bjcareer.stockservice.timeDeal.domain.coupon.OutboxCoupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 import com.bjcareer.stockservice.timeDeal.domain.redis.Redis;
 import com.bjcareer.stockservice.timeDeal.domain.redis.RedisQueue;
 import com.bjcareer.stockservice.timeDeal.service.exception.RedisLockAcquisitionException;
-import com.bjcareer.stockservice.timeDeal.service.out.CouponMessageCommand;
-import com.bjcareer.stockservice.timeDeal.service.out.MessagePort;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,7 @@ public class CronQueueService {
 	private final RedisQueue redisQueue;
 	private final Redis redis;
 	private final TimeDealService timeDealService;
-	private final MessagePort messagePort;
+	private final OutboxCouponPort outboxCouponPort;
 
 	@Scheduled(cron = "0/10 * * * * *")
 	public void processParticipationQueue() {
@@ -51,16 +53,29 @@ public class CronQueueService {
 		Optional<Integer> excessCoupons = updateEventStatus(eventId, participations, key);
 
 		if (excessCoupons.isEmpty()) {
+			outboxCouponPort.saveAll(getOutboxCoupons(participations));
 			return;
 		}
 
 		List<ParticipationDomain> validParticipants = calculateValidCouponParticipants(participations,
 			excessCoupons.get());
+
 		timeDealService.bulkGenerateCoupon(eventId, validParticipants);
-		validParticipants.forEach(participant -> messagePort.sendCouponMessage(TopicConfig.COUPON_TOPIC,
-			new CouponMessageCommand(participant.getSessionId(), true,
-				"쿠폰 발급을 성공했습니다")));
+		outboxCouponPort.saveAll(getOutboxCoupons(participations));
 		redisQueue.removeParticipation(key);
+	}
+
+	private static List<OutboxCoupon> getOutboxCoupons(Map<String, ParticipationDomain> participations) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		List<OutboxCoupon> messages = participations.values().stream().map(participation -> {
+			try {
+				String payload = objectMapper.writeValueAsString(participation);
+				return new OutboxCoupon(payload, participation.isResult());
+			} catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+		}).collect(Collectors.toList());
+		return messages;
 	}
 
 	private Map<String, ParticipationDomain> extractParticipationFromPQ(String key) {
