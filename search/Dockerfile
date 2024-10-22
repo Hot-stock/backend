@@ -26,7 +26,6 @@ RUN cp /app/build/libs/search-0.0.1-SNAPSHOT.jar /app/app.jar
 # 실행 스테이지
 FROM --platform=linux/amd64 openjdk:21
 
-# Pinpoint Agent 복사
 COPY --from=builder /pinpoint-agent /pinpoint-agent
 
 # 애플리케이션 JAR 파일 복사
