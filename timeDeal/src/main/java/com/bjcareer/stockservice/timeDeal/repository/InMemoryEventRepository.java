@@ -6,15 +6,21 @@ import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
 import com.bjcareer.stockservice.timeDeal.domain.event.Event;
 
 public interface InMemoryEventRepository {
-    public static final String EVENT_BUCKET = "EVENT:";
-    public static final String COUPON_BUCKET = "COUPON:";
-    public static final String BACKUP = ":BACKUP";
+    String EVENT_BUCKET = "EVENT:";
+    String COUPON_BUCKET = "COUPON:";
+    String BACKUP = ":BACKUP";
 
-    public void saveCoupon(Coupon coupon, Long aliveMinute);
-    public Long save(Event timeDealEvent, Long aliveMinute);
-    public Optional<Event> findById(Long id);
-    public <V> Optional<V> findBackupObject(String key, Class<V> type);
-    public void deleteKey(String key);
-    public void saveClient(Event timeDealEvent, Long aliveMinute, String clientPK);
-    public Optional<String> findParticipant(Event timeDealEvent, String clientPK);
+    void saveCoupon(Coupon coupon, Long aliveMinute);
+
+    Long save(Event timeDealEvent, Long aliveMinute);
+
+    Optional<Event> findById(Long id);
+
+    <V> Optional<V> findBackupObject(String key, Class<V> type);
+
+    void deleteKey(String key);
+
+    void saveClient(Event timeDealEvent, Long aliveMinute, String clientPK);
+
+    Optional<String> findParticipant(Event timeDealEvent, String clientPK);
 }

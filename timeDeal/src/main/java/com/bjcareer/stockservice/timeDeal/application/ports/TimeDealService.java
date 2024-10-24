@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import com.bjcareer.stockservice.timeDeal.application.ports.in.AddParticipantCom
 import com.bjcareer.stockservice.timeDeal.application.ports.in.CouponUsecase;
 import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventCommand;
 import com.bjcareer.stockservice.timeDeal.application.ports.in.CreateEventUsecase;
+import com.bjcareer.stockservice.timeDeal.application.ports.in.RedisTrasactionEventMessage;
 import com.bjcareer.stockservice.timeDeal.application.ports.out.LoadUserPort;
 import com.bjcareer.stockservice.timeDeal.domain.ParticipationDomain;
 import com.bjcareer.stockservice.timeDeal.domain.coupon.Coupon;
@@ -36,7 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     public static final String REDIS_QUEUE_NAME = "EVENT:QUEUE:";
     public static final String REDIS_PARTICIPANT_SET = "EVENT:PARTICIPANT:";
-    private static final long ALIVE_MINUTE = 5L;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     private final LoadUserPort loadUserPort;
 
@@ -45,6 +48,7 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     private final InMemoryEventRepository inMemoryEventRepository;
     private final RedisQueue redisQueue;
     private final Redis redis;
+
 
     @Override
     @Transactional
@@ -68,25 +72,6 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
     }
 
     @Transactional
-    public void generateCouponUsecase(AddParticipantCommand command) {
-        Long eventId = command.getEventId();
-        String sessionId = command.getSessionId();
-
-        Event event = inMemoryEventRepository.findById(eventId)
-            .orElseThrow(() -> new InvalidEventException("Event not found in in-memory storage for id: " + eventId));
-
-        Optional<Coupon> byEventIdAndUserId = couponRepository.findByEventIdAndUserId(eventId, sessionId);
-
-        if (byEventIdAndUserId.isPresent()) {
-            log.debug("The user has already participated. No additional coupons can be issued");
-            return;
-        }
-
-        Coupon coupon = new Coupon(event, sessionId);
-        couponRepository.save(coupon);
-    }
-
-    @Transactional
     public int updateDeliveryEventCoupon(Long eventId, int participationsSize) {
         String lockKey = "EVENT:LOCK" + eventId;
 
@@ -102,8 +87,8 @@ public class TimeDealService implements CreateEventUsecase, CouponUsecase {
 
             int excessParticipants = event.deliverCoupons(participationsSize);
 
-            inMemoryEventRepository.save(event, ALIVE_MINUTE);
             eventRepository.save(event);
+            eventPublisher.publishEvent(new RedisTrasactionEventMessage(event));
 
             return excessParticipants;
         } finally {
