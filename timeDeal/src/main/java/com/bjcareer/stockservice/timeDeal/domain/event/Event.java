@@ -1,9 +1,12 @@
 package com.bjcareer.stockservice.timeDeal.domain.event;
 
-import com.bjcareer.stockservice.timeDeal.domain.event.exception.CouponLimitExceededException;
 import com.bjcareer.stockservice.timeDeal.domain.event.exception.InvalidEventException;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
