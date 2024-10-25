@@ -32,6 +32,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.kafka:spring-kafka'
 
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:3.0.0'
+
+
 	//lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

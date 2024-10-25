@@ -1,12 +1,14 @@
 spring:
   application:
     name: timeDeal
+  config:
+    import: aws-secretsmanager:hotstock/api/keys
 
   datasource:
     driver-class-name: org.postgresql.Driver
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    url: ${SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://${RDB_PRIVATE_ADDRESS}:${RDB_PORT}/time_deal_service
 
   jpa:
     hibernate:
@@ -37,7 +39,7 @@ springdoc:
     path: /docs
 
 redis:
-  address: ${REDIS_ADDRESS}
+  address: redis://${REDIS_PRIVATE_ADDRESS}:${REDIS_PORT}
   password: ${REDIS_PASSWORD}
   database: ${REDIS_DATABASE}
 
@@ -47,4 +49,4 @@ server:
       enabled: true
 
 auth:
-  url: ${AUTH_URL}
+  url: http://${AUTH_SERVER_ADDRESS}:8080
