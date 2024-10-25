@@ -1,12 +1,17 @@
 spring:
   application:
     name: search
+  config:
+    import:
+      aws-secretmanager:
+        name: /hotstock/api/keys
+        enabled: true
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: timo
-    password: timo
-    url: jdbc:postgresql://localhost:5432/search_service
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_USERNAME}
+    url: jdbc:postgresql://${RDB_PUBLIC_ADDRESS}:${RDB_PORT}/search_service
 
   jpa:
     hibernate:
@@ -16,11 +21,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
-    
+
+
 redis:
-  address: redis://localhost:6379
-  password: changeme
-  database: 0
+  address: redis://${REDIS_PRIVATE_ADDRESS}:${REDIS_PORT}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
 
 mongodb:
   database: keywords
@@ -61,8 +67,10 @@ naver:
   keyword-access-key: ${NAVER_KEYWORD_ACCESSKEY_KEY}
   keyword-secret-key: ${NAVER_KEYWORD_SECRET_KEY}
 
-  trend-client-id: ${NAVER_TREND_CLIENT_ID}
-  trend-client-secret: ${NAVER_TREND_CLIENT_SECRET}
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
 
+  client-new-id: ${NAVER_NEWS_CLIENT_ID}
+  client-new-secret: ${NAVER_NEWS_CLIENT_SECRET}
 GPT:
-    api-key: ${GPT_API_KEY}
+  api-key: ${GPT_API_KEY}
