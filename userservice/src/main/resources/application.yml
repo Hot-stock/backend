@@ -1,12 +1,14 @@
 spring:
   application:
     name: userservice
+  config:
+    import: aws-secretsmanager:hotstock/api/keys
 
   datasource:
-    username: timo
-    password: timo
-    url: jdbc:postgresql://localhost:5432/user_service # 환경변수 사용
     driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://${RDB_PUBLIC_ADDRESS}:${RDB_PORT}/user_service
 
   jpa:
     hibernate:
@@ -16,24 +18,22 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
+    username: ${GMAIL_EMAIL_USERNAME}
+    password: ${GMAIL_EMAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
 
-
 secret:
-  key: 3ac4218e586878871ab0e9febefe81d83740ece704704af22d6a69db940fefc0
+  key: ${JWT_SECRET_KEY}
 
 redis:
-  address: ${REDIS_ADDRESS:redis://localhost:6379}
-  password: ${REDIS_PASSWORD:changeme}
-  database: ${REDIS_DATABASE:0}
+  address: redis://${REDIS_PUBLIC_ADDRESS}:${REDIS_PORT}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
 
 logging:
   level:

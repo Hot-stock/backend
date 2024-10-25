@@ -11,7 +11,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    url: jdbc:postgresql://${RDB_PUBLIC_ADDRESS}:${RDB_PORT}/search_service
+    url: jdbc:postgresql://${RDB_PRIVATE_ADDRESS}:${RDB_PORT}/search_service
 
   jpa:
     hibernate:
