@@ -1,4 +1,4 @@
-name: Gradle Package
+name: Docker Build and Deploy with AWS Secrets
 
 on:
   push:
@@ -6,28 +6,36 @@ on:
       - main
 
 jobs:
-  build:
-
+  build-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
     steps:
-      # 1. Checkout the code
-      - uses: actions/checkout@v4
+      # 1. Check out the code
+      - name: Check out the code
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}  # PR의 소스 브랜치를 명시적으로 체크아웃
           fetch-depth: 0  # 전체 커밋 내역을 가져옴
 
-      # 2. Get last commit message from the source branch
+      # 2. Set up AWS CLI
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      # 3. Get last commit message to determine deployment target
       - name: Get last commit message
         id: commit_msg
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "COMMIT_MSG=$(echo "$COMMIT_MSG" | sed 's/#/%23/g' | tr -d '\n')" >> $GITHUB_ENV
 
-      # 3. Extract all hash tags from commit message
+      # 4. Extract hash tags from the commit message
       - name: Extract all hash tags
         id: extract_hash_tags
         run: |
@@ -37,9 +45,8 @@ jobs:
           else
             echo "HASH_TAGS=$HASH_TAGS" >> $GITHUB_ENV
           fi
-        shell: bash
 
-      # 4. Set server host based on extracted hash tag
+      # 5. Set server host based on hash tag
       - name: Set server host based on hash tag
         run: |
           if [[ "${{ env.HASH_TAGS }}" == *"#search"* ]]; then
@@ -50,22 +57,20 @@ jobs:
             echo "SERVER_HOST=${{ secrets.AUTH_SERVER_HOST }}" >> $GITHUB_ENV
           elif [[ "${{ env.HASH_TAGS }}" == *"#gateway"* ]]; then
             echo "SERVER_HOST=${{ secrets.GATEWAY_SERVER_HOST }}" >> $GITHUB_ENV
-          elif [[ "${{ env.HASH_TAGS }}" == *"#gateway"* ]]; then
-            echo "SERVER_HOST=${{ secrets.GATEWAY_SERVER_HOST }}" >> $GITHUB_ENV
           else
             echo "SERVER_HOST=${{ secrets.DEFAULT_SERVER_HOST }}" >> $GITHUB_ENV
           fi
 
-      # 5. Set up JDK 17
+      # 6. Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 6. Setup Gradle
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
+      # 7. Set up Gradle
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v2
 
       # 7. Build with Gradle
       - name: Build with Gradle
@@ -112,7 +117,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: LOWERCASE_TAG
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:latest
             docker compose down
+            docker image prune -a
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:latest
             docker compose up -d
             
