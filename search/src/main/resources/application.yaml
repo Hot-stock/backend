@@ -24,13 +24,13 @@ spring:
 
 
 redis:
-  address: redis://${REDIS_PRIVATE_ADDRESS}:${REDIS_PORT}
+  address: redis://${REDIS_PUBLIC_ADDRESS}:${REDIS_PORT}
   password: ${REDIS_PASSWORD}
   database: ${REDIS_DATABASE}
 
 mongodb:
   database: keywords
-  uri: mongodb://changeme:changeme@localhost:27017
+  uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PUBLIC_ADDRESS}:${MONGO_PORT}
 
 logging:
   level:

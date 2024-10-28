@@ -28,7 +28,7 @@ redis:
 
 mongodb:
   database: keywords
-  uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PUBLIC_ADDRESS}:${MONGO_PORT}
+  uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PRIVATE_ADDRESS}:${MONGO_PORT}
 
 logging:
   level:
