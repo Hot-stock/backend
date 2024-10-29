@@ -19,10 +19,6 @@ RUN cp /app/build/libs/userservice-0.0.1-SNAPSHOT.jar /app/app.jar
 # Runtime Stage
 FROM --platform=linux/amd64 openjdk:17-jdk-slim AS runtime
 
-# AWS CLI 복사
-COPY --from=build /usr/local/aws-cli /usr/local/aws-cli
-ENV PATH="/usr/local/aws-cli/v2/current/bin:$PATH"
-
 # Pinpoint Agent와 애플리케이션 JAR 복사
 COPY --from=build /pinpoint-agent /pinpoint-agent
 COPY --from=build /app/app.jar /app/app.jar
