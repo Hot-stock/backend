@@ -1,10 +1,13 @@
 package com.bjcareer.userservice.domain;
 
+import java.io.UnsupportedEncodingException;
+
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,10 +44,12 @@ public class EmailMessageDomain {
 			mimeMessageHelper.setTo(toEmail);
 			mimeMessageHelper.setSubject("Verification code");
 			mimeMessageHelper.setText(htmlContent, true); // HTML 형식 설정
-			mimeMessageHelper.setFrom("noreply@next-stock.com");
+			mimeMessageHelper.setFrom(new InternetAddress("test@gmail.com", "Next Stock"));
 		} catch (MessagingException e) {
 			log.error("Error creating MIME message for recipient '{}': {}", toEmail, e.getMessage());
 			throw new RuntimeException("Failed to create MIME message", e);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
