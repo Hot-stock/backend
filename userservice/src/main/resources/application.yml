@@ -27,6 +27,9 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
 
+  thymeleaf:
+    prefix: classpath:/templates/
+
 secret:
   key: ${JWT_SECRET_KEY}
 
