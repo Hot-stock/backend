@@ -33,6 +33,7 @@ dependencies {
 
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:3.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
 
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

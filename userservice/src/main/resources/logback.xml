@@ -14,11 +14,11 @@
 
     <!-- 파일 저장 -->
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/logs/info</file>
+        <file>./logs/info</file>
         <!-- 로그 파일 롤링 설정 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 일별 로그 파일 롤링 -->
-            <fileNamePattern>/logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>./logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
@@ -36,9 +36,9 @@
 
     <!-- ERROR 로그 파일 저장 -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/logs/error</file>
+        <file>./logs/error</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/logs/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>./logs/error.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
