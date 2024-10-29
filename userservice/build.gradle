@@ -13,6 +13,13 @@ java {
 	}
 }
 
+jar {
+	from('src/main/resources') {
+		include '**/*'
+	}
+}
+
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
