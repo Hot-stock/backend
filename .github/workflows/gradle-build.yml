@@ -117,3 +117,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$LOWERCASE_TAG:latest
             docker compose up -d
             
+            
