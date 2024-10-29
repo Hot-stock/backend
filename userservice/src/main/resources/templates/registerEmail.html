@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>인증번호 안내</title>
+</head>
+<body>
+<div style="font-family: 'Apple SD Gothic Neo', 'sans-serif'; width: 540px; height: 600px; border-top: 4px solid #2A7AF3; margin: 100px auto; padding: 30px 0; box-sizing: border-box;">
+
+    <!-- 타이틀 -->
+    <h1 style="margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;">
+        <span style="color: #2A7AF3">인증번호</span> 안내입니다.
+    </h1>
+
+    <!-- 안내 문구 -->
+    <p style="font-size: 16px; line-height: 26px; margin-top: 20px; padding: 0 5px;">
+        안녕하세요. 요청하신 인증번호는 다음과 같습니다. <br>
+        <strong style="color: #2A7AF3;">5분</strong> 내로 입력해주세요.
+    </p>
+
+    <!-- 인증번호 표시 -->
+    <div style="text-align: center; margin: 30px 0;">
+        <p style="display: inline-block; font-size: 24px; font-weight: bold; color: #FFF; background: #2A7AF3; padding: 10px 20px; border-radius: 5px;" th:text="${verificationCode}">123456</p>
+    </div>
+
+    <!-- 링크 안내 문구 -->
+    <div style="border-top: 1px solid #DDD; padding: 20px 5px 0;">
+        <p style="font-size: 13px; line-height: 21px; color: #555;">
+            만약 위 인증번호가 보이지 않거나 클릭되지 않는다면, 아래 링크를 복사하여 접속해 주세요.<br/>
+            <strong>아무에게도 이 링크를 공유하지 마세요.</strong> 회원 정보가 유출될 수 있습니다.
+        </p>
+    </div>
+</div>
+</body>
+</html>
