@@ -16,15 +16,14 @@ import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.application.ports.out.SaveTokenPort;
 import com.bjcareer.userservice.application.ports.out.message.AuthCodeSentEvent;
 import com.bjcareer.userservice.domain.RandomCodeGenerator;
-import com.bjcareer.userservice.domain.Redis;
 import com.bjcareer.userservice.domain.entity.User;
 import com.bjcareer.userservice.out.persistance.repository.exceptions.UserAlreadyExistsException;
 
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Data
+@RequiredArgsConstructor
 @Slf4j
 public class RegisterService implements RegisterUsecase {
 	private final SaveTokenPort saveTokenPort;
@@ -33,7 +32,6 @@ public class RegisterService implements RegisterUsecase {
 	private final CreateUserPort createUserPort;
 
 	private final ApplicationEventPublisher eventPublisher;
-	private final Redis redisDomain;
 
 	public Long generateRandomTokenForAuthentication(String emailId) {
 		Long generate = RandomCodeGenerator.generate();
@@ -44,18 +42,18 @@ public class RegisterService implements RegisterUsecase {
 
 	public boolean verifyToken(String email, Long token) {
 		log.debug("verifyToken email: {}, token: {}", email, token);
-		Optional<TokenVO> tokebByemail = loadToken.loadVerificationTokenByEmail(email);
+		Optional<TokenVO> tokenByemail = loadToken.loadVerificationTokenByEmail(email);
 
-		if (tokebByemail.isEmpty()) {
+		if (tokenByemail.isEmpty()) {
 			log.error("Token not found");
 			return false;
 		}
-		log.debug("tokebByemail: {}", tokebByemail);
+		log.debug("tokenByemail: {}", tokenByemail);
 
-		TokenVO tokenVO = tokebByemail.get();
-		boolean is_same = token.equals(tokenVO.getToken());
+		TokenVO tokenVO = tokenByemail.get();
+		boolean isSame = token.equals(tokenVO.getToken());
 
-		if (is_same) {
+		if (isSame) {
 			log.info("Token verified");
 			saveTokenPort.saveVerifiedUser(tokenVO);
 			return true;
