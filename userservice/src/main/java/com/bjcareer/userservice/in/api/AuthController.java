@@ -2,6 +2,7 @@ package com.bjcareer.userservice.in.api;
 
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +43,7 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "파라미터 오류"),
         @ApiResponse(responseCode = "401", description = "로그인 실패")
     })
-    public ResponseEntity<?> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDTO> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
         LoginCommand command = new LoginCommand(request.getEmail(), request.getPassword());
         log.debug("Login request: {}", command.getEmail());
 
@@ -60,7 +61,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
         @ApiResponse(responseCode = "400", description = "로그아웃 실패")
     })
-    public ResponseEntity<?> Logout(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
+    public ResponseEntity<HttpStatus> Logout(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
         @CookieValue(CookieHelper.ACCESS_TOKEN) String accessToken, HttpServletResponse response) {
         LogoutCommand command = new LogoutCommand(sessionId, accessToken);
         Optional<JwtTokenVO> logout = logoutUsecase.logout(command);
@@ -78,7 +79,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "갱신 성공"),
         @ApiResponse(responseCode = "401", description = "갱신 실패로 모든 토큰 폐기")
     })
-    public ResponseEntity<?> refreshLogin(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
+    public ResponseEntity<LoginResponseDTO> refreshLogin(@CookieValue(CookieHelper.SESSION_ID) String sessionId,
         @CookieValue(CookieHelper.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
         log.debug("Refresh token request: {} {}", sessionId, refreshToken);
 
