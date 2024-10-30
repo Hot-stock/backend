@@ -25,6 +25,7 @@ import com.bjcareer.userservice.in.api.response.LoginResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +44,8 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "파라미터 오류"),
         @ApiResponse(responseCode = "401", description = "로그인 실패")
     })
-    public ResponseEntity<LoginResponseDTO> Login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDTO> Login(@RequestBody @Valid LoginRequestDTO request,
+        HttpServletResponse response) {
         LoginCommand command = new LoginCommand(request.getEmail(), request.getPassword());
         log.debug("Login request: {}", command.getEmail());
 

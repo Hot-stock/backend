@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.userservice.application.auth.aop.HasRole;
 import com.bjcareer.userservice.application.ports.in.RegisterRequestCommand;
 import com.bjcareer.userservice.application.ports.in.RegisterUsecase;
-import com.bjcareer.userservice.domain.entity.RoleType;
 import com.bjcareer.userservice.in.api.request.MobileAuthenticationVerifyRequestDTO;
 import com.bjcareer.userservice.in.api.request.RegisterRequestDTO;
 import com.bjcareer.userservice.in.api.request.VerifyEmailRequestDTO;
@@ -34,7 +32,7 @@ public class RegisterController {
     @Operation(summary = "이메일 인증 토큰 생성", description = "사용자가 입력한 이메일로 회원가입 인증을 위한 랜덤 토큰을 생성하고 전송합니다. 중복된 이메일이 있으면 에러를 반환합니다.", responses = {
         @ApiResponse(responseCode = "200", description = "토큰 생성 성공"),
     })
-    public ResponseEntity<HttpStatus> generateTokenForRegister(@Valid @RequestBody VerifyEmailRequestDTO request) {
+    public ResponseEntity<HttpStatus> generateTokenForRegister(@RequestBody @Valid VerifyEmailRequestDTO request) {
         log.debug("이메일 {}에 대한 인증 토큰 생성", request.getEmail());
         registerUsecase.generateRandomTokenForAuthentication(request.getEmail());
         return ResponseEntity.ok().build();  // 상태 코드를 명확하게 명시하여 응답을 전송
