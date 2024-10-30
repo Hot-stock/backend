@@ -5,18 +5,18 @@ spring:
     import: aws-secretsmanager:hotstock/api/keys
 
   datasource:
-    driver-class-name: org.postgresql.Driver
-    username: timo
-    password: timo
-    url: jdbc:postgresql://localhost:${RDB_PORT}/user_service
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
 
+  h2:
+    console:
+      enabled: true
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: create-drop
+    show-sql: true
 
   mail:
     host: smtp.gmail.com
