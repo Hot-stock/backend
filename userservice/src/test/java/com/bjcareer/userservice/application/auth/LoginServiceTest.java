@@ -12,7 +12,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.bjcareer.userservice.application.exceptions.UnauthorizedAccessAttemptException;
 import com.bjcareer.userservice.application.ports.in.LoginCommand;
 import com.bjcareer.userservice.application.ports.in.LoginUsecase;
-import com.bjcareer.userservice.application.ports.in.TokenUsecase;
 import com.bjcareer.userservice.application.ports.out.LoadUserPort;
 import com.bjcareer.userservice.application.ports.out.message.UserLoggedInRecorderEvent;
 import com.bjcareer.userservice.domain.entity.User;
@@ -20,15 +19,13 @@ import com.bjcareer.userservice.domain.entity.User;
 class LoginServiceTest {
 	LoginUsecase loginUsecase;
 	LoadUserPort loadUserPort;
-	TokenUsecase tokenUsecase;
 	ApplicationEventPublisher publisher;
 
 	@BeforeEach
 	void setUp() {
 		loadUserPort = mock(LoadUserPort.class);
-		tokenUsecase = mock(TokenUsecase.class);
 		publisher = mock(ApplicationEventPublisher.class);
-		loginUsecase = new LoginService(loadUserPort, tokenUsecase, publisher);
+		loginUsecase = new LoginService(loadUserPort, publisher);
 	}
 
 	@Test
@@ -59,7 +56,6 @@ class LoginServiceTest {
 
 		loginUsecase.login(command);
 
-		verify(tokenUsecase, times(1)).generateJWT(user);
 		verify(publisher).publishEvent(any(UserLoggedInRecorderEvent.class));
 	}
 }

@@ -25,15 +25,12 @@ public class UserLoggedInRecorderEventHandler {
 	@Transactional
 	public void handle(UserLoggedInRecorderEvent event) {
 		LocalDate localDate = LocalDate.now();
-		// 유저가 해당 날짜에 로그인 기록이 없을 때만 새로운 기록 추가
-		UserActive userActive1 = persistActiveUserPort.findUserByLocaleDate(event.getUser(), localDate)
+		persistActiveUserPort.findUserByLocaleDate(event.getUser(), localDate)
 			.orElseGet(() -> {
 				UserActive userActive = new UserActive(event.getUser());
+				log.info("오늘 최조로 접속한 유저입니다 {}", userActive);
 				persistActiveUserPort.persistActiveUser(userActive);
 				return userActive;
 			});
-
-		// 유저가 해당 날짜에 로그인 기록이 있을 때는 기존 기록 업데이트
-		log.debug("userActive1 = " + userActive1);
 	}
 }
