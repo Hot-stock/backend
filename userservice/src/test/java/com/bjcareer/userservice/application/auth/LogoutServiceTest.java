@@ -11,15 +11,18 @@ import org.junit.jupiter.api.Test;
 import com.bjcareer.userservice.application.auth.token.valueObject.JwtTokenVO;
 import com.bjcareer.userservice.application.ports.in.LogoutCommand;
 import com.bjcareer.userservice.application.ports.out.LoadTokenPort;
+import com.bjcareer.userservice.application.ports.out.RemoveTokenPort;
 
 class LogoutServiceTest {
 	LoadTokenPort loadTokenPort;
 	LogoutService logoutService;
+	RemoveTokenPort removeTokenPort;
 
 	@BeforeEach
 	void setUp() {
 		loadTokenPort = mock(LoadTokenPort.class);
-		logoutService = new LogoutService(loadTokenPort);
+		removeTokenPort = mock(RemoveTokenPort.class);
+		logoutService = new LogoutService(loadTokenPort, removeTokenPort);
 	}
 
 	@Test

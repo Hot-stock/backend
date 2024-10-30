@@ -1,6 +1,7 @@
 package com.bjcareer.userservice.application.message;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -18,22 +19,20 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserLoggedInRecorderEventHandler {
+	public static final String ASIA_SEOUL = "Asia/Seoul";
 	private final PersistActiveUserPort persistActiveUserPort;
 
 	@EventListener
 	@Async
 	@Transactional
 	public void handle(UserLoggedInRecorderEvent event) {
-		LocalDate localDate = LocalDate.now();
-		// 유저가 해당 날짜에 로그인 기록이 없을 때만 새로운 기록 추가
-		UserActive userActive1 = persistActiveUserPort.findUserByLocaleDate(event.getUser(), localDate)
+		LocalDate localDate = LocalDate.now(ZoneId.of(ASIA_SEOUL));;
+		persistActiveUserPort.findUserByLocaleDate(event.getUser(), localDate)
 			.orElseGet(() -> {
 				UserActive userActive = new UserActive(event.getUser());
+				log.info("오늘 최조로 접속한 유저입니다 {}", userActive);
 				persistActiveUserPort.persistActiveUser(userActive);
 				return userActive;
 			});
-
-		// 유저가 해당 날짜에 로그인 기록이 있을 때는 기존 기록 업데이트
-		log.debug("userActive1 = " + userActive1);
 	}
 }
