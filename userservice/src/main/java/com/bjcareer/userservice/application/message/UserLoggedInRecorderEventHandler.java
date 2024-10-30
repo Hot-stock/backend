@@ -1,6 +1,7 @@
 package com.bjcareer.userservice.application.message;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -18,13 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserLoggedInRecorderEventHandler {
+	public static final String ASIA_SEOUL = "Asia/Seoul";
 	private final PersistActiveUserPort persistActiveUserPort;
 
 	@EventListener
 	@Async
 	@Transactional
 	public void handle(UserLoggedInRecorderEvent event) {
-		LocalDate localDate = LocalDate.now();
+		LocalDate localDate = LocalDate.now(ZoneId.of(ASIA_SEOUL));;
 		persistActiveUserPort.findUserByLocaleDate(event.getUser(), localDate)
 			.orElseGet(() -> {
 				UserActive userActive = new UserActive(event.getUser());
