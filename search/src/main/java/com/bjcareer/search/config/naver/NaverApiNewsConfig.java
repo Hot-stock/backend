@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import com.bjcareer.search.out.api.naver.ApiNaverNews;
+import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
 
 @Configuration
 public class NaverApiNewsConfig {
@@ -16,7 +17,7 @@ public class NaverApiNewsConfig {
 	private String SECRET_KEY;
 
 	@Bean
-	public ApiNaverNews apiNaverNews(RestTemplate restTemplate) {
-		return new ApiNaverNews(CLIENT_ID, SECRET_KEY, restTemplate);
+	public ApiNaverNews apiNaverNews(RestTemplate restTemplate, PythonSearchServerAdapter pythonSearchServerAdapter) {
+		return new ApiNaverNews(CLIENT_ID, SECRET_KEY, restTemplate, pythonSearchServerAdapter);
 	}
 }

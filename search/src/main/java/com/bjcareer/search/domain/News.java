@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Optional;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -19,19 +18,15 @@ public class News {
 	private final String link;
 	private final String description;
 	private final LocalDate pubDate;
-	private Optional<String> content = Optional.empty();
+	private final String content;
 
-	public News(String title, String originalLink, String link, String description, String pubDate) {
+	public News(String title, String originalLink, String link, String description, String pubDate, String content) {
 		this.title = title;
 		this.originalLink = originalLink;
 		this.link = link;
 		this.description = description;
 		this.pubDate = changeLocalDate(pubDate);
-	}
-
-	public void setContent(String content) {
-		log.debug("뉴스 내용 : {}", content);
-		this.content = Optional.of(content);
+		this.content = content;
 	}
 
 	private LocalDate changeLocalDate(String pubDate) {

@@ -10,34 +10,53 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import com.bjcareer.search.domain.News;
+import com.bjcareer.search.out.api.dto.NewsItemDTO;
 import com.bjcareer.search.out.api.dto.NewsResponseDTO;
+import com.bjcareer.search.out.api.python.ParseNewsContentResponseDTO;
+import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ApiNaverNews {
 	private static final String API_URL = "https://openapi.naver.com/v1/search/news.json";
 	private final String clientId;
 	private final String clientSecret;
 	private final RestTemplate restTemplate;
-
-	public ApiNaverNews(String clientId, String clientSecret, RestTemplate restTemplate) {
-		this.clientId = clientId;
-		this.clientSecret = clientSecret;
-		this.restTemplate = restTemplate;
-	}
+	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 
 	// 뉴스 검색 API 호출
-	public List<News> fetchNews(String keyword) {
+	public List<News> fetchNews(NaverNewsQueryConfig config) {
 		List<News> result = new ArrayList<>();
-		HttpHeaders headers = createHeaders();
-		String url = API_URL + "?display=30&start=1&sort=sim&query=" + keyword;
-		NewsResponseDTO body = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers),
-			NewsResponseDTO.class).getBody();
-		body.getItems().forEach(item ->
-			result.add(new News(item.getTitle(), item.getOriginalLink(), item.getLink(), item.getDescription(),
-				item.getPubDate())));
+
+		NewsResponseDTO body = fetchNeverNewsAPI(config.buildUrl(API_URL));
+		changeDtoToDomain(body, result);
+
 		return result;
 	}
 
-	// 클라이언트 ID와 시크릿을 사용해 HttpHeaders 생성
+	private NewsResponseDTO fetchNeverNewsAPI(String url) {
+		HttpHeaders headers = createHeaders();
+		NewsResponseDTO body = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers),
+			NewsResponseDTO.class).getBody();
+		return body;
+	}
+
+	private void changeDtoToDomain(NewsResponseDTO body, List<News> result) {
+		for (NewsItemDTO itemDTO : body.getItems()) {
+			ParseNewsContentResponseDTO newsBody = pythonSearchServerAdapter.getNewsBody(itemDTO.getLink());
+			if (newsBody == null) {
+				continue;
+			}
+
+			News news = new News(itemDTO.getTitle(), itemDTO.getOriginalLink(), itemDTO.getLink(),
+				itemDTO.getDescription(),
+				itemDTO.getPubDate(), newsBody.getData());
+
+			result.add(news);
+		}
+	}
+
 	private HttpHeaders createHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("X-Naver-Client-Id", clientId);

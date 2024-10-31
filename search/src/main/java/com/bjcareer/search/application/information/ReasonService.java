@@ -18,6 +18,8 @@ import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.api.naver.ApiNaverNews;
+import com.bjcareer.search.out.api.naver.NaverNewsQueryConfig;
+import com.bjcareer.search.out.api.naver.NaverNewsSort;
 import com.bjcareer.search.out.persistence.repository.gpt.StockRaiseRepository;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
 import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
@@ -40,8 +42,8 @@ public class ReasonService implements ReasonUsecase {
 	@Transactional
 	public Map<LocalDate, GTPNewsDomain> findSearchRaiseReason(String stockName) {
 		Stock stock = validationStock(stockName);
-
-		List<News> news = apiNaverNews.fetchNews("특징주 " + stockName);
+		NaverNewsQueryConfig naverNewsQueryConfig = new NaverNewsQueryConfig(stockName, 100, NaverNewsSort.SIM);
+		List<News> news = apiNaverNews.fetchNews(naverNewsQueryConfig);
 		Map<LocalDate, GTPNewsDomain> map = extracteNewsByDate(stockName, news);
 
 		for (LocalDate date : map.keySet()) {
@@ -86,17 +88,11 @@ public class ReasonService implements ReasonUsecase {
 				continue;
 			}
 
-			Optional<String> content = news.getContent();
-
-			if (content.isPresent()) {
-				Optional<GTPNewsDomain> stockReason = port.findStockRaiseReason(content.get(), stockName, pubDate);
-				stockReason.ifPresent(gtpNewsDomain -> {
-					gtpNewsDomain.addNewsDomain(news);
-					dateMap.put(pubDate, gtpNewsDomain);
-				});
-			} else {
-				log.warn("content is empty");
-			}
+			Optional<GTPNewsDomain> stockReason = port.findStockRaiseReason(news.getContent(), stockName, pubDate);
+			stockReason.ifPresent(gtpNewsDomain -> {
+				gtpNewsDomain.addNewsDomain(news);
+				dateMap.put(pubDate, gtpNewsDomain);
+			});
 		}
 
 		return dateMap;
