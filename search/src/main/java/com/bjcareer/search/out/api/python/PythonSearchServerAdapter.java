@@ -1,6 +1,9 @@
 package com.bjcareer.search.out.api.python;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +39,23 @@ public class PythonSearchServerAdapter {
 
 		ParseNewsContentResponseDTO body = exchange.getBody();
 		return body;
+	}
+
+	public List<OhlcResponseDTO> getStockOHLC(OHLCQueryConfig config) {
+		String url = config.buildUrl(address + PythonServerURI.OHLC);
+
+		ResponseEntity<List<OhlcResponseDTO>> exchange = restTemplate.exchange(url, HttpMethod.GET, null,
+			new ParameterizedTypeReference<List<OhlcResponseDTO>>() {});
+
+		HttpStatusCode statusCode = exchange.getStatusCode();
+
+		if (!statusCode.is2xxSuccessful()) {
+			log.error("Failed to get news body from python server. Status code: {}", statusCode);
+			return null;
+		}
+
+		List<OhlcResponseDTO> body = exchange.getBody();
+		return body;
+
 	}
 }

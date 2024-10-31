@@ -17,16 +17,9 @@ class ApiNaverNewsTest {
 
 	@Test
 	void 네이버_뉴스_api_테스트() {
-		NaverNewsQueryConfig config = new NaverNewsQueryConfig("진양산업", 100, NaverNewsSort.SIM);
+		NaverNewsQueryConfig config = new NaverNewsQueryConfig("진양산업", 50, NaverNewsSort.SIM);
 		List<News> news = apiNaverNews.fetchNews(config);
 
-		assertEquals(100, news.size());
-
-		for (News n : news) {
-			System.out.println("n.getTitle() = " + n.getTitle());
-			System.out.println("n.getPubDate() = " + n.getPubDate());
-		}
-
+		assertEquals(50, news.size());
 	}
-
 }

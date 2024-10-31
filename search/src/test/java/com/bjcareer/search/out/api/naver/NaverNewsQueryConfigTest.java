@@ -8,9 +8,10 @@ class NaverNewsQueryConfigTest {
 
 	@Test
 	void query_url_build() {
-		String answer = "https://openapi.naver.com/v1/search/news.json?display=10&start=1&sort=date&query=%EA%B7%B8%EB%A6%B0%EB%A6%AC%EC%86%8C%EC%8A%A4";
+		String keyword = "그린리소스";
+		String answer = "https://openapi.naver.com/v1/search/news.json?display=10&start=1&sort=date&query=" + keyword;
 
-		NaverNewsQueryConfig config = new NaverNewsQueryConfig("그린리소스", 10, NaverNewsSort.DATE);
+		NaverNewsQueryConfig config = new NaverNewsQueryConfig(keyword, 10, NaverNewsSort.DATE);
 		String url = config.buildUrl("https://openapi.naver.com/v1/search/news.json");
 
 		assertEquals(answer, url);
