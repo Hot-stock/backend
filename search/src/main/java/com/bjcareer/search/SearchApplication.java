@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.bjcareer.search.config.infra.MongoDBConfig;
+
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

@@ -1,4 +1,4 @@
-package com.bjcareer.search;
+package com.bjcareer.search.config.infra;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

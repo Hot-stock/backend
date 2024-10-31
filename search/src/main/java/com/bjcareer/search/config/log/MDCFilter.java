@@ -1,4 +1,4 @@
-package com.bjcareer.search;
+package com.bjcareer.search.config.log;
 
 import java.io.IOException;
 import java.util.UUID;

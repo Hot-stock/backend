@@ -1,4 +1,4 @@
-package com.bjcareer.search;
+package com.bjcareer.search.config.log;
 
 import java.util.Map;
 
