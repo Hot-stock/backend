@@ -53,3 +53,6 @@ naver:
   client-new-secret: ${NAVER_NEWS_CLIENT_SECRET}
 GPT:
   api-key: ${GPT_API_KEY}
+
+python-search:
+  address: http://${PYTHON_SEARCH_PRIVATE_SERVER_ADDRESS}:${PYTHON_SEARCH_PORT}
