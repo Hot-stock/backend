@@ -2,10 +2,7 @@ spring:
   application:
     name: search
   config:
-    import:
-      aws-secretmanager:
-        name: /hotstock/api/keys
-        enabled: true
+    import: aws-secretsmanager:hotstock/api/keys
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -76,4 +73,4 @@ GPT:
   api-key: ${GPT_API_KEY}
 
 python-search:
-  address: http://${PYTHON_SEARCH_PUBLIC_SERVER_ADDRESS}:${PYTHON_SEARCH_PORT}
+  address: http://${PYTHON_PUBLIC_SEARCH_SERVER_ADDRESS}:${PYTHON_SEARCH_SERVER_PORT}
