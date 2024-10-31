@@ -14,7 +14,7 @@ public class GTPNewsDomain {
 	private final LocalDate next;
 	private final String nextReason;
 
-	private NewsDomain newsDomain;
+	private News news;
 
 	public GTPNewsDomain(String stockName, String reason, String thema, String next, String nextReason) {
 		this.stockName = stockName;
@@ -29,7 +29,7 @@ public class GTPNewsDomain {
 		}
 	}
 
-	public void addNewsDomain(NewsDomain newsDomain) {
-		this.newsDomain = newsDomain;
+	public void addNewsDomain(News news) {
+		this.news = news;
 	}
 }

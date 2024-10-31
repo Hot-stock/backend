@@ -12,7 +12,6 @@ import com.mongodb.client.MongoDatabase;
 import jakarta.annotation.PreDestroy;
 
 @Configuration
-@ConfigurationProperties(prefix = "mongodb")
 public class MongoDBConfig {
 
 	@Value("${mongodb.uri}")

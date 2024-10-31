@@ -20,7 +20,7 @@ public class QueryToFindRaiseReasonResponseDTO {
 		for (LocalDate date : contents.keySet()) {
 			GTPNewsDomain gtpNewsDomain = contents.get(date);
 			this.content.add(new Content(gtpNewsDomain.getStockName(), gtpNewsDomain.getReason(),
-				gtpNewsDomain.getThema(), gtpNewsDomain.getNext(), gtpNewsDomain.getNextReason(), gtpNewsDomain.getNewsDomain().getPubDate()));
+				gtpNewsDomain.getThema(), gtpNewsDomain.getNext(), gtpNewsDomain.getNextReason(), gtpNewsDomain.getNews().getPubDate()));
 		}
 
 		content.sort(Comparator.comparing(a -> a.pubDate));

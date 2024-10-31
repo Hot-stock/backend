@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.application.port.in.ReasonUsecase;
 import com.bjcareer.search.application.port.out.GPTAPIPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
-import com.bjcareer.search.domain.NewsDomain;
+import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
@@ -41,8 +41,8 @@ public class ReasonService implements ReasonUsecase {
 	public Map<LocalDate, GTPNewsDomain> findSearchRaiseReason(String stockName) {
 		Stock stock = validationStock(stockName);
 
-		List<NewsDomain> newsDomains = apiNaverNews.fetchNews("특징주 " + stockName);
-		Map<LocalDate, GTPNewsDomain> map = extracteNewsByDate(stockName, newsDomains);
+		List<News> news = apiNaverNews.fetchNews("특징주 " + stockName);
+		Map<LocalDate, GTPNewsDomain> map = extracteNewsByDate(stockName, news);
 
 		for (LocalDate date : map.keySet()) {
 			GTPNewsDomain gtpNewsDomain = map.get(date);
@@ -57,8 +57,8 @@ public class ReasonService implements ReasonUsecase {
 			}
 
 			StockRaiseReasonEntity stockRaiseReasonEntity = new StockRaiseReasonEntity(stock, optThemaInfo.get(),
-				gtpNewsDomain.getReason(), gtpNewsDomain.getNewsDomain().getLink(),
-				gtpNewsDomain.getNextReason(), gtpNewsDomain.getNext(), gtpNewsDomain.getNewsDomain().getPubDate());
+				gtpNewsDomain.getReason(), gtpNewsDomain.getNews().getLink(),
+				gtpNewsDomain.getNextReason(), gtpNewsDomain.getNext(), gtpNewsDomain.getNews().getPubDate());
 
 			stockRaiseRepository.save(stockRaiseReasonEntity);
 
@@ -76,10 +76,10 @@ public class ReasonService implements ReasonUsecase {
 		return map;
 	}
 
-	private Map<LocalDate, GTPNewsDomain> extracteNewsByDate(String stockName, List<NewsDomain> newsDomains) {
+	private Map<LocalDate, GTPNewsDomain> extracteNewsByDate(String stockName, List<News> newsDomains) {
 		Map<LocalDate, GTPNewsDomain> dateMap = new HashMap<>();
 
-		for (NewsDomain news : newsDomains) {
+		for (News news : newsDomains) {
 			LocalDate pubDate = news.getPubDate();
 
 			if (dateMap.containsKey(pubDate)) {

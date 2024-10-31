@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.search.domain.NewsDomain;
+import com.bjcareer.search.domain.News;
 
 @SpringBootTest
 class ApiNaverNewsTest {
@@ -18,9 +18,9 @@ class ApiNaverNewsTest {
 
 	@Test
 	void test() {
-		List<NewsDomain> result = apiNaverNews.fetchNews("그린리소스");
-		NewsDomain newsDomain = result.get(0);
-		Optional<String> content = newsDomain.getContent();
+		List<News> result = apiNaverNews.fetchNews("그린리소스");
+		News news = result.get(0);
+		Optional<String> content = news.getContent();
 		assertNotNull(content.get());
 	}
 

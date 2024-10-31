@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.domain.NewsDomain;
+import com.bjcareer.search.domain.News;
 import com.bjcareer.search.out.api.dto.NewsResponseDTO;
 
 public class ApiNaverNews {
@@ -25,14 +25,14 @@ public class ApiNaverNews {
 	}
 
 	// 뉴스 검색 API 호출
-	public List<NewsDomain> fetchNews(String keyword) {
-		List<NewsDomain> result = new ArrayList<>();
+	public List<News> fetchNews(String keyword) {
+		List<News> result = new ArrayList<>();
 		HttpHeaders headers = createHeaders();
 		String url = API_URL + "?display=30&start=1&sort=sim&query=" + keyword;
 		NewsResponseDTO body = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers),
 			NewsResponseDTO.class).getBody();
 		body.getItems().forEach(item ->
-			result.add(new NewsDomain(item.getTitle(), item.getOriginalLink(), item.getLink(), item.getDescription(),
+			result.add(new News(item.getTitle(), item.getOriginalLink(), item.getLink(), item.getDescription(),
 				item.getPubDate())));
 		return result;
 	}
