@@ -48,6 +48,10 @@ public class Stock {
 	@BatchSize(size = 10)
 	List<StockRaiseReasonEntity> raiseReasons = new ArrayList<>();
 
+	@OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@BatchSize(size = 100)
+	List<OHLC> ohlcList = new ArrayList<>();
+
 	public Stock(String code, String name, Market market, String href, Long issuedShares, Long price) {
 		this.code = code;
 		this.name = name;
