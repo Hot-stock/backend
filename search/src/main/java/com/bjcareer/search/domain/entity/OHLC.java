@@ -9,9 +9,10 @@ import com.bjcareer.search.domain.News;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +25,7 @@ import lombok.ToString;
 @ToString
 public class OHLC {
 	@Id
+	@GeneratedValue
 	private Long id;
 
 	private int open;
@@ -34,13 +36,14 @@ public class OHLC {
 	private int percentageIncrease;
 
 	@ManyToOne
+	@JoinColumn(name = "stock_chart_id")
 	private StockChart chart;
 
-	@JdbcTypeCode(SqlTypes.JSON)
-	private JsonNode news;
-
-	@Column(unique = true)
 	private LocalDate date;
+
+	@JdbcTypeCode(SqlTypes.JSON)
+	private JsonNode news = null;
+
 
 	public OHLC(int open, int high, int low, int close, LocalDate date) {
 		this.open = open;
@@ -59,5 +62,9 @@ public class OHLC {
 	public void addRoseNews(News news) {
 		ObjectMapper mapper = new ObjectMapper();
 		this.news = mapper.convertValue(news, JsonNode.class);
+	}
+
+	public void addChart(StockChart chart) {
+		this.chart = chart;
 	}
 }

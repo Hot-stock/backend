@@ -1,42 +1,63 @@
 package com.bjcareer.search.domain.entity;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import org.hibernate.annotations.BatchSize;
 
+import com.bjcareer.search.domain.News;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
+@Getter
 public class StockChart {
 	@Id
 	@GeneratedValue
+	@Column(name = "stock_chart_id")
 	private Long id;
 
-	@OneToMany
-	@BatchSize(size = 100)
-	List<OHLC> ohlcList = new ArrayList<>();
+	@OneToOne
+	@JoinColumn(name = "stock_id", unique = true) // 외래 키 매핑
+	private Stock stock;
 
-	public StockChart(List<OHLC> ohlcList) {
-		this.ohlcList = ohlcList;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "chart", cascade = CascadeType.ALL)
+	@BatchSize(size = 100)
+	private List<OHLC> ohlcList = new ArrayList<>();
+
+	public StockChart(Stock stock, List<OHLC> ohlcList) {
+		this.stock = stock;
+		addOHLC(ohlcList);
 	}
 
-	public List<OHLC> getOHLCsAboveThreshold(int threshold) {
-		List<OHLC> target = new ArrayList<>();
+	public void mapNewsToOHLC(News news) {
+		ohlcList.stream()
+			.filter(ohlc -> ohlc.getDate() == news.getPubDate())
+			.findFirst()
+			.ifPresent(ohlc -> ohlc.addRoseNews(news));
+	}
 
-		for (OHLC ohlc : ohlcList) {
-			if (ohlc.getPercentageIncrease() >= threshold) {
-				target.add(ohlc);
-			}
-		}
+	public List<OHLC> getIncreaseReason() {
+		return ohlcList.stream().filter(ohlc -> ohlc.getNews() != null).toList();
+	}
 
-		target.sort(Comparator.comparing(OHLC::getDate));
-		return target;
+	public void addOHLC(List<OHLC> ohlcs) {
+		ohlcs.stream().forEach(ohlc -> ohlc.addChart(this));
+		this.ohlcList.addAll(ohlcs);
+	}
+
+	public void setStock(Stock stock) {
+		this.stock = stock;
 	}
 }

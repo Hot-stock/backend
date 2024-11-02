@@ -12,11 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 import com.bjcareer.search.application.stock.StockService;
 import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
-import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 
 @ExtendWith(MockitoExtension.class)
 class StockServiceTest {
@@ -27,9 +26,6 @@ class StockServiceTest {
 
 	@Mock
 	private StockRepository stockRepository;
-
-	@Mock
-	private CrawlingNaverFinance crawlingNaverFinance;
 
 	@InjectMocks
 	private StockService stockService;
@@ -46,7 +42,6 @@ class StockServiceTest {
 		String wrongCode = "00000";
 
 		when(stockRepository.findByCode(wrongCode)).thenReturn(Optional.empty());
-		when(crawlingNaverFinance.getStock(wrongCode, STOCK_NAME)).thenReturn(stock);
 		// Then
 		assertThrows(InvalidStockInformation.class, () -> stockService.addStockThema(wrongCode, STOCK_NAME, THEMA));
 	}
