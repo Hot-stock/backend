@@ -12,7 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CrawlingNaverFinance {
 	private static final String BASE_URL = "https://finance.naver.com";
 	private static final String THEME_URL = BASE_URL + "/sise/theme.naver?page=";
-	private static final String STOCK_DETAIL_URL = BASE_URL + "/item/main.naver?code=";
 
 	private Map<String, Stock> stocks = new HashMap<>();
 	private Map<String, ThemaInfo> themaInfos = new HashMap<>();
@@ -54,22 +52,6 @@ public class CrawlingNaverFinance {
 				Thema thema = new Thema(stocks.get(stock.getCode()), themaInfos.get(themaInfo.getName()));
 				themas.putIfAbsent(thema.getKey(), thema); // 중복 방지
 			}
-		}
-	}
-
-	public Stock getStock(String stockCode, String stockName) {
-		try {
-			Document page = getDocument(STOCK_DETAIL_URL + stockCode);
-			Market marketType = getMarketType(page);
-
-			Long issuedShares = getLongValue(page, NaverFinanceCssQuery.GET_SHARED_STOCK);
-			Long currentPrice = getLongValue(page, NaverFinanceCssQuery.GET_PRICE);
-
-			return new Stock(stockCode, stockName, marketType, STOCK_DETAIL_URL + stockCode, issuedShares,
-				currentPrice);
-		} catch (NullPointerException | NumberFormatException e) {
-			log.error("Error while extracting stock information: {}", e.getMessage());
-			return new Stock(stockCode, stockName, null, null, null, null);
 		}
 	}
 
@@ -103,16 +85,13 @@ public class CrawlingNaverFinance {
 					if (cacheAble) {
 						continue;
 					}
-					
-					cache.put(stockCode, true);
-					Stock stock = getStock(stockCode, stockName);
 
-					if (stock.validStock()) {
-						stocks.add(stock);
-					}
+					cache.put(stockCode, true);
+					stocks.add(new Stock(stockCode, stockName));
 				}
 			}
 		}
+
 		return stocks;
 	}
 
@@ -121,33 +100,6 @@ public class CrawlingNaverFinance {
 		String divideTarget = "code=";
 		String[] stockCodeArray = stockLink.split(divideTarget);
 		return stockCodeArray.length > 1 ? stockCodeArray[1] : null;
-	}
-
-	// 시장 구분(KOSPI, KOSDAQ) 가져오는 메서드
-	private Market getMarketType(Document stockPage) {
-		// 네이버 금융의 새로운 구조에 맞는 선택자 확인
-		Element marketElement = stockPage.selectFirst(NaverFinanceCssQuery.GET_MARKET_TYPE);
-
-		if (marketElement != null) {
-			String marketImgAlt = marketElement.attr("alt");
-			if (marketImgAlt.contains("코스피"))
-				return Market.KOSPI;
-			else if (marketImgAlt.contains("코스닥"))
-				return Market.KOSDAQ;
-		}
-		return null;
-	}
-
-	// Long 타입 값을 추출하는 메서드
-	private Long getLongValue(Document document, String cssQuery) {
-		Element element = document.selectFirst(cssQuery);
-
-		try {
-			return Long.parseLong(element.text().replace(",", ""));
-		} catch (NumberFormatException e) {
-			log.error("Error parsing long value for query '{}': {}", cssQuery, e.getMessage());
-			throw e;
-		}
 	}
 
 	// HTML 요소 리스트를 가져오는 공통 메서드

@@ -98,7 +98,6 @@ public class ScheduleCrawlingService {
 	private void saveAllEntities(Map<String, Stock> stocks, Map<String, ThemaInfo> themaInfos,
 		Map<String, Thema> themas) {
 		try {
-			stockRepository.saveAll(new ArrayList<>(stocks.values()));
 			themaInfoRepository.saveAll(new ArrayList<>(themaInfos.values()));
 			themaRepository.saveAll(new ArrayList<>(themas.values()));
 			log.info("Entities saved successfully");
