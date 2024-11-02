@@ -2,7 +2,6 @@ package com.bjcareer.search.schedule;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -10,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.application.port.out.QueryStockServerPort;
@@ -30,7 +30,7 @@ public class ScheduleOhlcService {
 	private final QueryStockServerPort apiServerPort;
 	private final StockRepository stockRepository;
 
-	// @Scheduled(fixedDelay = 10000)
+	@Scheduled(fixedDelay = 100000)
 	public void saveStockInfoAndChartData() {
 		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);
 		log.info("Stocks loaded: {}", stocks.size());
@@ -67,7 +67,13 @@ public class ScheduleOhlcService {
 		renewStocks.addAll(apiServerPort.loadStockInfo(Market.KOSPI));
 
 		for (Stock stock : renewStocks) {
-			stocks.put(stock.getCode(), stock);
+			Stock pastStock = stocks.get(stock.getCode());
+
+			if (pastStock != null) {
+				pastStock.updateStockInfo(stock);
+			} else {
+				stocks.put(stock.getCode(), stock);
+			}
 		}
 	}
 

@@ -6,10 +6,8 @@ import java.time.ZoneId;
 import com.bjcareer.search.domain.entity.Stock;
 
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
-@ToString
 public class StockChartQueryConfig {
 	private final Stock stock;
 	private final String startDay;
@@ -32,4 +30,13 @@ public class StockChartQueryConfig {
 		return String.format("%s?code=%s&'startDay'=%s&'endDay'=%s", baseUrl, stock.getCode(), startDay, endDay);
 	}
 
+	@Override
+	public String toString() {
+		return "StockChartQueryConfig{" +
+			"stock=" + stock.getName() +
+			", startDay='" + startDay + '\'' +
+			", endDay='" + endDay + '\'' +
+			", seoul=" + seoul +
+			'}';
+	}
 }
