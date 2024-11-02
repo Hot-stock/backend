@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.search.domain.entity.Market;
+import com.bjcareer.search.domain.entity.Stock;
+import com.bjcareer.search.domain.entity.StockChart;
+
 @SpringBootTest
 class PythonSearchServerAdapterTest {
 
@@ -16,9 +20,18 @@ class PythonSearchServerAdapterTest {
 
 	@Test
 	void ohlc_요청_테스트() {
-		OHLCQueryConfig config = new OHLCQueryConfig("003780", true);
-		List<OhlcResponseDTO> stockOHLC = pythonSearchServerAdapter.getStockOHLC(config);
+		Stock stock = new Stock("003780", "NAVER");
+		StockChartQueryConfig config = new StockChartQueryConfig(stock, true);
+		StockChart stockChart = pythonSearchServerAdapter.loadStockChart(config);
 
-		System.out.println("stockOHLC = " + stockOHLC);
+		assertNotNull(stockChart);
+		assertEquals(stock.getCode(), stockChart.getStock().getCode());
+		assertNotNull(stockChart.getOhlcList());
+	}
+
+	@Test
+	void makrket_정보_요청_테스트(){
+		List<Stock> stocks = pythonSearchServerAdapter.loadStockInfo(Market.KOSDAQ);
+		assertNotNull(stocks);
 	}
 }

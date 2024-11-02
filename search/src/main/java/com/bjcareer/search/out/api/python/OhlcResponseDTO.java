@@ -11,7 +11,7 @@ public class OhlcResponseDTO {
 	private int high;
 	private int low;
 	private int close;
-	private int volume;
+	private Long volume;
 }
 
 

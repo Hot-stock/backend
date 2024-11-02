@@ -10,14 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.bjcareer.search.application.port.out.QueryStockServerPort;
+import com.bjcareer.search.domain.entity.Market;
+import com.bjcareer.search.domain.entity.OHLC;
+import com.bjcareer.search.domain.entity.Stock;
+import com.bjcareer.search.domain.entity.StockChart;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class PythonSearchServerAdapter {
-
+public class PythonSearchServerAdapter implements QueryStockServerPort {
 	@Value("${python-search.address}")
 	private String address;
 
@@ -41,7 +46,8 @@ public class PythonSearchServerAdapter {
 		return body;
 	}
 
-	public List<OhlcResponseDTO> getStockOHLC(OHLCQueryConfig config) {
+	@Override
+	public StockChart loadStockChart(StockChartQueryConfig config) {
 		String url = config.buildUrl(address + PythonServerURI.OHLC);
 
 		ResponseEntity<List<OhlcResponseDTO>> exchange = restTemplate.exchange(url, HttpMethod.GET, null,
@@ -54,8 +60,42 @@ public class PythonSearchServerAdapter {
 			return null;
 		}
 
-		List<OhlcResponseDTO> body = exchange.getBody();
-		return body;
+		List<OhlcResponseDTO> res = exchange.getBody();
 
+		List<OHLC> ohlcs = res.stream().map(body -> {
+			return new OHLC(body.getOpen(), body.getHigh(), body.getLow(), body.getClose(), body.getDate());
+		}).toList();
+
+		return new StockChart(config.getStock(), ohlcs);
+	}
+
+	@Override
+	public List<Stock> loadStockInfo(Market market) {
+		String href = "https://finance.naver.com/item/main.naver?code=";
+		String url = address + PythonServerURI.MARKET + "?q=" + market.name();
+
+		log.info("url: {}", url);
+
+		ResponseEntity<List<MarketResponseDTO>> exchange = restTemplate.exchange(url, HttpMethod.GET, null,
+			new ParameterizedTypeReference<List<MarketResponseDTO>>() {
+			});
+
+		HttpStatusCode statusCode = exchange.getStatusCode();
+
+		if (!statusCode.is2xxSuccessful()) {
+			log.error("Failed to get news body from python server. Status code: {}", statusCode);
+			return null;
+		}
+
+		List<MarketResponseDTO> res = exchange.getBody();
+		return res.stream().map(body -> {
+			return new Stock(body.getSymbol(), body.getName(), Market.fromString(body.getMarket()),
+				href + body.getSymbol(), getIssuedShares(body)
+				, body.getPrice());
+		}).toList();
+	}
+
+	private int getIssuedShares(MarketResponseDTO body) {
+		return (int)(body.getCap() / body.getPrice());
 	}
 }
