@@ -5,6 +5,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +30,9 @@ public class News {
 		this.pubDate = changeLocalDate(pubDate);
 		this.content = content;
 	}
-
 	private LocalDate changeLocalDate(String pubDate) {
 		// 날짜 형식에 맞는 DateTimeFormatter 생성
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV", Locale.ENGLISH);
 
 		// ZonedDateTime으로 파싱 (타임존 정보 포함)
 		ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDate, formatter);

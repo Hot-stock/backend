@@ -11,15 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.in.ReasonUsecase;
 import com.bjcareer.search.application.port.out.GPTAPIPort;
+import com.bjcareer.search.application.port.out.LoadNewsPort;
+import com.bjcareer.search.application.port.out.NewsCommand;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.out.api.naver.ApiNaverNews;
-import com.bjcareer.search.out.api.naver.NaverNewsQueryConfig;
-import com.bjcareer.search.out.api.naver.NaverNewsSort;
 import com.bjcareer.search.out.persistence.repository.gpt.StockRaiseRepository;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
 import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
@@ -32,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class ReasonService implements ReasonUsecase {
-	private final ApiNaverNews apiNaverNews;
+	private final LoadNewsPort loadNewsPort;
 	private final StockRepository stockRepository;
 	private final ThemaRepository themaRepository;
 	private final ThemaInfoRepository themaInfoRepository;
@@ -42,8 +41,9 @@ public class ReasonService implements ReasonUsecase {
 	@Transactional
 	public Map<LocalDate, GTPNewsDomain> findSearchRaiseReason(String stockName) {
 		Stock stock = validationStock(stockName);
-		NaverNewsQueryConfig naverNewsQueryConfig = new NaverNewsQueryConfig(stockName, 100, NaverNewsSort.SIM);
-		List<News> news = apiNaverNews.fetchNews(naverNewsQueryConfig);
+		NewsCommand newsCommand = new NewsCommand(stockName, LocalDate.now().minusDays(1),
+			LocalDate.now());
+		List<News> news = loadNewsPort.fetchNews(newsCommand);
 		Map<LocalDate, GTPNewsDomain> map = extracteNewsByDate(stockName, news);
 
 		for (LocalDate date : map.keySet()) {

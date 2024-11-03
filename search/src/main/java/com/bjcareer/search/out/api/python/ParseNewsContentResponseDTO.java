@@ -1,8 +1,26 @@
 package com.bjcareer.search.out.api.python;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
-@Getter
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class ParseNewsContentResponseDTO {
-	private String data;
+	@JsonAlias("publish_date")
+	private String publishDate;
+	private String text;
+
+	public String getPublishDate() {
+		if (publishDate == null) {
+			return "";
+		}
+		return publishDate;
+	}
+
+	public String getText() {
+		if (text == null) {
+			return "";
+		}
+		return text;
+	}
 }
