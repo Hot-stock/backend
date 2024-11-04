@@ -17,7 +17,7 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
 import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
 import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ScheduleCrawlingService {
 
 	private final MeterRegistry meterRegistry;
-	private final StockRepository stockRepository;
+	private final StockRepositoryAdapter stockRepository;
 	private final ThemaInfoRepository themaInfoRepository;
 	private final ThemaRepository themaRepository;
 
@@ -98,7 +98,6 @@ public class ScheduleCrawlingService {
 	private void saveAllEntities(Map<String, Stock> stocks, Map<String, ThemaInfo> themaInfos,
 		Map<String, Thema> themas) {
 		try {
-			stockRepository.saveAll(new ArrayList<>(stocks.values()));
 			themaInfoRepository.saveAll(new ArrayList<>(themaInfos.values()));
 			themaRepository.saveAll(new ArrayList<>(themas.values()));
 			log.info("Entities saved successfully");

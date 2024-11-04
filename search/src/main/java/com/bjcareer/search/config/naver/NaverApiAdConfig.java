@@ -1,4 +1,4 @@
-package com.bjcareer.search;
+package com.bjcareer.search.config.naver;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

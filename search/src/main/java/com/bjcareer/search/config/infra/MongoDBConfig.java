@@ -1,4 +1,4 @@
-package com.bjcareer.search;
+package com.bjcareer.search.config.infra;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,7 +12,6 @@ import com.mongodb.client.MongoDatabase;
 import jakarta.annotation.PreDestroy;
 
 @Configuration
-@ConfigurationProperties(prefix = "mongodb")
 public class MongoDBConfig {
 
 	@Value("${mongodb.uri}")
