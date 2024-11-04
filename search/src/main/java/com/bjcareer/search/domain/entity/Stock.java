@@ -51,7 +51,7 @@ public class Stock {
 	private StockChart stockChart;
 
 	@OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@BatchSize(size = 10)
+	@BatchSize(size = 100)
 	private List<Thema> themas = new ArrayList<>();
 
 	@OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -96,24 +96,10 @@ public class Stock {
 		this.stockChart.setStock(this);
 	}
 
-	public List<News> getNews() {
-		ObjectMapper mapper = new ObjectMapper();
-
-		List<OHLC> increaseReason = stockChart.getIncreaseReason();
-		List<News> news = new ArrayList<>();
-
-		for (OHLC ohlc : increaseReason) {
-			try {
-				news.add(mapper.treeToValue(ohlc.getNews(), News.class));
-			} catch (JsonProcessingException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return news;
-	}
-
-	public boolean validStock() {
-		return issuedShares != 0 && price != 0;
+	public void updateStockInfo(Stock stock) {
+		this.name = stock.getName();
+		this.issuedShares = stock.getIssuedShares();
+		this.price = stock.getPrice();
+		this.marketCapitalization = stock.getMarketCapitalization();
 	}
 }
