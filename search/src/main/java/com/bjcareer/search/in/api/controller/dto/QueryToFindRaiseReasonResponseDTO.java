@@ -20,7 +20,8 @@ public class QueryToFindRaiseReasonResponseDTO {
 		for (LocalDate date : contents.keySet()) {
 			GTPNewsDomain gtpNewsDomain = contents.get(date);
 			this.content.add(new Content(gtpNewsDomain.getStockName(), gtpNewsDomain.getReason(),
-				gtpNewsDomain.getThema(), gtpNewsDomain.getNext(), gtpNewsDomain.getNextReason(), gtpNewsDomain.getNews().getPubDate()));
+				gtpNewsDomain.getThema(), gtpNewsDomain.getNext(), gtpNewsDomain.getNextReason(),
+				gtpNewsDomain.getNews().getPubDate(), gtpNewsDomain.getNews().getLink()));
 		}
 
 		content.sort(Comparator.comparing(a -> a.pubDate));
@@ -35,14 +36,17 @@ public class QueryToFindRaiseReasonResponseDTO {
 		private LocalDate next;
 		private String nextReason;
 		private LocalDate pubDate;
+		private String link;
 
-		public Content(String stockName, String reason, String thema, LocalDate next, String nextReason, LocalDate pubDate) {
+		public Content(String stockName, String reason, String thema, LocalDate next, String nextReason,
+			LocalDate pubDate, String link) {
 			this.stockName = stockName;
 			this.reason = reason;
 			this.thema = thema;
 			this.next = next;
 			this.nextReason = nextReason;
 			this.pubDate = pubDate;
+			this.link = link;
 		}
 	}
 }

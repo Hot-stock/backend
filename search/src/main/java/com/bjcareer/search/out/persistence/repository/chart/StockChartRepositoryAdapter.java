@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.bjcareer.search.application.port.out.LoadChartAboveThresholdCommand;
-import com.bjcareer.search.application.port.out.LoadChartSpecificDateCommand;
-import com.bjcareer.search.application.port.out.StockChartRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
+import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
+import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;

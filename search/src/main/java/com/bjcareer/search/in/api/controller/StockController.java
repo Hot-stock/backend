@@ -2,6 +2,7 @@ package com.bjcareer.search.in.api.controller;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bjcareer.search.application.port.in.NewsServiceUsecase;
+import com.bjcareer.search.application.stock.StockService;
+import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionResponseDTO;
-import com.bjcareer.search.domain.GTPNewsDomain;
-import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.application.information.NewsServiceService;
-import com.bjcareer.search.application.stock.StockService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StockController {
 	private final StockService stockService;
-	private final NewsServiceService gptService;
+	private final NewsServiceUsecase newsServiceUsecase;
 
 	@PostMapping
 	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")
@@ -49,12 +50,31 @@ public class StockController {
 
 	@GetMapping("/next-schedule")
 	@Operation(summary = "이 주식은 오를 수 있을까?", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
-	public ResponseEntity<QueryToFindRaiseReasonResponseDTO>searchStockRaiseReason(@RequestParam(name = "q") String stockName) {
+	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> searchNextSchedule(
+		@RequestParam(name = "q") String stockName) {
 		log.debug("request: {}", stockName);
 
-		Map<LocalDate, GTPNewsDomain> reason = gptService.findSearchRaiseReason(stockName);
+		Map<LocalDate, GTPNewsDomain> reason = newsServiceUsecase.finNextSchedule(stockName);
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
 			reason);
+
+		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+	}
+
+	@GetMapping("/reason")
+	@Operation(summary = "주식이 해당 일자의 뉴스의 상승 이유를 찾아서 보여줌", description = "name: 주식 이름, date: 날짜(yyyy-MM-dd)")
+	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> searchStockRaiseReason(
+		@RequestParam(name = "name") String stockName, @RequestParam(name = "date") LocalDate date) {
+		log.debug("request: {} {} ", stockName, date);
+
+		Optional<GTPNewsDomain> raiseReasonThadDate = newsServiceUsecase.findRaiseReasonThadDate(stockName, date);
+
+		if(raiseReasonThadDate.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
+			Map.of(date, raiseReasonThadDate.get()));
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}

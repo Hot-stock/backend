@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.port.out.GPTAPIPort;
-import com.bjcareer.search.application.port.out.LoadChartSpecificDateCommand;
+import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.LoadNewsPort;
 import com.bjcareer.search.application.port.out.NewsCommand;
-import com.bjcareer.search.application.port.out.StockChartRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
@@ -68,8 +68,6 @@ public class NewsServiceService implements NewsServiceUsecase {
 			log.info("News found for {} {} {}", stockName, gtpNewsDomain.getReason(),
 				gtpNewsDomain.getNews().getLink());
 			chart.addNewsToOhlc(gtpNewsDomain, date);
-
-			//링크해주는거 필요함
 		} else {
 			log.warn("No news found for {} {}", stockName, date);
 		}
