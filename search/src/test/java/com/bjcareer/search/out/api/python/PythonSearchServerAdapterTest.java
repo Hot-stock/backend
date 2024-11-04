@@ -23,13 +23,18 @@ class PythonSearchServerAdapterTest {
 
 	@Test
 	void ohlc_요청_테스트() {
-		Stock stock = new Stock("003780", "NAVER");
+		Stock stock = new Stock("017370", "우신시스템");
 		StockChartQueryConfig config = new StockChartQueryConfig(stock, true);
 		StockChart stockChart = pythonSearchServerAdapter.loadStockChart(config);
 
 		assertNotNull(stockChart);
 		assertEquals(stock.getCode(), stockChart.getStock().getCode());
-		assertNotNull(stockChart.getOhlcList());
+
+		for (int i = 0; i < stockChart.getOhlcList().size(); i++) {
+			if (stockChart.getOhlcList().get(i).getDate().equals(LocalDate.of(2020, 9, 2))) {
+				System.out.println("stockChart = " + stockChart.getOhlcList().get(i).getPercentageIncrease());
+			}
+		}
 	}
 
 	@Test

@@ -22,7 +22,7 @@ public class StockSpringBootTest {
 
 		//과거 차트
 		StockChart stockChart = new StockChart();
-		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, LocalDate.of(2021, 1, 1));
+		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.of(2021, 1, 1));
 		stockChart.addOHLC(List.of(ohlc));
 
 		stock.mergeStockChart(stockChart);

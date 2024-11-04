@@ -57,7 +57,7 @@ public class PythonSearchServerAdapter implements QueryStockServerPort, LoadNews
 		return fetchFromServer(url, HttpMethod.GET, new ParameterizedTypeReference<List<OhlcResponseDTO>>() {
 		})
 			.map(response -> response.stream()
-				.map(dto -> new OHLC(dto.getOpen(), dto.getHigh(), dto.getLow(), dto.getClose(), dto.getDate()))
+				.map(dto -> new OHLC(dto.getOpen(), dto.getHigh(), dto.getLow(), dto.getClose(), dto.getPercentageIncrease(), dto.getDate()))
 				.collect(Collectors.toList()))
 			.map(ohlcs -> new StockChart(config.getStock(), ohlcs)).get();
 	}
