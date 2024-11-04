@@ -1,12 +1,13 @@
 package com.bjcareer.search.out.persistence.repository.chart;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.search.application.port.out.LoadChartAboveThresholdCommand;
+import com.bjcareer.search.application.port.out.LoadChartSpecificDateCommand;
+import com.bjcareer.search.application.port.out.StockChartRepositoryPort;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
@@ -18,46 +19,46 @@ import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j
-public class StockChartRepositoryAdapter {
+public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	@PersistenceContext
 	private EntityManager em;
 
-	@Transactional(readOnly = true)
-	public StockChart findOhlcAboveThreshold(String code, int threshold) {
-		Stock stock = em.createQuery(StockChartQuery.FIND_STOCK_BY_CODE, Stock.class)
-			.setParameter("code", code)
-			.getSingleResult();
-
-		List<OHLC> resultList = em.createQuery(StockChartQuery.FIND_OHLC_ABOVE_THRESHOLD, OHLC.class)
-			.setParameter("code", code)
-			.setParameter("threshold", threshold)
-			.getResultList();
-
-		return new StockChart(stock, resultList);
-	}
-
-	@Transactional(readOnly = true)
-	public StockChart findChartByDate(String stockName, LocalDate date) {
+	@Override
+	public StockChart findChartByDate(LoadChartSpecificDateCommand command) {
 		try {
 			OHLC ohlc = em.createQuery(StockChartQuery.FIND_CHART_BY_DATE, OHLC.class)
-				.setParameter("stockName", stockName)
-				.setParameter("date", date)
+				.setParameter("stockName", command.getStockName())
+				.setParameter("date", command.getDate())
 				.getSingleResult();
 
 			return new StockChart(ohlc.getChart().getStock(), new ArrayList<>(List.of(ohlc)));
 		} catch (NoResultException e) {
-			log.warn("No findChartByDate found for {} {}", stockName, date);
+			log.warn("No findChartByDate found for {} {}", command.getDate(), command.getStockName());
 		}
 
 		return new StockChart();
 	}
 
-	@Transactional
+	@Override
+	public StockChart findOhlcAboveThreshold(LoadChartAboveThresholdCommand command) {
+		Stock stock = em.createQuery(StockChartQuery.FIND_STOCK_BY_CODE, Stock.class)
+			.setParameter("code", command.getCode())
+			.getSingleResult();
+
+		List<OHLC> resultList = em.createQuery(StockChartQuery.FIND_OHLC_ABOVE_THRESHOLD, OHLC.class)
+			.setParameter("code", command.getCode())
+			.setParameter("threshold", command.getThreshold())
+			.getResultList();
+
+		return new StockChart(stock, resultList);
+	}
+
+	@Override
 	public void updateStockChartOfOHLC(StockChart stockChart) {
 		stockChart.getOhlcList().forEach(em::persist);
 	}
 
-	@Transactional
+	@Override
 	public void save(StockChart stockChart) {
 		em.persist(stockChart);
 	}

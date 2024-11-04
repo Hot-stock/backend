@@ -17,7 +17,7 @@ import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionResponseDTO;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.application.information.ReasonService;
+import com.bjcareer.search.application.information.NewsServiceService;
 import com.bjcareer.search.application.stock.StockService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StockController {
 	private final StockService stockService;
-	private final ReasonService gptService;
+	private final NewsServiceService gptService;
 
 	@PostMapping
 	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")
