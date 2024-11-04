@@ -18,7 +18,7 @@ import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.out.api.python.StockChartQueryConfig;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ScheduleOhlcService {
 	private final QueryStockServerPort apiServerPort;
-	private final StockRepository stockRepository;
+	private final StockRepositoryAdapter stockRepository;
 
-	@Scheduled(fixedDelay = 100000)
+	@Scheduled(cron = "40 4 * * * *")
 	public void saveStockInfoAndChartData() {
 		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);
 		log.info("Stocks loaded: {}", stocks.size());
@@ -56,7 +56,7 @@ public class ScheduleOhlcService {
 			log.error("Error occurred while processing stocks in parallel", e);
 		}
 
-		stockRepository.saveAll(stocks.values());
+		stockRepository.saveALl(stocks.values());
 		log.info("All Stocks was renewed: {}", stocks.size());
 	}
 
