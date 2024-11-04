@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.bjcareer.search.application.port.out.LoadSearchKeywordPort;
+import com.bjcareer.search.application.port.out.api.LoadSearchKeywordPort;
 import com.bjcareer.search.domain.entity.Thema;
 
 import lombok.RequiredArgsConstructor;

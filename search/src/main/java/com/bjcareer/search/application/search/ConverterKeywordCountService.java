@@ -8,14 +8,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.application.port.in.KeywordUsecase;
-import com.bjcareer.search.application.port.out.NaverAdPort;
-import com.bjcareer.search.application.port.out.NaverDataTrendPort;
+import com.bjcareer.search.application.port.out.api.NaverAdPort;
+import com.bjcareer.search.application.port.out.api.NaverDataTrendPort;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
-import com.bjcareer.search.out.api.naver.ApiAdkeywordAdapter;
-import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
 import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
 import lombok.RequiredArgsConstructor;

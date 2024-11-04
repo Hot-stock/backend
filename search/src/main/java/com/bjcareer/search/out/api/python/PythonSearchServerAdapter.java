@@ -15,9 +15,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.application.port.out.LoadNewsPort;
-import com.bjcareer.search.application.port.out.NewsCommand;
-import com.bjcareer.search.application.port.out.QueryStockServerPort;
+import com.bjcareer.search.application.port.out.api.LoadNewsPort;
+import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
+import com.bjcareer.search.application.port.out.api.NewsCommand;
+import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.OHLC;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class PythonSearchServerAdapter implements QueryStockServerPort, LoadNewsPort {
+public class PythonSearchServerAdapter implements LoadStockInformationPort, LoadNewsPort {
 
 	@Value("${python-search.address}")
 	private String address;
@@ -51,7 +52,7 @@ public class PythonSearchServerAdapter implements QueryStockServerPort, LoadNews
 	}
 
 	@Override
-	public StockChart loadStockChart(StockChartQueryConfig config) {
+	public StockChart loadStockChart(StockChartQueryCommand config) {
 		String url = config.buildUrl(address + PythonServerURI.OHLC);
 
 		return fetchFromServer(url, HttpMethod.GET, new ParameterizedTypeReference<List<OhlcResponseDTO>>() {

@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.application.port.out.NaverAdPort;
+import com.bjcareer.search.application.port.out.api.NaverAdPort;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
 import com.bjcareer.search.out.api.utils.Signatures;

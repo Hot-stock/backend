@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api.python;
+package com.bjcareer.search.application.port.out.api;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -8,19 +8,19 @@ import com.bjcareer.search.domain.entity.Stock;
 import lombok.Getter;
 
 @Getter
-public class StockChartQueryConfig {
+public class StockChartQueryCommand {
 	private final Stock stock;
 	private final String startDay;
 	private final String endDay;
 	ZoneId seoul = ZoneId.of("Asia/Seoul");
 
-	public StockChartQueryConfig(Stock stock, LocalDate startDay, LocalDate endDay) {
+	public StockChartQueryCommand(Stock stock, LocalDate startDay, LocalDate endDay) {
 		this.stock = stock;
 		this.startDay = startDay.toString();
 		this.endDay = endDay.toString();
 	}
 
-	public StockChartQueryConfig(Stock stock, boolean allData) {
+	public StockChartQueryCommand(Stock stock, boolean allData) {
 		this.stock = stock;
 		this.startDay = "1999-01-01";
 		this.endDay = LocalDate.now(seoul).toString();

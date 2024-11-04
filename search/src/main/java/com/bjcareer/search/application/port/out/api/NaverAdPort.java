@@ -1,4 +1,4 @@
-package com.bjcareer.search.application.port.out;
+package com.bjcareer.search.application.port.out.api;
 
 import java.util.Optional;
 

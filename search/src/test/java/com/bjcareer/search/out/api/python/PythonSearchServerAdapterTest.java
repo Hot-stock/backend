@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.search.application.port.out.NewsCommand;
+import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;

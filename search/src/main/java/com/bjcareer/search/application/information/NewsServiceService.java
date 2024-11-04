@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
-import com.bjcareer.search.application.port.out.GPTAPIPort;
+import com.bjcareer.search.application.port.out.api.GPTAPIPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
-import com.bjcareer.search.application.port.out.LoadNewsPort;
-import com.bjcareer.search.application.port.out.NewsCommand;
+import com.bjcareer.search.application.port.out.api.LoadNewsPort;
+import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;

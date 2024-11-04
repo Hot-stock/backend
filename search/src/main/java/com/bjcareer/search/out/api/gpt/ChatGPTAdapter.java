@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.bjcareer.search.application.port.out.GPTAPIPort;
+import com.bjcareer.search.application.port.out.api.GPTAPIPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 
 import lombok.RequiredArgsConstructor;

@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.bjcareer.search.application.port.out.QueryStockServerPort;
+import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
+import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
-import com.bjcareer.search.out.api.python.StockChartQueryConfig;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class ScheduleOhlcService {
-	private final QueryStockServerPort apiServerPort;
+	private final LoadStockInformationPort apiServerPort;
 	private final StockRepositoryAdapter stockRepository;
 
 	@Scheduled(cron = "40 4 * * * *")
@@ -42,7 +42,7 @@ public class ScheduleOhlcService {
 			stocks.values().stream()
 				.map(stock -> executor.submit(() -> {
 					LocalDate startDay = stock.calculateStartDayForUpdateStockChart();
-					StockChartQueryConfig stockChartQueryConfig = new StockChartQueryConfig(stock, startDay,
+					StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock, startDay,
 						LocalDate.now(AppConfig.ZONE_ID));
 
 					log.debug("StockChartQueryConfig: {}", stockChartQueryConfig);
