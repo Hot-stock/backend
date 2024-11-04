@@ -9,4 +9,6 @@ public interface ThemaRepositoryPort {
 	Optional<Thema> loadByStockNameAndThemaName(LoadStockByThemaCommand command);
 
 	List<Thema> loadAllByKeywordContaining(LoadThemaUsingkeywordCommand command);
+
+	void save(Thema thema);
 }

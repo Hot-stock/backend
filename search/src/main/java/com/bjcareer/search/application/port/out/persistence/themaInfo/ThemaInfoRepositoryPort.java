@@ -6,4 +6,5 @@ import com.bjcareer.search.domain.entity.ThemaInfo;
 
 public interface ThemaInfoRepositoryPort {
 	Optional<ThemaInfo> loadByName(String thema);
+	ThemaInfo save(ThemaInfo themaInfo);
 }

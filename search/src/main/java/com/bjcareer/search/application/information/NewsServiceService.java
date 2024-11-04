@@ -16,6 +16,9 @@ import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.thema.LoadStockByThemaCommand;
+import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
@@ -24,8 +27,6 @@ import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.persistence.repository.gpt.StockRaiseRepository;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +39,9 @@ public class NewsServiceService implements NewsServiceUsecase {
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
 
-	private final ThemaRepository themaRepository;
-	private final ThemaInfoRepository themaInfoRepository;
+	private final ThemaRepositoryPort themaRepositoryPort;
+	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
+
 	private final StockRaiseRepository stockRaiseRepository;
 	private final GPTAPIPort gptAPIPort;
 
@@ -90,11 +92,11 @@ public class NewsServiceService implements NewsServiceUsecase {
 
 			log.info("date = {}, gtpNewsDomain = {} ", date, gtpNewsDomain);
 
-			Optional<ThemaInfo> optThemaInfo = themaInfoRepository.findByName(gtpNewsDomain.getThema());
+			Optional<ThemaInfo> optThemaInfo = themaInfoRepositoryPort.loadByName(gtpNewsDomain.getThema());
 
 			if (optThemaInfo.isEmpty()) {
 				ThemaInfo themaInfo = new ThemaInfo(gtpNewsDomain.getThema());
-				optThemaInfo = Optional.of(themaInfoRepository.save(themaInfo));
+				optThemaInfo = Optional.of(themaInfoRepositoryPort.save(themaInfo));
 			}
 
 			StockRaiseReasonEntity stockRaiseReasonEntity = new StockRaiseReasonEntity(stock, optThemaInfo.get(),
@@ -104,14 +106,14 @@ public class NewsServiceService implements NewsServiceUsecase {
 			stockRaiseRepository.save(stockRaiseReasonEntity);
 
 			Thema thema = new Thema(stock, optThemaInfo.get());
-			Optional<Thema> byStockNameAndThemaName = themaRepository.findByStockNameAndThemaName(stockName,
-				gtpNewsDomain.getThema());
+			LoadStockByThemaCommand command = new LoadStockByThemaCommand(stockName, gtpNewsDomain.getThema());
+			Optional<Thema> byStockNameAndThemaName = themaRepositoryPort.loadByStockNameAndThemaName(command);
 
 			if (byStockNameAndThemaName.isEmpty()) {
-				themaRepository.save(thema);
+				themaRepositoryPort.save(thema);
 			}
 
-			log.debug("stockRaiseReasonEntity = " + stockRaiseReasonEntity);
+			log.debug("stockRaiseReasonEntity {}" + stockRaiseReasonEntity);
 		}
 
 		return map;
