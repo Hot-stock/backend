@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
 
 @SpringBootTest
 public class StockSpringBootTest {
 	@Autowired
-	StockRepository stockRepository;
+	StockRepositoryAdapter stockRepository;
 
 	@Test
 	@Rollback(false)
@@ -26,7 +26,6 @@ public class StockSpringBootTest {
 		stockChart.addOHLC(List.of(ohlc));
 
 		stock.mergeStockChart(stockChart);
-
 
 		stockRepository.save(stock);
 	}

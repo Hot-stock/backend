@@ -6,13 +6,13 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_USERNAME}
-    url: jdbc:postgresql://${RDB_PUBLIC_ADDRESS}:${RDB_PORT}/search_service
+    username: timo
+    password: timo
+    url: jdbc:postgresql://127.0.0.1:5432/search_service
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -33,6 +33,7 @@ logging:
   level:
     org.hibernate.SQL: debug # SQL 쿼리 로그 출력
     org.hibernate.orm.jdbc.bind: TRACE
+    com.bjcareer.search.*: debug
 
 server:
   servlet:
