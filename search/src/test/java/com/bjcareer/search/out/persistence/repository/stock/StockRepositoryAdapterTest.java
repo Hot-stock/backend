@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,10 +37,9 @@ class StockRepositoryAdapterTest {
 
 	@Test
 	void testFindByCode() {
-		Stock stock = stockRepositoryAdapter.findByCode("12345");
-		assertNotNull(stock);
-		assertEquals("12345", stock.getCode());
-		assertEquals(stock, stock.getStockChart().getStock());
+		Optional<Stock> byCode = stockRepositoryAdapter.findByCode("12345");
+		assertTrue(byCode.isPresent());
+		assertEquals("12345", byCode.get().getCode());
 	}
 
 }

@@ -54,7 +54,7 @@ public class StockController {
 		@RequestParam(name = "q") String stockName) {
 		log.debug("request: {}", stockName);
 
-		Map<LocalDate, GTPNewsDomain> reason = newsServiceUsecase.finNextSchedule(stockName);
+		Map<LocalDate, GTPNewsDomain> reason = newsServiceUsecase.findNextSchedule(stockName);
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
 			reason);
 
@@ -67,7 +67,7 @@ public class StockController {
 		@RequestParam(name = "name") String stockName, @RequestParam(name = "date") LocalDate date) {
 		log.debug("request: {} {} ", stockName, date);
 
-		Optional<GTPNewsDomain> raiseReasonThadDate = newsServiceUsecase.findRaiseReasonThadDate(stockName, date);
+		Optional<GTPNewsDomain> raiseReasonThadDate = newsServiceUsecase.findRaiseReasonThatDate(stockName, date);
 
 		if(raiseReasonThadDate.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -18,7 +18,4 @@ public interface ThemaRepository extends JpaRepository<Thema, Long> {
 		+ "WHEN ti.name LIKE :keyword% THEN 2 "
 		+ "ELSE 3 END")
 	List<Thema> findAllByKeywordContaining(String keyword, Pageable pageable);
-
-	@Query("SELECT t FROM Thema t join fetch t.stock s join fetch t.themaInfo ti WHERE s.name = :keyword OR ti.name = :keyword")
-	List<Thema> findAllByKeywordExactlySame(String keyword);
 }

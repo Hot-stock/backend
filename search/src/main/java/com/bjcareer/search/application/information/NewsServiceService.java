@@ -11,9 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.port.out.api.GPTAPIPort;
-import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.NewsCommand;
+import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
@@ -23,7 +24,6 @@ import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.persistence.repository.gpt.StockRaiseRepository;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
 import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
 import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
@@ -35,16 +35,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class NewsServiceService implements NewsServiceUsecase {
 	private final LoadNewsPort loadNewsPort;
-	private final StockRepository stockRepository;
+	private final StockRepositoryPort stockRepositoryPort;
+	private final StockChartRepositoryPort stockChartRepositoryPort;
+
 	private final ThemaRepository themaRepository;
 	private final ThemaInfoRepository themaInfoRepository;
 	private final StockRaiseRepository stockRaiseRepository;
 	private final GPTAPIPort gptAPIPort;
-	private final StockChartRepositoryPort stockChartRepositoryPort;
 
 	@Override
 	@Transactional
-	public Optional<GTPNewsDomain> findRaiseReasonThadDate(String stockName, LocalDate date) {
+	public Optional<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
 		LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand(stockName, date);
 
 		StockChart chart = stockChartRepositoryPort.findChartByDate(command);
@@ -76,41 +77,8 @@ public class NewsServiceService implements NewsServiceUsecase {
 		return optGtpNewsDomain;
 	}
 
-	private Optional<GTPNewsDomain> linkNewsToOhlc(String stockName, List<News> news, LocalDate targetDate) {
-		for (News n : news) {
-			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
-			if (isSameDate(targetDate, n)) {
-				log.debug("Find news for {} {}", stockName, targetDate);
-				Optional<GTPNewsDomain> stockRaiseReason = gptAPIPort.findStockRaiseReason(n.getContent(), stockName,
-					targetDate);
-
-				if (stockRaiseReason.isPresent()) {
-					GTPNewsDomain gtpNews = stockRaiseReason.get(); //오타 있음
-
-					if (isSameStock(stockName, gtpNews)) {
-						gtpNews.addNewsDomain(n);
-						return Optional.of(gtpNews);
-					} else {
-						log.warn("Stock name is not matched. stockName: {}, newsStockName: {}", stockName,
-							gtpNews.getStockName());
-					}
-				}
-			}
-		}
-
-		return Optional.empty();
-	}
-
-	private boolean isSameStock(String stockName, GTPNewsDomain gtpNews) {
-		return gtpNews.getStockName().equals(stockName);
-	}
-
-	private boolean isSameDate(LocalDate targetDate, News n) {
-		return n.getPubDate().equals(targetDate);
-	}
-
 	@Transactional
-	public Map<LocalDate, GTPNewsDomain> finNextSchedule(String stockName) {
+	public Map<LocalDate, GTPNewsDomain> findNextSchedule(String stockName) {
 		Stock stock = validationStock(stockName);
 		NewsCommand newsCommand = new NewsCommand(stockName, LocalDate.now().minusDays(1),
 			LocalDate.now());
@@ -149,6 +117,31 @@ public class NewsServiceService implements NewsServiceUsecase {
 		return map;
 	}
 
+	private Optional<GTPNewsDomain> linkNewsToOhlc(String stockName, List<News> news, LocalDate targetDate) {
+		for (News n : news) {
+			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
+			if (isSameDate(targetDate, n)) {
+				log.debug("Find news for {} {}", stockName, targetDate);
+				Optional<GTPNewsDomain> stockRaiseReason = gptAPIPort.findStockRaiseReason(n.getContent(), stockName,
+					targetDate);
+
+				if (stockRaiseReason.isPresent()) {
+					GTPNewsDomain gtpNews = stockRaiseReason.get(); //오타 있음
+
+					if (isSameStock(stockName, gtpNews)) {
+						gtpNews.addNewsDomain(n);
+						return Optional.of(gtpNews);
+					} else {
+						log.warn("Stock name is not matched. stockName: {}, newsStockName: {}", stockName,
+							gtpNews.getStockName());
+					}
+				}
+			}
+		}
+
+		return Optional.empty();
+	}
+
 	private Map<LocalDate, GTPNewsDomain> extracteNewsByDate(String stockName, List<News> newsDomains) {
 		Map<LocalDate, GTPNewsDomain> dateMap = new HashMap<>();
 
@@ -170,7 +163,16 @@ public class NewsServiceService implements NewsServiceUsecase {
 	}
 
 	private Stock validationStock(String stockName) {
-		Optional<Stock> optStock = stockRepository.findByName(stockName);
+		Optional<Stock> optStock = stockRepositoryPort.findByName(stockName);
 		return optStock.orElseThrow(() -> new IllegalArgumentException("stock is null"));
 	}
+
+	private boolean isSameStock(String stockName, GTPNewsDomain gtpNews) {
+		return gtpNews.getStockName().equals(stockName);
+	}
+
+	private boolean isSameDate(LocalDate targetDate, News n) {
+		return n.getPubDate().equals(targetDate);
+	}
+
 }

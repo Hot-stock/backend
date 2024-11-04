@@ -7,6 +7,6 @@ import java.util.Optional;
 import com.bjcareer.search.domain.GTPNewsDomain;
 
 public interface NewsServiceUsecase {
-	Map<LocalDate, GTPNewsDomain> finNextSchedule(String stockName);
-	Optional<GTPNewsDomain> findRaiseReasonThadDate(String stockName, LocalDate date);
+	Map<LocalDate, GTPNewsDomain> findNextSchedule(String stockName);
+	Optional<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date);
 }
