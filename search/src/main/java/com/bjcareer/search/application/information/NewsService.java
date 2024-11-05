@@ -1,9 +1,7 @@
 package com.bjcareer.search.application.information;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -12,20 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.port.out.api.GPTAPIPort;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
+import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.api.NewsCommand;
+import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
-import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.application.port.out.persistence.thema.LoadStockByThemaCommand;
-import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
-import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
-import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
-import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.entity.ThemaInfo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,22 +26,29 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class NewsService implements NewsServiceUsecase {
 	private final LoadNewsPort loadNewsPort;
+	private final LoadStockInformationPort loadStockInformationServerPort;
+
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
-
-	private final ThemaRepositoryPort themaRepositoryPort;
-	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
 
 	private final GPTAPIPort gptAPIPort;
 
 	@Override
-	@Transactional
 	public Optional<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
-		LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand(stockName, date);
+		Stock stock = validationStock(stockName);
+		StockChart chart = stockChartRepositoryPort.loadStockChart(stock.getCode());
 
-		StockChart chart = stockChartRepositoryPort.findChartByDate(command);
+		if (chart.loadNewByDate(date).isEmpty()) {
+			log.info("Can't found ohlc data so download ohlc {} {}", stockName, date);
+
+			StockChart tempChart = loadStockInformationServerPort.loadStockChart(
+				new StockChartQueryCommand(stock, date, date));
+			chart.addOHLC(tempChart.getOhlcList());
+		}
+
 		Optional<GTPNewsDomain> optGtpNewsDomain = chart.loadNewByDate(date);
 
 		if (optGtpNewsDomain.isPresent()) {
@@ -77,43 +77,21 @@ public class NewsService implements NewsServiceUsecase {
 		return optGtpNewsDomain;
 	}
 
-	@Transactional
-	public Map<LocalDate, GTPNewsDomain> findNextSchedule(String stockName) {
+	@Transactional(readOnly = true)
+	public List<GTPNewsDomain> findNextSchedule(String stockName, LocalDate date) {
 		Stock stock = validationStock(stockName);
-		NewsCommand newsCommand = new NewsCommand(stockName, LocalDate.now().minusDays(1),
-			LocalDate.now());
-		List<News> news = loadNewsPort.fetchNews(newsCommand);
-		Map<LocalDate, GTPNewsDomain> map = extracteNewsByDate(stockName, news);
 
-		for (LocalDate date : map.keySet()) {
-			GTPNewsDomain gtpNewsDomain = map.get(date);
+		StockChart chart = stockChartRepositoryPort.loadStockChart(stock.getCode());
+		List<GTPNewsDomain> allNews = chart.getAllNews();
 
-			log.info("date = {}, gtpNewsDomain = {} ", date, gtpNewsDomain);
-
-			Optional<ThemaInfo> optThemaInfo = themaInfoRepositoryPort.loadByName(gtpNewsDomain.getThema());
-
-			if (optThemaInfo.isEmpty()) {
-				ThemaInfo themaInfo = new ThemaInfo(gtpNewsDomain.getThema());
-				optThemaInfo = Optional.of(themaInfoRepositoryPort.save(themaInfo));
-			}
-
-			StockRaiseReasonEntity stockRaiseReasonEntity = new StockRaiseReasonEntity(stock, optThemaInfo.get(),
-				gtpNewsDomain.getReason(), gtpNewsDomain.getNews().getLink(),
-				gtpNewsDomain.getNextReason(), gtpNewsDomain.getNext(), gtpNewsDomain.getNews().getPubDate());
-
-
-			Thema thema = new Thema(stock, optThemaInfo.get());
-			LoadStockByThemaCommand command = new LoadStockByThemaCommand(stockName, gtpNewsDomain.getThema());
-			Optional<Thema> byStockNameAndThemaName = themaRepositoryPort.loadByStockNameAndThemaName(command);
-
-			if (byStockNameAndThemaName.isEmpty()) {
-				themaRepositoryPort.save(thema);
-			}
-
-			log.debug("stockRaiseReasonEntity {}", stockRaiseReasonEntity);
+		if (allNews.isEmpty()) {
+			log.info("No news found for {}", stockName);
+			return List.of();
 		}
 
-		return map;
+		List<GTPNewsDomain> nextSchedule = chart.getNextSchedule(date);
+		log.info("Next schedule found for {} {}", stockName, nextSchedule.size());
+		return nextSchedule;
 	}
 
 	private Optional<GTPNewsDomain> linkNewsToOhlc(String stockName, List<News> news, LocalDate targetDate) {
@@ -139,26 +117,6 @@ public class NewsService implements NewsServiceUsecase {
 		}
 
 		return Optional.empty();
-	}
-
-	private Map<LocalDate, GTPNewsDomain> extracteNewsByDate(String stockName, List<News> newsDomains) {
-		Map<LocalDate, GTPNewsDomain> dateMap = new HashMap<>();
-
-		for (News news : newsDomains) {
-			LocalDate pubDate = news.getPubDate();
-
-			if (dateMap.containsKey(pubDate)) {
-				continue;
-			}
-
-			Optional<GTPNewsDomain> stockReason = gptAPIPort.findStockRaiseReason(news.getContent(), stockName, pubDate);
-			stockReason.ifPresent(gtpNewsDomain -> {
-				gtpNewsDomain.addNewsDomain(news);
-				dateMap.put(pubDate, gtpNewsDomain);
-			});
-		}
-
-		return dateMap;
 	}
 
 	private Stock validationStock(String stockName) {

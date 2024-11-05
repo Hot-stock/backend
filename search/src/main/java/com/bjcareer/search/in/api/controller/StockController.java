@@ -1,7 +1,7 @@
 package com.bjcareer.search.in.api.controller;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.stock.StockService;
+import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
@@ -51,12 +52,16 @@ public class StockController {
 	@GetMapping("/next-schedule")
 	@Operation(summary = "이 주식은 오를 수 있을까?", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
 	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> searchNextSchedule(
-		@RequestParam(name = "q") String stockName) {
-		log.debug("request: {}", stockName);
+		@RequestParam(name = "q") String stockName, @RequestParam(name = "date", required = false) LocalDate date) {
+		log.debug("request: {} {}", stockName, date);
 
-		Map<LocalDate, GTPNewsDomain> reason = newsServiceUsecase.findNextSchedule(stockName);
+		if(date == null){
+			date = LocalDate.now(AppConfig.ZONE_ID);
+		}
+
+		List<GTPNewsDomain> nextSchedule = newsServiceUsecase.findNextSchedule(stockName, date);
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
-			reason);
+			nextSchedule);
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
@@ -73,8 +78,7 @@ public class StockController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
-			Map.of(date, raiseReasonThadDate.get()));
+		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(List.of(raiseReasonThadDate.get()));
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}

@@ -8,6 +8,7 @@ import org.hibernate.type.SqlTypes;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +20,6 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(
@@ -46,7 +46,7 @@ public class OHLC {
 	private LocalDate date;
 
 	@JdbcTypeCode(SqlTypes.JSON)
-	private JsonNode news = null;
+	private JsonNode news = JsonNodeFactory.instance.objectNode();
 
 	public OHLC(int open, int high, int low, int close, int percentageIncrease, LocalDate date) {
 		this.open = open;

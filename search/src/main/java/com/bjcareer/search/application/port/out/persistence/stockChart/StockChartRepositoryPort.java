@@ -10,4 +10,6 @@ public interface StockChartRepositoryPort {
 	void updateStockChartOfOHLC(StockChart stockChart);
 
 	void save(StockChart stockChart);
+
+	StockChart loadStockChart(String stockCode);
 }

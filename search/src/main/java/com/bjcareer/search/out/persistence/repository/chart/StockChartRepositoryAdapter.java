@@ -26,7 +26,7 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	@Override
 	public StockChart findChartByDate(LoadChartSpecificDateCommand command) {
 		try {
-			OHLC ohlc = em.createQuery(StockChartQuery.FIND_CHART_BY_DATE, OHLC.class)
+			OHLC ohlc = em.createQuery(Query.FIND_CHART_BY_DATE, OHLC.class)
 				.setParameter("stockName", command.getStockName())
 				.setParameter("date", command.getDate())
 				.getSingleResult();
@@ -41,11 +41,11 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 
 	@Override
 	public StockChart findOhlcAboveThreshold(LoadChartAboveThresholdCommand command) {
-		Stock stock = em.createQuery(StockChartQuery.FIND_STOCK_BY_CODE, Stock.class)
+		Stock stock = em.createQuery(Query.FIND_STOCK_BY_CODE, Stock.class)
 			.setParameter("code", command.getCode())
 			.getSingleResult();
 
-		List<OHLC> resultList = em.createQuery(StockChartQuery.FIND_OHLC_ABOVE_THRESHOLD, OHLC.class)
+		List<OHLC> resultList = em.createQuery(Query.FIND_OHLC_ABOVE_THRESHOLD, OHLC.class)
 			.setParameter("code", command.getCode())
 			.setParameter("threshold", command.getThreshold())
 			.getResultList();
@@ -61,5 +61,12 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	@Override
 	public void save(StockChart stockChart) {
 		em.persist(stockChart);
+	}
+
+	@Override
+	public StockChart loadStockChart(String stockCode) {
+		return em.createQuery(Query.LOAD_STOCK_CHART, StockChart.class)
+			.setParameter("code", stockCode)
+			.getSingleResult();
 	}
 }

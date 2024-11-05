@@ -56,11 +56,27 @@ public class StockChart {
 		return Optional.of(convertJsonTypeToObject(ohlc));
 	}
 
+	public List<GTPNewsDomain> getNextSchedule(LocalDate baseDate) {
+		List<GTPNewsDomain> news = new ArrayList<>();
+
+		for (OHLC ohlc : ohlcList) {
+			if (!ohlc.getNews().isNull()) {
+				GTPNewsDomain gtpNewsDomain = convertJsonTypeToObject(ohlc);
+
+				if (gtpNewsDomain.getNext().isAfter(baseDate)) {
+					news.add(gtpNewsDomain);
+				}
+			}
+		}
+
+		return news;
+	}
+
 	public List<GTPNewsDomain> getAllNews() {
 		List<GTPNewsDomain> news = new ArrayList<>();
 
 		for (OHLC ohlc : ohlcList) {
-			if (ohlc.getNews() != null) {
+			if (!ohlc.getNews().isNull()) {
 				news.add(convertJsonTypeToObject(ohlc));
 			}
 		}

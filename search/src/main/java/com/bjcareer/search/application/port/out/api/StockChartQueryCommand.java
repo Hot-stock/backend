@@ -27,7 +27,7 @@ public class StockChartQueryCommand {
 	}
 
 	public String buildUrl(String baseUrl) {
-		return String.format("%s?code=%s&'startDay'=%s&'endDay'=%s", baseUrl, stock.getCode(), startDay, endDay);
+		return String.format("%s?code=%s&startDay=%s&endDay=%s", baseUrl, stock.getCode(), startDay, endDay);
 	}
 
 	@Override

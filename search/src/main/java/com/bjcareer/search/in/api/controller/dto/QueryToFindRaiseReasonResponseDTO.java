@@ -16,9 +16,8 @@ public class QueryToFindRaiseReasonResponseDTO {
 	private int total;
 	private List<Content> content = new ArrayList<>();
 
-	public QueryToFindRaiseReasonResponseDTO(Map<LocalDate, GTPNewsDomain> contents) {
-		for (LocalDate date : contents.keySet()) {
-			GTPNewsDomain gtpNewsDomain = contents.get(date);
+	public QueryToFindRaiseReasonResponseDTO(List<GTPNewsDomain> contents) {
+		for (GTPNewsDomain gtpNewsDomain : contents) {
 			this.content.add(new Content(gtpNewsDomain.getStockName(), gtpNewsDomain.getReason(),
 				gtpNewsDomain.getThema(), gtpNewsDomain.getNext(), gtpNewsDomain.getNextReason(),
 				gtpNewsDomain.getNews().getPubDate(), gtpNewsDomain.getNews().getLink()));
