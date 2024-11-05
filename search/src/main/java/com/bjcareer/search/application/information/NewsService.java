@@ -20,6 +20,7 @@ import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,15 +42,7 @@ public class NewsService implements NewsServiceUsecase {
 		Stock stock = validationStock(stockName);
 		StockChart chart = stockChartRepositoryPort.loadStockChart(stock.getCode());
 
-		if (chart.loadNewByDate(date).isEmpty()) {
-			log.info("Can't found ohlc data so download ohlc {} {}", stockName, date);
-
-			StockChart tempChart = loadStockInformationServerPort.loadStockChart(
-				new StockChartQueryCommand(stock, date, date));
-			chart.addOHLC(tempChart.getOhlcList());
-		}
-
-		Optional<GTPNewsDomain> optGtpNewsDomain = chart.loadNewByDate(date);
+		Optional<GTPNewsDomain> optGtpNewsDomain = fetchOhlcFromApiIfMissing(stockName, date, chart, stock);
 
 		if (optGtpNewsDomain.isPresent()) {
 			log.info("News already found for {} {}", stockName, date);
@@ -60,6 +53,7 @@ public class NewsService implements NewsServiceUsecase {
 		NewsCommand config = new NewsCommand(stockName, date, date);
 
 		List<News> news = loadNewsPort.fetchNews(config); //뉴스 가지고 옴
+		System.out.println("news = " + news);
 
 		log.debug("찾아진 뉴스 개수는? {}", news.size());
 		optGtpNewsDomain = linkNewsToOhlc(stockName, news, date);
@@ -75,6 +69,23 @@ public class NewsService implements NewsServiceUsecase {
 
 		stockChartRepositoryPort.updateStockChartOfOHLC(chart);
 		return optGtpNewsDomain;
+	}
+
+	private Optional<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart, Stock stock) {
+		Optional<GTPNewsDomain> gtpNewsDomain = Optional.empty();
+
+		try{
+			gtpNewsDomain = chart.loadNewByDate(date);
+		}catch (NoResultException e) {
+			log.warn("Can't found ohlc data so download ohlc {} {}", stockName, date);
+
+			StockChart tempChart = loadStockInformationServerPort.loadStockChart(
+				new StockChartQueryCommand(stock, date, date));
+
+			chart.addOHLC(tempChart.getOhlcList());
+		}
+
+		return gtpNewsDomain;
 	}
 
 	@Transactional(readOnly = true)

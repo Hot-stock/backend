@@ -18,6 +18,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -49,11 +50,7 @@ public class StockChart {
 
 	public Optional<GTPNewsDomain> loadNewByDate(LocalDate date) {
 		OHLC ohlc = getSameDateOHLC(date);
-		if (ohlc == null || ohlc.getNews().isNull()) {
-			return Optional.empty();
-		}
-
-		return Optional.of(convertJsonTypeToObject(ohlc));
+		return Optional.ofNullable(convertJsonTypeToObject(ohlc));
 	}
 
 	public List<GTPNewsDomain> getNextSchedule(LocalDate baseDate) {
@@ -97,11 +94,17 @@ public class StockChart {
 
 	private GTPNewsDomain convertJsonTypeToObject(OHLC ohlc) {
 		GTPNewsDomain gtpNewsDomain = null;
+
+		if (ohlc.getNews().isEmpty()) {
+			log.debug("Cant convert json node to news {} {}", stock.getName(), ohlc.getDate());
+			return gtpNewsDomain;
+		}
+
 		try {
-			gtpNewsDomain = AppConfig.customObjectMapper()
+			return AppConfig.customObjectMapper()
 				.treeToValue(ohlc.getNews(), GTPNewsDomain.class);
 		} catch (JsonProcessingException e) {
-			log.warn("Fail to convert JsonNode to News {}", e.getMessage());
+			log.warn("Converting error {} {}", stock.getName(), ohlc.getDate());
 		}
 
 		return gtpNewsDomain;
@@ -113,7 +116,8 @@ public class StockChart {
 				return ohlc;
 			}
 		}
-		return null;
+
+		throw new NoResultException("Can't found ohlc data");
 	}
 
 	public void setStock(Stock stock) {
