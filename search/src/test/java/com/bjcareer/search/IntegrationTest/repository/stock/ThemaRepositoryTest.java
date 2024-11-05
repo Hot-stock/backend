@@ -1,4 +1,4 @@
-package com.bjcareer.search.repository.stock;
+package com.bjcareer.search.IntegrationTest.repository.stock;
 
 import static org.assertj.core.api.Assertions.*;
 

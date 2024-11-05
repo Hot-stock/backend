@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api.python;
+package com.bjcareer.search.IntegrationTest.out.api.python;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,6 +15,7 @@ import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
 
 @SpringBootTest
 class PythonSearchServerAdapterTest {

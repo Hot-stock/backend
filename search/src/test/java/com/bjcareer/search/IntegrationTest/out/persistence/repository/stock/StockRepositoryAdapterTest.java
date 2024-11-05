@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.stock;
+package com.bjcareer.search.IntegrationTest.out.persistence.repository.stock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
 
 @SpringBootTest
 class StockRepositoryAdapterTest {

@@ -1,4 +1,4 @@
-package com.bjcareer.search.schedule;
+package com.bjcareer.search.IntegrationTest.schedule;
 
 import java.util.Optional;
 
@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.schedule.ScheduleOhlcService;
 
 //통합테스트
 @SpringBootTest
@@ -22,7 +23,7 @@ class ScheduleOhlcServiceTest {
 	StockRepository stockRepository;
 
 	@Test
-	void testSaveStockChart() {
+	void 모든_주식의_정보를_불러와서_저장함() {
 		scheduleOhlcService.saveStockInfoAndChartData();
 
 		Optional<Stock> optionalStock = stockRepository.findByName("삼성전자");

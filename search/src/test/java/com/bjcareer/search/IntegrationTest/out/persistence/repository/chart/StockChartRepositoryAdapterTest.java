@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.chart;
+package com.bjcareer.search.IntegrationTest.out.persistence.repository.chart;
 
 import static org.junit.jupiter.api.Assertions.*;
 

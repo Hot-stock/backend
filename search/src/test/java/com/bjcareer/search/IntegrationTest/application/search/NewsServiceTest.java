@@ -1,4 +1,4 @@
-package com.bjcareer.search.application.search;
+package com.bjcareer.search.IntegrationTest.application.search;
 
 import static org.junit.jupiter.api.Assertions.*;
 

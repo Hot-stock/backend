@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api;
+package com.bjcareer.search.IntegrationTest.out.api.naver;
 
 import static org.junit.jupiter.api.Assertions.*;
 

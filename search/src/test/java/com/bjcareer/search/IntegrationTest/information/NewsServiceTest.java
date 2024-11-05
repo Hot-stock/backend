@@ -1,4 +1,4 @@
-package com.bjcareer.search.application.information;
+package com.bjcareer.search.IntegrationTest.information;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.exceptions.InvalidStockInformation;
+import com.bjcareer.search.application.information.NewsService;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;

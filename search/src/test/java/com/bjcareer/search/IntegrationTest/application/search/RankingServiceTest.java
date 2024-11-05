@@ -1,4 +1,4 @@
-package com.bjcareer.search.application.search;
+package com.bjcareer.search.IntegrationTest.application.search;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.search.application.search.RankingService;
 import com.bjcareer.search.out.persistence.repository.cache.CacheRepository;
 
 @SpringBootTest

@@ -1,4 +1,4 @@
-package com.bjcareer.search.application.search;
+package com.bjcareer.search.IntegrationTest.application.search;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.search.application.search.ConverterKeywordCountService;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 
 @SpringBootTest

@@ -1,4 +1,4 @@
-package com.bjcareer.search.service;
+package com.bjcareer.search.application.search;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.bjcareer.search.application.search.ConverterKeywordCountService;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
@@ -23,7 +22,7 @@ import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
 import com.bjcareer.search.out.data.MockingData;
 import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
-class ConverterSearchCountServiceTest {
+class ConverterSearchCountServiceMockTest {
 
 	@Mock
 	private ApiDatalabTrendAdapter apiDatalabTrend;

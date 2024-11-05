@@ -1,4 +1,4 @@
-package com.bjcareer.search.repository.noSQL;
+package com.bjcareer.search.IntegrationTest.repository.noSQL;
 
 import static org.junit.jupiter.api.Assertions.*;
 
