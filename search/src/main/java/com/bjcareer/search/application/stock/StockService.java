@@ -7,12 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.exceptions.InvalidStockInformation;
 import com.bjcareer.search.application.port.in.AddStockUsecase;
+import com.bjcareer.search.application.port.out.persistence.thema.LoadStockByThemaCommand;
+import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 public class StockService implements AddStockUsecase {
-	private final ThemaRepository themaRepository;
-	private final ThemaInfoRepository themaInfoRepository;
+	private final ThemaRepositoryPort themaRepository;
+	private final ThemaInfoRepositoryPort themaInfoRepository;
 	private final StockRepository stockRepository;
 
 
@@ -40,7 +41,8 @@ public class StockService implements AddStockUsecase {
 		ThemaInfo themaInfo = byThemaName.orElseGet(
 			() -> themaInfoRepository.save(new ThemaInfo(themeName, "USER CREATED")));
 
-		return themaRepository.findByStockNameAndThemaName(stock.getName(), themaInfo.getName())
+		LoadStockByThemaCommand command = new LoadStockByThemaCommand(stock.getName(), themaInfo.getName());
+		return themaRepository.loadByStockNameAndThemaName(command)
 			.orElseGet(() -> themaRepository.save(new Thema(stock, themaInfo)));
 	}
 }

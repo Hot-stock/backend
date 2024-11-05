@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 @SpringBootTest
 @Transactional

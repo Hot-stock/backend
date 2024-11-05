@@ -21,7 +21,7 @@ public class StockRepositoryAdapter implements StockRepositoryPort {
 
 	@Override
 	public Optional<Stock> findByName(String name) {
-		List<Stock> results = em.createQuery(StockQuery.FIND_STOCK_BY_NAME, Stock.class)
+		List<Stock> results = em.createQuery(Query.FIND_STOCK_BY_NAME, Stock.class)
 			.setParameter("name", name)
 			.getResultList();
 
@@ -30,7 +30,7 @@ public class StockRepositoryAdapter implements StockRepositoryPort {
 
 	@Override
 	public Optional<Stock> findByCode(String name) {
-		List<Stock> results = em.createQuery(StockQuery.FIND_STOCK_BY_CODE, Stock.class)
+		List<Stock> results = em.createQuery(Query.FIND_STOCK_BY_CODE, Stock.class)
 			.setParameter("code", name)
 			.getResultList();
 
@@ -38,7 +38,7 @@ public class StockRepositoryAdapter implements StockRepositoryPort {
 	}
 
 	public List<Stock> findAll() {
-		return em.createQuery(StockQuery.FIND_ALL, Stock.class)
+		return em.createQuery(Query.FIND_ALL, Stock.class)
 			.getResultList();
 	}
 

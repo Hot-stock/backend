@@ -21,7 +21,6 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 class SearchServiceTest {
 
