@@ -27,7 +27,6 @@ public class StockService implements AddStockUsecase {
 	private final ThemaInfoRepositoryPort themaInfoRepository;
 	private final StockRepository stockRepository;
 
-
 	public Thema addStockThema(String stockCode, String stockName, String themeName) {
 		Optional<Stock> byStockCode = stockRepository.findByCode(stockCode);
 		Stock stock = byStockCode.orElseGet(() -> {

@@ -18,8 +18,7 @@ public class RankingService implements RankingUsecase {
 
 	public void updateKeyword(String keyword) {
 		log.debug("Keyword to update is {}", keyword);
-		Double v = cacheRepository.updateRanking(keyword);
-		log.debug("keyword count is {}", v);
+		cacheRepository.updateRanking(keyword);
 	}
 
 	public List<String> getRankKeyword(Integer index) {

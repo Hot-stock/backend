@@ -56,4 +56,14 @@ public class CacheRepository {
 		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
 		return scoredSortedSet.valueRange(0, rank).stream().map(Object::toString).collect(Collectors.toList());
 	}
+
+	public void deleteRanking(String keyword) {
+		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
+		scoredSortedSet.remove(keyword);
+	}
+
+	public Double getRankingScore(String keyword) {
+		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
+		return scoredSortedSet.getScore(keyword);
+	}
 }
