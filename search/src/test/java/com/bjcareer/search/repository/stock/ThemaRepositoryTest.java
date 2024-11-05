@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
+import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.domain.entity.Thema;
 
 @SpringBootTest
@@ -17,7 +19,7 @@ import com.bjcareer.search.domain.entity.Thema;
 class ThemaRepositoryTest {
 
 	@Autowired
-	ThemaRepository themaRepository;
+	ThemaRepositoryPort themaRepository;
 
 	@Test
 	void should_FailIfAnyQueryTakesMoreThan1Second() {
@@ -25,7 +27,8 @@ class ThemaRepositoryTest {
 
 		allThemas.forEach(thema -> {
 			long durationInMillis = measureExecutionTime(() -> {
-				themaRepository.findAllByKeywordContaining(thema.getStock().getName(), PageRequest.of(0, 10000));
+				LoadThemaUsingkeywordCommand command = new LoadThemaUsingkeywordCommand(thema.getStock().getName(), PageRequest.of(0, 10000));
+				themaRepository.loadAllByKeywordContaining(command);
 			});
 
 			assertThat(durationInMillis)

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.application.port.out.api.NewsCommand;
+import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
@@ -24,8 +25,8 @@ class PythonSearchServerAdapterTest {
 	@Test
 	void ohlc_요청_테스트() {
 		Stock stock = new Stock("017370", "우신시스템");
-		StockChartQueryConfig config = new StockChartQueryConfig(stock, true);
-		StockChart stockChart = pythonSearchServerAdapter.loadStockChart(config);
+		StockChartQueryCommand command = new StockChartQueryCommand(stock, true);
+		StockChart stockChart = pythonSearchServerAdapter.loadStockChart(command);
 
 		assertNotNull(stockChart);
 		assertEquals(stock.getCode(), stockChart.getStock().getCode());

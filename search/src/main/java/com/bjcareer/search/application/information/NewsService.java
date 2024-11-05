@@ -26,7 +26,6 @@ import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.StockRaiseReasonEntity;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.out.persistence.repository.gpt.StockRaiseRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NewsServiceService implements NewsServiceUsecase {
+public class NewsService implements NewsServiceUsecase {
 	private final LoadNewsPort loadNewsPort;
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
@@ -42,7 +41,6 @@ public class NewsServiceService implements NewsServiceUsecase {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
 
-	private final StockRaiseRepository stockRaiseRepository;
 	private final GPTAPIPort gptAPIPort;
 
 	@Override
@@ -103,7 +101,6 @@ public class NewsServiceService implements NewsServiceUsecase {
 				gtpNewsDomain.getReason(), gtpNewsDomain.getNews().getLink(),
 				gtpNewsDomain.getNextReason(), gtpNewsDomain.getNext(), gtpNewsDomain.getNews().getPubDate());
 
-			stockRaiseRepository.save(stockRaiseReasonEntity);
 
 			Thema thema = new Thema(stock, optThemaInfo.get());
 			LoadStockByThemaCommand command = new LoadStockByThemaCommand(stockName, gtpNewsDomain.getThema());
@@ -113,7 +110,7 @@ public class NewsServiceService implements NewsServiceUsecase {
 				themaRepositoryPort.save(thema);
 			}
 
-			log.debug("stockRaiseReasonEntity {}" + stockRaiseReasonEntity);
+			log.debug("stockRaiseReasonEntity {}", stockRaiseReasonEntity);
 		}
 
 		return map;
