@@ -54,7 +54,7 @@ public class Thema {
 	public String toString() {
 		return "Thema{" +
 			"id=" + id +
-			", stock=" + stock +
+			", stock=" + stock.getName() +
 			", themaInfo=" + themaInfo +
 			", updatedAt=" + updatedAt +
 			'}';

@@ -11,7 +11,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.application.port.out.NaverDataTrendPort;
+import com.bjcareer.search.application.port.out.api.NaverDataTrendPort;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 

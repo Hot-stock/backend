@@ -11,13 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Slf4j
 @ToString
-@NoArgsConstructor
 public class GTPNewsDomain {
-	private String stockName;
-	private String reason;
-	private String thema;
-	private String nextReason;
-	private LocalDate next;
+	private final String stockName;
+	private final String reason;
+	private final String thema;
+	private final String nextReason;
+	private final LocalDate next;
 	private News news;
 
 	public GTPNewsDomain(String stockName, String reason, String thema, String next, String nextReason) {

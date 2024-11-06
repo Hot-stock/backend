@@ -7,16 +7,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 import com.bjcareer.search.application.port.in.KeywordUsecase;
-import com.bjcareer.search.application.port.out.NaverAdPort;
-import com.bjcareer.search.application.port.out.NaverDataTrendPort;
+import com.bjcareer.search.application.port.out.api.NaverAdPort;
+import com.bjcareer.search.application.port.out.api.NaverDataTrendPort;
+import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.AbsoluteRankKeyword;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.DataLabTrendResponseDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
-import com.bjcareer.search.out.api.naver.ApiAdkeywordAdapter;
-import com.bjcareer.search.out.api.naver.ApiDatalabTrendAdapter;
-import com.bjcareer.search.application.exceptions.HttpCommunicationException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class ConverterKeywordCountService implements KeywordUsecase {
 	private final NaverAdPort naverAdPort;
 
 	public List<AbsoluteRankKeyword> getAbsoluteValueOfKeyword(String keyword) {
-		LocalDateTime endDate = LocalDateTime.now().minusDays(1);
+		LocalDateTime endDate = LocalDateTime.now(AppConfig.ZONE_ID).minusDays(1);
 		LocalDateTime startDate = endDate.minusMonths(1);
 
 		keyword = trimKeyword(keyword);
@@ -52,6 +51,13 @@ public class ConverterKeywordCountService implements KeywordUsecase {
 		return getAbsoluteRankKeywords(dataLabTrendResponseDTO, ratio);
 	}
 
+	private Double getRelativeSearchCount(DataLabTrendResponseDTO dataLabTrendResponseDTO) {
+		return dataLabTrendResponseDTO.getResults().stream()
+			.flatMap(result -> result.getData().stream())
+			.mapToDouble(DataLabTrendResponseDTO.Result.Info::getRatio)
+			.sum();
+	}
+
 	private List<AbsoluteRankKeyword> getAbsoluteRankKeywords(DataLabTrendResponseDTO dataLabTrendResponseDTO,
 		double ratio) {
 
@@ -59,13 +65,6 @@ public class ConverterKeywordCountService implements KeywordUsecase {
 			.flatMap(result -> result.getData().stream())
 			.map(info -> new AbsoluteRankKeyword(info.getRatio() * ratio, info.period))
 			.collect(Collectors.toList());
-	}
-
-	private Double getRelativeSearchCount(DataLabTrendResponseDTO dataLabTrendResponseDTO) {
-		return dataLabTrendResponseDTO.getResults().stream()
-			.flatMap(result -> result.getData().stream())
-			.mapToDouble(DataLabTrendResponseDTO.Result.Info::getRatio)
-			.sum();
 	}
 
 	private boolean vaildationFetchData(Optional<DataLabTrendResponseDTO> response,

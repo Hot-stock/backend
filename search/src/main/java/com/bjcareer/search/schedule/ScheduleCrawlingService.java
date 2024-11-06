@@ -13,13 +13,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.crawling.naver.CrawlingNaverFinance;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaInfoRepository;
-import com.bjcareer.search.out.persistence.repository.stock.ThemaRepository;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -32,9 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ScheduleCrawlingService {
 
 	private final MeterRegistry meterRegistry;
-	private final StockRepositoryAdapter stockRepository;
-	private final ThemaInfoRepository themaInfoRepository;
-	private final ThemaRepository themaRepository;
+	private final StockRepositoryPort stockRepositoryPort;
+	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
+	private final ThemaRepositoryPort themaRepositoryPort;
 
 	@Scheduled(cron = "35 3 * * * *")
 	@Transactional
@@ -54,9 +54,9 @@ public class ScheduleCrawlingService {
 	private void executeCrawlingTask() {
 		int limit = 8;
 
-		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);
-		Map<String, ThemaInfo> themaInfos = loadEntities(themaInfoRepository.findAll(), ThemaInfo::getName);
-		Map<String, Thema> themas = loadEntities(themaRepository.findAll(), Thema::getKey);
+		Map<String, Stock> stocks = loadEntities(stockRepositoryPort.findAll(), Stock::getCode);
+		Map<String, ThemaInfo> themaInfos = loadEntities(themaInfoRepositoryPort.findAll(), ThemaInfo::getName);
+		Map<String, Thema> themas = loadEntities(themaRepositoryPort.findAll(), Thema::getKey);
 
 		CrawlingNaverFinance crawlingNaverFinance = new CrawlingNaverFinance(stocks, themaInfos, themas);
 
@@ -98,9 +98,9 @@ public class ScheduleCrawlingService {
 	private void saveAllEntities(Map<String, Stock> stocks, Map<String, ThemaInfo> themaInfos,
 		Map<String, Thema> themas) {
 		try {
-			themaInfoRepository.saveAll(new ArrayList<>(themaInfos.values()));
-			themaRepository.saveAll(new ArrayList<>(themas.values()));
 			log.info("Entities saved successfully");
+			themaInfoRepositoryPort.saveAll(new ArrayList<>(themaInfos.values()));
+			themaRepositoryPort.saveAll(new ArrayList<>(themas.values()));
 		} catch (DataAccessException e) {
 			log.error("Error while saving entities", e);
 		}

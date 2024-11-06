@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.bjcareer.search.application.port.out.NaverAdPort;
+import com.bjcareer.search.application.port.out.api.NaverAdPort;
 import com.bjcareer.search.out.api.dto.DataLabTrendRequestDTO;
 import com.bjcareer.search.out.api.dto.KeywordResponseDTO;
 import com.bjcareer.search.out.api.utils.Signatures;
@@ -40,7 +40,7 @@ public class ApiAdkeywordAdapter implements NaverAdPort {
 		String path = API_URL + API_PATH + "?hintKeywords=" + keywords + "&showDetail=1";
 
 		try {
-			return Optional.of(restTemplate.exchange(path, HttpMethod.GET, entity, KeywordResponseDTO.class).getBody());
+			return Optional.ofNullable(restTemplate.exchange(path, HttpMethod.GET, entity, KeywordResponseDTO.class).getBody());
 		} catch (HttpClientErrorException e) {
 			log.error("Error fetching keywords", e);
 			return Optional.empty();
