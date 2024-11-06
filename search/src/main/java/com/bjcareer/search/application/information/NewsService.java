@@ -1,6 +1,7 @@
 package com.bjcareer.search.application.information;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,54 +39,39 @@ public class NewsService implements NewsServiceUsecase {
 	private final GPTAPIPort gptAPIPort;
 
 	@Override
-	public Optional<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
+	public List<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
 		Stock stock = validationStock(stockName);
 		StockChart chart = stockChartRepositoryPort.loadStockChart(stock.getCode());
 
-		Optional<GTPNewsDomain> optGtpNewsDomain = fetchOhlcFromApiIfMissing(stockName, date, chart, stock);
+		List<GTPNewsDomain> gtpNewsDomains = fetchOhlcFromApiIfMissing(stockName, date, chart, stock);
 
-		if (optGtpNewsDomain.isPresent()) {
+		if (!gtpNewsDomains.isEmpty()) {
 			log.info("News already found for {} {}", stockName, date);
-			return optGtpNewsDomain;
+			return gtpNewsDomains;
 		}
 
 		log.debug("Linking news to OHLC. stockName: {}, date: {}", stockName, date);
 		NewsCommand config = new NewsCommand(stockName, date, date);
 
 		List<News> news = loadNewsPort.fetchNews(config); //뉴스 가지고 옴
-		System.out.println("news = " + news);
 
 		log.debug("찾아진 뉴스 개수는? {}", news.size());
-		optGtpNewsDomain = linkNewsToOhlc(stockName, news, date);
+		gtpNewsDomains = changeNewsToGPTNews(stockName, news, date);
 
-		if (optGtpNewsDomain.isPresent()) {
-			GTPNewsDomain gtpNewsDomain = optGtpNewsDomain.get();
-			log.info("News found for {} {} {}", stockName, gtpNewsDomain.getReason(),
-				gtpNewsDomain.getNews().getLink());
-			chart.addNewsToOhlc(gtpNewsDomain, date);
-		} else {
+		if (gtpNewsDomains.isEmpty()) {
 			log.warn("No news found for {} {}", stockName, date);
+		} else {
+			log.info("News found for {} {}", stockName, date);
+
+			for (GTPNewsDomain gtpNews : gtpNewsDomains) {
+				System.out.println("gtpNews = " + gtpNews);
+				chart.addNewsToOhlc(gtpNews, date);
+			}
+
+			stockChartRepositoryPort.updateStockChartOfOHLC(chart);
 		}
 
-		stockChartRepositoryPort.updateStockChartOfOHLC(chart);
-		return optGtpNewsDomain;
-	}
-
-	private Optional<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart, Stock stock) {
-		Optional<GTPNewsDomain> gtpNewsDomain = Optional.empty();
-
-		try{
-			gtpNewsDomain = chart.loadNewByDate(date);
-		}catch (NoResultException e) {
-			log.warn("Can't found ohlc data so download ohlc {} {}", stockName, date);
-
-			StockChart tempChart = loadStockInformationServerPort.loadStockChart(
-				new StockChartQueryCommand(stock, date, date));
-
-			chart.addOHLC(tempChart.getOhlcList());
-		}
-
-		return gtpNewsDomain;
+		return gtpNewsDomains;
 	}
 
 	@Transactional(readOnly = true)
@@ -105,7 +91,27 @@ public class NewsService implements NewsServiceUsecase {
 		return nextSchedule;
 	}
 
-	private Optional<GTPNewsDomain> linkNewsToOhlc(String stockName, List<News> news, LocalDate targetDate) {
+	private List<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart,
+		Stock stock) {
+		List<GTPNewsDomain> gtpNewsDomains = new ArrayList<>();
+
+		try{
+			gtpNewsDomains = chart.loadNewByDate(date);
+		}catch (NoResultException e) {
+			log.warn("Can't found ohlc data so download ohlc {} {}", stockName, date);
+
+			StockChart tempChart = loadStockInformationServerPort.loadStockChart(
+				new StockChartQueryCommand(stock, date, date));
+
+			chart.addOHLC(tempChart.getOhlcList());
+		}
+
+		return gtpNewsDomains;
+	}
+
+	private List<GTPNewsDomain> changeNewsToGPTNews(String stockName, List<News> news, LocalDate targetDate) {
+		List<GTPNewsDomain> gtpNewsDomains = new ArrayList<>();
+
 		for (News n : news) {
 			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
 			if (isSameDate(targetDate, n)) {
@@ -114,11 +120,11 @@ public class NewsService implements NewsServiceUsecase {
 					targetDate);
 
 				if (stockRaiseReason.isPresent()) {
-					GTPNewsDomain gtpNews = stockRaiseReason.get(); //오타 있음
+					GTPNewsDomain gtpNews = stockRaiseReason.get();
 
 					if (isSameStock(stockName, gtpNews)) {
 						gtpNews.addNewsDomain(n);
-						return Optional.of(gtpNews);
+						gtpNewsDomains.add(gtpNews);
 					} else {
 						log.warn("Stock name is not matched. stockName: {}, newsStockName: {}", stockName,
 							gtpNews.getStockName());
@@ -127,7 +133,7 @@ public class NewsService implements NewsServiceUsecase {
 			}
 		}
 
-		return Optional.empty();
+		return gtpNewsDomains;
 	}
 
 	private Stock validationStock(String stockName) {

@@ -2,6 +2,7 @@ package com.bjcareer.search.domain;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Slf4j
 @ToString
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class GTPNewsDomain {
-	private final String stockName;
-	private final String reason;
-	private final String thema;
-	private final String nextReason;
-	private final LocalDate next;
+	private String stockName;
+	private String reason;
+	private String thema;
+	private String nextReason;
+	private Optional<LocalDate> next;
 	private News news;
 
 	public GTPNewsDomain(String stockName, String reason, String thema, String next, String nextReason) {
@@ -26,9 +28,9 @@ public class GTPNewsDomain {
 		this.nextReason = nextReason;
 
 		if (next == null || next.isEmpty()) {
-			this.next = null;
+			this.next = Optional.empty();
 		} else {
-			this.next = LocalDate.parse(next);
+			this.next = Optional.of(LocalDate.parse(next));
 		}
 	}
 
