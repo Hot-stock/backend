@@ -2,8 +2,10 @@ package com.bjcareer.search.out.persistence.repository.chart;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
@@ -59,14 +61,17 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	}
 
 	@Override
+	@Transactional
 	public void save(StockChart stockChart) {
 		em.persist(stockChart);
 	}
 
 	@Override
-	public StockChart loadStockChart(String stockCode) {
-		return em.createQuery(Query.LOAD_STOCK_CHART, StockChart.class)
+	public Optional<StockChart> loadStockChart(String stockCode) {
+		List<StockChart> code = em.createQuery(Query.LOAD_STOCK_CHART, StockChart.class)
 			.setParameter("code", stockCode)
-			.getSingleResult();
+			.getResultList();
+
+		return code.isEmpty() ? Optional.empty() : Optional.of(code.get(0));
 	}
 }

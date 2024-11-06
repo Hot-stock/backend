@@ -1,5 +1,7 @@
 package com.bjcareer.search.application.port.out.persistence.stockChart;
 
+import java.util.Optional;
+
 import com.bjcareer.search.domain.entity.StockChart;
 
 public interface StockChartRepositoryPort {
@@ -11,5 +13,5 @@ public interface StockChartRepositoryPort {
 
 	void save(StockChart stockChart);
 
-	StockChart loadStockChart(String stockCode);
+	Optional<StockChart> loadStockChart(String stockCode);
 }
