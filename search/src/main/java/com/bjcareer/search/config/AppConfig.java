@@ -11,6 +11,7 @@ import com.bjcareer.search.candidate.cache.CacheTrieService;
 import com.bjcareer.search.out.persistence.repository.cache.CacheRepository;
 import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class AppConfig {
 	public static ObjectMapper customObjectMapper() {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.registerModule(new Jdk8Module());
 		return objectMapper;
 	}
 }

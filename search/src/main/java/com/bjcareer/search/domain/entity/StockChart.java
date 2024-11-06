@@ -3,13 +3,12 @@ package com.bjcareer.search.domain.entity;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.hibernate.annotations.BatchSize;
 
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.GTPNewsDomain;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -48,21 +47,22 @@ public class StockChart {
 		this.ohlcList = ohlcList;
 	}
 
-	public Optional<GTPNewsDomain> loadNewByDate(LocalDate date) {
+	public List<GTPNewsDomain> loadNewByDate(LocalDate date) {
 		OHLC ohlc = getSameDateOHLC(date);
-		return Optional.ofNullable(convertJsonTypeToObject(ohlc));
+		return convertJsonTypeToObject(ohlc);
 	}
 
 	public List<GTPNewsDomain> getNextSchedule(LocalDate baseDate) {
 		List<GTPNewsDomain> news = new ArrayList<>();
 
 		for (OHLC ohlc : ohlcList) {
-			if (!ohlc.getNews().isNull()) {
-				GTPNewsDomain gtpNewsDomain = convertJsonTypeToObject(ohlc);
+			if (!ohlc.getNews().isEmpty()) {
+				List<GTPNewsDomain> gtpNewsDomains = convertJsonTypeToObject(ohlc);
 
-				if (gtpNewsDomain.getNext().isAfter(baseDate)) {
-					news.add(gtpNewsDomain);
-				}
+				gtpNewsDomains.stream()
+					.filter(gtpNewsDomain -> gtpNewsDomain.getNext().isPresent())
+					.filter(gtpNewsDomain -> gtpNewsDomain.getNext().get().isAfter(baseDate))
+					.forEach(news::add);
 			}
 		}
 
@@ -73,8 +73,8 @@ public class StockChart {
 		List<GTPNewsDomain> news = new ArrayList<>();
 
 		for (OHLC ohlc : ohlcList) {
-			if (!ohlc.getNews().isNull()) {
-				news.add(convertJsonTypeToObject(ohlc));
+			if (!ohlc.getNews().isEmpty()) {
+				news.addAll(convertJsonTypeToObject(ohlc));
 			}
 		}
 
@@ -92,22 +92,17 @@ public class StockChart {
 		}
 	}
 
-	private GTPNewsDomain convertJsonTypeToObject(OHLC ohlc) {
-		GTPNewsDomain gtpNewsDomain = null;
+	private List<GTPNewsDomain> convertJsonTypeToObject(OHLC ohlc) {
+		List<GTPNewsDomain> result = new ArrayList<>();
 
 		if (ohlc.getNews().isEmpty()) {
 			log.debug("Cant convert json node to news {} {}", stock.getName(), ohlc.getDate());
-			return gtpNewsDomain;
+			return result;
 		}
 
-		try {
-			return AppConfig.customObjectMapper()
-				.treeToValue(ohlc.getNews(), GTPNewsDomain.class);
-		} catch (JsonProcessingException e) {
-			log.warn("Converting error {} {}", stock.getName(), ohlc.getDate());
-		}
-
-		return gtpNewsDomain;
+		ObjectMapper mapper = AppConfig.customObjectMapper();
+		return mapper.convertValue(ohlc.getNews(),
+			mapper.getTypeFactory().constructCollectionType(List.class, GTPNewsDomain.class));
 	}
 
 	private OHLC getSameDateOHLC(LocalDate date) {
