@@ -16,7 +16,6 @@ public class StockSpringBootTest {
 	StockRepositoryAdapter stockRepository;
 
 	@Test
-	@Rollback(false)
 	void test_StockRepository() {
 		Stock stock = new Stock("003780", "진양산업");
 

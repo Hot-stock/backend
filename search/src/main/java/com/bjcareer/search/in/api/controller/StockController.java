@@ -2,7 +2,6 @@ package com.bjcareer.search.in.api.controller;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,13 +71,13 @@ public class StockController {
 		@RequestParam(name = "name") String stockName, @RequestParam(name = "date") LocalDate date) {
 		log.debug("request: {} {} ", stockName, date);
 
-		Optional<GTPNewsDomain> raiseReasonThadDate = newsServiceUsecase.findRaiseReasonThatDate(stockName, date);
+		List<GTPNewsDomain> raiseReasonThatDate = newsServiceUsecase.findRaiseReasonThatDate(stockName, date);
 
-		if(raiseReasonThadDate.isEmpty()) {
+		if (raiseReasonThatDate.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(List.of(raiseReasonThadDate.get()));
+		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(raiseReasonThatDate);
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
