@@ -8,6 +8,7 @@ import org.hibernate.type.SqlTypes;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.GTPNewsDomain;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import jakarta.persistence.Entity;
@@ -46,7 +47,7 @@ public class OHLC {
 	private LocalDate date;
 
 	@JdbcTypeCode(SqlTypes.JSON)
-	private JsonNode news = JsonNodeFactory.instance.objectNode();
+	private ArrayNode news = JsonNodeFactory.instance.arrayNode();
 
 	public OHLC(int open, int high, int low, int close, int percentageIncrease, LocalDate date) {
 		this.open = open;
@@ -58,7 +59,7 @@ public class OHLC {
 	}
 
 	public void addRoseNews(GTPNewsDomain news) {
-		this.news = AppConfig.customObjectMapper().convertValue(news, JsonNode.class);
+		this.news.add(AppConfig.customObjectMapper().convertValue(news, JsonNode.class));
 	}
 
 	public void addChart(StockChart chart) {
