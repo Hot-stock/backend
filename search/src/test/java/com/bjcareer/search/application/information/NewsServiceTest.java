@@ -69,7 +69,7 @@ class NewsServiceTest {
 		stock.mergeStockChart(stockChart);
 
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
-		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(stockChart);
+		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 
 		StockChart tempChart = new StockChart();
 		tempChart.addOHLC(List.of(new OHLC(100, 200, 3, 4, 100, date)));
@@ -105,7 +105,7 @@ class NewsServiceTest {
 		stock.mergeStockChart(stockChart);
 
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
-		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(stockChart);
+		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 		when(loadNewsPort.fetchNews(any())).thenReturn(List.of(news));
 		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), any())).thenReturn(Optional.of(gtpNewsDomain));
 
@@ -144,7 +144,7 @@ class NewsServiceTest {
 		stock.mergeStockChart(stockChart);
 
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
-		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(stockChart);
+		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 
 		List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, LocalDate.now());
 
