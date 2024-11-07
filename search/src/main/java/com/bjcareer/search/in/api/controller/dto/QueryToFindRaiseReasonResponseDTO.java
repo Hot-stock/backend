@@ -19,7 +19,7 @@ public class QueryToFindRaiseReasonResponseDTO {
 	public QueryToFindRaiseReasonResponseDTO(List<GTPNewsDomain> contents) {
 		for (GTPNewsDomain gtpNewsDomain : contents) {
 			this.content.add(new Content(gtpNewsDomain.getStockName(), gtpNewsDomain.getReason(),
-				gtpNewsDomain.getThema(), gtpNewsDomain.getNext(), gtpNewsDomain.getNextReason(),
+				gtpNewsDomain.getThema(), gtpNewsDomain.getNext().get(), gtpNewsDomain.getNextReason(),
 				gtpNewsDomain.getNews().getPubDate(), gtpNewsDomain.getNews().getLink()));
 		}
 
