@@ -1,82 +1,99 @@
-# What's Next?
-### 사람들의 관심이 급증하는 주식을 찾아 사용자에게 검색 서비스 및 알림을 제공하는 서비스입니다.<br>
-### 비즈니스 규칙과 기술적인 문제에 대한 해결 방법은 [WIKI](https://github.com/Hot-stock/backend/wiki)에서 확인할 수 있습니다.<br>
----
-## 서버 구조
-아래 다이어그램은 현재 애플리케이션의 AWS 기반 서버 아키텍처를 보여줍니다. 이 구조는 확장성, 보안성, 그리고 안정성을 고려하여 설계되었습니다.
 
-![server](./docs/images/server_structure.png)
+# What's Next?
+
+## 개요
+주식 시장의 방대한 뉴스와 데이터를 쉽게 분석하고, **주가 상승 요인** 및 **미래 상승 가능성**을 예측할 수 있는 서비스를 제공합니다. 사용자에게 **주요 뉴스의 테마 기반 검색**, **주가 상승 원인 분석**, **미래 상승 가능성이 있는 종목에 대한 인사이트**, **주가 정규화 및 종목 간 연관성 분석** 기능을 지원합니다.
+
+## 서버 아키텍처
+서비스는 AWS 기반으로 설계되었으며, 확장성과 보안성을 고려한 구조입니다.
+![server](./docs/images/aws.png)
+
+## 기능 설명
+### 핵심 기능
+- **주가 상승 원인 분석**: 주가가 상승한 이유를 테마별로 분석하여 제공합니다.
+- **상승 가능성 인사이트 제공**: 과거 데이터를 바탕으로 향후 상승 가능성이 높은 종목을 예측합니다.
+- **테마 기반 뉴스 검색**: 사용자가 선택한 테마나 주제에 따른 뉴스를 쉽게 검색할 수 있습니다.
+- **주가 정규화 및 관련 종목 분석**: 주가를 정규화하여 연관성이 높은 종목들을 시각적으로 분석할 수 있습니다.
+
 
 ### 주요 구성 요소
-1. **Web Serer**: 정적 파일을 캐시하고, 리버스 프록시 역할을 수행합니다. 클라이언트의 요청을 받아 내부 서버로 전달하고, 캐싱을 통해 자주 요청되는 정적 리소스를 빠르게 제공하여 성능을 최적화합니다.
-2. **API Gateway**: 외부 클라이언트 요청을 받아 프라이빗 서브넷 내의 애플리케이션 서버로 전달하는 역할을 합니다. 보안 강화와 트래픽 제어를 위해 사용됩니다.
-3. **애플리케이션 서버** (프라이빗 서브넷):
-    - **Auth Server**: 인증 관련 서비스를 처리합니다.
-    - **Search Server**: 검색 요청을 처리하는 서버입니다.
-    - **TimeDeal Server** 및 **Payment Server**: 각각 시간제한 할인(타임딜)과 결제 처리를 담당합니다.
-4. **데이터 스토리지 및 캐시 시스템**:
-    - **Redis**: 캐시 및 세션 데이터를 저장해 응답 속도를 최적화합니다.
-    - **MongoDB**: 비정형 데이터를 저장하는 NoSQL 데이터베이스입니다.
-    - **Kafka**: 대용량 메시지 스트리밍 및 실시간 로그 처리에 사용됩니다.
-    - **PostgreSQL**: 관계형 데이터베이스로 핵심 데이터를 저장합니다.
-    - **MinIO**: 파일 저장용 객체 스토리지입니다.
+- **Web Server**: 정적 파일 캐싱 및 리버스 프록시 기능을 수행합니다.
+- **API Gateway**: 외부 클라이언트 요청을 애플리케이션 서버로 안전하게 전달합니다.xq
+- **애플리케이션 서버 (프라이빗 서브넷)**:
+  - **Auth Server**: 인증 서비스 처리
+  - **Search Server**: 검색 요청 처리
+  - **타임딜 및 결제 서버**: 시간제한 할인 및 결제 기능
+- **데이터베이스 및 캐시**:
+  - **Redis**: 세션 및 캐시 데이터 저장
+  - **MongoDB**: 비정형 데이터 저장
+  - **Kafka**: 실시간 메시지 스트리밍 및 로그 처리
+  - **PostgreSQL**: 관계형 데이터 저장
+  - **MinIO**: 객체 스토리지
 
 ### 네트워크 구성
-- **퍼블릭 서브넷**: Load Balancer와 API Gateway가 위치하며, 외부에서 접근 가능합니다.
-- **프라이빗 서브넷**: 애플리케이션 서버와 데이터베이스, 메시징 시스템은 외부에서 직접 접근할 수 없으며, 보안을 위해 퍼블릭 서브넷을 통해서만 접근이 가능합니다.
+- **퍼블릭 서브넷**: API Gateway 및 Load Balancer를 배치하여 외부 접근을 관리합니다.
+- **프라이빗 서브넷**: 애플리케이션 서버와 데이터베이스는 외부에서 직접 접근할 수 없도록 구성했습니다.
 
-## 프로젝트의 전체적인 구조
-- **CI/CD**: GitHub webhook을 통해 Jenkins에서 CI/CD를 진행합니다.
-- **서버 배포**: 모든 서버는 AWS Cloud Platform에서 구동 중이며, 각 서버는 퍼블릭 또는 프라이빗 서브넷에 위치합니다.
-    - 구동 중인 주요 서버: Main Delfood Server, Redis Server, MariaDB Server
-    - **Public IP**는 Main Server에만 할당되어 있습니다.
----
-## 프로젝트의 주요 관심사
-### 공통사항
-- 지속적인 성능 개선
-- 나쁜 냄새가 나는 코드에 대한 리팩토링
+## 개발 및 배포
+- **CI/CD**: GitHub Actions을 통해 자동 빌드 및 배포가 진행됩니다.
+- **Docker**: Docker Hub를 활용하여 이미지를 자동으로 배포합니다.
 
-### 코드 컨벤션
-- Google Code Style을 준수
-- STS Check Style 플러그인을 적용하여 코드 컨벤션을 유지
-- [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+## 브랜치 전략
+- **Main**: 배포용 브랜치로, 안정적인 코드가 포함됩니다.
+- **Feature**: 각 기능별 브랜치로, `Main` 브랜치로 병합되기 전 기능 개발 및 테스트가 이루어집니다.
 
-### 성능 최적화
-- 캐싱 서버(예: Redis)를 적극 활용하여 서버 부하 감소
-- DB 서버와의 통신을 최소화 (예: N+1 쿼리를 지양)
-- 인덱스 최적화 및 쿼리 튜닝
-- 비동기 처리를 통해 외부 API 호출의 효율성 증가
----
-## 브랜치 관리 전략
-저희는 GitHub Flow를 사용하여 브랜치를 관리하고 있습니다. <br>
+## 코드 컨벤션
+- Google Code Style을 준수하며, STS Check Style 플러그인을 적용하여 코드의 일관성을 유지하고 있습니다. [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 
-Main: 항상 배포 가능한 상태의 코드를 포함합니다. <br>
-Feature: 새로운 기능 개발이나 버그 수정을 위해 `Main` 브랜치에서 파생되는 브랜치입니다.
+## 성능 최적화
+- **Redis 캐시**: 캐싱 서버를 활용하여 응답 시간을 줄입니다.
+- **쿼리 최적화**: DB 통신을 최소화하고 인덱스 최적화 및 쿼리 튜닝을 통해 성능을 개선합니다.
+- **비동기 처리**: 외부 API 호출을 비동기로 처리하여 효율성을 높입니다.
 
-- **Main**: 배포에 사용됩니다.
-- **Feature**: 각 기능 개발을 진행할 때 사용하는 브랜치입니다.
-![workFlow](/docs/images/githubflow.png)
----
 ## 테스트
-- Mockito Framework를 활용하여 고립된 테스트 코드 작성
-- Git Runner CI를 사용하여 테스트 자동화
-- 협업하는 동료의 소스코드에 테스트 코드를 작성하여 코드 이해도를 높이고 있습니다.
----
-## 성능 테스트
-- NGrinder를 설치하여 성능 테스트 진행
----
-## 사용 기술 및 환경
+- **단위 테스트**: Mockito Framework를 사용하여 고립된 테스트 작성
+- **성능 테스트**: NGrinder를 통한 성능 테스트 수행
+
+## 기술 스택
 - **Backend**: Spring Boot, Maven, Mybatis, Redis, Docker, MariaDB, Java 8
 - **CI/CD**: Jenkins, GitHub Actions, Docker Hub
-- **Cloud**: AWS Cloud Platform (Naver Cloud로 일부 이전 중)
----
+- **Cloud**: AWS Cloud Platform (일부 Naver Cloud 이전 예정)
+
 ## Wiki
-프로젝트에 대한 자세한 기술 이슈와 해결 방법은 [Wiki](https://github.com/Hot-stock/backend/wiki)에서 확인하실 수 있습니다.<br>
+기술적 이슈와 해결 방법에 대한 자세한 내용은 [Wiki](https://github.com/Hot-stock/backend/wiki)에서 확인할 수 있습니다.
+
 ---
-## CI
-- **Git Runner**: PR 시 자동으로 Build 및 Test 진행
----
-## CD
-- **Docker**: CI 서버에서 빌드된 이미지를 Docker Hub에 push 후 각 서버스의 서버에 서버에 배포합니다.
-- Docker Hub에서 자동으로 이미지를 받아 실행하는 방식으로 배포가 진행됩니다.
----
+
+## 사용 방법
+1. 이 프로젝트를 클론합니다.
+   ```bash
+   git clone https://github.com/Hot-stock/backend.git
+Docker Compose를 통해 로컬 환경을 구성합니다.
+
+로컬에서 서버를 시작하고 localhost:8080으로 접속하여 API에 접근할 수 있습니다.
+
+
+## 기여 방법
+
+프로젝트에 기여하고 싶다면, 아래 절차를 따라 주세요:
+
+1. **레포지토리를 포크합니다**.
+  - GitHub에서 본 레포지토리를 자신의 계정으로 포크하세요.
+
+2. **새로운 기능 브랜치를 생성합니다**.
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+
+3. **기능을 추가하고 커밋합니다**.
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+
+4. **브랜치를 푸시합니다**.
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+
+5. **Pull Request를 생성하여 제출합니다**.
+  - 변경 사항을 설명하고, 코드 리뷰를 위해 Pull Request를 작성해 주세요.
