@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
+import com.bjcareer.search.application.CommonValidations;
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.port.out.api.GPTAPIPort;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
@@ -41,8 +41,8 @@ public class NewsService implements NewsServiceUsecase {
 
 	@Override
 	public List<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
-		Stock stock = validationStock(stockName);
-		StockChart chart = validationStockChart(stock.getCode());
+		Stock stock = CommonValidations.validationStock(stockRepositoryPort, stockName);
+		StockChart chart = CommonValidations.validationStockChart(stockChartRepositoryPort, stock.getCode());
 
 		List<GTPNewsDomain> gtpNewsDomains = fetchOhlcFromApiIfMissing(stockName, date, chart, stock);
 
@@ -78,8 +78,8 @@ public class NewsService implements NewsServiceUsecase {
 
 	@Transactional(readOnly = true)
 	public List<GTPNewsDomain> findNextSchedule(String stockName, LocalDate date) {
-		Stock stock = validationStock(stockName);
-		StockChart chart = validationStockChart(stock.getCode());
+		Stock stock = CommonValidations.validationStock(stockRepositoryPort, stockName);
+		StockChart chart = CommonValidations.validationStockChart(stockChartRepositoryPort, stock.getCode());
 
 		List<GTPNewsDomain> allNews = chart.getAllNews();
 
@@ -136,17 +136,6 @@ public class NewsService implements NewsServiceUsecase {
 		}
 
 		return gtpNewsDomains;
-	}
-
-	private Stock validationStock(String stockName) {
-		Optional<Stock> optStock = stockRepositoryPort.findByName(stockName);
-		return optStock.orElseThrow(() -> new InvalidStockInformationException("찾아진 주식이 없습니다. 주식명을 확인해주세요!"));
-	}
-
-	private StockChart validationStockChart(String stockCode) {
-		Optional<StockChart> optStockChart = stockChartRepositoryPort.loadStockChart(stockCode);
-		return optStockChart.orElseThrow(() -> new InvalidStockInformationException("요청된 주식에 차트데이터가 없습니다. 차트 데이터 요청 버튼을 클릭해주세요!"));
-
 	}
 
 	private boolean isSameStock(String stockName, GTPNewsDomain gtpNews) {

@@ -5,7 +5,7 @@ public class Query {
 	public static final String FIND_OHLC_ABOVE_THRESHOLD =
 		"SELECT o FROM OHLC o" + " JOIN o.chart c" + " JOIN c.stock s"
 			+ " WHERE s.code = :code"
-			+ " AND o.percentageIncrease > :threshold";
+			+ " AND o.percentageIncrease >= :threshold";
 
 	public static final String FIND_CHART_BY_DATE = "SELECT ohlc FROM OHLC ohlc "
 		+ "JOIN ohlc.chart.stock stock "
