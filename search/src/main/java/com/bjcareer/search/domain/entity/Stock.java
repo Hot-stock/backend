@@ -1,14 +1,9 @@
 package com.bjcareer.search.domain.entity;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.BatchSize;
-
-import com.bjcareer.search.domain.News;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,7 +14,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,9 +41,6 @@ public class Stock {
 	private int price;
 	private Long marketCapitalization;
 
-	@OneToOne(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private StockChart stockChart;
-
 	@OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@BatchSize(size = 100)
 	private List<Thema> themas = new ArrayList<>();
@@ -75,25 +66,6 @@ public class Stock {
 
 	public Stock(String code, String name) {
 		this(code, name, null, null, 0, 0);
-	}
-
-	public LocalDate calculateStartDayForUpdateStockChart() {
-		if (stockChart == null || stockChart.getOhlcList().isEmpty()) {
-			return LocalDate.of(1999, 1, 1); // '1999-01-01' 날짜 생성
-		}
-
-		LocalDate date = stockChart.getOhlcList().getLast().getDate();
-		return date.plusDays(1);
-	}
-
-	public void mergeStockChart(StockChart stockChart) {
-		if (this.stockChart == null) {
-			this.stockChart = stockChart;
-		} else {
-			this.stockChart.addOHLC(stockChart.getOhlcList());
-		}
-
-		this.stockChart.setStock(this);
 	}
 
 	public void updateStockInfo(Stock stock) {

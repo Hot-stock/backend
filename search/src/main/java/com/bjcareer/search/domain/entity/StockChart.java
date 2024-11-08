@@ -3,6 +3,9 @@ package com.bjcareer.search.domain.entity;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -16,10 +19,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +36,10 @@ public class StockChart {
 	@Column(name = "stock_chart_id")
 	private Long id;
 
-	@OneToOne
-	@JoinColumn(name = "stock_id", unique = true) // 외래 키 매핑
+	@Column(name = "stock_id", nullable = false, unique = true)
+	private Long stockId;
+
+	@Transient
 	private Stock stock;
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "chart", cascade = CascadeType.ALL)
@@ -113,6 +117,28 @@ public class StockChart {
 		}
 
 		throw new NoResultException("Can't found ohlc data");
+	}
+
+	public LocalDate calculateStartDayForUpdateStockChart() {
+		if (ohlcList.isEmpty()) {
+			return LocalDate.of(1999, 1, 1); // '1999-01-01' 날짜 생성
+		}
+
+		LocalDate date = ohlcList.getLast().getDate();
+		return date.plusDays(1);
+	}
+
+	public void mergeStockChart(StockChart stockChart) {
+		Map<LocalDate, OHLC> ohlcMap = ohlcList.stream()
+			.collect(Collectors.toMap(OHLC::getDate, Function.identity()));
+
+		for (OHLC ohlc : stockChart.getOhlcList()) {
+			OHLC ohlcFromMap = ohlcMap.get(ohlc.getDate());
+			if (ohlcFromMap != null) {
+				ohlc.addChart(stockChart);
+				ohlcList.add(ohlcFromMap);
+			}
+		}
 	}
 
 	public void setStock(Stock stock) {
