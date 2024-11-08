@@ -16,14 +16,26 @@ public class GPTResponseFormatDTO {
 			public boolean additionalProperties = false;
 
 			public static class Properties {
-				public PropertyDetail name = new PropertyDetail("string", "주식 이름");
-				public PropertyDetail reason = new PropertyDetail("string", "Summary of why the stock is rising (3 lines)");
+				public PropertyDetail name = new PropertyDetail("string",
+					"Specify the stock name clearly. The stock name should only be used in the 'name' field and should not appear in the 'thema' field."
+				);
+
+				public PropertyDetail reason = new PropertyDetail("string",
+					"Summarize the reason for the stock's increase in 3 lines. Emphasize the stock name in the explanation, and include any connection with specific events or individuals."
+				);
+
 				public PropertyDetail thema = new PropertyDetail("string",
-					"주식이 오른 이유에 속하는 테마 한단어로 요약하지만 구체적이게 설정, 정치인테마주보다는 특정 인물");
+					"Construct the theme of the stock by extracting key themes from the reason field. Prioritize keywords related to notable individuals (e.g., Donald Trump, Elon Musk) or major issues (e.g., election, space exploration), ensuring they are closely connected with the stock name if possible. The theme keywords should consist of one word each and, if multiple, separated by commas. The stock name itself should not be used as a theme. (max limit 3)"
+				);
 				public PropertyDetail next = new PropertyDetail("string",
-					"다음 테마가 시작하는 날짜를 오늘날짜기준으로 추출해줘 날짜형식은 YYYY-mm-dd로 고정 (날짜가 없다면 빈공백)");
+					"Extract the expected date for the start of the next theme based on today's date in the format YYYY-mm-dd. If an exact date is not available but an estimated time frame can be inferred (e.g., 'in the next week', 'in the coming months'), approximate the date accordingly. If neither a precise nor estimated date can be determined, return an empty string."
+						+ "답변은 한글로 ."
+				);
 				public PropertyDetail next_reason = new PropertyDetail("string",
-					"왜 그렇게 됐는지 오늘날짜, 다음 테마 시작점, 그 이유 (이유가 없거나 이상한 문자열이 추출되면 null)");
+					"Provide a detailed explanation of how the next theme's start date (next) was calculated. Include today's date, the inferred start date, and the specific reasoning or logic used for this estimation. Additionally, provide context on why the chosen date range (e.g., 'mid-January') is likely. This includes political timelines, scheduled government sessions, or expected industry reports that support the chosen timeframe. When referencing specific documents, reports, or announcements, include the relevant link(s) to substantiate the reasoning. For example, if the date was based on a policy announcement, add a link to the policy details. If no clear basis for the date exists, or if the data seems unusual, return null. No Fabricated Information: Ensure that all information provided in next_reason and other fields is directly supported by the source text or referenced materials. If the necessary details are absent, leave the field empty or return null as appropriate."
+				);
+
+
 
 				public static class PropertyDetail {
 					public String type;
