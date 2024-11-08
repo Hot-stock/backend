@@ -14,22 +14,13 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
-import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
-import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
 
 @ExtendWith(MockitoExtension.class)
 class StockServiceTest {
-
 	@Mock
 	private ApplicationEventPublisher publisher;
-
-	@Mock
-	private ThemaRepositoryPort themaRepository;
-
-	@Mock
-	private ThemaInfoRepositoryPort themaInfoRepository;
 
 	@Mock
 	private StockRepository stockRepository;
@@ -54,6 +45,5 @@ class StockServiceTest {
 
 		// publisher.publishEvent(command);
 		verify(publisher).publishEvent(any(StockChartQueryCommand.class));
-
 	}
 }

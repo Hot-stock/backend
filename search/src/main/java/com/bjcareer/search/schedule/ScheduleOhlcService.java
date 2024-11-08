@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
+import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ScheduleOhlcService {
 	private final LoadStockInformationPort apiServerPort;
 	private final StockRepositoryAdapter stockRepository;
+	private final StockChartRepositoryPort stockChartRepository;
 
 	@Scheduled(cron = "40 4 * * * *")
 	public void saveStockInfoAndChartData() {
@@ -41,13 +44,16 @@ public class ScheduleOhlcService {
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			stocks.values().stream()
 				.map(stock -> executor.submit(() -> {
-					LocalDate startDay = stock.calculateStartDayForUpdateStockChart();
+					Optional<StockChart> optStockChart = stockChartRepository.loadStockChart(stock.getCode());
+
+					StockChart stockChart = optStockChart.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>()));
+
+					LocalDate startDay = stockChart.calculateStartDayForUpdateStockChart();
 					StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock, startDay,
 						LocalDate.now(AppConfig.ZONE_ID));
 
 					log.debug("StockChartQueryConfig: {}", stockChartQueryConfig);
-					StockChart stockChart = apiServerPort.loadStockChart(stockChartQueryConfig);
-					stock.mergeStockChart(stockChart);
+					stockChart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
 
 					return stock;
 				}))

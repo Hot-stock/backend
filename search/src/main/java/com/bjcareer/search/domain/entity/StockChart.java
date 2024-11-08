@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Slf4j
 public class StockChart {
@@ -36,8 +36,8 @@ public class StockChart {
 	@Column(name = "stock_chart_id")
 	private Long id;
 
-	@Column(name = "stock_id", nullable = false, unique = true)
-	private Long stockId;
+	@Column(name = "stock_code", nullable = false, unique = true)
+	private String stockCode;
 
 	@Transient
 	private Stock stock;
@@ -46,9 +46,9 @@ public class StockChart {
 	@BatchSize(size = 100)
 	private List<OHLC> ohlcList = new ArrayList<>();
 
-	public StockChart(Stock stock, List<OHLC> ohlcList) {
-		this.stock = stock;
-		this.ohlcList = ohlcList;
+	public StockChart(String stockCode, List<OHLC> ohlcList) {
+		this.stockCode = stockCode;
+		addOHLC(ohlcList);
 	}
 
 	public List<GTPNewsDomain> loadNewByDate(LocalDate date) {
@@ -100,7 +100,9 @@ public class StockChart {
 		List<GTPNewsDomain> result = new ArrayList<>();
 
 		if (ohlc.getNews().isEmpty()) {
-			log.debug("Cant convert json node to news {} {}", stock.getName(), ohlc.getDate());
+			log.debug("Cannot convert JSON node to news: stock={}, date={}",
+				stock != null ? stock.getName() : this.stockCode,
+				ohlc.getDate());
 			return result;
 		}
 
@@ -128,21 +130,24 @@ public class StockChart {
 		return date.plusDays(1);
 	}
 
-	public void mergeStockChart(StockChart stockChart) {
-		Map<LocalDate, OHLC> ohlcMap = ohlcList.stream()
+	public void mergeOhlc(StockChart stockChart) {
+		Map<LocalDate, OHLC> existingOhlcMap = ohlcList.stream()
 			.collect(Collectors.toMap(OHLC::getDate, Function.identity()));
 
-		for (OHLC ohlc : stockChart.getOhlcList()) {
-			OHLC ohlcFromMap = ohlcMap.get(ohlc.getDate());
-			if (ohlcFromMap != null) {
-				ohlc.addChart(stockChart);
-				ohlcList.add(ohlcFromMap);
+		List<OHLC> newOhlcEntries = new ArrayList<>();
+		for (OHLC stockOhlc : stockChart.getOhlcList()) {
+			OHLC existingOhlc = existingOhlcMap.get(stockOhlc.getDate());
+
+			if (existingOhlc != null) {
+				stockOhlc.addChart(this);
+				newOhlcEntries.add(existingOhlc);
 			}
 		}
+
+		ohlcList.addAll(newOhlcEntries);
 	}
 
 	public void setStock(Stock stock) {
 		this.stock = stock;
 	}
-
 }

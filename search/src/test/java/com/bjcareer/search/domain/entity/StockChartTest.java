@@ -37,7 +37,7 @@ class StockChartTest {
 		ohlcList.add(ohlc1);
 		ohlcList.add(ohlc2);
 
-		this.chart = new StockChart(stock, ohlcList);
+		this.chart = new StockChart(stock.getCode(), ohlcList);
 	}
 
 	@Test
@@ -118,6 +118,43 @@ class StockChartTest {
 		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(LocalDate.now());
 
 		assertEquals(1, gtpNewsDomains.size());
+	}
+
+	@Test
+	void stock에_stockChart가_없을_때_데이터를_채울_수_있는지_체크() {
+		StockChart stockChart = new StockChart();
+		LocalDate date = stockChart.calculateStartDayForUpdateStockChart();
+
+		assertEquals(LocalDate.of(1999, 1, 1), date);
+	}
+
+	@Test
+	void stockChart는_언제_데이터_부터_갱신이_필요한지_계산할_수_있어야_함(){
+		StockChart stockChart = new StockChart();
+
+		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 100, LocalDate.of(2021, 1, 1));
+		stockChart.addOHLC(List.of(ohlc));
+
+		LocalDate date = stockChart.calculateStartDayForUpdateStockChart();
+		assertEquals(LocalDate.of(2021, 1, 2), date);
+	}
+
+	@Test
+	void stockchart에_ohlc가_merger되는지_확인(){
+		//과거 차트
+		StockChart pastStockChart = new StockChart();
+		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.of(2021, 1, 1));
+		pastStockChart.addOHLC(List.of(ohlc));
+
+		//현재 갱신 차튼
+		StockChart nowStockChart = new StockChart();
+		ohlc = new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.of(2021, 1, 2));
+		nowStockChart.addOHLC(List.of(ohlc));
+
+		nowStockChart.mergeOhlc(nowStockChart);
+		List<OHLC> ohlcList = nowStockChart.getOhlcList();
+
+		assertEquals(2, ohlcList.size());
 	}
 
 	private void addNewsToOhldUsingDate(LocalDate date) {

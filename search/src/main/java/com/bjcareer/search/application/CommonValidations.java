@@ -15,8 +15,8 @@ public class CommonValidations {
 	}
 
 	public static StockChart validationStockChart(StockChartRepositoryPort port, String stockCode) {
-		Optional<StockChart> optStockChart = port.loadStockChart(stockCode);
-		return optStockChart.orElseThrow(
+		Optional<StockChart> stockChart = port.loadStockChart(stockCode);
+		return stockChart.orElseThrow(
 			() -> new InvalidStockInformationException("요청된 주식에 차트데이터가 없습니다. 차트 데이터 요청 버튼을 클릭해주세요!"));
 
 	}
