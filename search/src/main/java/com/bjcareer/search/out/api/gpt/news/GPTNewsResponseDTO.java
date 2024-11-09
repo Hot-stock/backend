@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api.gpt;
+package com.bjcareer.search.out.api.gpt.news;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
-public class GPTResponseDTO {
+public class GPTNewsResponseDTO {
 	private List<Choice> choices = new ArrayList<>();
 
 	@Data

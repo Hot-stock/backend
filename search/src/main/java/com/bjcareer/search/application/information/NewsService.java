@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.CommonValidations;
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
-import com.bjcareer.search.application.port.out.api.GPTAPIPort;
+import com.bjcareer.search.application.port.out.api.GPTNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.api.NewsCommand;
@@ -37,7 +37,7 @@ public class NewsService implements NewsServiceUsecase {
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
 
-	private final GPTAPIPort gptAPIPort;
+	private final GPTNewsPort gptNewsPort;
 
 	@Override
 	public List<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
@@ -54,7 +54,7 @@ public class NewsService implements NewsServiceUsecase {
 		log.debug("Linking news to OHLC. stockName: {}, date: {}", stockName, date);
 		NewsCommand config = new NewsCommand(stockName, date, date);
 
-		List<News> news = loadNewsPort.fetchNews(config); //뉴스 가지고 옴
+		List<News> news = loadNewsPort.fetchNews(config);
 
 		log.debug("찾아진 뉴스 개수는? {}", news.size());
 		gtpNewsDomains = changeNewsToGPTNews(stockName, news, date);
@@ -118,7 +118,7 @@ public class NewsService implements NewsServiceUsecase {
 			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
 			if (isSameDate(targetDate, n)) {
 				log.debug("Find news for {} {}", stockName, targetDate);
-				Optional<GTPNewsDomain> stockRaiseReason = gptAPIPort.findStockRaiseReason(n.getContent(), stockName,
+				Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(n.getContent(), stockName,
 					targetDate);
 
 				if (stockRaiseReason.isPresent()) {

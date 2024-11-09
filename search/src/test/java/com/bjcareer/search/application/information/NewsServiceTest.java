@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bjcareer.search.CommonConfig;
 import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
-import com.bjcareer.search.application.port.out.api.GPTAPIPort;
+import com.bjcareer.search.application.port.out.api.GPTNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
@@ -41,7 +41,7 @@ class NewsServiceTest {
 	StockChartRepositoryPort stockChartRepositoryPort;
 
 	@Mock
-	GPTAPIPort gptAPIPort;
+	GPTNewsPort gptAPIPort;
 
 	@InjectMocks
 	NewsService newsService;

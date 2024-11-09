@@ -49,8 +49,7 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 
 	@Override
 	public void updateStockChartOfOHLC(StockChart stockChart) {
-		StockChart chart = em.find(StockChart.class, stockChart.getStock().getCode()); //코드를 찾는다.
-
+		StockChart chart = em.find(StockChart.class, stockChart.getStockCode());
 		if (chart == null) {
 			em.persist(stockChart); //없다
 		} else {
