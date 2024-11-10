@@ -2,7 +2,6 @@ package com.bjcareer.search.out.api.gpt.insight;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -13,9 +12,8 @@ import com.bjcareer.search.application.port.out.api.GPTInsightPort;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
 import com.bjcareer.search.domain.GPTInsight;
+import com.bjcareer.search.domain.GPTThema;
 import com.bjcareer.search.domain.GTPNewsDomain;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +26,8 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 	private final WebClient webClient;
 
 	@Override
-	public GPTInsight getInsight(List<GTPNewsDomain> newes, LocalDate baseDate) {
-		GPTRequestInsightDTO requestDTO = createRequestDTO(newes);
+	public GPTInsight getInsight(List<GTPNewsDomain> newes, List<GPTThema> themas, LocalDate baseDate) {
+		GPTRequestInsightDTO requestDTO = createRequestDTO(newes, themas);
 
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
@@ -47,23 +45,26 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 		}
 	}
 
-	private GPTRequestInsightDTO createRequestDTO(List<GTPNewsDomain> newes) {
-		String question = createDomainToJson(newes);
+	private GPTRequestInsightDTO createRequestDTO(List<GTPNewsDomain> newes, List<GPTThema> themas) {
+		StringBuilder domainToJson = createDomainToJson(newes);
+		domainToJson.append(createThemaDomainToJson(themas));
 
 		GPTRequestInsightDTO.Message systemMessage = new GPTRequestInsightDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT);
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "넌 슈퍼개미 시간여행님의 통찰력을 가지고 있어");
 		GPTRequestInsightDTO.Message userMessage = new GPTRequestInsightDTO.Message(GPTWebConfig.USER_ROLE,
-			question + "반듯이 한글로 답변");
+			"오늘 날짜는" + LocalDate.now(AppConfig.ZONE_ID) + domainToJson + "반듯이 한글로 답변");
 		GPTResponseInsightFormatDTO gptResponseInsightFormatDTO = new GPTResponseInsightFormatDTO();
 
-		return new GPTRequestInsightDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage),
+		return new GPTRequestInsightDTO("gpt-4o", List.of(systemMessage, userMessage),
 			gptResponseInsightFormatDTO);
 	}
 
-	private String createDomainToJson(List<GTPNewsDomain> newes) {
-		ObjectMapper objectMapper = AppConfig.customObjectMapper();
+	private StringBuilder createDomainToJson(List<GTPNewsDomain> newes) {
 		StringBuilder reason = new StringBuilder();
 		StringBuilder nextReason = new StringBuilder();
+
+		reason.append("그동안 7%이상 상승한 날들에 대한 이유를 요약해봤어\n");
+		nextReason.append("뉴스에 나온 예상된 일자들을 요약을 해봤어\n");
 
 		for (GTPNewsDomain gptNews : newes) {
 			String upReason =
@@ -81,13 +82,26 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 			}
 		}
 
-		Map<String, String> map = Map.of("reason", reason.toString(), "nextReason", nextReason.toString());
+		return reason.append(nextReason);
+	}
 
-		try {
-			return objectMapper.writeValueAsString(map);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+	private StringBuilder createThemaDomainToJson(List<GPTThema> newes) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("이 주식이 속한 테마들의 뉴스들을 요약해봤어\n");
+
+		for (GPTThema gptThema : newes) {
+			sb.append(gptThema.getSummary()).append("\n");
+			sb.append(gptThema.getCatalysts()).append("\n");
+			sb.append(gptThema.getPolicyImpactAnalysis()).append("\n");
+			sb.append(gptThema.getRecoveryProjectDetails()).append("\n");
+			sb.append(gptThema.getInterestRateImpact()).append("\n");
+			sb.append(gptThema.getMarketOutlook()).append("\n");
+			sb.append(gptThema.getScenarioAnalysis()).append("\n");
+			sb.append(gptThema.getKeyUpcomingDates()).append("\n");
+			sb.append(gptThema.getInvestmentAttractiveness()).append("\n");
 		}
+
+		return sb;
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTRequestInsightDTO requestDTO) {
