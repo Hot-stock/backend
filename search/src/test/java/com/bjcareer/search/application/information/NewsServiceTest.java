@@ -65,8 +65,8 @@ class NewsServiceTest {
 		Stock stock = new Stock("12345", stockName);
 		StockChart stockChart = new StockChart(stock.getCode(), new ArrayList<>());
 
-		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, LocalDate.now().minusDays(1));
-		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, LocalDate.now().plusDays(1));
+		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now().minusDays(1));
+		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, 10L, LocalDate.now().plusDays(1));
 
 		stockChart.addOHLC(List.of(ohlc, ohlc1));
 
@@ -74,7 +74,7 @@ class NewsServiceTest {
 		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 
 		StockChart tempChart = new StockChart(stock.getCode(), new ArrayList<>());
-		tempChart.addOHLC(List.of(new OHLC(100, 200, 3, 4, 100, date)));
+		tempChart.addOHLC(List.of(new OHLC(100, 200, 3, 4, 100, 10L, date)));
 		when(loadStockInformationServerPort.loadStockChart(any())).thenReturn(tempChart);
 
 		// When
@@ -96,8 +96,8 @@ class NewsServiceTest {
 		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", "수영복", null, null);
 		gtpNewsDomain.addNewsDomain(news);
 
-		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, LocalDate.now());
-		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, LocalDate.now().plusDays(1));
+		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
+		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, 10L, LocalDate.now().plusDays(1));
 
 		List<OHLC> ohlcList = new ArrayList<>();
 		ohlcList.add(ohlc);
@@ -137,8 +137,8 @@ class NewsServiceTest {
 
 		Stock stock = new Stock("12345", stockName);
 
-		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, LocalDate.now());
-		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, LocalDate.now().plusDays(1));
+		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
+		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, 10L, LocalDate.now().plusDays(1));
 
 		ohlc.addRoseNews(gtpNewsDomain);
 		ohlc.addRoseNews(gtpNewsDomain2);

@@ -28,8 +28,8 @@ class StockRepositoryAdapterTest {
 	void setUp() {
 		Stock stock = new Stock("12345", "BYE");
 		StockChart stockChart = new StockChart(stock.getCode(), new ArrayList<>());
-		OHLC ohlc = new OHLC(100, 200, 3, 4,100,  LocalDate.now());
-		OHLC ohlc1 = new OHLC(0, 0, 3, 4,2,  LocalDate.now());
+		OHLC ohlc = new OHLC(100, 200, 3, 4,100,  10L,LocalDate.now());
+		OHLC ohlc1 = new OHLC(0, 0, 3, 4,2,  10L,LocalDate.now());
 
 		stockChart.addOHLC(List.of(ohlc, ohlc1));
 

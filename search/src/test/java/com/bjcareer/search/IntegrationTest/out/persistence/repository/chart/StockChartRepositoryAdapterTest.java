@@ -29,8 +29,8 @@ class StockChartRepositoryAdapterTest {
 	void setUp() {
 		Stock stock = new Stock("12345", "진성티이씨");
 
-		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, LocalDate.now());
-		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 0, LocalDate.now().plusDays(1));
+		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L,LocalDate.now());
+		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 0,10L, LocalDate.now().plusDays(1));
 
 		List<OHLC> ohlcList = new ArrayList<>();
 

@@ -46,7 +46,7 @@ class NewsServiceTest {
 		stockRepositoryPort.save(stock);
 
 		StockChart stockChart = new StockChart(stock.getCode(),
-			List.of(new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.now())));
+			List.of(new OHLC(1000, 2000, 3000, 4000, 20, 10L,LocalDate.now())));
 
 		stockChartRepositoryPort.save(stockChart);
 	}
@@ -103,7 +103,7 @@ class NewsServiceTest {
 	@Test
 	void 상승_이유를_찾아서_저장이_되는지_체크() {
 		//given
-		List<OHLC> ohlcList = List.of(new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.of(2020, 9, 2)));
+		List<OHLC> ohlcList = List.of(new OHLC(1000, 2000, 3000, 4000, 20,10L, LocalDate.of(2020, 9, 2)));
 		StockChart chart = stockChartRepositoryPort.loadStockChart(stockCode).get();
 		chart.addOHLC(ohlcList);
 

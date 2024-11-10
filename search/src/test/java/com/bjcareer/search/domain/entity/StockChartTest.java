@@ -27,9 +27,9 @@ class StockChartTest {
 	void setUp() {
 		Stock stock = new Stock("370090", "퓨런티어");
 
-		OHLC ohlc = new OHLC(1, 2, 3, 4, 5, LocalDate.now());
-		OHLC ohlc1 = new OHLC(2, 2, 3, 4, 5, LocalDate.now().plusDays(1));
-		OHLC ohlc2 = new OHLC(3, 2, 3, 4, 5, LocalDate.now().plusDays(2));
+		OHLC ohlc = new OHLC(1, 2, 3, 4, 5, 10L,LocalDate.now());
+		OHLC ohlc1 = new OHLC(2, 2, 3, 4, 5,10L, LocalDate.now().plusDays(1));
+		OHLC ohlc2 = new OHLC(3, 2, 3, 4, 5, 10L,LocalDate.now().plusDays(2));
 
 		List<OHLC> ohlcList = new ArrayList<>();
 
@@ -132,7 +132,7 @@ class StockChartTest {
 	void stockChart는_언제_데이터_부터_갱신이_필요한지_계산할_수_있어야_함(){
 		StockChart stockChart = new StockChart();
 
-		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 100, LocalDate.of(2021, 1, 1));
+		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 100, 10L,LocalDate.of(2021, 1, 1));
 		stockChart.addOHLC(List.of(ohlc));
 
 		LocalDate date = stockChart.calculateStartDayForUpdateStockChart();
@@ -143,12 +143,12 @@ class StockChartTest {
 	void stockchart에_ohlc가_merger되는지_확인(){
 		//과거 차트
 		StockChart pastStockChart = new StockChart();
-		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.of(2021, 1, 1));
+		OHLC ohlc = new OHLC(1000, 2000, 3000, 4000, 20, 10L,LocalDate.of(2021, 1, 1));
 		pastStockChart.addOHLC(List.of(ohlc));
 
 		//현재 갱신 차튼
 		StockChart nowStockChart = new StockChart();
-		ohlc = new OHLC(1000, 2000, 3000, 4000, 20, LocalDate.of(2021, 1, 2));
+		ohlc = new OHLC(1000, 2000, 3000, 4000, 20,10L, LocalDate.of(2021, 1, 2));
 		nowStockChart.addOHLC(List.of(ohlc));
 
 		nowStockChart.mergeOhlc(nowStockChart);

@@ -24,13 +24,13 @@ class OHLCTest {
 
 	@Test
 	void ohlc에_등록된_뉴스가_없을때_get() {
-		OHLC ohlc = new OHLC(1, 2, 3, 4, 5, null);
+		OHLC ohlc = new OHLC(1, 2, 3, 4, 5, 10L,null);
 		assertTrue(ohlc.getNews().isEmpty());
 	}
 
 	@Test
 	void ohlc에_여러_개의_뉴스가_등록되어_List형식으로_변환됨(){
-		OHLC ohlc = new OHLC(1, 2, 3, 4, 5, null);
+		OHLC ohlc = new OHLC(1, 2, 3, 4, 5,10L, null);
 		gtpNewsDomain.addNewsDomain(news);
 
 		ohlc.addRoseNews(gtpNewsDomain); //중복된 뉴스지만 저장됨

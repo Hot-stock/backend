@@ -56,6 +56,7 @@ public class OHLC {
 		this.low = low;
 		this.close = close;
 		this.date = date;
+		this.volume = volume;
 		this.percentageIncrease = percentageIncrease;
 	}
 
