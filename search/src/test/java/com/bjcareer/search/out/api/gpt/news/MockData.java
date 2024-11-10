@@ -1,7 +1,4 @@
-package com.bjcareer.search.out.api.gpt;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+package com.bjcareer.search.out.api.gpt.news;
 
 public class MockData {
 	public static final String GPT_RESPONSE =""

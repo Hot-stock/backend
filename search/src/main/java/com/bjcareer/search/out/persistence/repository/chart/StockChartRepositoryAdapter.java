@@ -1,5 +1,6 @@
 package com.bjcareer.search.out.persistence.repository.chart;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,27 +40,17 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 
 	@Override
 	public StockChart findOhlcAboveThreshold(LoadChartAboveThresholdCommand command) {
-		List<OHLC> resultList = em.createQuery(Query.FIND_OHLC_ABOVE_THRESHOLD, OHLC.class)
+		return em.createQuery(Query.FIND_OHLC_ABOVE_THRESHOLD, StockChart.class)
 			.setParameter("code", command.getCode())
 			.setParameter("threshold", command.getThreshold())
-			.getResultList();
-
-		return new StockChart(command.getCode(), resultList);
+			.setParameter("startDate", LocalDate.of(2018, 11, 1))
+			.getSingleResult();
 	}
 
 	@Override
 	public void updateStockChartOfOHLC(StockChart stockChart) {
-		StockChart chart = em.find(StockChart.class, stockChart.getStockCode());
-		if (chart == null) {
-			em.persist(stockChart); //없다
-		} else {
-			for (OHLC ohlc : stockChart.getOhlcList()) {
-				OHLC ohlc1 = em.find(OHLC.class, ohlc.getId());
-				if (ohlc1 == null) {
-					em.persist(ohlc);
-				}
-			}
-		}
+		log.info("Update stock chart: {}", stockChart.getStockCode());
+		em.persist(stockChart);
 	}
 
 	@Override

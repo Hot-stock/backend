@@ -65,7 +65,6 @@ public class NewsService implements NewsServiceUsecase {
 			log.info("News found for {} {}", stockName, date);
 
 			for (GTPNewsDomain gtpNews : gtpNewsDomains) {
-				System.out.println("gtpNews = " + gtpNews);
 				chart.addNewsToOhlc(gtpNews, date);
 			}
 
@@ -75,7 +74,7 @@ public class NewsService implements NewsServiceUsecase {
 		return gtpNewsDomains;
 	}
 
-
+	@Override
 	@Transactional(readOnly = true)
 	public List<GTPNewsDomain> findNextSchedule(String stockName, LocalDate date) {
 		Stock stock = CommonValidations.validationStock(stockRepositoryPort, stockName);
@@ -91,6 +90,11 @@ public class NewsService implements NewsServiceUsecase {
 		List<GTPNewsDomain> nextSchedule = chart.getNextSchedule(date);
 		log.info("Next schedule found for {} {}", stockName, nextSchedule.size());
 		return nextSchedule;
+	}
+
+	@Override
+	public List<GTPNewsDomain> saveThemaNews(String Keyword, LocalDate date) {
+		return List.of();
 	}
 
 	private List<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart,
@@ -117,7 +121,7 @@ public class NewsService implements NewsServiceUsecase {
 		for (News n : news) {
 			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
 			if (isSameDate(targetDate, n)) {
-				log.debug("Find news for {} {}", stockName, targetDate);
+				log.debug("Find news for and query to gpt{} {} {}", stockName, targetDate, n.getLink());
 				Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(n.getContent(), stockName,
 					targetDate);
 

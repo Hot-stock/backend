@@ -10,11 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
 import com.bjcareer.search.application.information.NewsService;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.GTPNewsDomain;
@@ -37,8 +39,8 @@ class NewsServiceTest {
 	String stockCode = "017370";
 	String stockName = "우신시스템";
 
-	@BeforeEach
-	@Transactional
+	// @BeforeEach
+	// @Transactional
 	void setUp() {
 		Stock stock = new Stock(stockCode, stockName);
 		stockRepositoryPort.save(stock);
@@ -117,6 +119,25 @@ class NewsServiceTest {
 
 		for (GTPNewsDomain gtpNewsDomain : allNews) {
 			System.out.println(gtpNewsDomain);
+		}
+	}
+
+	@Test
+	@Rollback(false)
+	void 특정_종목의_모든_뉴스에_뉴스데이터를_저장() {
+		//given
+		String stockName = "진성티이씨";
+		LocalDate date = LocalDate.of(2020, 9, 2);
+
+		StockChart chart = stockChartRepositoryPort.findOhlcAboveThreshold(
+			new LoadChartAboveThresholdCommand("036890", 7));
+
+		for (OHLC ohlc : chart.getOhlcList()) {
+			System.out.println("ohlc.getDate() = " + ohlc.getDate());
+
+			if (ohlc.getNews().isEmpty()) {
+				newsService.findRaiseReasonThatDate(stockName, ohlc.getDate());
+			}
 		}
 	}
 }
