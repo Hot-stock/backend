@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.api.gpt;
+package com.bjcareer.search.out.api.gpt.news;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,9 +13,9 @@ class ChatGPTTest {
 		String jsonData = MockData.GPT_RESPONSE;
 
 		ObjectMapper mapper = new ObjectMapper();
-		GPTResponseDTO gptResponseDTO = mapper.readValue(jsonData, GPTResponseDTO.class);
+		GPTNewsResponseDTO gptNewsResponseDTO = mapper.readValue(jsonData, GPTNewsResponseDTO.class);
 
-		GPTResponseDTO.Content parsedContent = gptResponseDTO.getChoices().getFirst().getMessage().getParsedContent();
+		GPTNewsResponseDTO.Content parsedContent = gptNewsResponseDTO.getChoices().getFirst().getMessage().getParsedContent();
 
 		assertEquals("그린리소스", parsedContent.getName());
 		assertEquals("2024-10-01", parsedContent.getNext());

@@ -37,6 +37,10 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 				.getMessage()
 				.getParsedContent();
 
+			if (parsedContent.isFiltered()) {
+				return Optional.empty();
+			}
+
 			return Optional.of(
 				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getThema(),
 					parsedContent.getNext(), parsedContent.getNextReason()));
