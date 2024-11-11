@@ -6,7 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

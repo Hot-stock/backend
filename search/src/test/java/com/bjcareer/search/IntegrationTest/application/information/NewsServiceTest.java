@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +18,7 @@ import com.bjcareer.search.application.port.out.persistence.stock.StockRepositor
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;

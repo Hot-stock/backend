@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.api.NewsCommand;
-import com.bjcareer.search.domain.GPTThema;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;

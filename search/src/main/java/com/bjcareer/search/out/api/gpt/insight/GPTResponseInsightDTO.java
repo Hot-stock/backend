@@ -3,6 +3,7 @@ package com.bjcareer.search.out.api.gpt.insight;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bjcareer.search.config.AppConfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,7 +27,7 @@ public class GPTResponseInsightDTO {
 
 		public Content getParsedContent() {
 			try {
-				ObjectMapper mapper = new ObjectMapper();
+				ObjectMapper mapper = AppConfig.customObjectMapper();
 				return mapper.readValue(content, Content.class);  // content를 Content 객체로 변환
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -37,11 +38,12 @@ public class GPTResponseInsightDTO {
 
 	@Data
 	public static class Content {
-		private String isThema;
-		private String buyRecommendation;
-		private String analysis;
-		private String projectedVolume;
-		private String volumeDeclineAnalysis;
-		private String investmentIdea;
+		private BuyRecommendationVariableResponseDTO buyRecommendation;
+		private String marketDrivers;
+		private List<KeyDateVariableResponseDTO> keyDates;
+		private List<ShortTermStrategyVariableResponseDTO> shortTermStrategy;
+		private List<LongTermThesisVariableResponseDTO> longTermThesis;
+		private String volumeTargetForGain;
+		private String riskPeriods;
 	}
 }

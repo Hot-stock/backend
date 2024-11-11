@@ -1,7 +1,9 @@
 package com.bjcareer.search.out.api.gpt.news;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatusCode;
@@ -11,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.search.application.port.out.api.GPTNewsPort;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +43,14 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 				return Optional.empty();
 			}
 
+			Map<String, String> themas = new HashMap<>();
+
+			for (ThemaVariableResponseDTO thema : parsedContent.getThemas()) {
+				themas.put(thema.name, thema.reason);
+			}
+
 			return Optional.of(
-				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getThema(),
+				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), themas,
 					parsedContent.getNext(), parsedContent.getNextReason()));
 		} else {
 			handleErrorResponse(response);
@@ -54,7 +62,9 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT);
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			"오늘의 날짜는 뉴스 발행일은 " + pubDate.toString() + name + "을 기준으로 다음의 메세지를 분석하고" + message + "답변은 한글로");
+			"Today’s date is the news publication date: " + pubDate.toString() + ". Based on " + name
+				+ ", analyze the following message: " + message + ". Provide the response in Korean.");
+
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 
 		return new GPTNewsRequestDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);

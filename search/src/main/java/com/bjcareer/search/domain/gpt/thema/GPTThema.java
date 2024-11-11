@@ -1,6 +1,8 @@
-package com.bjcareer.search.domain;
+package com.bjcareer.search.domain.gpt.thema;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

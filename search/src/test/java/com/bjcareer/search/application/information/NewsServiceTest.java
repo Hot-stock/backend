@@ -6,7 +6,9 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +23,11 @@ import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 @ExtendWith(MockitoExtension.class)
 class NewsServiceTest {
@@ -45,6 +47,8 @@ class NewsServiceTest {
 
 	@InjectMocks
 	NewsService newsService;
+
+	Set<String> thema = Set.of("수영복");
 
 	@Test
 	void 주식이_없는_상태에서_요청을_진행하면_오류를_반환해야함() {
@@ -93,7 +97,8 @@ class NewsServiceTest {
 		LocalDate date = LocalDate.now();
 		News news = new News("title", "link", "link", "묘사", pubDate, "휴가로 인해서 래쉬가드 수요가 증가함");
 
-		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", "수영복", null, null);
+		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
+		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", themas, null, null);
 		gtpNewsDomain.addNewsDomain(news);
 
 		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
@@ -129,10 +134,12 @@ class NewsServiceTest {
 		News news1 = new News("title", "link", "link", "묘사", pubDate, "휴가로 인해서 래쉬가드 수요가 증가함");
 		News news2 = new News("title", "link", "link", "묘사", pubDate, "동남아 여행지로 많이 가서 수요가 증가함");
 
-		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", "수영복", null, null);
+		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
+		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", themas, null, null);
 		gtpNewsDomain.addNewsDomain(news1);
 
-		GTPNewsDomain gtpNewsDomain2 = new GTPNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", "여행지", null, null);
+		Map<String, String> themas2 = Map.of("여행", "동남아 여행객 증가로 래쉬가드 수요 증가");
+		GTPNewsDomain gtpNewsDomain2 = new GTPNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", themas2, null, null);
 		gtpNewsDomain2.addNewsDomain(news2);
 
 		Stock stock = new Stock("12345", stockName);

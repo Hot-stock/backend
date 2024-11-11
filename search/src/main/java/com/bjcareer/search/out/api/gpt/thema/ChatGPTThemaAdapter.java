@@ -10,8 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
-import com.bjcareer.search.domain.CatalystsVariableDomain;
-import com.bjcareer.search.domain.GPTThema;
+import com.bjcareer.search.domain.gpt.thema.CatalystsVariableDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

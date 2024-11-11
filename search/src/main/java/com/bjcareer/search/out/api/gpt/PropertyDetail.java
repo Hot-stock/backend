@@ -1,8 +1,8 @@
 package com.bjcareer.search.out.api.gpt;
 
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Getter
+@NoArgsConstructor
 public class PropertyDetail {
 	public String type;
 	public String description;

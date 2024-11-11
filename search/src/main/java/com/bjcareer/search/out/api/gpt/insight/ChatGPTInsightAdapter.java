@@ -2,8 +2,8 @@ package com.bjcareer.search.out.api.gpt.insight;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,9 +11,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.search.application.port.out.api.GPTInsightPort;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
-import com.bjcareer.search.domain.GPTInsight;
-import com.bjcareer.search.domain.GPTThema;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.insight.BuyRecommendationVariableDomain;
+import com.bjcareer.search.domain.gpt.insight.GPTInsight;
+import com.bjcareer.search.domain.gpt.insight.KeyDateVariableDomain;
+import com.bjcareer.search.domain.gpt.insight.LongTermThesisVariableDomain;
+import com.bjcareer.search.domain.gpt.insight.ShortTermStrategyVariableDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,82 +30,117 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 	private final WebClient webClient;
 
 	@Override
-	public GPTInsight getInsight(List<GTPNewsDomain> newes, List<GPTThema> themas, LocalDate baseDate) {
-		GPTRequestInsightDTO requestDTO = createRequestDTO(newes, themas);
-
+	public GPTInsight getInsight(List<GTPNewsDomain> newsList, List<GPTThema> themas, LocalDate baseDate) {
+		GPTRequestInsightDTO requestDTO = createRequestDTO(newsList, themas);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
-			GPTResponseInsightDTO gptResponseInsightDTO = handleSuccessResponse(response);
-			GPTResponseInsightDTO.Content parsedContent = gptResponseInsightDTO.getChoices()
-				.getFirst()
-				.getMessage()
-				.getParsedContent();
-
-			return new GPTInsight();
+			return processSuccessfulResponse(response);
 		} else {
 			handleErrorResponse(response);
 			return null;
 		}
 	}
 
-	private GPTRequestInsightDTO createRequestDTO(List<GTPNewsDomain> newes, List<GPTThema> themas) {
-		StringBuilder domainToJson = createDomainToJson(newes);
-		domainToJson.append(createThemaDomainToJson(themas));
+	private GPTInsight processSuccessfulResponse(ClientResponse response) {
+		GPTResponseInsightDTO gptResponse = handleSuccessResponse(response);
+		GPTResponseInsightDTO.Content parsedContent = gptResponse.getChoices()
+			.getFirst()
+			.getMessage()
+			.getParsedContent();
 
+		BuyRecommendationVariableDomain buyRecommendation = createBuyRecommendation(parsedContent);
+		List<KeyDateVariableDomain> keyDates = createKeyDates(parsedContent);
+		List<ShortTermStrategyVariableDomain> shortTermStrategies = createShortTermStrategies(parsedContent);
+		List<LongTermThesisVariableDomain> longTermTheses = createLongTermTheses(parsedContent);
+
+		return new GPTInsight(buyRecommendation, parsedContent.getMarketDrivers(), keyDates, shortTermStrategies,
+			longTermTheses,
+			parsedContent.getVolumeTargetForGain(), parsedContent.getRiskPeriods());
+	}
+
+	private BuyRecommendationVariableDomain createBuyRecommendation(GPTResponseInsightDTO.Content content) {
+		return new BuyRecommendationVariableDomain(
+			content.getBuyRecommendation().score, content.getBuyRecommendation().reason);
+	}
+
+	private List<KeyDateVariableDomain> createKeyDates(GPTResponseInsightDTO.Content content) {
+		return content.getKeyDates().stream()
+			.map(keyDate -> new KeyDateVariableDomain(keyDate.date, keyDate.reason))
+			.collect(Collectors.toList());
+	}
+
+	private List<ShortTermStrategyVariableDomain> createShortTermStrategies(GPTResponseInsightDTO.Content content) {
+		return content.getShortTermStrategy().stream()
+			.map(strategy -> new ShortTermStrategyVariableDomain(
+				strategy.date,
+				strategy.catalystImpact,
+				strategy.historicalImpact.stream()
+					.map(detail -> new ShortTermStrategyVariableDomain.HistoricalImpactDetail(
+						detail.impactDate, detail.reasonForRise, detail.sourceLink))
+					.collect(Collectors.toList()),
+				strategy.predictedImpact, strategy.probabilityOfIncrease, strategy.investorInsight))
+			.collect(Collectors.toList());
+	}
+
+	private List<LongTermThesisVariableDomain> createLongTermTheses(GPTResponseInsightDTO.Content content) {
+		return content.getLongTermThesis().stream()
+			.map(thesis -> new LongTermThesisVariableDomain(
+				thesis.historicalPatterns.stream()
+					.map(pattern -> new LongTermThesisVariableDomain.HistoricalPatternDetail(
+						pattern.eventDate, pattern.patternDescription,
+						pattern.marketImpact, pattern.investorAction))
+					.collect(Collectors.toList()),
+				thesis.catalystAnalysis.stream()
+					.map(catalyst -> new LongTermThesisVariableDomain.CatalystDetail(
+						catalyst.catalystDescription, catalyst.expectedImpact,
+						catalyst.historicalComparison, catalyst.investorInsight))
+					.collect(Collectors.toList()),
+				thesis.riskResilienceFactors, thesis.projectedOutcomes))
+			.collect(Collectors.toList());
+	}
+
+	private GPTRequestInsightDTO createRequestDTO(List<GTPNewsDomain> newsList, List<GPTThema> themas) {
+		String domainJson = createDomainJson(newsList) + createThemaDomainJson(themas);
 		GPTRequestInsightDTO.Message systemMessage = new GPTRequestInsightDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "넌 슈퍼개미 시간여행님의 통찰력을 가지고 있어");
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "You possess the insights of a 'Super Ant Time Traveler'");
 		GPTRequestInsightDTO.Message userMessage = new GPTRequestInsightDTO.Message(GPTWebConfig.USER_ROLE,
-			"오늘 날짜는" + LocalDate.now(AppConfig.ZONE_ID) + domainToJson + "반듯이 한글로 답변");
-		GPTResponseInsightFormatDTO gptResponseInsightFormatDTO = new GPTResponseInsightFormatDTO();
+			"Today's date is " + LocalDate.now(AppConfig.ZONE_ID) + domainJson + "Please respond strictly in Korean");
 
 		return new GPTRequestInsightDTO("gpt-4o", List.of(systemMessage, userMessage),
-			gptResponseInsightFormatDTO);
+			new GPTResponseInsightFormatDTO());
 	}
 
-	private StringBuilder createDomainToJson(List<GTPNewsDomain> newes) {
-		StringBuilder reason = new StringBuilder();
-		StringBuilder nextReason = new StringBuilder();
+	private String createDomainJson(List<GTPNewsDomain> newsList) {
+		StringBuilder result = new StringBuilder("그동안 7%이상 상승한 날들에 대한 이유를 요약해봤어\n");
 
-		reason.append("그동안 7%이상 상승한 날들에 대한 이유를 요약해봤어\n");
-		nextReason.append("뉴스에 나온 예상된 일자들을 요약을 해봤어\n");
-
-		for (GTPNewsDomain gptNews : newes) {
-			String upReason =
-				gptNews.getNews().getPubDate() + " " + gptNews.getReason() + " " + gptNews.getNews().getOriginalLink();
-			reason.append(upReason).append("\n");
-
-			if (gptNews.getNext().isEmpty()) {
-				continue;
-			}
-
-			if (gptNews.getNext().get().isAfter(LocalDate.now())) {
-				String nextUpReason =
-					gptNews.getNext().get() + " " + gptNews.getNextReason() + " " + gptNews.getNews().getOriginalLink();
-				nextReason.append(nextUpReason).append("\n");
-			}
-		}
-
-		return reason.append(nextReason);
+		newsList.forEach(news -> {
+			result.append(news.getNews().getPubDate()).append(" ").append(news.getReason()).append(" ")
+				.append(news.getNews().getOriginalLink()).append("\n");
+			news.getNext().ifPresent(nextDate -> {
+				if (nextDate.isAfter(LocalDate.now())) {
+					result.append(nextDate).append(" ").append(news.getNextReason()).append(" ")
+						.append(news.getNews().getOriginalLink()).append("\n");
+				}
+			});
+		});
+		return result.toString();
 	}
 
-	private StringBuilder createThemaDomainToJson(List<GPTThema> newes) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("이 주식이 속한 테마들의 뉴스들을 요약해봤어\n");
-
-		for (GPTThema gptThema : newes) {
-			sb.append(gptThema.getSummary()).append("\n");
-			sb.append(gptThema.getCatalysts()).append("\n");
-			sb.append(gptThema.getPolicyImpactAnalysis()).append("\n");
-			sb.append(gptThema.getRecoveryProjectDetails()).append("\n");
-			sb.append(gptThema.getInterestRateImpact()).append("\n");
-			sb.append(gptThema.getMarketOutlook()).append("\n");
-			sb.append(gptThema.getScenarioAnalysis()).append("\n");
-			sb.append(gptThema.getKeyUpcomingDates()).append("\n");
-			sb.append(gptThema.getInvestmentAttractiveness()).append("\n");
-		}
-
-		return sb;
+	private String createThemaDomainJson(List<GPTThema> themas) {
+		StringBuilder result = new StringBuilder("이 주식이 속한 테마들의 뉴스들을 요약해봤어\n");
+		themas.forEach(thema -> {
+			result.append(thema.getSummary()).append("\n")
+				.append(thema.getCatalysts()).append("\n")
+				.append(thema.getPolicyImpactAnalysis()).append("\n")
+				.append(thema.getRecoveryProjectDetails()).append("\n")
+				.append(thema.getInterestRateImpact()).append("\n")
+				.append(thema.getMarketOutlook()).append("\n")
+				.append(thema.getScenarioAnalysis()).append("\n")
+				.append(thema.getKeyUpcomingDates()).append("\n")
+				.append(thema.getInvestmentAttractiveness()).append("\n");
+		});
+		return result.toString();
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTRequestInsightDTO requestDTO) {
@@ -112,7 +151,6 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 	}
 
 	private GPTResponseInsightDTO handleSuccessResponse(ClientResponse response) {
-		// 동기적으로 body를 읽음
 		GPTResponseInsightDTO gptResponse = response.bodyToMono(GPTResponseInsightDTO.class).block();
 		log.debug("GPT response: {}", gptResponse);
 		return gptResponse;
@@ -120,10 +158,7 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 
 	private void handleErrorResponse(ClientResponse response) {
 		if (response != null) {
-			HttpStatusCode statusCode = response.statusCode();
-			log.error("Request failed with status code: {}", statusCode);
-
-			// 에러 메시지를 동기적으로 읽음
+			log.error("Request failed with status code: {}", response.statusCode());
 			String errorBody = response.bodyToMono(String.class).block();
 			log.error("Error body: {}", errorBody);
 		} else {

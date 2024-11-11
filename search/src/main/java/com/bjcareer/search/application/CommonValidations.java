@@ -7,6 +7,7 @@ import com.bjcareer.search.application.port.out.persistence.stock.StockRepositor
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.domain.entity.ThemaInfo;
 
 public class CommonValidations {
 	public static Stock validationStock(StockRepositoryPort port, String stockName) {
@@ -18,6 +19,10 @@ public class CommonValidations {
 		Optional<StockChart> stockChart = port.loadStockChart(stockCode);
 		return stockChart.orElseThrow(
 			() -> new InvalidStockInformationException("요청된 주식에 차트데이터가 없습니다. 차트 데이터 요청 버튼을 클릭해주세요!"));
-
 	}
+
+	// public static ThemaInfo validationThemaInfo(String Thema, String themaName) {
+	// 	Optional<ThemaInfo> optThema = port.findThemaByName(themaName);
+	// 	return optThema.orElseThrow(() -> new InvalidStockInformationException("찾아진 테마가 없습니다. 테마명을 확인해주세요!"));
+	// }
 }

@@ -5,13 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 @ExtendWith(MockitoExtension.class)
 class OHLCTest {
@@ -19,8 +20,9 @@ class OHLCTest {
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV",
 		Locale.ENGLISH);
 	private final String pubDate = ZonedDateTime.now().format(formatter);
+	Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
 	private final News news = new News("title", "link", "link", "묘사", pubDate, "휴가로 인해서 래쉬가드 수요가 증가함");
-	private final GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", "수영복", null, null);
+	private final GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", themas, null, null);
 
 	@Test
 	void ohlc에_등록된_뉴스가_없을때_get() {

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.hibernate.annotations.BatchSize;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;

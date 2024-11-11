@@ -13,8 +13,8 @@ import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChart
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.GPTInsight;
-import com.bjcareer.search.domain.GPTThema;
+import com.bjcareer.search.domain.gpt.insight.GPTInsight;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 
@@ -39,9 +39,8 @@ class ChatGPTInsightAdapterTest {
 		StockChart stockChart = stockChartRepositoryPort.findOhlcAboveThreshold(command);
 		ThemaInfo themaInfo = themaInfoRepositoryPort.findByName("우크라이나 재건").get();
 
-		List<GPTThema> news = themaInfo.getNews();
 
-		GPTInsight insight = gptInsightAdapter.getInsight(stockChart.getAllNews(), news, LocalDate.now(AppConfig.ZONE_ID));
+		GPTInsight insight = gptInsightAdapter.getInsight(stockChart.getAllNews(), null, LocalDate.now(AppConfig.ZONE_ID));
 		System.out.println("insight = " + insight);
 
 	}

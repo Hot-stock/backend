@@ -17,7 +17,7 @@ import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
@@ -93,8 +93,11 @@ public class NewsService implements NewsServiceUsecase {
 	}
 
 	@Override
-	public List<GTPNewsDomain> saveThemaNews(String Keyword, LocalDate date) {
-		return List.of();
+	public List<GTPNewsDomain> searchThemaNews(String Keyword, LocalDate date) {
+		List<News> news = loadNewsPort.fetchNews(new NewsCommand(Keyword, date, date));
+		gptNewsPort.findStockRaiseReason(news.get(0).getContent(), Keyword, date);
+
+		return null;
 	}
 
 	private List<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart,

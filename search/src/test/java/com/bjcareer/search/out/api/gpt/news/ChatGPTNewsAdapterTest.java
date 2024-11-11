@@ -1,5 +1,7 @@
 package com.bjcareer.search.out.api.gpt.news;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -7,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 @SpringBootTest
 class ChatGPTNewsAdapterTest {
@@ -49,8 +51,8 @@ class ChatGPTNewsAdapterTest {
 				+ "그러나 주가 상승 모멘텀을 나타내는 추세 측면에서는 아쉬움을 나타냈다.\n"
 			+ "\n"
 				+ "(위의 AI인공지능 점수는 재무 데이터를 기반으로 전체 상장 종목과 비교/분석하여 도출한 점수로 높은 점수가 반드시 높은 수익률을 보장하지 않습니다. 위의 자료는 당사의 추천 종목이 아니며, 투자 시 참고용으로 제시해드리는 것입니다. 핵심투자지표를 결합해 종목의 투자매력도를 종합 계산한 \"인공지능 투자점수\"는 \"거장들의 투자공식\" 앱에서 확인하실 수 있습니다.)",
-			"삼부토건", LocalDate.of(2024, 11, 8));
-		System.out.println("stockRaiseReason = " + stockRaiseReason.get());
+			"진성티이씨", LocalDate.of(2024, 11, 8));
+		assertTrue(stockRaiseReason.isEmpty());
 	}
 
 	@Test
@@ -69,11 +71,11 @@ class ChatGPTNewsAdapterTest {
 				+ "'액티브 명가' 타임폴리오, 밸류업 ETF 성과 1위…\"주가 모멘텀도 고려\"\n"
 				+ "리얼미터가 MBN 의뢰로 지난 11∼12일 서울시 거주 만 18세 이상 남녀 802명을 상대로 오 시장과 민주당 송영길 전 대표 중 누구에게 투표하겠냐고 물은 결과, 오 시장은 50.8%, 송 전 대표는 39.0%를 기록했다.\n"
 				+ "\n"
+				+ "다음 선거 발표는 다음주쯤으로 기약된다.\n"
 				+ "지지율 격차는 11.8%포인트로 오차범위(95% 신뢰수준에서 ±3.5%포인트) 밖이었다.\n"
 				+ "\n"
 				+ "자세한 내용은 중앙선거여론조사심의위원회 홈페이지를 참조하면 된다.\n", "진양산업", LocalDate.of(2022, 4, 14));
 
-		System.out.println("stockRaiseReason = " + stockRaiseReason.get());
 		System.out.println("stockRaiseReason.get() = " + stockRaiseReason.get());
 	}
 

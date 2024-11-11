@@ -42,7 +42,7 @@ public class GPTNewsResponseDTO {
 		private boolean isFiltered;
 		private String name;
 		private String reason;
-		private String thema;
+		private List<ThemaVariableResponseDTO> themas;
 		private String next;
 		@JsonProperty("next_reason")  // JSON의 next_reason 필드를 nextReason 필드에 매핑
 		private String nextReason;
