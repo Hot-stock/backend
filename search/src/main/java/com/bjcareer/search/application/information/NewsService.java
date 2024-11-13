@@ -17,10 +17,10 @@ import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
