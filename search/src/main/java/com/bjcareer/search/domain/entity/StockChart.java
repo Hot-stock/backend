@@ -21,6 +21,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +45,7 @@ public class StockChart {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "chart", cascade = CascadeType.ALL)
 	@BatchSize(size = 100)
+	@OrderBy("date ASC")
 	private List<OHLC> ohlcList = new ArrayList<>();
 
 	public StockChart(String stockCode, List<OHLC> ohlcList) {

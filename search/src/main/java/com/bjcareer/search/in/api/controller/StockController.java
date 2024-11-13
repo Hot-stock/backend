@@ -34,6 +34,13 @@ public class StockController {
 	private final StockService stockService;
 	private final NewsServiceUsecase newsServiceUsecase;
 
+	@GetMapping("/update")
+	@Operation(summary = "주식 정보 갱신", description = "주식 정보를 갱신함")
+	public ResponseEntity<Void> updateAllStock() {
+		stockService.updateAllStock();
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 	@PostMapping
 	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")
 	public ResponseEntity<StockAdditionResponseDTO>addStockOfThema(@Valid @RequestBody StockAdditionRequestDTO requestDTO) {
