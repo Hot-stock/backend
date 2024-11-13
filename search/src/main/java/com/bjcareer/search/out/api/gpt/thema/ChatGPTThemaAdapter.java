@@ -2,6 +2,7 @@ package com.bjcareer.search.out.api.gpt.thema;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import reactor.core.publisher.Mono;
 public class ChatGPTThemaAdapter {
 	private final WebClient webClient;
 
-	public GPTThema summaryThemaNews(String message, String name, LocalDate pubDate) {
+	public Optional<GPTThema> summaryThemaNews(String message, String name, LocalDate pubDate) {
 		GPTThemaRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
@@ -36,16 +37,21 @@ public class ChatGPTThemaAdapter {
 				.getMessage()
 				.getParsedContent();
 
+			if (!parsedContent.isRelated()) {
+				log.warn("The response is not related to the topic.");
+				return Optional.empty();
+			}
+
 			List<CatalystsVariableDomain> catalystsVariableDomains = parsedContent.getCatalysts()
 				.stream()
 				.map(catalyst -> new CatalystsVariableDomain(catalyst.keyword, catalyst.catalyst))
 				.toList();
 
-			return new GPTThema(parsedContent.getSummary(), catalystsVariableDomains,
+			return Optional.of(new GPTThema(parsedContent.getSummary(), catalystsVariableDomains,
 				parsedContent.getPolicyImpactAnalysis(), parsedContent.getRecoveryProjectDetails(),
 				parsedContent.getInterestRateImpact(), parsedContent.getMarketOutlook(),
 				parsedContent.getScenarioAnalysis(), parsedContent.getKeyUpcomingDates(),
-				parsedContent.getInvestmentAttractiveness());
+				parsedContent.getInvestmentAttractiveness()));
 		} else {
 			handleErrorResponse(response);
 			; // 실패 시 null 반환 또는 예외 처리
@@ -56,10 +62,15 @@ public class ChatGPTThemaAdapter {
 	private GPTThemaRequestDTO createRequestDTO(String message, String name, LocalDate pubDate) {
 		GPTThemaRequestDTO.Message systemMessage = new GPTThemaRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT);
-		GPTThemaRequestDTO.Message userMessage = new GPTThemaRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			"The publication date of this news is " + pubDate.toString() + ". Today's date is " + LocalDate.now(
-				AppConfig.ZONE_ID) + ", based on " + name + ". Summarize the following message: " + message
-				+ " and respond in Korean.");
+		GPTThemaRequestDTO.Message userMessage = new GPTThemaRequestDTO.Message(
+			GPTWebConfig.USER_ROLE,
+			"The publication date of this news is " + pubDate.toString() + ".\n" +
+				" Today's date is " + LocalDate.now(AppConfig.ZONE_ID) + ", based on the topic of [" + name + "].\n" +
+				" Summarize the following message related to this topic: [" + message +
+				"] and respond in Korean.\n"
+		);
+
+
 		GPTResponseThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaFormatDTO();
 
 		return new GPTThemaRequestDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage),
@@ -73,6 +84,7 @@ public class ChatGPTThemaAdapter {
 	private GPTThemaResponseDTO handleSuccessResponse(ClientResponse response) {
 		// 동기적으로 body를 읽음
 		GPTThemaResponseDTO gptResponse = response.bodyToMono(GPTThemaResponseDTO.class).block();
+		log.info("Response body: {}", gptResponse);
 		return gptResponse;
 	}
 

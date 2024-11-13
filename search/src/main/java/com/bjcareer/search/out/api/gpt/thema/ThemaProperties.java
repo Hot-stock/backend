@@ -5,9 +5,21 @@ import com.bjcareer.search.out.api.gpt.PropertyDetail;
 import com.bjcareer.search.out.api.gpt.PropertyObject;
 
 public class ThemaProperties {
-	public static final String[] required = {"summary", "catalysts", "policyImpactAnalysis",
+	public static final String[] required = {"related", "summary", "catalysts", "policyImpactAnalysis",
 		"recoveryProjectDetails", "interestRateImpact", "marketOutlook", "scenarioAnalysis", "keyUpcomingDates",
 		"investmentAttractiveness"};
+
+	public PropertyDetail related = new PropertyDetail("boolean",
+		"Step-by-Step Guidelines:\n" +
+			"1. Identify the main topic of the news article based on the content provided.\n" +
+			"2. CHECK IF THE ARTICLE DIRECTLY ADDRESSES THE TOPIC PROVIDED BY THE QUESTIONER.\n" +
+			"   - If the article includes specific information, events, or announcements directly related to the questioner's topic, consider it relevant.\n" +
+			"   - If the article only mentions the topic briefly or without meaningful context, consider it irrelevant.\n" +
+			"3. IF THE NEWS ARTICLE IS RELEVANT TO THE TOPIC PROVIDED BY THE QUESTIONER, RESPOND WITH 'TRUE'.\n" +
+			"4. IF THE NEWS DOES NOT COVERT the questioner's TOPIC, respond with 'FALSE'.\n" +
+			"5. Ensure the response accurately reflects whether the article is relevant to the topic provided by the questioner."
+	);
+
 
 	// Summary: 핵심 요약 및 주요 이벤트
 	public PropertyDetail summary = new PropertyDetail("string",
@@ -24,7 +36,7 @@ public class ThemaProperties {
 		"Analyze the influence of key policy changes, focusing on major elections or geopolitical shifts (e.g., new trade policies post-election). Detail how specific policies will impact core sectors within the theme, especially those with global trade, investment, or regulatory implications. Consider past instances of similar policy shifts and their outcomes on related stocks."
 	);
 
-	// Recovery Project Details: 재건 프로젝트와 기회 분석
+
 	public PropertyDetail recoveryProjectDetails = new PropertyDetail("string",
 		"Describe how the theme is tied to recovery or reconstruction efforts (e.g., Ukraine). List target companies or industries expected to benefit based on market demand or strategic involvement. Provide examples of similar past projects that led to long-term growth, discussing projected timelines and major investors."
 	);

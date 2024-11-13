@@ -37,6 +37,7 @@ public class GPTThemaResponseDTO {
 
 	@Data
 	public static class Content {
+		private boolean related;
 		private String summary;
 		private List<CatalystsVariableResponseDTO> catalysts;
 		private String policyImpactAnalysis;

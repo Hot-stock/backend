@@ -3,6 +3,7 @@ package com.bjcareer.search.out.api.gpt.thema;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,20 +37,20 @@ class ChatGPTThemaAdapterTest {
 
 	@Test
 	void test() {
-		String keyword = "우크라이나 재건";
-		LocalDate startDate = LocalDate.of(2024, 11, 8);
-		NewsCommand newsCommand = new NewsCommand("우크라이나 재건", startDate, startDate);
+		String keyword = "희토류";
+		LocalDate startDate = LocalDate.of(2020, 3, 20);
+		NewsCommand newsCommand = new NewsCommand(keyword, startDate, startDate);
 		List<News> news = pythonSearchServerAdapter.fetchNews(newsCommand);
 		List<GPTThema> themaList = new ArrayList<>();
 
+		System.out.println("news.size() = " + news.size());
+
 		for (News n : news) {
-			GPTThema thema = chatGPTThemaAdapter.summaryThemaNews(n.getContent(), "우크라이나 재건", startDate);
-			themaList.add(thema);
-			break;
+			Optional<GPTThema> gptThema = chatGPTThemaAdapter.summaryThemaNews(n.getContent(), keyword, startDate);
 		}
 
-		ThemaInfo themaInfo = themaInfoRepository.findByName(keyword).get();
-		themaInfo.addThemaNews(themaList);
+		// ThemaInfo themaInfo = themaInfoRepository.findByName(keyword).get();
+		// themaInfo.addThemaNews(themaList);
 	}
 
 }
