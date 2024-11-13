@@ -38,8 +38,8 @@ public class GPTNewsResponseDTO {
 
 	@Data
 	public static class Content {
-		@JsonProperty("isFiltered")  // JSON 필드 "isFiltered"를 매핑
-		private boolean isFiltered;
+		@JsonProperty("filtered")  // JSON 필드 "isFiltered"를 매핑
+		private boolean filtered;
 		private String name;
 		private String reason;
 		private List<ThemaVariableResponseDTO> themas;

@@ -62,12 +62,14 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT);
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			"Today’s date is the news publication date: " + pubDate.toString() + ". Based on " + name
-				+ ", analyze the following message: " + message + ". Provide the response in Korean.");
+			" Today’s date is the news publication date: " + pubDate.toString()
+				+ "\n stock name is <stockname>" + name + "</stockname>"
+				+ "\n analyze the following news the news <article>"+ message + "</article>" + "base on the stock <stockname>" +name+ "</stockname>"
+				+ "\n Provide the response in Korean.");
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 
-		return new GPTNewsRequestDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
+		return new GPTNewsRequestDTO("gpt-4o", List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {
