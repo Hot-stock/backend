@@ -6,7 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -38,6 +38,7 @@ public class OHLC {
 	private int low;
 	private int close;
 
+	private Long volume;
 	private int percentageIncrease;
 
 	@ManyToOne
@@ -49,12 +50,13 @@ public class OHLC {
 	@JdbcTypeCode(SqlTypes.JSON)
 	private ArrayNode news = JsonNodeFactory.instance.arrayNode();
 
-	public OHLC(int open, int high, int low, int close, int percentageIncrease, LocalDate date) {
+	public OHLC(int open, int high, int low, int close, int percentageIncrease, Long volume, LocalDate date) {
 		this.open = open;
 		this.high = high;
 		this.low = low;
 		this.close = close;
 		this.date = date;
+		this.volume = volume;
 		this.percentageIncrease = percentageIncrease;
 	}
 

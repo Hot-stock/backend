@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
@@ -19,7 +20,6 @@ import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
 
 @SpringBootTest
 class PythonSearchServerAdapterTest {
-
 	@Autowired
 	PythonSearchServerAdapter pythonSearchServerAdapter;
 
@@ -40,6 +40,7 @@ class PythonSearchServerAdapterTest {
 	}
 
 	@Test
+	@Transactional
 	void makrket_정보_요청_테스트(){
 		List<Stock> stocks = pythonSearchServerAdapter.loadStockInfo(Market.KOSDAQ);
 		assertNotNull(stocks);

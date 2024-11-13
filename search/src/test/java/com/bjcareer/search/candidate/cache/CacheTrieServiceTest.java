@@ -45,7 +45,7 @@ class CacheTrieServiceTest {
 		when(documentRepository.getkeyworkList(document)).thenReturn(keywordList);
 
 		// then
-		verify(cacheRepository, times(1)).saveKeyword(any(CacheNode.class));
+		verify(cacheRepository, times(1)).saveKeyword(any());
 		verify(documentRepository, times(1)).findSingleByKeyword(keyword);
 		verify(documentRepository, times(1)).getkeyworkList(document);
 	}

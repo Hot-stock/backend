@@ -3,6 +3,8 @@ package com.bjcareer.search.schedule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -36,7 +38,7 @@ public class ScheduleCrawlingService {
 	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
 	private final ThemaRepositoryPort themaRepositoryPort;
 
-	@Scheduled(cron = "35 3 * * * *")
+	@Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
 	@Transactional
 	public void run() {
 		log.debug("CrawlingService started");
@@ -70,9 +72,22 @@ public class ScheduleCrawlingService {
 	// Run crawling tasks concurrently using virtual threads
 	private void runConcurrentCrawling(CrawlingNaverFinance crawlingNaverFinance, int limit) {
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+			CompletionService<Void> completionService = new ExecutorCompletionService<>(executor);
+
+
 			for (int i = 1; i <= limit; i++) {
-				submitCrawlingTask(executor, crawlingNaverFinance, i);
+				int finalI = i;
+				completionService.submit(() -> {
+					submitCrawlingTask(executor, crawlingNaverFinance, finalI);
+					return null;
+				});
 			}
+
+			for (int i = 1; i <= limit; i++) {
+				completionService.take().get();
+				log.debug("Crawling task completed: {}", i);
+			}
+
 		} catch (Exception e) {
 			log.error("Error while executing concurrent crawling tasks", e);
 		}

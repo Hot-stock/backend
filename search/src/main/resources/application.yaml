@@ -6,10 +6,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: timo
-    password: timo
-    url: jdbc:postgresql://127.0.0.1:5432/search_service
-
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://${RDB_PRIVATE_ADDRESS}:${RDB_PORT}/search_service
   jpa:
     hibernate:
       ddl-auto: update

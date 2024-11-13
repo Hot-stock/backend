@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.stock.StockService;
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
@@ -33,6 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 public class StockController {
 	private final StockService stockService;
 	private final NewsServiceUsecase newsServiceUsecase;
+
+	@GetMapping("/update")
+	@Operation(summary = "주식 정보 갱신", description = "주식 정보를 갱신함")
+	public ResponseEntity<Void> updateAllStock() {
+		stockService.updateAllStock();
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
 	@PostMapping
 	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")

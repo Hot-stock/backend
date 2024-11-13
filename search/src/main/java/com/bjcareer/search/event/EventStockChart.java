@@ -6,6 +6,7 @@ import java.util.Queue;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
@@ -30,12 +31,13 @@ public class EventStockChart {
 	}
 
 	@Scheduled(fixedDelay = 1000)  // 5초마다 실행
+	@Transactional
 	public void processQueue() {
 		while (!eventQueue.isEmpty()) {
 			StockChartQueryCommand poll = eventQueue.poll();
-			StockChart chart = usecase.loadStockChart(poll);
+			StockChart chart = usecase.loadStockChart(poll); //위에서 받아옴
 
-			stockChartRepositoryPort.save(chart);
+			stockChartRepositoryPort.updateStockChartOfOHLC(chart);
 			log.debug("StockChart updated: {}", chart);
 		}
 	}

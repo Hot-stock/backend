@@ -1,8 +1,11 @@
-package com.bjcareer.search.domain;
+package com.bjcareer.search.domain.gpt;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.bjcareer.search.domain.News;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,15 +19,15 @@ import lombok.extern.slf4j.Slf4j;
 public class GTPNewsDomain {
 	private String stockName;
 	private String reason;
-	private String thema;
+	private Map<String, String> themas;
 	private String nextReason;
 	private Optional<LocalDate> next;
 	private News news;
 
-	public GTPNewsDomain(String stockName, String reason, String thema, String next, String nextReason) {
+	public GTPNewsDomain(String stockName, String reason, Map<String, String> themas, String next, String nextReason) {
 		this.stockName = stockName;
 		this.reason = reason;
-		this.thema = thema;
+		this.themas = themas;
 		this.nextReason = nextReason;
 
 		if (next == null || next.isEmpty()) {

@@ -1,17 +1,16 @@
-package com.bjcareer.search.out.api.gpt;
+package com.bjcareer.search.out.api.gpt.thema;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
-public class GPTResponseDTO {
+public class GPTThemaResponseDTO {
 	private List<Choice> choices = new ArrayList<>();
 
 	@Data
@@ -38,11 +37,15 @@ public class GPTResponseDTO {
 
 	@Data
 	public static class Content {
-		private String name;
-		private String reason;
-		private String thema;
-		private String next;
-		@JsonProperty("next_reason")  // JSON의 next_reason 필드를 nextReason 필드에 매핑
-		private String nextReason;
+		private boolean related;
+		private String summary;
+		private List<CatalystsVariableResponseDTO> catalysts;
+		private String policyImpactAnalysis;
+		private String recoveryProjectDetails;
+		private String interestRateImpact;
+		private String marketOutlook;
+		private String scenarioAnalysis;
+		private String keyUpcomingDates;
+		private String investmentAttractiveness;
 	}
 }

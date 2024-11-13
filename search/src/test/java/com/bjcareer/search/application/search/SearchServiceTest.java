@@ -1,18 +1,35 @@
 package com.bjcareer.search.application.search;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 
+import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
+import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
+import com.bjcareer.search.candidate.Trie;
+import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
+import com.bjcareer.search.domain.entity.ThemaInfo;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class SearchServiceTest {
-	@Autowired
+	@Mock
+	ApplicationEventPublisher eventPublisher;
+	@Mock
+	ThemaRepositoryPort themaRepositoryPort;
+	@Mock
+	Trie trie;
+
+	@InjectMocks
 	SearchService searchService;
 
 	@Test
@@ -21,6 +38,9 @@ class SearchServiceTest {
 		String keyword = "중국";
 		int page = 0;
 		int size = 10;
+
+		when(themaRepositoryPort.loadAllByKeywordContaining(any())).thenReturn(
+			List.of(new Thema(new Stock("2134", "진서티이씨"), new ThemaInfo("중국"))));
 
 		//when
 		List<Thema> searchResult = searchService.getSearchResult(keyword, page, size);

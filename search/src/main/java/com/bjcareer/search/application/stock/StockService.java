@@ -1,5 +1,6 @@
 package com.bjcareer.search.application.stock;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,9 +13,11 @@ import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.LoadStockByThemaCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
+import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
+import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
 import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,14 @@ public class StockService implements StockManagementUsecase {
 	private final ThemaRepositoryPort themaRepository;
 	private final ThemaInfoRepositoryPort themaInfoRepository;
 	private final StockRepository stockRepository;
+	private final PythonSearchServerAdapter pythonSearchServerAdapter;
+
+	public void updateAllStock() {
+		List<Stock> stocks = pythonSearchServerAdapter.loadStockInfo(Market.KOSDAQ);
+		stocks.addAll(pythonSearchServerAdapter.loadStockInfo(Market.KOSPI));
+
+		stockRepository.saveAll(stocks);
+	}
 
 	public Thema addStockThema(String stockCode, String stockName, String themeName) {
 		Optional<Stock> byStockCode = stockRepository.findByCode(stockCode);

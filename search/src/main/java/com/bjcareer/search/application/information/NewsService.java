@@ -8,19 +8,19 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
+import com.bjcareer.search.application.CommonValidations;
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
-import com.bjcareer.search.application.port.out.api.GPTAPIPort;
+import com.bjcareer.search.application.port.out.api.GPTNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.domain.GTPNewsDomain;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +37,12 @@ public class NewsService implements NewsServiceUsecase {
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
 
-	private final GPTAPIPort gptAPIPort;
+	private final GPTNewsPort gptNewsPort;
 
 	@Override
 	public List<GTPNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date) {
-		Stock stock = validationStock(stockName);
-		StockChart chart = validationStockChart(stock.getCode());
+		Stock stock = CommonValidations.validationStock(stockRepositoryPort, stockName);
+		StockChart chart = CommonValidations.validationStockChart(stockChartRepositoryPort, stock.getCode());
 
 		List<GTPNewsDomain> gtpNewsDomains = fetchOhlcFromApiIfMissing(stockName, date, chart, stock);
 
@@ -54,7 +54,7 @@ public class NewsService implements NewsServiceUsecase {
 		log.debug("Linking news to OHLC. stockName: {}, date: {}", stockName, date);
 		NewsCommand config = new NewsCommand(stockName, date, date);
 
-		List<News> news = loadNewsPort.fetchNews(config); //뉴스 가지고 옴
+		List<News> news = loadNewsPort.fetchNews(config);
 
 		log.debug("찾아진 뉴스 개수는? {}", news.size());
 		gtpNewsDomains = changeNewsToGPTNews(stockName, news, date);
@@ -65,7 +65,6 @@ public class NewsService implements NewsServiceUsecase {
 			log.info("News found for {} {}", stockName, date);
 
 			for (GTPNewsDomain gtpNews : gtpNewsDomains) {
-				System.out.println("gtpNews = " + gtpNews);
 				chart.addNewsToOhlc(gtpNews, date);
 			}
 
@@ -75,11 +74,11 @@ public class NewsService implements NewsServiceUsecase {
 		return gtpNewsDomains;
 	}
 
-
+	@Override
 	@Transactional(readOnly = true)
 	public List<GTPNewsDomain> findNextSchedule(String stockName, LocalDate date) {
-		Stock stock = validationStock(stockName);
-		StockChart chart = validationStockChart(stock.getCode());
+		Stock stock = CommonValidations.validationStock(stockRepositoryPort, stockName);
+		StockChart chart = CommonValidations.validationStockChart(stockChartRepositoryPort, stock.getCode());
 
 		List<GTPNewsDomain> allNews = chart.getAllNews();
 
@@ -91,6 +90,14 @@ public class NewsService implements NewsServiceUsecase {
 		List<GTPNewsDomain> nextSchedule = chart.getNextSchedule(date);
 		log.info("Next schedule found for {} {}", stockName, nextSchedule.size());
 		return nextSchedule;
+	}
+
+	@Override
+	public List<GTPNewsDomain> searchThemaNews(String Keyword, LocalDate date) {
+		List<News> news = loadNewsPort.fetchNews(new NewsCommand(Keyword, date, date));
+		gptNewsPort.findStockRaiseReason(news.get(0).getContent(), Keyword, date);
+
+		return null;
 	}
 
 	private List<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart,
@@ -117,8 +124,8 @@ public class NewsService implements NewsServiceUsecase {
 		for (News n : news) {
 			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
 			if (isSameDate(targetDate, n)) {
-				log.debug("Find news for {} {}", stockName, targetDate);
-				Optional<GTPNewsDomain> stockRaiseReason = gptAPIPort.findStockRaiseReason(n.getContent(), stockName,
+				log.debug("Find news for and query to gpt{} {} {}", stockName, targetDate, n.getLink());
+				Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(n.getContent(), stockName,
 					targetDate);
 
 				if (stockRaiseReason.isPresent()) {
@@ -136,17 +143,6 @@ public class NewsService implements NewsServiceUsecase {
 		}
 
 		return gtpNewsDomains;
-	}
-
-	private Stock validationStock(String stockName) {
-		Optional<Stock> optStock = stockRepositoryPort.findByName(stockName);
-		return optStock.orElseThrow(() -> new InvalidStockInformationException("찾아진 주식이 없습니다. 주식명을 확인해주세요!"));
-	}
-
-	private StockChart validationStockChart(String stockCode) {
-		Optional<StockChart> optStockChart = stockChartRepositoryPort.loadStockChart(stockCode);
-		return optStockChart.orElseThrow(() -> new InvalidStockInformationException("요청된 주식에 차트데이터가 없습니다. 차트 데이터 요청 버튼을 클릭해주세요!"));
-
 	}
 
 	private boolean isSameStock(String stockName, GTPNewsDomain gtpNews) {

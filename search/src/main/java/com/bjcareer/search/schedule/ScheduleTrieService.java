@@ -20,7 +20,7 @@ public class ScheduleTrieService {
 	private final Trie trie;
 	private final DocumentRepository documentRepository;
 
-	@Scheduled(fixedDelay = 10000)
+	// @Scheduled(fixedDelay = 10000)
 	//프로메테우스로 빼기
 	public void makeTrie() {
 		log.debug("TrieService started");

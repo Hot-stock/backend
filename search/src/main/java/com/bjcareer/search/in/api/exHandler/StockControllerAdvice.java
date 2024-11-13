@@ -6,11 +6,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
-import com.bjcareer.search.in.api.controller.StockController;
 
 import lombok.Getter;
 
-@RestControllerAdvice(assignableTypes = {StockController.class})
+@RestControllerAdvice
 public class StockControllerAdvice {
 
 	@ExceptionHandler(InvalidStockInformationException.class)

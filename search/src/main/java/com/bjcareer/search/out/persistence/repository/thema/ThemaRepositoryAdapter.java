@@ -17,9 +17,11 @@ import com.bjcareer.search.domain.entity.ThemaInfo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepositoryPort {
 	@PersistenceContext
 	private final EntityManager em;
@@ -57,11 +59,21 @@ public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepos
 	}
 
 	@Override
-	public Optional<ThemaInfo> findByName(String thema) {
+	public Optional<ThemaInfo> findByName(String thema, String stockName) {
+		if (thema.isEmpty()) {
+			log.debug("findByName themas: {} {}", thema, stockName);
+			return Optional.empty();
+		}
+
 		List<Thema> themas = em.createQuery(Query.findThemaByName, Thema.class)
 			.setParameter("thema", thema)
+			.setParameter("stockName", stockName)
 			.getResultList();
 
-		return Optional.of(themas.get(0).getThemaInfo());
+		if (themas.isEmpty()) {
+			return Optional.empty();
+		}
+
+		return Optional.of(themas.getFirst().getThemaInfo());
 	}
 }

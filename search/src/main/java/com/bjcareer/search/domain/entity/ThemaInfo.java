@@ -4,6 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.bjcareer.search.config.AppConfig;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,6 +42,10 @@ public class ThemaInfo {
 	@BatchSize(size = 10)
 	private List<Thema> themas = new ArrayList<>();
 
+	@JdbcTypeCode(SqlTypes.JSON)
+	private ArrayNode news = JsonNodeFactory.instance.arrayNode();
+
+
 	public ThemaInfo(String name, String href) {
 		this.name = name;
 		this.href = href;
@@ -42,8 +55,20 @@ public class ThemaInfo {
 		this(name, null);
 	}
 
+	public void addThemaNews(List<GPTThema> themas) {
+		ObjectMapper mapper = AppConfig.customObjectMapper();
+		ArrayNode arrayNode = mapper.convertValue(themas, ArrayNode.class);
+
+		this.news.addAll(arrayNode);
+	}
+
 	@Override
 	public String toString() {
 		return "ThemaInfo{" + "id=" + id + ", name='" + name + '\'' + ", href='" + href + '\'' + '}';
 	}
+
+	public List<GPTThema> getNews() {
+		return AppConfig.customObjectMapper().convertValue(news, new TypeReference<List<GPTThema>>() {});
+	}
+
 }

@@ -1,17 +1,16 @@
-package com.bjcareer.search.out.api.gpt;
+package com.bjcareer.search.out.api.gpt.news;
 
 import java.util.List;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public class GPTRequestDTO {
+public class GPTNewsRequestDTO {
 	private String model;
 	private List<Message> messages;
-	private GPTResponseFormatDTO response_format;
+	private GPTResponseNewsFormatDTO response_format;
 
-	public GPTRequestDTO(String model, List<Message> messages, GPTResponseFormatDTO response_format) {
+	public GPTNewsRequestDTO(String model, List<Message> messages, GPTResponseNewsFormatDTO response_format) {
 		this.model = model;
 		this.messages = messages;
 		this.response_format = response_format;
