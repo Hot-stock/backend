@@ -120,7 +120,7 @@ class TrainServiceTest {
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_NEWS_TEXT);
 
 		Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(
-			news.getContent(), stock.getName(), stockNames, themas, news.getPubDate());
+			news.getContent(), stock.getName(), themas, news.getPubDate());
 
 		String userPrompt = generateUserPrompt(stock, news, stockNames, themas);
 		trainService.addMessage(GPTWebConfig.USER_ROLE, userPrompt);

@@ -1,9 +1,8 @@
 package com.bjcareer.search.out.api.gpt.news;
 
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatusCode;
@@ -26,8 +25,10 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 	private final WebClient webClient;
 
 	@Override
-	public Optional<GTPNewsDomain> findStockRaiseReason(String message, String name, LocalDate pubDate) {
-		GPTNewsRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
+	//가장 좋은 모델을 선택해서 테스트 케이스 구축
+	public Optional<GTPNewsDomain> findStockRaiseReason(String message, String name, String themasNames,
+		LocalDate pubDate) {
+		GPTNewsRequestDTO requestDTO = createRequestDTO(message, name, themasNames, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -43,14 +44,14 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 				return Optional.empty();
 			}
 
-			Map<String, String> themas = new HashMap<>();
+			List<GTPNewsDomain.GPTThema> themaDomain = new ArrayList<>();
 
 			for (ThemaVariableResponseDTO thema : parsedContent.getThemas()) {
-				themas.put(thema.name, thema.reason);
+				themaDomain.add(new GTPNewsDomain.GPTThema(thema.name, thema.reason));
 			}
 
 			return Optional.of(
-				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), themas,
+				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), themaDomain,
 					parsedContent.getNext(), parsedContent.getNextReason()));
 		} else {
 			handleErrorResponse(response);
@@ -58,14 +59,17 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 		}
 	}
 
-	private GPTNewsRequestDTO createRequestDTO(String message, String name, LocalDate pubDate) {
+	private GPTNewsRequestDTO createRequestDTO(String message, String themasNames, String name,
+		LocalDate pubDate) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT);
+			GPTWebConfig.SYSTEM_NEWS_TEXT);
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			" Today’s date is the news publication date: " + pubDate.toString()
-				+ "\n stock name is <stockname>" + name + "</stockname>"
-				+ "\n analyze the following news the news <article>"+ message + "</article>" + "base on the stock <stockname>" +name+ "</stockname>"
-				+ "\n Provide the response in Korean.");
+			" Today’s date is the news publication date: " + pubDate.toString() + "\n"
+				+ "stock name is <stockname>" + name + "</stockname>\n "
+				+ "Analyze the following news <article>" + message + "</article>" + "base on the stock <stockname>"
+				+ name + "</stockname>\n "
+				+ "Here is the Thema's name <themaName>" + themasNames + "</themaName>\n"
+				+ "Provide the response in Korean.");
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 

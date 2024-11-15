@@ -6,5 +6,6 @@ import java.util.Optional;
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 public interface GPTNewsPort {
-	Optional<GTPNewsDomain> findStockRaiseReason(String message, String name, LocalDate pubDate);
+	Optional<GTPNewsDomain> findStockRaiseReason(String message, String name, String themas,
+		LocalDate pubDate);
 }
