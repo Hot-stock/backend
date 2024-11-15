@@ -63,13 +63,9 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 		LocalDate pubDate) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_NEWS_TEXT);
+
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			" Today’s date is the news publication date: " + pubDate.toString() + "\n"
-				+ "stock name is <stockname>" + name + "</stockname>\n "
-				+ "Analyze the following news <article>" + message + "</article>" + "base on the stock <stockname>"
-				+ name + "</stockname>\n "
-				+ "Here is the Thema's name <themaName>" + themasNames + "</themaName>\n"
-				+ "Provide the response in Korean.");
+			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message, themasNames));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 
