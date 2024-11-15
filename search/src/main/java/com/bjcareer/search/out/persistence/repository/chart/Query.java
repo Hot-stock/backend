@@ -6,7 +6,7 @@ public class Query {
 			"JOIN FETCH sc.ohlcList o " +
 			"WHERE sc.stockCode = :code " +
 			"AND o.percentageIncrease >= :threshold " +
-			"AND o.date >= :startDate";
+			"ORDER BY o.date DESC";
 	;
 
 	public static final String FIND_CHART_BY_DATE =

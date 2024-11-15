@@ -98,7 +98,7 @@ class NewsServiceTest {
 		News news = new News("title", "link", "link", "묘사", pubDate, "휴가로 인해서 래쉬가드 수요가 증가함");
 
 		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
-		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", themas, null, null);
+		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
 		gtpNewsDomain.addNewsDomain(news);
 
 		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
@@ -116,7 +116,8 @@ class NewsServiceTest {
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
 		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 		when(loadNewsPort.fetchNews(any())).thenReturn(List.of(news));
-		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), any())).thenReturn(Optional.of(gtpNewsDomain));
+		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), anyString(), any())).thenReturn(
+			Optional.of(gtpNewsDomain));
 
 		List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
 
@@ -135,11 +136,11 @@ class NewsServiceTest {
 		News news2 = new News("title", "link", "link", "묘사", pubDate, "동남아 여행지로 많이 가서 수요가 증가함");
 
 		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
-		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", themas, null, null);
+		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
 		gtpNewsDomain.addNewsDomain(news1);
 
 		Map<String, String> themas2 = Map.of("여행", "동남아 여행객 증가로 래쉬가드 수요 증가");
-		GTPNewsDomain gtpNewsDomain2 = new GTPNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", themas2, null, null);
+		GTPNewsDomain gtpNewsDomain2 = new GTPNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", new ArrayList<>(), null, null);
 		gtpNewsDomain2.addNewsDomain(news2);
 
 		Stock stock = new Stock("12345", stockName);

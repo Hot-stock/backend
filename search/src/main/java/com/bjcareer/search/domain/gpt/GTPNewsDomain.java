@@ -1,12 +1,13 @@
 package com.bjcareer.search.domain.gpt;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.bjcareer.search.domain.News;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -19,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 public class GTPNewsDomain {
 	private String stockName;
 	private String reason;
-	private Map<String, String> themas;
+	private List<GPTThema> themas;
 	private String nextReason;
 	private Optional<LocalDate> next;
 	private News news;
 
-	public GTPNewsDomain(String stockName, String reason, Map<String, String> themas, String next, String nextReason) {
+	public GTPNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason) {
 		this.stockName = stockName;
 		this.reason = reason;
 		this.themas = themas;
@@ -54,5 +55,16 @@ public class GTPNewsDomain {
 	@Override
 	public int hashCode() {
 		return Objects.hash(stockName, news);
+	}
+
+	@Data
+	public static class GPTThema {
+		private String name;
+		private String reason;
+
+		public GPTThema(String name, String reason) {
+			this.name = name;
+			this.reason = reason;
+		}
 	}
 }
