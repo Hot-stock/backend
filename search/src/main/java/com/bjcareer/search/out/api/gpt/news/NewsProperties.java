@@ -11,36 +11,29 @@ public class NewsProperties {
 	public static final String[] required = {"filtered", "name", "reason", "themas", "next", "next_reason"};
 	// Filtered: Determines if the article is fake news
 
-	//for 4o
-	public PropertyDetail filtered = new PropertyDetail("boolean", NewsFilterPrompt.FILTER_PROMPT
-	);
-
 	// Name: Provides the exact stock name
-	public PropertyDetail name = new PropertyDetail("string",
-		"Overview: Provide the exact name of the stock that has experienced a rise in price.\n"
-	);
+	public PropertyDetail name = new PropertyDetail("string", NameFilterPrompt.PROMPT);
 
 	// Reason: Brief summary for the stock's rise reason
-	public PropertyDetail reason = new PropertyDetail("string",
-		"Overview: Summarize the reason for the stock’s rise in up to 3 concise lines.\n" +
-			"Focus:\n" +
-			"- Emphasize specific connections to events, key announcements, or influential individuals."
-	);
+	public PropertyDetail reason = new PropertyDetail("string", RoseReasonPrompt.PROMPT);
+
+
+	//for 4o
+	public PropertyDetail filtered = new PropertyDetail("boolean", NewsFilterPrompt.FILTER_PROMPT);
+
 
 	// Theme: Identifies key themes related to stock increases.
 	public PropertyArrayObject themas = new PropertyArrayObject(ThemaPrompt.THEMA_PROMPT,
 		new PropertyObject(new ThemaVariable(), ThemaVariable.required)
 	);
 
-
-	// Next: Closest significant date relevant to the theme
 	public PropertyDetail next = new PropertyDetail("string",
-		"Overview: Provide the closest significant date explicitly mentioned in the article related to the stock’s theme.\n"
+		"Overview: Provide the closest significant **future date** explicitly mentioned in the article related to the stock’s theme.\n"
 			+
 			"Format:\n" +
 			"- Date format: YYYY-MM-DD.\n" +
-			"- Only include dates that are precisely and explicitly stated in the article.\n" +
-			"- If no specific date is available, leave this field empty."
+			"- Only include dates explicitly stated in the article and occurring **in the future**.\n" +
+			"- If no future date is mentioned, leave this field empty."
 	);
 
 	// Next Reason: Explanation for the selected date in "next"
