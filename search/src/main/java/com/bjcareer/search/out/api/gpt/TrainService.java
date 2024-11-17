@@ -6,19 +6,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.out.api.gpt.news.GPTResponseNewsFormatDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 public class TrainService {
 	@JsonIgnore
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private List<Message> messages = new ArrayList<>();
+	@JsonProperty("response_format")
+	private GPTResponseNewsFormatDTO responseFormat;
+
+	public TrainService(GPTResponseNewsFormatDTO responseFormat) {
+		this.responseFormat = responseFormat;
+	}
 
 	public void addMessage(String role, Object content) {
 		this.messages.add(new Message(role, content));
