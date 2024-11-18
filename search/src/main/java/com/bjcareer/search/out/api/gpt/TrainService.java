@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
-import com.bjcareer.search.out.api.gpt.news.GPTResponseNewsFormatDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,12 +19,7 @@ public class TrainService {
 	@JsonIgnore
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private List<Message> messages = new ArrayList<>();
-	@JsonProperty("response_format")
-	private GPTResponseNewsFormatDTO responseFormat;
 
-	public TrainService(GPTResponseNewsFormatDTO responseFormat) {
-		this.responseFormat = responseFormat;
-	}
 
 	public void addMessage(String role, Object content) {
 		this.messages.add(new Message(role, content));
@@ -52,23 +46,30 @@ public class TrainService {
 		}
 	}
 
-	@Data
+	@Getter
 	public static class NewsPrompt {
-		private final boolean filtered;
+		@JsonProperty("isFakeNews")
+		private final boolean isFakeNews;
+
 		private final String name;
 		private final String reason;
 		private final List<GTPNewsDomain.GPTThema> themas;
 		private final String next;
 		private final String next_reason;
 
-		public NewsPrompt(boolean filtered, String name, String reason,
+		public NewsPrompt(boolean isFakeNews, String name, String reason,
 			List<GTPNewsDomain.GPTThema> themas, String next, String next_reason) {
-			this.filtered = filtered;
+			this.isFakeNews = isFakeNews;
 			this.name = name;
 			this.reason = reason;
 			this.themas = themas;
 			this.next = next;
 			this.next_reason = next_reason;
+		}
+
+		@JsonProperty("isFakeNews") // 명시적으로 JSON 키 설정
+		public boolean isFakeNews() {
+			return isFakeNews;
 		}
 
 		@Data
@@ -83,4 +84,5 @@ public class TrainService {
 			}
 		}
 	}
+
 }

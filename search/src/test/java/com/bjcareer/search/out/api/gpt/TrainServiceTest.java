@@ -3,7 +3,6 @@ package com.bjcareer.search.out.api.gpt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ class TrainServiceTest {
 	@Transactional
 	void 테스트_파일_생성() throws JsonProcessingException {
 		String stockName = "퓨런티어";
-		String fileName = "./test" + stockName + ".json";
+		String fileName = "./test-4o-mini" + stockName + ".json";
 		int threshold = 10;
 		int numberOfRepetitions = 5;
 
@@ -107,7 +106,7 @@ class TrainServiceTest {
 	private TrainService createTrainServiceWithMessages(Stock stock, News news, String themas,
 		ObjectMapper mapper) throws JsonProcessingException {
 
-		TrainService trainService = new TrainService(new GPTResponseNewsFormatDTO());
+		TrainService trainService = new TrainService();
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_NEWS_TEXT);
 
 		Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(
