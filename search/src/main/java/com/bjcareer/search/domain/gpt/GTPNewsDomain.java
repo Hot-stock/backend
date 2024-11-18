@@ -58,6 +58,7 @@ public class GTPNewsDomain {
 	}
 
 	@Data
+	@NoArgsConstructor
 	public static class GPTThema {
 		private String name;
 		private String reason;

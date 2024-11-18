@@ -30,7 +30,7 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 	public void updateRankingNews(GTPNewsDomain news, Stock stock) {
 		String key = BUKET_KEY + stock.getName();
 		RBucket<GTPNewsDomain> bucket = redissonClient.getBucket(key);
-		bucket.set(news, Duration.ofMinutes(2));
+		bucket.set(news, Duration.ofMinutes(10));
 	}
 
 	@Override

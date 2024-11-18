@@ -9,4 +9,5 @@ import com.bjcareer.search.domain.entity.StockChart;
 public interface LoadStockInformationPort {
 	StockChart loadStockChart(StockChartQueryCommand command);
 	List<Stock> loadStockInfo(Market market);
+	List<Stock> loadRanking(Market market);
 }
