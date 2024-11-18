@@ -52,4 +52,19 @@ class PythonSearchServerAdapterTest {
 		List<News> news = pythonSearchServerAdapter.fetchNews(command);
 		assertNotNull(news);
 	}
+
+	@Test
+	void 특정일의_뉴스를_가지고_오는지_테스트() {
+		// given
+		LocalDate baseDate = LocalDate.of(2018, 11, 8);
+		NewsCommand command = new NewsCommand("진성티이씨", baseDate, baseDate);
+		List<News> news = pythonSearchServerAdapter.fetchNews(command);
+		assertNotNull(news);
+	}
+
+	@Test
+	void 상승률top10요청테스트() {
+		List<Stock> stocks = pythonSearchServerAdapter.loadRanking(Market.KOSDAQ);
+		assertEquals(10, stocks.size());
+	}
 }
