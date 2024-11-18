@@ -3,7 +3,6 @@ package com.bjcareer.search.out.api.gpt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -21,8 +20,12 @@ import com.bjcareer.search.config.gpt.GPTWebConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.out.api.gpt.news.GPTResponseNewsFormatDTO;
+import com.bjcareer.search.out.api.gpt.news.QuestionPrompt;
 import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
+import com.bjcareer.search.out.persistence.repository.thema.ThemaInfoRepositoryAdapter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -42,30 +45,31 @@ class TrainServiceTest {
 	private GPTNewsPort gptNewsPort;
 
 	private final List<TrainService> trains = new ArrayList<>();
-	private final Random random = new Random();
+	@Autowired
+	private ThemaInfoRepositoryAdapter themaInfoRepositoryAdapter;
 
 	@Test
 	@Transactional
 	void 테스트_파일_생성() throws JsonProcessingException {
-		List<Stock> allStocks = stockRepositoryPort.findAll();
-		String stockNames = getStockNames(allStocks);
-
-		String stockName = "진양산업";
-		String fileName = "./test" + stockName + ".json";
+		String stockName = "퓨런티어";
+		String fileName = "./test-4o-mini" + stockName + ".json";
 		int threshold = 10;
 		int numberOfRepetitions = 5;
 
 		Stock stock = stockRepositoryPort.findByName(stockName).orElseThrow(() ->
 			new IllegalArgumentException("Stock not found: " + stockName));
 
+		String themas = themaInfoRepositoryAdapter.findAll()
+			.stream()
+			.map(ThemaInfo::getName)
+			.collect(Collectors.joining());
+
 		StockChart ohlcAboveThreshold = getStockChartAboveThreshold(stock, threshold);
 
 		for (int i = 0; i < ohlcAboveThreshold.getOhlcList().size(); i++) {
 			List<News> newsList = fetchNews(stock, ohlcAboveThreshold, i);
 
-			String themas = getThemasAsString(stock);
-
-			processNews(newsList, stock, stockNames, themas);
+			processNews(newsList, stock, themas);
 
 			if (i == numberOfRepetitions) {
 				break; // 조건에 따라 루프 중단
@@ -75,20 +79,10 @@ class TrainServiceTest {
 		saveTrainsToFile(fileName);
 	}
 
-	private String getStockNames(List<Stock> stocks) {
-		return stocks.stream()
-			.map(Stock::getName)
-			.collect(Collectors.joining(" "));
-	}
 
 	private StockChart getStockChartAboveThreshold(Stock stock, int threshold) {
 		LoadChartAboveThresholdCommand command = new LoadChartAboveThresholdCommand(stock.getCode(), threshold);
 		return stockChartRepositoryPort.findOhlcAboveThreshold(command);
-	}
-
-	private Stock getRandomStock(List<Stock> stocks) {
-		int randomIndex = random.nextInt(stocks.size());
-		return stocks.get(randomIndex);
 	}
 
 	private List<News> fetchNews(Stock stock, StockChart ohlcAboveThreshold, int index) {
@@ -98,31 +92,27 @@ class TrainServiceTest {
 				ohlcAboveThreshold.getOhlcList().get(index).getDate()));
 	}
 
-	private String getThemasAsString(Stock stock) {
-		return stock.getThemas().stream()
-			.map(thema -> thema.getThemaInfo().getName())
-			.collect(Collectors.joining(" "));
-	}
-
-	private void processNews(List<News> newsList, Stock stock, String stockNames, String themas) throws
+	private void processNews(List<News> newsList, Stock stock, String themas) throws
 		JsonProcessingException {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 
 		for (News news : newsList) {
-			TrainService trainService = createTrainServiceWithMessages(stock, news, stockNames, themas, mapper);
+			System.out.println("news.getOriginalLink() = " + news.getOriginalLink());
+			TrainService trainService = createTrainServiceWithMessages(stock, news, themas, mapper);
 			trains.add(trainService);
 		}
 	}
 
-	private TrainService createTrainServiceWithMessages(Stock stock, News news, String stockNames, String themas,
+	private TrainService createTrainServiceWithMessages(Stock stock, News news, String themas,
 		ObjectMapper mapper) throws JsonProcessingException {
+
 		TrainService trainService = new TrainService();
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_NEWS_TEXT);
 
 		Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(
-			news.getContent(), stock.getName(), themas, news.getPubDate());
+			news.getContent(), stock.getName(), news.getPubDate());
 
-		String userPrompt = generateUserPrompt(stock, news, stockNames, themas);
+		String userPrompt = generateUserPrompt(stock, news);
 		trainService.addMessage(GPTWebConfig.USER_ROLE, userPrompt);
 
 		String assistantResponse = stockRaiseReason.map(reason -> {
@@ -138,13 +128,9 @@ class TrainServiceTest {
 		return trainService;
 	}
 
-	private String generateUserPrompt(Stock stock, News news, String stockNames, String themas) {
-		return String.format(" Today’s date is the news publication date: %s\n" +
-				"Stock name is <stockname>%s</stockname>\n" +
-				"Analyze the following news <article>%s</article>\n" +
-				"Here is the Thema's name <themaName>%s</themaName>\n" +
-				"Provide the response in Korean.",
-			news.getPubDate(), stock.getName(), news.getContent(), stockNames, themas);
+	private String generateUserPrompt(Stock stock, News news) {
+		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), stock.getName(), news.getContent(),
+			stock.getName());
 	}
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, Stock stock) throws JsonProcessingException {

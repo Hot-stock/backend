@@ -26,9 +26,9 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 
 	@Override
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
-	public Optional<GTPNewsDomain> findStockRaiseReason(String message, String name, String themasNames,
+	public Optional<GTPNewsDomain> findStockRaiseReason(String message, String name,
 		LocalDate pubDate) {
-		GPTNewsRequestDTO requestDTO = createRequestDTO(message, name, themasNames, pubDate);
+		GPTNewsRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -40,7 +40,7 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 				.getMessage()
 				.getParsedContent();
 
-			if (parsedContent.isFiltered()) {
+			if (parsedContent.isFakeNews()) {
 				return Optional.empty();
 			}
 
@@ -59,21 +59,18 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 		}
 	}
 
-	private GPTNewsRequestDTO createRequestDTO(String message, String themasNames, String name,
+	private GPTNewsRequestDTO createRequestDTO(String message, String name,
 		LocalDate pubDate) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_NEWS_TEXT);
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "가짜 뉴스를 판별해줘");
+
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			" Today’s date is the news publication date: " + pubDate.toString() + "\n"
-				+ "stock name is <stockname>" + name + "</stockname>\n "
-				+ "Analyze the following news <article>" + message + "</article>" + "base on the stock <stockname>"
-				+ name + "</stockname>\n "
-				+ "Here is the Thema's name <themaName>" + themasNames + "</themaName>\n"
-				+ "Provide the response in Korean.");
+			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message, name));
+
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 
-		return new GPTNewsRequestDTO("gpt-4o", List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
+		return new GPTNewsRequestDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {

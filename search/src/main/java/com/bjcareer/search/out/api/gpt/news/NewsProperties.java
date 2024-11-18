@@ -8,47 +8,31 @@ import com.bjcareer.search.out.api.gpt.PropertyObject;
 //대문자로 쓰면 더 좋다.
 //4o가 더 정확한 추론을 진행한다
 public class NewsProperties {
-	public static final String[] required = {"filtered", "name", "reason", "themas", "next", "next_reason"};
+	public static final String[] required = {"isFakeNews", "name", "reason", "themas", "next", "next_reason"};
 	// Filtered: Determines if the article is fake news
 
 	//for 4o
-	public PropertyDetail filtered = new PropertyDetail("boolean", NewsFilterPrompt.FILTER_PROMPT
-	);
+	public PropertyDetail isFakeNews = new PropertyDetail("boolean", NewsFilterPrompt.FILTER_PROMPT);
 
 	// Name: Provides the exact stock name
-	public PropertyDetail name = new PropertyDetail("string",
-		"Overview: Provide the exact name of the stock that has experienced a rise in price.\n"
-	);
+	public PropertyDetail name = new PropertyDetail("string", NameFilterPrompt.PROMPT);
 
 	// Reason: Brief summary for the stock's rise reason
-	public PropertyDetail reason = new PropertyDetail("string",
-		"Overview: Summarize the reason for the stock’s rise in up to 3 concise lines.\n" +
-			"Focus:\n" +
-			"- Emphasize specific connections to events, key announcements, or influential individuals."
-	);
+	public PropertyDetail reason = new PropertyDetail("string", RoseReasonPrompt.PROMPT);
 
 	// Theme: Identifies key themes related to stock increases.
 	public PropertyArrayObject themas = new PropertyArrayObject(ThemaPrompt.THEMA_PROMPT,
 		new PropertyObject(new ThemaVariable(), ThemaVariable.required)
 	);
-
-
-	// Next: Closest significant date relevant to the theme
-	public PropertyDetail next = new PropertyDetail("string",
-		"Overview: Provide the closest significant date explicitly mentioned in the article related to the stock’s theme.\n"
-			+
-			"Format:\n" +
-			"- Date format: YYYY-MM-DD.\n" +
-			"- Only include dates that are precisely and explicitly stated in the article.\n" +
-			"- If no specific date is available, leave this field empty."
+	public PropertyDetail next = new PropertyDetail(
+		"string",
+		"What is the date of the next scheduled event mentioned in the discovered news? Please provide the date in the YYYY-MM-DD format. 없다면 leave this field empty."
 	);
 
 	// Next Reason: Explanation for the selected date in "next"
-	public PropertyDetail next_reason = new PropertyDetail("string",
-		"Overview: Provide a concise explanation for the date in 'next', detailing its relevance to the theme.\n" +
-			"Details:\n" +
-			"- Explain the connection to the theme.\n" +
-			"- Include only direct information from the article without inference.\n" +
-			"- If no date is in 'next', set this field to null."
+	public PropertyDetail next_reason = new PropertyDetail(
+		"string",
+		"Please briefly explain why the event is scheduled for the selected date."
 	);
+
 }
