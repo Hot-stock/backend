@@ -40,7 +40,7 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 				.getMessage()
 				.getParsedContent();
 
-			if (parsedContent.isFiltered()) {
+			if (parsedContent.isFakeNews()) {
 				return Optional.empty();
 			}
 
@@ -70,7 +70,7 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 
-		return new GPTNewsRequestDTO("ft:gpt-4o-mini-2024-07-18:personal::AUHKRoap", List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
+		return new GPTNewsRequestDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {
