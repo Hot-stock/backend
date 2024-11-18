@@ -115,6 +115,23 @@ public class PythonSearchServerAdapter implements LoadStockInformationPort, Load
 		return newsList;
 	}
 
+	@Override
+	public List<Stock> loadRanking(Market market) {
+		List<Stock> newsList = new ArrayList<>();
+		String url = address + PythonServerURI.RANKING + "?q=" + market.name();
+		log.debug("Requesting news for url: {}", url);
+
+		return fetchFromServer(url, HttpMethod.GET, new ParameterizedTypeReference<List<MarketResponseDTO>>() {
+		})
+			.orElse(List.of())
+			.stream()
+			.map(dto -> new Stock(
+				dto.getSymbol(),
+				dto.getName()
+			))
+			.collect(Collectors.toList());
+	}
+
 	private int getIssuedShares(MarketResponseDTO dto) {
 		return (int)(dto.getCap() / dto.getPrice());
 	}
