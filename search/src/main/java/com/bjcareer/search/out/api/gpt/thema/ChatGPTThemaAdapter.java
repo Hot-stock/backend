@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class ChatGPTThemaAdapter {
+	public static final String THEMA_MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AVZSfNt0";
 	private final WebClient webClient;
 
 	public Optional<GPTThema> summaryThemaNews(News news, String name) {
@@ -56,7 +57,7 @@ public class ChatGPTThemaAdapter {
 
 		GPTResponseThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaFormatDTO();
 
-		return new GPTThemaRequestDTO("gpt-4o", List.of(systemMessage, userMessage),
+		return new GPTThemaRequestDTO(THEMA_MODEL, List.of(systemMessage, userMessage),
 			gptResponseThemaFormatDTO);
 	}
 

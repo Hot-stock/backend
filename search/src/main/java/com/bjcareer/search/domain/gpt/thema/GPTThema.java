@@ -14,7 +14,6 @@ public class GPTThema {
 	private String summary;
 	private String upcomingDate;
 	private String upcomingDateReason;
-	private String historyPattern;
 	private News news;
 
 	public GPTThema(boolean isRelatedThema, String summary, String upcomingDate, String upcomingDateReason, String historyPattern, News news) {
@@ -22,7 +21,6 @@ public class GPTThema {
 		this.summary = summary;
 		this.upcomingDate = upcomingDate;
 		this.upcomingDateReason = upcomingDateReason;
-		this.historyPattern = historyPattern;
 		this.news = news;
 	}
 }

@@ -8,28 +8,26 @@ public class RelatedFilterPrompt {
 			+ "If an error is identified in any reasoning, it will be corrected or excluded from the discussion.\n"
 			+ "The question is as follows:\n\n"
 
-			+ "### 테마와의 관련성을 판단하는 방법\n"
+			+ "### How to Determine Relevance to the Thema\n"
 
-			+ "**단계 1: 요약된 내용을 바탕으로 테마와의 관련성 평가**\n"
-			+ "- 기사에서 테마에 대한 간단한 언급만 있아면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
-			+ "- 요약된 내용을 분석하여 테마와 관련이 있는지 판단합니다.\n"
-			+ "- 관련성이 있다고 판단되면 다음 단계로 진행하며, 아니라면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n\n"
+			+ "**Step 1: Evaluate Relevance Based on Summarized Content**\n"
+			+ "- If the article only briefly mentions the thema without providing meaningful context, classify it as 'IRRELEVANT.'\n"
+			+ "- Analyze the summarized content to determine if it is related to the thema.\n"
+			+ "- If deemed relevant, proceed to the next step; otherwise, classify it as 'IRRELEVANT.'\n\n"
 
-			+ "**단계 2: 기사의 정보 목적 평가**\n"
-			+ "- 요약된 내용이 테마와 관련된 정보를 제공하기보다는 특정 제품이나 서비스의 홍보 목적으로 작성된 경우, '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
-			+ "- 테마와 관련된 영향만 언급되고, 테마의 발생 원인이나 본질적인 내용이 결여된 경우에도 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
-			+ "- 관련성이 있다고 판단되면 다음 단계로 진행합니다.\n\n"
+			+ "**Step 2: Assess the Purpose of the Article**\n"
+			+ "- If the summarized content is primarily aimed at promoting a specific product or service rather than providing relevant information about the thema, classify it as 'IRRELEVANT.'\n"
+			+ "- If the content only mentions the impact of the thema without addressing its causes or essential context, classify it as 'IRRELEVANT.'\n"
+			+ "- If deemed relevant, proceed to the next step.\n\n"
 
-			+ "**단계 3: 영향력 평가**\n"
-			+ "- 국가 단위에 영향을 미칠 수 있다고 판단하면 '관련 있음(RELEVANT)'으로 분류합니다\n"
-			+ "- 기사에서 보여주는 영향력의 단위가 지역경제라고 판단되면 '관련 없음(RELEVANT)'으로 분류합니다.\n"
-			+ "- 테마의 영향력이 지역적 수준에 머무른다고 판단되면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
-			+ "- 다음 단계를 진행합니다.\n\n"
+			+ "**Step 3: Evaluate the Scope of Impact**\n"
+			+ "- If the content is determined to have a nationwide impact, classify it as 'RELEVANT.'\n"
+			+ "- If the scope of impact is limited to local economies, classify it as 'IRRELEVANT.'\n"
+			+ "- If the thema's influence is restricted to a regional level, classify it as 'IRRELEVANT.'\n"
+			+ "- Proceed to the final decision step.\n\n"
 
-			+ "**최종 결정**\n"
-			+ "- 모든 단계를 거쳐 '관련 있음(RELEVANT)'으로 분류된 경우 TRUE를 반환합니다.\n"
-			+ "- 단계를 통해 '관련 없음(IRRELEVANT)'으로 분류된 경우 FALSE를 반환합니다.\n";
+
+			+ "**Final Decision**\n"
+			+ "- If all steps conclude the content as 'RELEVANT,' return TRUE.\n"
+			+ "- If any step classifies the content as 'IRRELEVANT,' return FALSE.\n";
 }
-
-// 테마 뉴스라는게 이 테마에 대한 구체적인 일정을 제공하거나, 정보를 제공해야 함
-// 자율주행규제 완화소식에
