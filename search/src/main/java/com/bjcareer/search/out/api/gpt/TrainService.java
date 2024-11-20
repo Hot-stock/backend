@@ -85,4 +85,27 @@ public class TrainService {
 		}
 	}
 
+	@Getter
+	public static class GPTThema {
+		@JsonProperty("isRelatedThema")
+		private final boolean isRelatedThema;
+		private final String summary;
+
+		private final String upcomingDate;
+		private final String upcomingDateReason;
+
+		public GPTThema(boolean isRelatedThema, String summary, String upcomingDate, String upcomingDateReason) {
+			this.isRelatedThema = isRelatedThema;
+			this.summary = summary;
+			this.upcomingDate = upcomingDate;
+			this.upcomingDateReason = upcomingDateReason;
+		}
+
+		@JsonProperty("isRelatedThema") // 명시적으로 JSON 키 설정
+		public boolean getIsRelatedThema() {
+			return isRelatedThema;
+		}
+	}
+
+
 }

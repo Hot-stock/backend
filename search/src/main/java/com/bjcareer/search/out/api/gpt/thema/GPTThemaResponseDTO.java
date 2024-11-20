@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
@@ -37,15 +38,11 @@ public class GPTThemaResponseDTO {
 
 	@Data
 	public static class Content {
-		private boolean related;
+		@JsonProperty("isRelatedThema")
+		private boolean isRelatedThema;
 		private String summary;
-		private List<CatalystsVariableResponseDTO> catalysts;
-		private String policyImpactAnalysis;
-		private String recoveryProjectDetails;
-		private String interestRateImpact;
-		private String marketOutlook;
-		private String scenarioAnalysis;
-		private String keyUpcomingDates;
-		private String investmentAttractiveness;
+		private String upcomingDate;
+		private String upcomingDateReason;
+		private String historyPattern;
 	}
 }
