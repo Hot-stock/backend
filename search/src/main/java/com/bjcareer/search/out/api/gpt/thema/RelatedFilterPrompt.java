@@ -8,50 +8,28 @@ public class RelatedFilterPrompt {
 			+ "If an error is identified in any reasoning, it will be corrected or excluded from the discussion.\n"
 			+ "The question is as follows:\n\n"
 
-			+ "### How to Determine Relevance to the Thema\n" +
+			+ "### 테마와의 관련성을 판단하는 방법\n"
 
-			"**Step 1: Identify the main topic of the news article**\n"
-			+ "- Summarize the content and proceed to the next step.\n"
+			+ "**단계 1: 요약된 내용을 바탕으로 테마와의 관련성 평가**\n"
+			+ "- 기사에서 테마에 대한 간단한 언급만 있아면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 요약된 내용을 분석하여 테마와 관련이 있는지 판단합니다.\n"
+			+ "- 관련성이 있다고 판단되면 다음 단계로 진행하며, 아니라면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n\n"
 
-			+ "**Step 2: Identify the main topic of the news article**\n"
-			+ "- Analyze the core content of the article to identify its main topic.\n"
-			+ "- If the main topic is related to the thema but the article is promotional or focuses on advertising other products using the thema, classify it as 'IRRELEVANT.'\n"
-			+ "- If the main topic overlaps with or is related to the questioner's topic, proceed to Step 2.\n\n"
+			+ "**단계 2: 기사의 정보 목적 평가**\n"
+			+ "- 요약된 내용이 테마와 관련된 정보를 제공하기보다는 특정 제품이나 서비스의 홍보 목적으로 작성된 경우, '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 테마와 관련된 영향만 언급되고, 테마의 발생 원인이나 본질적인 내용이 결여된 경우에도 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 관련성이 있다고 판단되면 다음 단계로 진행합니다.\n\n"
 
-			+ "**Step 2: Evaluate whether the article directly addresses the questioner's topic**\n"
-			+ "- Determine if the article explicitly and clearly addresses the questioner's topic.\n"
-			+ "  - Assess whether it includes specific events, policies, announcements, or other direct connections.\n"
-			+ "  - If the content is overly general or lacks clear context, classify it as 'IRRELEVANT.'\n"
-			+ "- If the article specifically addresses the questioner's topic, proceed to Step 3.\n\n"
+			+ "**단계 3: 영향력 평가**\n"
+			+ "- 국가 단위에 영향을 미칠 수 있다고 판단하면 '관련 있음(RELEVANT)'으로 분류합니다\n"
+			+ "- 기사에서 보여주는 영향력의 단위가 지역경제라고 판단되면 '관련 없음(RELEVANT)'으로 분류합니다.\n"
+			+ "- 테마의 영향력이 지역적 수준에 머무른다고 판단되면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 다음 단계를 진행합니다.\n\n"
 
-			+ "**Step 3: Assess the market impact of the topic**\n"
-			+ "- Evaluate whether the topic in the article has the potential to impact the stock market.\n"
-			+ "- Analyze the potential effects on specific companies, industries, or market sentiment.\n"
-			+ "- If the impact is minimal or ambiguous, classify it as 'IRRELEVANT.'\n"
-			+ "- If the impact is significant, proceed to Step 4.\n\n"
-
-			+ "**Step 4: Analyze the specificity and influence of the news**\n"
-			+ "- Determine how closely the information in the article relates to the questioner's topic.\n"
-			+ "- Check whether the article provides specific examples, data, or events.\n"
-			+ "- If the information is vague or lacks specificity, classify it as 'IRRELEVANT.'\n"
-			+ "- If the article is specific and clearly relevant to the questioner's topic, classify it as 'RELEVANT.'\n\n"
-
-			+ "**Step 5: Handle multiple topics**\n"
-			+ "- If the article covers multiple topics, evaluate whether the questioner's topic is central to the article.\n"
-			+ "  - If the questioner's topic is not a key focus or is only indirectly related, classify it as 'IRRELEVANT.'\n"
-			+ "  - If the questioner's topic is a major focus, classify it as 'RELEVANT.'\n"
-			+ "- If the prominence of the topic is unclear, consider scoring the relevance of each topic to identify the most relevant articles.\n\n"
-
-			+ "**Step 6: Evaluate the purpose of the news**\n"
-			+ "- Determine whether the article primarily serves as a promotional piece for a specific product:\n"
-			+ "  - Repeated mentions of product names or brand names.\n"
-			+ "  - Frequent use of commercial language (e.g., 'bestseller,' 'popular choice').\n"
-			+ "  - The main content focuses on product sales performance or consumer reactions, indicating a commercial intent.\n"
-			+ "- Assess the **information-to-promotion ratio**:\n"
-			+ "- If more than half of the content focuses on product promotion rather than providing new, independent information about the topic, classify it as 'IRRELEVANT.'\n"
-			+ "- If the article primarily provides new or independent information on the questioner's topic, classify it as 'RELEVANT.'\n\n"
-
-			+ "**Final Decision**\n"
-			+ "- If classified as 'RELEVANT,' return TRUE.\n"
-			+ "- If classified as 'IRRELEVANT,' return FALSE.\n";
+			+ "**최종 결정**\n"
+			+ "- 모든 단계를 거쳐 '관련 있음(RELEVANT)'으로 분류된 경우 TRUE를 반환합니다.\n"
+			+ "- 단계를 통해 '관련 없음(IRRELEVANT)'으로 분류된 경우 FALSE를 반환합니다.\n";
 }
+
+// 테마 뉴스라는게 이 테마에 대한 구체적인 일정을 제공하거나, 정보를 제공해야 함
+// 자율주행규제 완화소식에

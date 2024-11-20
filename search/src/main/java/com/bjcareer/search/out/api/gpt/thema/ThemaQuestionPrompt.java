@@ -6,16 +6,15 @@ import com.bjcareer.search.config.AppConfig;
 
 public class ThemaQuestionPrompt {
 	public static final String QUESTION_PROMPT =
-		"The publication date of this news is %s.\n"
-			+ "Today's date is " + LocalDate.now(AppConfig.ZONE_ID) + "\n"
-			+ "Thema name: <thema>%s</thema>\n"
-			+ "Article content: <article>%s</article>\n"
+		"이 뉴스의 발행일은 %s입니다.\n"
+			+ "오늘의 날짜는 " + LocalDate.now(AppConfig.ZONE_ID) + "입니다.\n"
+			+ "테마 이름: <thema>%s</thema>\n"
+			+ "기사 내용: <article>%s</article>\n"
 
 			+ "Imagine a panel of three experts collaboratively addressing this question.\n"
-			+ "Each expert will document one step of their thought process\n"
-			+ "and then share it with the group for discussion.\n"
-			+ "The experts will proceed to the next step together, iteratively refining their analysis.\n"
-			+ "If any expert identifies an error in their reasoning, they will withdraw from the discussion.\n"
+			+ "Each expert will contribute one step of their thought process,\n"
+			+ "iteratively refining the analysis through group discussion.\n"
+			+ "If an error is identified in any reasoning, it will be corrected or excluded from the discussion.\n"
 			+ "The question is as follows:\n\n"
 
 			+ "<question>"
@@ -33,56 +32,31 @@ public class ThemaQuestionPrompt {
 			+ "- Summarize the content of the article provided within <article> </article>, focusing on the thema.\n"
 			+ "- Complete the summary and finalize the response.\n"
 
-			+ "### How to Determine Relevance to the Thema\n" +
+			+ "### 테마와의 관련성을 판단하는 방법\n"
+			+ "**단계 1: 요약된 내용을 바탕으로 테마와의 관련성 평가**\n"
+			+ "- 기사에서 테마에 대한 간단한 언급만 있아면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 요약된 내용을 분석하여 테마와 관련이 있는지 판단합니다.\n"
+			+ "- 관련성이 있다고 판단되면 다음 단계로 진행하며, 아니라면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n\n"
 
-			"**Step 1: Identify the main topic of the news article**\n"
-			+ "- Summarize the content and proceed to the next step.\n"
+			+ "**단계 2: 기사의 정보 목적 평가**\n"
+			+ "- 요약된 내용이 테마와 관련된 정보를 제공하기보다는 특정 제품이나 서비스의 홍보 목적으로 작성된 경우, '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 테마와 관련된 영향만 언급되고, 테마의 발생 원인이나 본질적인 내용이 결여된 경우에도 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 관련성이 있다고 판단되면 다음 단계로 진행합니다.\n\n"
 
-			+ "**Step 2: Identify the main topic of the news article**\n"
-			+ "- Analyze the core content of the article to identify its main topic.\n"
-			+ "- If the main topic is related to the thema but the article is promotional or focuses on advertising other products using the thema, classify it as 'IRRELEVANT.'\n"
-			+ "- If the main topic overlaps with or is related to the questioner's topic, proceed to Step 2.\n\n"
+			+ "**단계 3: 영향력 평가**\n"
+			+ "- 국가 단위에 영향을 미칠 수 있다고 판단하면 '관련 있음(RELEVANT)'으로 분류합니다\n"
+			+ "- 기사에서 보여주는 영향력의 단위가 지역경제라고 판단되면 '관련 없음(RELEVANT)'으로 분류합니다.\n"
+			+ "- 테마의 영향력이 지역적 수준에 머무른다고 판단되면 '관련 없음(IRRELEVANT)'으로 분류합니다.\n"
+			+ "- 다음 단계를 진행합니다.\n\n"
 
-			+ "**Step 2: Evaluate whether the article directly addresses the questioner's topic**\n"
-			+ "- Determine if the article explicitly and clearly addresses the questioner's topic.\n"
-			+ "  - Assess whether it includes specific events, policies, announcements, or other direct connections.\n"
-			+ "  - If the content is overly general or lacks clear context, classify it as 'IRRELEVANT.'\n"
-			+ "- If the article specifically addresses the questioner's topic, proceed to Step 3.\n\n"
+			+ "**최종 결정**\n"
+			+ "- 모든 단계를 거쳐 '관련 있음(RELEVANT)'으로 분류된 경우 TRUE를 반환합니다.\n"
+			+ "- 단계를 통해 '관련 없음(IRRELEVANT)'으로 분류된 경우 FALSE를 반환합니다.\n"
 
-			+ "**Step 3: Assess the market impact of the topic**\n"
-			+ "- Evaluate whether the topic in the article has the potential to impact the stock market.\n"
-			+ "- Analyze the potential effects on specific companies, industries, or market sentiment.\n"
-			+ "- If the impact is minimal or ambiguous, classify it as 'IRRELEVANT.'\n"
-			+ "- If the impact is significant, proceed to Step 4.\n\n"
-
-			+ "**Step 4: Analyze the specificity and influence of the news**\n"
-			+ "- Determine how closely the information in the article relates to the questioner's topic.\n"
-			+ "- Check whether the article provides specific examples, data, or events.\n"
-			+ "- If the information is vague or lacks specificity, classify it as 'IRRELEVANT.'\n"
-			+ "- If the article is specific and clearly relevant to the questioner's topic, classify it as 'RELEVANT.'\n\n"
-
-			+ "**Step 5: Handle multiple topics**\n"
-			+ "- If the article covers multiple topics, evaluate whether the questioner's topic is central to the article.\n"
-			+ "  - If the questioner's topic is not a key focus or is only indirectly related, classify it as 'IRRELEVANT.'\n"
-			+ "  - If the questioner's topic is a major focus, classify it as 'RELEVANT.'\n"
-			+ "- If the prominence of the topic is unclear, consider scoring the relevance of each topic to identify the most relevant articles.\n\n"
-
-			+ "**Step 6: Evaluate the purpose of the news**\n"
-			+ "- Determine whether the article primarily serves as a promotional piece for a specific product:\n"
-			+ "  - Repeated mentions of product names or brand names.\n"
-			+ "  - Frequent use of commercial language (e.g., 'bestseller,' 'popular choice').\n"
-			+ "  - The main content focuses on product sales performance or consumer reactions, indicating a commercial intent.\n"
-			+ "- Assess the **information-to-promotion ratio**:\n"
-			+ "- If more than half of the content focuses on product promotion rather than providing new, independent information about the topic, classify it as 'IRRELEVANT.'\n"
-			+ "- If the article primarily provides new or independent information on the questioner's topic, classify it as 'RELEVANT.'\n\n"
-
-			+ "**Final Decision**\n"
-			+ "- If classified as 'RELEVANT,' return TRUE.\n"
-			+ "- If classified as 'IRRELEVANT,' return FALSE.\n"
 
 			+ "### Steps to Find the Next Event\n"
 			+ "**Step 1: Extract Closest Significant Future Date**\n"
-			+ "- Provide the closest significant future date explicitly mentioned in the article related to the stock’s theme.\n"
+			+ "- Provide the most important significant future date explicitly mentioned in the article related to the theme.\n"
 			+ "- The extracted date must strictly be after the news publication date (today).\n"
 			+ "- Date format: YYYY-MM-DD.\n"
 			+ "- If no future date is mentioned or all mentioned dates are before or equal to today, leave this field empty.\n\n"
@@ -125,6 +99,6 @@ public class ThemaQuestionPrompt {
 			+ "- Fact: 'According to the article, December 1, 2024, is the date of the presidential election.'\n"
 			+ "- Opinion: 'The presidential election is likely to have a significant impact on policy-related stocks and may increase market volatility.'\n\n"
 
-			+ "### Output Requirements\n"
-			+ "- The response must be written in Korean.\n";
+			+ "### 출력 요구사항\n"
+			+ "- 응답은 반드시 한국어로 작성되어야 합니다.\n";
 }

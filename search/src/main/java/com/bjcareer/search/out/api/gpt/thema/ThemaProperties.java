@@ -15,3 +15,5 @@ public class ThemaProperties {
 
 	public PropertyDetail upcomingDateReason = new PropertyDetail("string", "Why the Date Was Mentioned and Its Classification as Fact or Opinion");
 }
+
+
