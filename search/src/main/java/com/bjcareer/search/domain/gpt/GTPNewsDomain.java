@@ -31,10 +31,19 @@ public class GTPNewsDomain {
 		this.themas = themas;
 		this.nextReason = nextReason;
 
+		parseLocalDate(next);
+	}
+
+	private void parseLocalDate(String next) {
 		if (next == null || next.isEmpty()) {
 			this.next = Optional.empty();
 		} else {
-			this.next = Optional.of(LocalDate.parse(next));
+			try {
+				this.next = Optional.of(LocalDate.parse(next));
+			}catch (Exception e) {
+				log.error("Failed to parse date: {}", next);
+				this.next = Optional.empty();
+			}
 		}
 	}
 
