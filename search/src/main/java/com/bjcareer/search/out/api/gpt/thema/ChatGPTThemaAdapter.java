@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
-import com.bjcareer.search.domain.gpt.thema.CatalystsVariableDomain;
+import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.gpt.thema.GPTThema;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +23,8 @@ import reactor.core.publisher.Mono;
 public class ChatGPTThemaAdapter {
 	private final WebClient webClient;
 
-	public Optional<GPTThema> summaryThemaNews(String message, String name, LocalDate pubDate) {
-		GPTThemaRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
+	public Optional<GPTThema> summaryThemaNews(News news, String name) {
+		GPTThemaRequestDTO requestDTO = createRequestDTO(news.getContent(), name, news.getPubDate());
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -37,43 +36,27 @@ public class ChatGPTThemaAdapter {
 				.getMessage()
 				.getParsedContent();
 
-			if (!parsedContent.isRelated()) {
+			if (!parsedContent.isRelatedThema()) {
 				log.warn("The response is not related to the topic.");
-				return Optional.empty();
 			}
 
-			List<CatalystsVariableDomain> catalystsVariableDomains = parsedContent.getCatalysts()
-				.stream()
-				.map(catalyst -> new CatalystsVariableDomain(catalyst.keyword, catalyst.catalyst))
-				.toList();
-
-			return Optional.of(new GPTThema(parsedContent.getSummary(), catalystsVariableDomains,
-				parsedContent.getPolicyImpactAnalysis(), parsedContent.getRecoveryProjectDetails(),
-				parsedContent.getInterestRateImpact(), parsedContent.getMarketOutlook(),
-				parsedContent.getScenarioAnalysis(), parsedContent.getKeyUpcomingDates(),
-				parsedContent.getInvestmentAttractiveness()));
+			return Optional.of(new GPTThema(parsedContent.isRelatedThema(), parsedContent.getSummary(), parsedContent.getUpcomingDate(),
+				parsedContent.getUpcomingDateReason(), parsedContent.getHistoryPattern(), news));
 		} else {
 			handleErrorResponse(response);
-			; // 실패 시 null 반환 또는 예외 처리
-			return null;
+			return Optional.empty();
 		}
 	}
 
 	private GPTThemaRequestDTO createRequestDTO(String message, String name, LocalDate pubDate) {
 		GPTThemaRequestDTO.Message systemMessage = new GPTThemaRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT);
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "테마주 뉴스를 분석해줘");
 		GPTThemaRequestDTO.Message userMessage = new GPTThemaRequestDTO.Message(
-			GPTWebConfig.USER_ROLE,
-			"The publication date of this news is " + pubDate.toString() + ".\n" +
-				" Today's date is " + LocalDate.now(AppConfig.ZONE_ID) + ", based on the topic of [" + name + "].\n" +
-				" Summarize the following message related to this topic: [" + message +
-				"] and respond in Korean.\n"
-		);
-
+			GPTWebConfig.USER_ROLE, ThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, name, message));
 
 		GPTResponseThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaFormatDTO();
 
-		return new GPTThemaRequestDTO(GPTWebConfig.MODEL, List.of(systemMessage, userMessage),
+		return new GPTThemaRequestDTO("gpt-4o", List.of(systemMessage, userMessage),
 			gptResponseThemaFormatDTO);
 	}
 
@@ -92,10 +75,7 @@ public class ChatGPTThemaAdapter {
 		if (response != null) {
 			HttpStatusCode statusCode = response.statusCode();
 			log.error("Request failed with status code: {}", statusCode);
-
-			// 에러 메시지를 동기적으로 읽음
-			String errorBody = response.bodyToMono(String.class).block();
-			log.error("Error body: {}", errorBody);
+			log.error("Error body: {}", response.bodyToMono(String.class).block());
 		} else {
 			log.error("Request failed: response is null.");
 		}
