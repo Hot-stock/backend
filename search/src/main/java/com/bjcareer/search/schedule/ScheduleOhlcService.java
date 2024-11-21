@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
@@ -33,7 +33,8 @@ public class ScheduleOhlcService {
 	private final StockRepositoryAdapter stockRepository;
 	private final StockChartRepositoryPort stockChartRepository;
 
-	@Scheduled(cron = "40 4 * * * *")
+	// @Scheduled(cron = "40 4 * * * *")
+	@Transactional
 	public void saveStockInfoAndChartData() {
 		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);
 		log.info("Stocks loaded: {}", stocks.size());

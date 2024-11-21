@@ -2,10 +2,8 @@ spring:
   application:
     name: search
   config:
-    import:
-      aws-secretmanager:
-        name: /hotstock/api/keys
-        enabled: true
+    import: aws-secretsmanager:hotstock/api/keys
+
 
   datasource:
     driver-class-name: org.postgresql.Driver

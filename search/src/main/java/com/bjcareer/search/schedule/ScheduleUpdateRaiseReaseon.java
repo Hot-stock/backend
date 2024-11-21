@@ -3,7 +3,6 @@ package com.bjcareer.search.schedule;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,7 @@ public class ScheduleUpdateRaiseReaseon {
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final ChatGPTThemaAdapter chatGPTThemaAdapter;
 
-	@Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
+	// @Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
 	@Transactional
 	public void run() {
 		Stock stock = stockRepositoryPort.findByName("티플랙스").get();

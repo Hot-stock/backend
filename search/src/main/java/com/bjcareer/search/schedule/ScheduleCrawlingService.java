@@ -11,13 +11,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
+import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
@@ -32,13 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class ScheduleCrawlingService {
-
 	private final MeterRegistry meterRegistry;
 	private final StockRepositoryPort stockRepositoryPort;
 	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
 	private final ThemaRepositoryPort themaRepositoryPort;
+	private final LoadStockInformationPort apiServerPort;
 
-	@Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
+	// @Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
 	@Transactional
 	public void run() {
 		log.debug("CrawlingService started");
@@ -56,7 +57,22 @@ public class ScheduleCrawlingService {
 	private void executeCrawlingTask() {
 		int limit = 8;
 
+		log.debug("종목 업데이트 시작");
 		Map<String, Stock> stocks = loadEntities(stockRepositoryPort.findAll(), Stock::getCode);
+
+		List<Stock> stockInfo = apiServerPort.loadStockInfo(Market.KOSDAQ);
+		stockInfo.addAll(apiServerPort.loadStockInfo(Market.KOSPI));
+
+		stockInfo.forEach(stock -> {
+			Stock test = stocks.getOrDefault(stock.getCode(), stock);
+			test.updateStockInfo(stock);
+			stocks.putIfAbsent(test.getCode(), test);
+		});
+
+		stockRepositoryPort.saveALl(stocks.values());
+		log.debug("종목 업데이트 끝");
+
+
 		Map<String, ThemaInfo> themaInfos = loadEntities(themaInfoRepositoryPort.findAll(), ThemaInfo::getName);
 		Map<String, Thema> themas = loadEntities(themaRepositoryPort.findAll(), Thema::getKey);
 
@@ -65,8 +81,7 @@ public class ScheduleCrawlingService {
 		// Execute tasks concurrently using virtual threads
 		runConcurrentCrawling(crawlingNaverFinance, limit);
 
-		// Save the results
-		saveAllEntities(stocks, themaInfos, themas);
+		saveAllEntities(themaInfos, themas);
 	}
 
 	// Run crawling tasks concurrently using virtual threads
@@ -110,10 +125,9 @@ public class ScheduleCrawlingService {
 	}
 
 	// Save all entities to their respective repositories
-	private void saveAllEntities(Map<String, Stock> stocks, Map<String, ThemaInfo> themaInfos,
+	private void saveAllEntities(Map<String, ThemaInfo> themaInfos,
 		Map<String, Thema> themas) {
 		try {
-			log.info("Entities saved successfully");
 			themaInfoRepositoryPort.saveAll(new ArrayList<>(themaInfos.values()));
 			themaRepositoryPort.saveAll(new ArrayList<>(themas.values()));
 		} catch (DataAccessException e) {
