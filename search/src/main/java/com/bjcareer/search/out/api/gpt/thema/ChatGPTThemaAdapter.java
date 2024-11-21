@@ -57,8 +57,7 @@ public class ChatGPTThemaAdapter {
 
 		GPTResponseThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaFormatDTO();
 
-		return new GPTThemaRequestDTO(THEMA_MODEL, List.of(systemMessage, userMessage),
-			gptResponseThemaFormatDTO);
+		return new GPTThemaRequestDTO(THEMA_MODEL, List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTThemaRequestDTO requestDTO) {

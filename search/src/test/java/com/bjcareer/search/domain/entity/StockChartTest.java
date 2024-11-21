@@ -87,7 +87,7 @@ class StockChartTest {
 
 		Map<String, String> themas = Map.of("자율주행", "트럼프가 좋아함");
 		ohlcList.getFirst().addRoseNews(
-			new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", themas, nextSchedulerDate.toString(), null));
+			new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), nextSchedulerDate.toString(), null));
 
 		List<GTPNewsDomain> gtpNewsDomains = this.chart.getNextSchedule(LocalDate.now());
 		assertEquals(1, gtpNewsDomains.size());
@@ -115,7 +115,7 @@ class StockChartTest {
 	@Test
 	void 주어진_날짜에_뉴스를_링크할_수_있는지() {
 		Map<String, String> themas = Map.of("자율주행", "트럼프가 좋아함");
-		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", themas, null, null);
+		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), null, null);
 		this.chart.addNewsToOhlc(gtpNewsDomain, LocalDate.now());
 
 		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(LocalDate.now());
@@ -166,8 +166,8 @@ class StockChartTest {
 
 		for (OHLC ohlc : ohlcList) {
 			if (ohlc.getDate().isEqual(date)) {
-				ohlc.addRoseNews(new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", themas, null, null));
-				ohlc.addRoseNews(new GTPNewsDomain("퓨런티어", "트럼프 당선 확률이 높아지면서 올랐다", themas, null, null));
+				ohlc.addRoseNews(new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), null, null));
+				ohlc.addRoseNews(new GTPNewsDomain("퓨런티어", "트럼프 당선 확률이 높아지면서 올랐다", new ArrayList<>(), null, null));
 			}
 		}
 	}

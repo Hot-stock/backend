@@ -11,7 +11,7 @@ public class RelatedFilterPrompt {
 			+ "### How to Determine Relevance to the Thema\n"
 
 			+ "**Step 1: Evaluate Relevance Based on Summarized Content**\n"
-			+ "- If the article only briefly mentions the thema without providing meaningful context, classify it as 'IRRELEVANT.'\n"
+			+ "- In cases where the article does not focus on the thema and only briefly mentions it, the article is classified as IRRELEVANT'\n"
 			+ "- Analyze the summarized content to determine if it is related to the thema.\n"
 			+ "- If deemed relevant, proceed to the next step; otherwise, classify it as 'IRRELEVANT.'\n\n"
 
