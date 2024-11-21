@@ -43,7 +43,6 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 		return em.createQuery(Query.FIND_OHLC_ABOVE_THRESHOLD, StockChart.class)
 			.setParameter("code", command.getCode())
 			.setParameter("threshold", command.getThreshold())
-			.setParameter("startDate", LocalDate.of(2018, 11, 1))
 			.getSingleResult();
 	}
 

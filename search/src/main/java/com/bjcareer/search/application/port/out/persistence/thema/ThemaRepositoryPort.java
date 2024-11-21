@@ -17,5 +17,5 @@ public interface ThemaRepositoryPort {
 
 	void saveAll(List<Thema> themaList);
 
-	Optional<ThemaInfo> findByName(String thema, String stockName);
+	Optional<Thema> findByName(String thema, String stockName);
 }

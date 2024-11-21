@@ -1,5 +1,6 @@
 package com.bjcareer.search.out.api.gpt;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +23,10 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
-import com.bjcareer.search.out.api.gpt.news.GPTResponseNewsFormatDTO;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.bjcareer.search.out.api.gpt.news.QuestionPrompt;
+import com.bjcareer.search.out.api.gpt.thema.ChatGPTThemaAdapter;
+import com.bjcareer.search.out.api.gpt.thema.ThemaQuestionPrompt;
 import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
 import com.bjcareer.search.out.persistence.repository.thema.ThemaInfoRepositoryAdapter;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,17 +47,20 @@ class TrainServiceTest {
 	@Autowired
 	private GPTNewsPort gptNewsPort;
 
+	@Autowired
+	private ChatGPTThemaAdapter chatGPTThemaAdapter;
+
 	private final List<TrainService> trains = new ArrayList<>();
 	@Autowired
 	private ThemaInfoRepositoryAdapter themaInfoRepositoryAdapter;
 
 	@Test
 	@Transactional
-	void 테스트_파일_생성() throws JsonProcessingException {
-		String stockName = "퓨런티어";
+	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
+		String stockName = "팜스코";
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		int threshold = 10;
-		int numberOfRepetitions = 5;
+		int numberOfRepetitions = 0;
 
 		Stock stock = stockRepositoryPort.findByName(stockName).orElseThrow(() ->
 			new IllegalArgumentException("Stock not found: " + stockName));
@@ -67,7 +73,9 @@ class TrainServiceTest {
 		StockChart ohlcAboveThreshold = getStockChartAboveThreshold(stock, threshold);
 
 		for (int i = 0; i < ohlcAboveThreshold.getOhlcList().size(); i++) {
-			List<News> newsList = fetchNews(stock, ohlcAboveThreshold, i);
+			List<News> newsList = fetchNews(
+				new NewsCommand(stock.getName(), ohlcAboveThreshold.getOhlcList().get(i).getDate(),
+					ohlcAboveThreshold.getOhlcList().get(i).getDate()));
 
 			processNews(newsList, stock, themas);
 
@@ -79,17 +87,47 @@ class TrainServiceTest {
 		saveTrainsToFile(fileName);
 	}
 
+	@Test
+	void 테스트_테마_파일_생성() throws JsonProcessingException {
+		String thema = "한한령";
+		String fileName = "./test-4o-re" + thema + ".json";
+
+		LocalDate startDate = LocalDate.of(2024, 11, 19);
+		LocalDate endDate = LocalDate.of(2024, 11, 19);
+
+		NewsCommand command = new NewsCommand(thema, startDate, endDate);
+		List<News> newsList = fetchNews(command);
+
+		for (News news : newsList) {
+			TrainService trainService = new TrainService();
+			trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_THEMA_TEXT);
+			trainService.addMessage(GPTWebConfig.USER_ROLE,
+				ThemaQuestionPrompt.QUESTION_PROMPT.formatted(news.getPubDate(), thema, news.getContent()));
+
+			Optional<GPTThema> gptThema = chatGPTThemaAdapter.summaryThemaNews(news, thema);
+
+			if (gptThema.isPresent()) {
+				System.out.println("news.getOriginalLink() = " + news.getOriginalLink());
+				String assistantResponse = createThemaAssistantResponse(AppConfig.customObjectMapper(),
+					gptThema.get().isRelatedThema(),
+					gptThema.get());
+				trainService.addMessage("assistant", assistantResponse);
+				trains.add(trainService);
+			}
+		}
+
+		saveTrainsToFile(fileName);
+	}
+
+
 
 	private StockChart getStockChartAboveThreshold(Stock stock, int threshold) {
 		LoadChartAboveThresholdCommand command = new LoadChartAboveThresholdCommand(stock.getCode(), threshold);
 		return stockChartRepositoryPort.findOhlcAboveThreshold(command);
 	}
 
-	private List<News> fetchNews(Stock stock, StockChart ohlcAboveThreshold, int index) {
-		return pythonSearchServerAdapter.fetchNews(
-			new NewsCommand(stock.getName(),
-				ohlcAboveThreshold.getOhlcList().get(index).getDate(),
-				ohlcAboveThreshold.getOhlcList().get(index).getDate()));
+	private List<News> fetchNews(NewsCommand newsCommand) {
+		return pythonSearchServerAdapter.fetchNews(newsCommand);
 	}
 
 	private void processNews(List<News> newsList, Stock stock, String themas) throws
@@ -143,6 +181,13 @@ class TrainServiceTest {
 		return mapper.writeValueAsString(
 			new TrainService.NewsPrompt(false, stock.getName(), reason.getReason(),
 				reason.getThemas(), reason.getNext().toString(), reason.getNextReason()));
+	}
+
+	private String createThemaAssistantResponse(ObjectMapper mapper, boolean isRelated, GPTThema thema) throws
+		JsonProcessingException {
+		return mapper.writeValueAsString(
+			new TrainService.GPTThema(isRelated, thema.getSummary(), thema.getUpcomingDate(),
+				thema.getUpcomingDateReason()));
 	}
 
 	private void saveTrainsToFile(String filePath) {

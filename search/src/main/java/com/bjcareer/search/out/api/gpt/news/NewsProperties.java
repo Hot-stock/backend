@@ -25,14 +25,12 @@ public class NewsProperties {
 		new PropertyObject(new ThemaVariable(), ThemaVariable.required)
 	);
 	public PropertyDetail next = new PropertyDetail(
-		"string",
-		"What is the date of the next scheduled event mentioned in the discovered news? Please provide the date in the YYYY-MM-DD format. 없다면 leave this field empty."
-	);
+		"string", NextSchedulePrompt.PROMPT);
 
 	// Next Reason: Explanation for the selected date in "next"
 	public PropertyDetail next_reason = new PropertyDetail(
 		"string",
-		"Please briefly explain why the event is scheduled for the selected date."
+		"Why the Date Was Mentioned and Its Classification as Fact or Opinion."
 	);
 
 }

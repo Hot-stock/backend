@@ -59,8 +59,8 @@ public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepos
 	}
 
 	@Override
-	public Optional<ThemaInfo> findByName(String thema, String stockName) {
-		if (thema.isEmpty()) {
+	public Optional<Thema> findByName(String thema, String stockName) {
+		if (thema.isEmpty() || stockName.isEmpty()) {
 			log.debug("findByName themas: {} {}", thema, stockName);
 			return Optional.empty();
 		}
@@ -70,10 +70,12 @@ public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepos
 			.setParameter("stockName", stockName)
 			.getResultList();
 
+		log.debug("thema = {}, {}", thema, stockName);
+
 		if (themas.isEmpty()) {
 			return Optional.empty();
 		}
 
-		return Optional.of(themas.getFirst().getThemaInfo());
+		return Optional.of(themas.getFirst());
 	}
 }

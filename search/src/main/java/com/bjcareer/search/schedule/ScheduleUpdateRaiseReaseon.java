@@ -65,11 +65,8 @@ public class ScheduleUpdateRaiseReaseon {
 				for (GTPNewsDomain gptNewsDomain : raiseReasonThatDate) {
 					log.info("Raise reason found for {} {}", stock.getName(), ohlc.getDate());
 
-					gptNewsDomain.getThemas().forEach((key, value) -> {
-						if (key.isEmpty()) {
-							return;
-						}
-						Optional<ThemaInfo> themaInfoOptional = themaInfoRepositoryPort.findByName(key);
+					gptNewsDomain.getThemas().forEach(thema -> {
+						Optional<ThemaInfo> themaInfoOptional = themaInfoRepositoryPort.findByName(thema.getName());
 
 						themaInfoOptional.ifPresentOrElse(themaInfo -> {
 							log.debug("ThemaInfo found: {}", themaInfo.getName());
@@ -81,7 +78,7 @@ public class ScheduleUpdateRaiseReaseon {
 								return null;
 							});
 						}, () -> {
-							ThemaInfo save = themaInfoRepositoryPort.save(new ThemaInfo(key));
+							ThemaInfo save = themaInfoRepositoryPort.save(new ThemaInfo(thema.getName()));
 							themaRepositoryPort.save(new Thema(stock, save));
 						});
 					});
@@ -99,8 +96,8 @@ public class ScheduleUpdateRaiseReaseon {
 					new NewsCommand(thema.getThemaInfo().getName(), ohlc.getDate(), ohlc.getDate()));
 
 				for (News n : news) {
-					Optional<GPTThema> gptThema = chatGPTThemaAdapter.summaryThemaNews(n.getContent(),
-						thema.getThemaInfo().getName(), ohlc.getDate());
+					Optional<GPTThema> gptThema = chatGPTThemaAdapter.summaryThemaNews(n,
+						thema.getThemaInfo().getName());
 
 					log.info("News found for {} {}", stock.getName(), gptThema);
 				}
