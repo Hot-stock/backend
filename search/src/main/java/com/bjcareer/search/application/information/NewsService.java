@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +17,13 @@ import com.bjcareer.search.application.port.out.api.NewsCommand;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.domain.entity.Thema;
+import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 
 import jakarta.persistence.NoResultException;
@@ -37,6 +40,8 @@ public class NewsService implements NewsServiceUsecase {
 
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
+	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
+	private final ThemaRepositoryPort themaRepositoryPort;
 
 	private final GPTNewsPort gptNewsPort;
 
@@ -57,23 +62,14 @@ public class NewsService implements NewsServiceUsecase {
 
 		List<News> news = loadNewsPort.fetchNews(config);
 
-		log.debug("찾아진 뉴스 개수는? {}", news.size());
-		String themas = stock.getThemas()
-			.stream()
-			.map(t -> t.getThemaInfo().getName())
-			.collect(Collectors.joining(" "));
-
-		gtpNewsDomains = changeNewsToGPTNews(stockName, themas, news,
-			date);
+		gtpNewsDomains = changeNewsToGPTNews(stockName, news, date);
 
 		if (gtpNewsDomains.isEmpty()) {
 			log.warn("No news found for {} {}", stockName, date);
 		} else {
 			log.info("News found for {} {}", stockName, date);
 
-			for (GTPNewsDomain gtpNews : gtpNewsDomains) {
-				chart.addNewsToOhlc(gtpNews, date);
-			}
+			linkNewsToChartAndSaveThema(date, gtpNewsDomains, chart, stock);
 
 			stockChartRepositoryPort.updateStockChartOfOHLC(chart);
 		}
@@ -107,6 +103,23 @@ public class NewsService implements NewsServiceUsecase {
 		return null;
 	}
 
+	private void linkNewsToChartAndSaveThema(LocalDate date, List<GTPNewsDomain> gtpNewsDomains, StockChart chart,
+		Stock stock) {
+		for (GTPNewsDomain gtpNews : gtpNewsDomains) {
+			chart.addNewsToOhlc(gtpNews, date);
+
+			List<GTPNewsDomain.GPTThema> themas = gtpNews.getThemas();
+
+			for (GTPNewsDomain.GPTThema thema : themas) {
+				ThemaInfo themaInfo = themaInfoRepositoryPort.findByName(thema.getName())
+					.orElseGet(() -> themaInfoRepositoryPort.save(new ThemaInfo(thema.getName())));
+
+				themaRepositoryPort.findByName(thema.getName(), stock.getName())
+					.orElseGet(() -> themaRepositoryPort.save(new Thema(stock, themaInfo)));
+			}
+		}
+	}
+
 	private List<GTPNewsDomain> fetchOhlcFromApiIfMissing(String stockName, LocalDate date, StockChart chart,
 		Stock stock) {
 		List<GTPNewsDomain> gtpNewsDomains = new ArrayList<>();
@@ -125,8 +138,7 @@ public class NewsService implements NewsServiceUsecase {
 		return gtpNewsDomains;
 	}
 
-	private List<GTPNewsDomain> changeNewsToGPTNews(String stockName, String themas, List<News> news,
-		LocalDate targetDate) {
+	private List<GTPNewsDomain> changeNewsToGPTNews(String stockName, List<News> news, LocalDate targetDate) {
 		List<GTPNewsDomain> gtpNewsDomains = new ArrayList<>();
 
 		for (News n : news) {
@@ -134,7 +146,7 @@ public class NewsService implements NewsServiceUsecase {
 			if (isSameDate(targetDate, n)) {
 				log.debug("Find news for and query to gpt{} {} {}", stockName, n.getPubDate(), n.getLink());
 				Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(n.getContent(), stockName,
-					themas, targetDate);
+					targetDate);
 
 				if (stockRaiseReason.isPresent()) {
 					GTPNewsDomain gtpNews = stockRaiseReason.get();

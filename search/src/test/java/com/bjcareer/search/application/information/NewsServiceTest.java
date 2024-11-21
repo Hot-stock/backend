@@ -116,7 +116,7 @@ class NewsServiceTest {
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
 		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 		when(loadNewsPort.fetchNews(any())).thenReturn(List.of(news));
-		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), anyString(), any())).thenReturn(
+		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), any())).thenReturn(
 			Optional.of(gtpNewsDomain));
 
 		List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
