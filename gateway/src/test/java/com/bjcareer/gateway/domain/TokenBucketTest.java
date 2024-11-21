@@ -10,11 +10,13 @@ import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.exceptions.TooManyRequestsException;
 
 class TokenBucketTest {
 	private TokenBucket tokenBucket;
 	private Clock clock;
+	private Logger logger = new Logger();
 
 	@BeforeEach
 	void setUp() {
@@ -30,27 +32,27 @@ class TokenBucketTest {
 	@Test
 	void 토큰을_초과해서_사용하면_assert_raise() {
 		for (int i = 0; i < TokenBucket.MAX_REQUESTS; i++) {
-			tokenBucket.attemptApiCall();
+			tokenBucket.attemptApiCall(logger);
 		}
 
 		assertThrows(TooManyRequestsException.class, () -> {
-			tokenBucket.attemptApiCall();
+			tokenBucket.attemptApiCall(logger);
 		});
 	}
 
 	@Test
 	void 토큰이_정상적으로_감소하는지() {
-		tokenBucket.attemptApiCall();
+		tokenBucket.attemptApiCall(logger);
 		assertEquals(TokenBucket.MAX_REQUESTS - 1, tokenBucket.getAvailableTokens());
 	}
 
 	@Test
 	void 토큰_리필_가능여부() {
-		tokenBucket.attemptApiCall();  // 호출 시 토큰이 리필됨
+		tokenBucket.attemptApiCall(logger);  // 호출 시 토큰이 리필됨
 		Instant tenMinute = Instant.now().plusSeconds(TokenBucket.REFILL_INTERVAL_SECONDS );
 		when(clock.instant()).thenReturn(tenMinute);
 
-		tokenBucket.attemptApiCall();  // 호출 시 토큰이 리필됨
+		tokenBucket.attemptApiCall(logger);  // 호출 시 토큰이 리필됨
 		assertEquals(TokenBucket.MAX_REQUESTS - 1, tokenBucket.getAvailableTokens());
 	}
 }

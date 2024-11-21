@@ -41,8 +41,7 @@ public class SearchController {
 			"따라서 느릴 수 있습니다" +
 			"유료 결제 회원만 사용 가능합니다"
 	)
-	public ResponseEntity<ResponseDomain<List<KeywordCountResponseDTO>>> getKeywordCount(@RequestParam(name = "q") String keyword,
-		HttpServletRequest request) {
+	public ResponseEntity<ResponseDomain<List<KeywordCountResponseDTO>>> getKeywordCount(@RequestParam(name = "q") String keyword) {
 		log.info("Request keyword: {}", keyword);
 		if (validationKeyword(keyword)) {
 			log.debug("Request keyword is empty");
