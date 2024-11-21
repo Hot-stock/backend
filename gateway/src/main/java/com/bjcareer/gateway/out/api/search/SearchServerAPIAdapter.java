@@ -20,6 +20,7 @@ import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextScheduleOfStockDTO;
+import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
 @Component
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
@@ -97,6 +98,25 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 
 		if (res.statusCode().is2xxSuccessful()) {
 			NextScheduleOfStockDTO responseDTO = res.bodyToMono(NextScheduleOfStockDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<TopNewsDTO> findTopStockNews() {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.TOP_STOCK_NEWS)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.TOP_STOCK_NEWS, res.statusCode());
+
+		if (res.statusCode().is2xxSuccessful()) {
+			TopNewsDTO responseDTO = res.bodyToMono(TopNewsDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();

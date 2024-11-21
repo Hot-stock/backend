@@ -6,4 +6,6 @@ public class SearchServerURI {
 	public static final String SEARCH_RESULT = "/api/v0/sr";
 	public static final String ADD_STOCK = "/api/v0/stock";
 	public static final String FIND_NEXT_SCHEDULE = "/api/v0/stock/next-schedule";
+
+	public static final String TOP_STOCK_NEWS = "/api/v0/ranking/stocks";
 }
