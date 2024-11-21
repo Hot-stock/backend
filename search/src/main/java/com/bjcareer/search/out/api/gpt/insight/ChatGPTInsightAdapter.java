@@ -131,14 +131,9 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 		StringBuilder result = new StringBuilder("이 주식이 속한 테마들의 뉴스들을 요약해봤어\n");
 		themas.forEach(thema -> {
 			result.append(thema.getSummary()).append("\n")
-				.append(thema.getCatalysts()).append("\n")
-				.append(thema.getPolicyImpactAnalysis()).append("\n")
-				.append(thema.getRecoveryProjectDetails()).append("\n")
-				.append(thema.getInterestRateImpact()).append("\n")
-				.append(thema.getMarketOutlook()).append("\n")
-				.append(thema.getScenarioAnalysis()).append("\n")
-				.append(thema.getKeyUpcomingDates()).append("\n")
-				.append(thema.getInvestmentAttractiveness()).append("\n");
+				.append(thema.getSummary()).append("\n")
+				.append(thema.getUpcomingDate()).append("\n")
+				.append(thema.getUpcomingDateReason()).append("\n");
 		});
 		return result.toString();
 	}
