@@ -34,8 +34,8 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6' // or 'io.jsonwebtoken:jjwt-gson:0.12.6' for gson
 
-	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:3.0.0'
+
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'

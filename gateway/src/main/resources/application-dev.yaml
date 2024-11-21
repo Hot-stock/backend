@@ -1,36 +1,40 @@
 spring:
   application:
     name: gateway
+  config:
+    import: aws-secretsmanager:hotstock/api/keys
 
   kafka:
     consumer:
-      bootstrap-servers: ${KAFKA_ADDRESS}
+      bootstrap-servers: ${KAFKA_PUBLIC_ADDRESS}
 
 redis:
-  address: ${REDIS_ADDRESS}
+  address: redis://${REDIS_PRIVATE_ADDRESS}:${REDIS_PORT}
   password: ${REDIS_PASSWORD}
   database: ${REDIS_DATABASE}
 
 secret:
-    key: ${SECRET_KEY}
+  key: ${JWT_SECRET_KEY}
 
 bucket:
   token:
     max-limit: ${MAX_API_LIMIT}
     refill-minute: ${REFILL_API_MINUTE}
 
+
 auth:
-  url: ${AUTH_URL}
+  url: ${AUTH_PRIVATE_SERVER_ADDRESS}
+
 
 search:
-  url: ${SEARCH_URL}
+  url: ${SEARCH_PRIVATE_SERVER_ADDRESS}
 
 time-deal:
-  url: ${TIME_DEAL_URL}
+  url: ${TIMEDEAL_PRIVATE_SERVER_ADDRESS}
 
 logging:
   level:
-    com.bjcareer.gateway.*: debug
+    com.bjcareer.gateway.*: info
 
 springdoc:
   api-docs:
