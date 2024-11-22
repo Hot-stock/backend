@@ -1,13 +1,16 @@
-package com.bjcareer.GPTService.in;
+package com.bjcareer.GPTService.application;
 
-public class GetGPTStockNewsCommand {
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+public class SaveGPTStockNewsCommand {
 	public String title;
 	public String content;
 	public String stockName;
 	public String link;
 	public String pubDate;
 
-	public GetGPTStockNewsCommand(String title, String content, String stockName, String link, String pubDate) {
+	public SaveGPTStockNewsCommand(String title, String content, String stockName, String link, String pubDate) {
 		this.title = title;
 		this.content = content;
 		this.stockName = stockName;

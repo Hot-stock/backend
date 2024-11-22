@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
-import com.bjcareer.GPTService.in.GetGPTStockNewsCommand;
 import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
 
@@ -18,7 +17,7 @@ public class GPTStockNewsService {
 	private final GPTStockNewsRepository gptStockNewsRepository;
 	private final GPTNewsAdapter gptNewsAdapter;
 
-	public GPTNewsDomain getGPTStockNews(GetGPTStockNewsCommand command) {
+	public GPTNewsDomain saveGPTStockNews(SaveGPTStockNewsCommand command) {
 		Optional<GPTNewsDomain> optionalGPTNewsDomain = gptStockNewsRepository.findByLink(command.link);
 
 		if(optionalGPTNewsDomain.isEmpty()){

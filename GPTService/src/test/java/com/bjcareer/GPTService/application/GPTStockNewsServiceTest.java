@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
-import com.bjcareer.GPTService.in.GetGPTStockNewsCommand;
 import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
 
@@ -39,7 +38,7 @@ class GPTStockNewsServiceTest {
 
 	@Test
 	public void 저장되어_있지_않는_뉴스들을_저장할_수_있어야_함() {
-		GetGPTStockNewsCommand command = new GetGPTStockNewsCommand("배럴", "더위에 배럴 상승", "배럴", "www.news.com", date);
+		SaveGPTStockNewsCommand command = new SaveGPTStockNewsCommand("배럴", "더위에 배럴 상승", "배럴", "www.news.com", date);
 		when(gptStockNewsRepository.findByLink(anyString())).thenReturn(Optional.empty());
 		when(gptNewsAdapter.findStockRaiseReason(any(), any(), any())).thenReturn(
 			Optional.of(new GPTNewsDomain("배럴", "더위", null, "2021-07-01", "더위가 심해지면서",
@@ -53,7 +52,7 @@ class GPTStockNewsServiceTest {
 
 	@Test
 	public void 저장된_뉴스들을_저장할_수_있어야_함() {
-		GetGPTStockNewsCommand command = new GetGPTStockNewsCommand("배럴", "더위에 배럴 상승", "배럴", "www.news.com", date);
+		SaveGPTStockNewsCommand command = new SaveGPTStockNewsCommand("배럴", "더위에 배럴 상승", "배럴", "www.news.com", date);
 
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", null, "2021-07-01", "더위가 심해지면서",
 			new OriginalNews("배럴", "더위가 심해지면서", "www.news.com", "더위가 심해지면서", date, "더위가 심해지면서"));
