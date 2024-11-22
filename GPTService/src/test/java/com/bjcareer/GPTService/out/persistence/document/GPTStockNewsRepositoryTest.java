@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,11 @@ class GPTStockNewsRepositoryTest {
 
 		GPTNewsDomain saved = gptStockNewsRepository.save(gptNewsDomain);
 		assertEquals(saved, gptStockNewsRepository.save(saved));
+	}
+
+	@Test
+	void 찾고자하는_객체가_없을_때() {
+		Optional<GPTNewsDomain> byLink = gptStockNewsRepository.findByLink("www.naver.com1");
+		assertEquals(Optional.empty(), byLink);
 	}
 }
