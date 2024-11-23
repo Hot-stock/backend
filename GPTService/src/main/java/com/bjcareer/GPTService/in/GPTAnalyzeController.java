@@ -23,7 +23,7 @@ public class GPTAnalyzeController {
 
 	@PostMapping("/stock-news")
 	public ResponseEntity<ListStockNewsResponseDTO> getStockNews(@RequestBody AnalyzeStockNewsRequestDTO request) {
-		List<GPTNewsDomain> raiseReasons = gptStockNewsService.analyzeStockNews(request.getDate(), request.getStockName());
+		List<GPTNewsDomain> raiseReasons = gptStockNewsService.analyzeStockNewsByDateWithStockName(request.getDate(), request.getStockName());
 		ListStockNewsResponseDTO listStockNewsDTO = new ListStockNewsResponseDTO(request.getStockName(), raiseReasons);
 		return ResponseEntity.ok(listStockNewsDTO);
 	}

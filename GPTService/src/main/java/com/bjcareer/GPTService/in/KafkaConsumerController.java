@@ -18,13 +18,13 @@ public class KafkaConsumerController {
 	private final GPTStockNewsService gptStockNewsService;
 	private final KafkaTemplate<String, AnalyzeStockNewsCommand> kafkaTemplate;
 
-	@KafkaListener(topics = "news-stock-topic", groupId = "news-stock-group")
+	@KafkaListener(topics = "analyze-news-stock-topic", groupId = "analyze-news-stock-group")
 	public void consume(AnalyzeStockNewsCommand command, Acknowledgment acknowledgment) {
 		try {
-			gptStockNewsService.saveGPTStockNews(command);
+			gptStockNewsService.analyzeStockNewsByNewsLink(command);
 			acknowledgment.acknowledge(); // 메시지 처리 완료 후 커밋
 		} catch (Exception e) {
-			log.debug("Can't save Error: {} {}", e, command.newLink);
+			log.debug("Can't save Error: {} {}", e, command.getNewsLink());
 			kafkaTemplate.sendDefault(command);
 		}
 	}

@@ -28,19 +28,22 @@ public class GPTStockNewsService {
 	/**
 	 * Handles asynchronous requests, typically triggered via Kafka.
 	 */
-	public GPTNewsDomain saveGPTStockNews(AnalyzeStockNewsCommand command) {
-		return gptStockNewsRepository.findByLink(command.newLink)
-			.or(() -> processNewGPTStockNews(command))
-			.orElseThrow(() -> new IllegalStateException("Failed to save GPT stock news"));
+	public GPTNewsDomain analyzeStockNewsByNewsLink(AnalyzeStockNewsCommand command) {
+		if (isNewsNotProcessed(command.getNewsLink())) {
+			Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink());
+			optionalGPTNewsDomain.ifPresent(gptStockNewsRepository::save);
+		}
+
+		return gptStockNewsRepository.findByLink(command.getNewsLink()).orElseThrow();
 	}
 
 	//동기식 요청을 처리하기 위한 함수 당일 한정 사용
-	public List<GPTNewsDomain> analyzeStockNews(LocalDate date, String stockName) {
+	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate date, String stockName) {
 		List<NewsResponseDTO> newsLinks = fetchNewsForStock(date, stockName);
 
 		newsLinks.stream()
-			.filter(this::isNewsNotProcessed)
-			.map(this::processNewsLink)
+			.filter(n -> isNewsNotProcessed(n.getLink()))
+			.map(n -> processAnalyzeNewsLink(n.getLink()))
 			.flatMap(Optional::stream)
 			.map(gptStockNewsRepository::save)
 			.toList();
@@ -51,43 +54,25 @@ public class GPTStockNewsService {
 			.toList();
 	}
 
-	private Optional<GPTNewsDomain> processNewsLink(NewsResponseDTO newsResponse) {
-		ParseNewsContentResponseDTO parsedContent = pythonSearchServerAdapter.fetchNewsBody(newsResponse.getLink());
-		OriginalNews originalNews = createOriginalNewsFromResponse(newsResponse, parsedContent);
+	private Optional<GPTNewsDomain> processAnalyzeNewsLink(String newsLink) {
+		ParseNewsContentResponseDTO parsedContent = pythonSearchServerAdapter.fetchNewsBody(newsLink);
+		OriginalNews originalNews = createOriginalNewsFromResponse(newsLink, parsedContent);
 		return gptNewsAdapter.findStockRaiseReason(originalNews, originalNews.getTitle(), originalNews.getPubDate());
-	}
-
-	private Optional<GPTNewsDomain> processNewGPTStockNews(AnalyzeStockNewsCommand command) {
-		OriginalNews originalNews = createOriginalNews(command);
-		Optional<GPTNewsDomain> gptNewsDomain = gptNewsAdapter.findStockRaiseReason(
-			originalNews, command.stockName, originalNews.getPubDate());
-		gptNewsDomain.ifPresent(gptStockNewsRepository::save);
-		return gptNewsDomain;
 	}
 
 	private List<NewsResponseDTO> fetchNewsForStock(LocalDate date, String stockName) {
 		return pythonSearchServerAdapter.fetchNews(new NewsCommand(stockName, date, date));
 	}
 
-	private boolean isNewsNotProcessed(NewsResponseDTO newsResponse) {
-		return gptStockNewsRepository.findByLink(newsResponse.getLink()).isEmpty();
+	private boolean isNewsNotProcessed(String newsLink) {
+		return gptStockNewsRepository.findByLink(newsLink).isEmpty();
 	}
 
-	private OriginalNews createOriginalNews(AnalyzeStockNewsCommand command) {
-		return new OriginalNews(
-			command.title,
-			command.newLink,
-			command.imgLink,
-			command.pubDate,
-			command.content
-		);
-	}
-
-	private OriginalNews createOriginalNewsFromResponse(NewsResponseDTO newsResponse,
+	private OriginalNews createOriginalNewsFromResponse(String newsLink,
 		ParseNewsContentResponseDTO parsedContent) {
 		return new OriginalNews(
 			parsedContent.getTitle(),
-			newsResponse.getLink(),
+			newsLink,
 			parsedContent.getImgLink(),
 			parsedContent.getPublishDate(),
 			parsedContent.getText()
