@@ -114,11 +114,11 @@ public class ChatGPTInsightAdapter {
 
 		newsList.forEach(news -> {
 			result.append(news.getNews().getPubDate()).append(" ").append(news.getReason()).append(" ")
-				.append(news.getNews().getOriginalLink()).append("\n");
+				.append(news.getNews().getNewsLink()).append("\n");
 			news.getNext().ifPresent(nextDate -> {
 				if (nextDate.isAfter(LocalDate.now())) {
 					result.append(nextDate).append(" ").append(news.getNextReason()).append(" ")
-						.append(news.getNews().getOriginalLink()).append("\n");
+						.append(news.getNews().getNewsLink()).append("\n");
 				}
 			});
 		});
