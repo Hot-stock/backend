@@ -26,7 +26,6 @@ public class GPTNewsDomain {
 	private String nextReason;
 	private LocalDate next;
 	private OriginalNews news;
-
 	@MongoId
 	private String link;
 
@@ -36,7 +35,7 @@ public class GPTNewsDomain {
 		this.themas = themas;
 		this.nextReason = nextReason;
 		this.news = news;
-		this.link = news.getLink();
+		this.link= news.getNewsLink();
 
 		parseLocalDate(next);
 	}
@@ -61,12 +60,15 @@ public class GPTNewsDomain {
 		if (object == null || getClass() != object.getClass())
 			return false;
 		GPTNewsDomain that = (GPTNewsDomain)object;
-		return Objects.equals(stockName, that.stockName) && Objects.equals(news, that.news);
+		return Objects.equals(stockName, that.stockName) && Objects.equals(reason, that.reason)
+			&& Objects.equals(themas, that.themas) && Objects.equals(nextReason, that.nextReason)
+			&& Objects.equals(next, that.next) && Objects.equals(news, that.news)
+			&& Objects.equals(link, that.link);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(stockName, news);
+		return Objects.hash(stockName, reason, themas, nextReason, next, news, link);
 	}
 
 	@Data

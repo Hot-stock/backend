@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.GPTService.TestUtil;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 
@@ -19,8 +20,7 @@ class ChatGPTNewsAdapterTest {
 
 	@Test
 	void test() {
-		OriginalNews originalNews = new OriginalNews("배럴", "더위가 심해지면서", "2021-07-01", "더위가 심해지면서", "2021-07-01",
-			"더위가 심해지면서");
+		OriginalNews originalNews = new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE,"더위가 심해지면서");
 		Optional<GPTNewsDomain> opt = gptNewsAdapter.findStockRaiseReason(originalNews, "테스트를 위한 메세지입니다.", LocalDate.now());
 		assertNotNull(opt);
 	}
