@@ -2,9 +2,10 @@ package com.bjcareer.GPTService.out.api.python;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -14,7 +15,6 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
-import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,6 @@ public class PythonSearchServerAdapter {
 	private final WebClient webClient;
 
 	public List<NewsResponseDTO> fetchNews(NewsCommand command) {
-		List<OriginalNews> newsList = new ArrayList<>();
 		String url = command.buildUrl(address + PythonServerURI.NEWS);
 		log.debug("Requesting news for url: {}", url);
 
@@ -54,10 +53,9 @@ public class PythonSearchServerAdapter {
 		Optional<ParseNewsContentResponseDTO> responseDTO = fetchFromServer(url,
 			new ParameterizedTypeReference<>() {
 			});
-		ParseNewsContentResponseDTO parseNewsContentResponseDTO = responseDTO.orElseGet(
-			ParseNewsContentResponseDTO::new);
 
-		return parseNewsContentResponseDTO;
+		return responseDTO.orElseGet(
+			ParseNewsContentResponseDTO::new);
 	}
 
 	// 공통 REST 호출 메서드로 재사용성 향상
@@ -65,16 +63,20 @@ public class PythonSearchServerAdapter {
 		try {
 			ClientResponse response = webClient.get()
 				.uri(url)
-				.exchange().block();
+				.exchange()
+				.timeout(Duration.ofSeconds(30))
+				.block();
 
 			if (response.statusCode().is2xxSuccessful()) {
 				return Optional.ofNullable(response.bodyToMono(responseType).block());
 			} else {
 				log.error("Failed to fetch from server. URL: {}, Status Code: {}", url, response.statusCode());
+				return Optional.empty();
 			}
 		} catch (RestClientException e) {
 			log.error("Exception while fetching data from server. URL: {}, Error: {}", url, e.getMessage());
+			return Optional.empty();
 		}
-		return Optional.empty();
+
 	}
 }

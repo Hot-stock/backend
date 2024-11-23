@@ -39,10 +39,11 @@ public class GPTNewsAdapter {
 				.getMessage()
 				.getParsedContent();
 
-
-			if (parsedContent.isFakeNews()) {
-				return Optional.empty();
+			if (parsedContent.isFakeNews() || !parsedContent.getName().equals(stockName)) {
+				log.warn("Wrong Parsed content: {}", parsedContent);
 			}
+
+			log.info("Parsed content: {}", parsedContent);
 
 			List<GPTNewsDomain.GPTThema> themaDomain = new ArrayList<>();
 

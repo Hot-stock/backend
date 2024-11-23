@@ -37,10 +37,12 @@ public class GPTNewsDomain {
 		this.news = news;
 		this.link= news.getNewsLink();
 
+		log.info("stockName: {}", stockName);
 		parseLocalDate(next);
 	}
 
 	private void parseLocalDate(String next) {
+		log.info("next: {}", next);
 		if (next == null || next.isEmpty()) {
 			this.next = null;
 		} else {

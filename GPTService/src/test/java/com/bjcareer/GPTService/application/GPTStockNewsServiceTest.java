@@ -36,36 +36,17 @@ class GPTStockNewsServiceTest {
 	GPTNewsAdapter gptNewsAdapter;
 
 	@InjectMocks
-	GPTStockNewsService gptStockNewsService;
-
-	@Test
-	public void 저장되어_있지_않는_뉴스들을_저장할_수_있어야_함() {
-		AnalyzeStockNewsCommand command = new AnalyzeStockNewsCommand("배럴", "더위에 배럴 상승", "배럴", "www.news.com",
-			LocalDate.now().toString(),
-			TestUtil.PUB_DATE);
-		when(gptStockNewsRepository.findByLink(anyString())).thenReturn(Optional.empty());
-		when(gptNewsAdapter.findStockRaiseReason(any(), any(), any())).thenReturn(
-			Optional.of(new GPTNewsDomain("배럴", "더위", null, "2021-07-01", "더위가 심해지면서",
-				new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서"))));
-
-		gptStockNewsService.saveGPTStockNews(command);
-
-		verify(gptNewsAdapter).findStockRaiseReason(any(), any(), any());
-		verify(gptStockNewsRepository).save(any());
-	}
+	GPTStockAnalyzeService gptStockNewsService;
 
 	@Test
 	public void 저장된_뉴스들을_저장할_수_있어야_함() {
-		AnalyzeStockNewsCommand command = new AnalyzeStockNewsCommand("배럴", "더위에 배럴 상승", "배럴", "www.news.com",
-			"www.img.com",
-			TestUtil.PUB_DATE);
-
+		AnalyzeStockNewsCommand command = new AnalyzeStockNewsCommand("www.naver.com");
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", null, "2021-07-01", "더위가 심해지면서",
 			new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서"));
 
 		when(gptStockNewsRepository.findByLink(anyString())).thenReturn(Optional.of(gptNewsDomain));
 
-		GPTNewsDomain gptStockNews = gptStockNewsService.saveGPTStockNews(command);
+		GPTNewsDomain gptStockNews = gptStockNewsService.analyzeStockNewsByNewsLink(command);
 		assertEquals(gptNewsDomain, gptStockNews);
 	}
 
@@ -83,7 +64,7 @@ class GPTStockNewsServiceTest {
 		when(pythonSearchServerAdapter.fetchNews(any())).thenReturn(result);
 		when(gptStockNewsRepository.findByLink(result.get(0).getLink())).thenReturn(Optional.of(gptNewsDomain));
 
-		List<GPTNewsDomain> gptNewsDomains = gptStockNewsService.analyzeStockNews(date, stockName);
+		List<GPTNewsDomain> gptNewsDomains = gptStockNewsService.analyzeStockNewsByDateWithStockName(date, stockName);
 
 		verify(gptStockNewsRepository, times(0)).save(any());
 	}
