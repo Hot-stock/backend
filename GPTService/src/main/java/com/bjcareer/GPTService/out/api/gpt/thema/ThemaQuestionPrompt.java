@@ -23,7 +23,7 @@ public class ThemaQuestionPrompt {
 			+ "3. Pinpoint the next event mentioned in the article and explain its significance.\n"
 			+ "</question>\n\n"
 
-			+ "### Steps to Summarize the Reason for Stock's Increase\n"
+			+ "### Steps to Summarize article\n"
 			+ "Step 1: **Extract Thema Name and Remove XML Tags**\n"
 			+ "- Retrieve the thema name from within the <thema> </thema> XML tags.\n"
 			+ "- Remove the XML tags within <article> </article>.\n"

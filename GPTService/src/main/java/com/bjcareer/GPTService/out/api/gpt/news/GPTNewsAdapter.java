@@ -66,7 +66,7 @@ public class GPTNewsAdapter {
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "가짜 뉴스를 판별해줘");
 
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message, name));
+			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 

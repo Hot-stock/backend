@@ -1,62 +1,64 @@
 package com.bjcareer.GPTService.out.api.gpt.news;
 
+import java.time.LocalDate;
+
+import com.bjcareer.GPTService.config.AppConfig;
+
 public class QuestionPrompt {
 	public static String QUESTION_FORMAT =
-		"Today's date (news publication date): %s\n" +
-			"Stock name: <stockName>%s</stockName>\n" +
-			"Article content: <article>%s</article>\n" +
-			"PLEASE NOTE THAT THIS NEWS ARTICLE DOES NOT NECESSARILY EXPLAIN THE REASONS FOR STOCK PRICE INCREASES.\n\n"
+		"이 뉴스의 발행일은 %s 입니다.\n"
+			+ "오늘의 날짜는 " + LocalDate.now(AppConfig.ZONE_ID) + "입니다.\n"
+			+ "주식 이름: <stock> %s </stock>\n"
+			+ "기사 내용: <article> %s </article>\n"
 
-			+ "Imagine a panel of three experts collaboratively addressing this question.\n" +
-			"Each expert will document one step of their thought process\n" +
-			"and then share it with the group for discussion.\n" +
-			"The experts will proceed to the next step together, iteratively refining their analysis.\n" +
-			"If any expert identifies an error in their reasoning, they will withdraw from the discussion.\n" +
-			"The question is as follows:\n\n" +
+			+ "Imagine a panel of three experts collaboratively addressing this question.\n"
+			+ "Each expert will contribute one step of their thought process,\n"
+			+ "iteratively refining the analysis through group discussion.\n"
+			+ "If an error is identified in any reasoning, it will be corrected or excluded from the discussion.\n"
+			+ "The question is as follows:\n\n"
 
-			"<question>" +
-			"1. Determine if the news is fake.\n" +
-			"2. Summarize the reasons for the stock's price movement.\n" +
-			"3. Identify potential themes the stock could belong to.\n" +
-			"4. Pinpoint the next event mentioned in the article and explain its significance.\n" +
-			"</question>\n\n"
+			+ "<question>"
+			+ "1. Summarize the article.\n"
+			+ "2. Determine if the article is related to the stock.\n"
+			+ "3. Pinpoint the next event mentioned in the article and explain its significance.\n"
+			+ "</question>\n\n"
 
-			+ "### Steps to Summarize the Reason for Stock's Increase\n"
-			+ "**Step 1: Extract Relevant Data from Article**\n"
-			+ "- Remove XML tags within <article> </article>.\n"
-			+ "- Extract the stock name within <stockName> </stockName>.\n\n"
+			+ "### Steps to Summarize article\n"
+			+ "Step 1: **Extract Thema Name and Remove XML Tags**\n"
+			+ "- Retrieve the thema name from within the <stock> </stock> XML tags.\n"
+			+ "- Remove the XML tags within <article> </article>.\n"
 
-			+ "**Step 2: Summarize the Content**\n"
-			+ "- Summarize the article content, focusing on the stock name.\n"
-			+ "- Include why the content is relevant and store the result in the `reason` variable.\n"
-			+ "- If the stock names emphasized in this article differ from the stock names we are targeting, classify it as FAKE NEWS.\n"
-			+ "- Proceed to the next step.\n\n"
+			+ "Step 2: **Summarize the Content**\n"
+			+ "- Summarize the content of the article provided within <article> </article>, focusing on the stock name.\n"
+			+ "- Complete the summary and finalize the response.\n"
 
-			+ "### Steps to Identify Fake News\n"
+			+ "THE QUESTION IS: Determine if the article is related to a specific stock.\n\n"
 
-			+ "**Step 1: Evaluate Relevance of Stock and Explanation**\n"
-			+ "- Summarized content unrelated to the analyzed stock is classified as FAKE NEWS.\n"
-			+ "- Proceed to Step 2.\n\n"
+			+ "### How to Determine Relevance to the Stock\n\n"
 
-			+ "**Step 2: Evaluate Rationality of Stock Movement Explanation**\n"
-			+ "- Check if the `reason` field includes clear and specific causes, such as significant company announcements, product launches, or policy changes directly impacting the stock.\n"
-			+ "- Explanations relying solely on market participants' buying or selling behavior (e.g., 'individual investors' net buying') without tying to a significant event or business outcome are classified as FAKE NEWS.\n"
-			+ "- If such causes are present, classify as FAKE NEWS. Otherwise, proceed to Step 3.\n\n"
+			+ "**Step 1: Evaluate Relevance Based on Summarized Content**\n"
+			+ "- If the article only briefly mentions the theme without providing detailed or actionable context, classify it as 'IRRELEVANT.'\n"
+			+ "- Summarize and analyze the content to determine its connection to the stock. Relevant content should contain concrete factors like events, announcements, or changes impacting the stock.\n"
+			+ "- If deemed relevant, proceed to the next step; otherwise, classify it as 'IRRELEVANT.'\n\n"
 
-			+ "**Step 3: Check for Specific Event-Based Causes**\n"
-			+ "- Check if the `reason` field cites specific events such as 'price limit,' 'IPO,' or 'policy implementation.'\n"
-			+ "- If the reason includes vague or secondary factors, such as 'net buying by individual investors' or 'net selling by institutions,' without any concrete event or corporate action, classify it as FAKE NEWS.\n"
-			+ "- Indirect factors like 'chart patterns,' 'market momentum,' or 'sector interest' lacking clarity will be classified as FAKE NEWS.\n"
-			+ "- If these events are cited, classify as FAKE NEWS; otherwise, if the event is specific and impactful, proceed to Step 4.\n\n"
+			+ "**Step 2: Assess the Purpose of the Article**\n"
+			+ "- Based on the summarized content, evaluate whether the article clearly explains the reason for the stock's increase.\n"
+			+ "- Classify the article as 'IRRELEVANT' in the following cases:\n"
+			+ "  1. If the explanation relies solely on financial metrics (e.g., past performance, generic financial analysis) that are not direct causes of the increase.\n"
+			+ "  2. If it fails to provide clear external or internal reasons for the increase, such as significant investor activities, economic policies, or market events.\n"
+			+ "- If none of the above applies, proceed to the next step.\n\n"
 
-			+ "**Step 4: Final Assessment**\n"
-			+ "- Evaluate if the explanation is specific, direct, and clearly tied to the stock.\n"
-			+ "- If the reasoning remains unclear or indirect, classify it as FAKE NEWS.\n"
-			+ "- If the reasoning is clear and valid, classify it as REAL NEWS.\n\n"
+			+ "**Step 3: Analyze the Reasons for the Stock Increase**\n"
+			+ "- Identify and explain the primary reasons for the stock's increase.\n"
+			+ "- Classify the article as 'RELEVANT' if the increase is linked to:\n"
+			+ "  1. Corporate growth factors, such as policy changes, new product launches, or mergers and acquisitions.\n"
+			+ "  2. External events or conditions directly impacting the stock's performance, such as competitor disruptions, government subsidies, or major economic shifts.\n"
+			+ "- If the reasons are unclear, speculative, or unrelated, classify it as 'IRRELEVANT.'\n\n"
 
 			+ "**Final Decision**\n"
-			+ "- If determined as FAKE NEWS, return TRUE.\n"
-			+ "- If determined as REAL NEWS, return FALSE."
+			+ "- If all steps conclude the content as 'RELEVANT,' return TRUE.\n"
+			+ "- If any step classifies the content as 'IRRELEVANT,' return FALSE.\n"
+
 			+ "### Steps to Find the Stock's Theme\n" +
 			"**Step 1: Identify Primary Reason**\n" +
 			"- Refer to the 'reason' field to gather the primary reason for the stock's increase.\n" +

@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,6 +14,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
+import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class PythonSearchServerAdapter {
 		return newsResponseDTOS.get();
 	}
 
-	public ParseNewsContentResponseDTO fetchNewsBody(String link) {
+	public Optional<OriginalNews> fetchNewsBody(String link) {
 		String encodedLink = URLEncoder.encode(link, StandardCharsets.UTF_8);
 		String url = address + PythonServerURI.PARSE_CONTENT + encodedLink;
 		log.debug("Requesting news body for link: {}", url);
@@ -54,8 +54,17 @@ public class PythonSearchServerAdapter {
 			new ParameterizedTypeReference<>() {
 			});
 
-		return responseDTO.orElseGet(
-			ParseNewsContentResponseDTO::new);
+		if (responseDTO.isEmpty()) {
+			log.error("Failed to fetch news body for link: {}", link);
+			return Optional.empty();
+		} else {
+			log.debug("Fetched news body for link: {}", link);
+
+			ParseNewsContentResponseDTO parseNewsContentResponseDTO = responseDTO.get();
+			return Optional.of(new OriginalNews(parseNewsContentResponseDTO.getTitle(), link,
+				parseNewsContentResponseDTO.getImgLink(), parseNewsContentResponseDTO.getPublishDate(),
+				parseNewsContentResponseDTO.getText()));
+		}
 	}
 
 	// 공통 REST 호출 메서드로 재사용성 향상
