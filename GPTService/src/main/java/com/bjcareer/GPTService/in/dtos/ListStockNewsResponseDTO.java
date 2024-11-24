@@ -14,8 +14,7 @@ public class ListStockNewsResponseDTO {
 	public ListStockNewsResponseDTO(String stockName, List<GPTNewsDomain> raiseReasons) {
 		this.stockName = stockName;
 		this.reason = raiseReasons.stream()
-			.map(newDomain -> new RaiseStockReasonDTO(new NewsResponseDTO(newDomain.getNews()), newDomain.getThemas(),
-				newDomain.getReason()))
+			.map(newDomain -> new RaiseStockReasonDTO(new NewsResponseDTO(newDomain.getNews()), newDomain.getReason()))
 			.toList();
 	}
 }

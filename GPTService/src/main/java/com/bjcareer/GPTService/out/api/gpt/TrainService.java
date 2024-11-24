@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,16 +51,13 @@ public class TrainService {
 
 		private final String name;
 		private final String reason;
-		private final List<GPTNewsDomain.GPTThema> themas;
 		private final String next;
 		private final String next_reason;
 
-		public NewsPrompt(boolean isFakeNews, String name, String reason,
-			List<GPTNewsDomain.GPTThema> themas, String next, String next_reason) {
+		public NewsPrompt(boolean isFakeNews, String name, String reason, String next, String next_reason) {
 			this.isFakeNews = isFakeNews;
 			this.name = name;
 			this.reason = reason;
-			this.themas = themas;
 			this.next = next;
 			this.next_reason = next_reason;
 		}

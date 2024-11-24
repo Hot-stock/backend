@@ -38,13 +38,12 @@ public class GPTNewsResponseDTO {
 
 	@Data
 	public static class Content {
-		@JsonProperty("isFakeNews")  // JSON 필드 "isFiltered"를 매핑
-		private boolean isFakeNews;
+		@JsonProperty("isRelevant")  // JSON 필드 "isRelevant"를 매핑
+		private boolean isRelevant;
 		private String name;
 		private String reason;
 		private List<ThemaVariableResponseDTO> themas;
 		private String next;
-		@JsonProperty("next_reason")  // JSON의 next_reason 필드를 nextReason 필드에 매핑
 		private String nextReason;
 	}
 }

@@ -41,7 +41,7 @@ class GPTStockNewsServiceTest {
 	@Test
 	public void 저장된_뉴스들을_저장할_수_있어야_함() {
 		AnalyzeStockNewsCommand command = new AnalyzeStockNewsCommand("www.naver.com");
-		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", null, "2021-07-01", "더위가 심해지면서",
+		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
 			new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서"));
 
 		when(gptStockNewsRepository.findByLink(anyString())).thenReturn(Optional.of(gptNewsDomain));
@@ -58,7 +58,7 @@ class GPTStockNewsServiceTest {
 
 		result.add(new NewsResponseDTO("www.naver.com"));
 
-		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", null, "2021-07-01", "더위가 심해지면서",
+		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
 			new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서"));
 
 		when(pythonSearchServerAdapter.fetchNews(any())).thenReturn(result);

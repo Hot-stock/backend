@@ -9,12 +9,10 @@ import lombok.Getter;
 @Getter
 public class RaiseStockReasonDTO {
 	private NewsResponseDTO news;
-	private List<ThemaResponseDTO> thema;
 	private String reason;
 
-	public RaiseStockReasonDTO(NewsResponseDTO news, List<GPTNewsDomain.GPTThema> themas, String reason) {
+	public RaiseStockReasonDTO(NewsResponseDTO news, String reason) {
 		this.news = news;
-		thema = themas.stream().map(ThemaResponseDTO::new).toList(); // 로컬 변수로 처리됨
 		this.reason = reason;
 	}
 }

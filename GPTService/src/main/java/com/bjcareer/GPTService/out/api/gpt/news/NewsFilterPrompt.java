@@ -30,6 +30,7 @@ public class NewsFilterPrompt {
 			+ "- Classify the article as 'RELEVANT' if the increase is linked to:\n"
 			+ "  1. Corporate growth factors, such as policy changes, new product launches, or mergers and acquisitions.\n"
 			+ "  2. External events or conditions directly impacting the stock's performance, such as competitor disruptions, government subsidies, or major economic shifts.\n"
+			+ "  3. Future events that are highly likely to impact the stock's performance, such as announced product launches, upcoming partnerships, or significant market expansions.\n"
 			+ "- If the reasons are unclear, speculative, or unrelated, classify it as 'IRRELEVANT.'\n\n"
 
 			+ "**Final Decision**\n"

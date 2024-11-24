@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 public class ThemaResponseDTO {
-	private final String name;
+	// private final String name;
 
-	public ThemaResponseDTO(GPTNewsDomain.GPTThema thema) {
-		this.name = thema.getName();
+	public ThemaResponseDTO() {
+		// this.name = thema.getName();
 	}
 }

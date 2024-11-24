@@ -43,7 +43,7 @@ class TrainServiceTest {
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 11, 10);
+		LocalDate startDate = LocalDate.of(2024, 11, 20);
 		LocalDate endDate = LocalDate.now();
 
 		int numberOfRepetitions = 0;
@@ -113,14 +113,14 @@ class TrainServiceTest {
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(true, stockName, "", new ArrayList<>(), "", ""));
+			new TrainService.NewsPrompt(true, stockName, "", "", ""));
 	}
 
 	private String createAssistantResponse(ObjectMapper mapper, String stockName, GPTNewsDomain reason) throws
 		JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(false, stockName, reason.getReason(),
-				reason.getThemas(), reason.getNext().toString(), reason.getNextReason()));
+			new TrainService.NewsPrompt(false, stockName, reason.getReason(), reason.getNext().toString(),
+				reason.getNextReason()));
 	}
 
 	private String createThemaAssistantResponse(ObjectMapper mapper, boolean isRelated, GPTThema thema) throws
