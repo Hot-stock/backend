@@ -38,6 +38,7 @@ public class QuestionPrompt {
 
 			+ "**Step 1: Evaluate Relevance Based on Summarized Content**\n"
 			+ "- If the article only briefly mentions the theme without providing detailed or actionable context, classify it as 'IRRELEVANT.'\n"
+			+ "- If the article does not mention or is unrelated to the specific stock name provided in the question, classify it as 'IRRELEVANT.'\n"
 			+ "- Summarize and analyze the content to determine its connection to the stock. Relevant content should contain concrete factors like events, announcements, or changes impacting the stock.\n"
 			+ "- If deemed relevant, proceed to the next step; otherwise, classify it as 'IRRELEVANT.'\n\n"
 
@@ -59,23 +60,31 @@ public class QuestionPrompt {
 			+ "- If all steps conclude the content as 'RELEVANT,' return TRUE.\n"
 			+ "- If any step classifies the content as 'IRRELEVANT,' return FALSE.\n"
 
-			+ "### Steps to Find the Stock's Theme\n" +
-			"**Step 1: Identify Primary Reason**\n" +
-			"- Refer to the 'reason' field to gather the primary reason for the stock's increase.\n" +
-			"- Continue to Step 2 with the primary reason.\n\n" +
+			+ "Step 1: **Identify the Primary Reason**\n"
+			+ "- Extract the main reason for the stock's increase from the <reason> field in the article.\n"
+			+ "- Choose the most specific and direct reason based on the following criteria:\n"
+			+ "  - Evaluate if the event or factor clearly explains the stock's rise.\n"
+			+ "  - Replace overly general reasons (e.g., 'economic growth') with more specific ones (e.g., 'government fiscal policy').\n"
+			+ "- Use the identified reason to proceed to the next step.\n\n"
 
-			"**Step 2: Extract Event Trigger Name**\n" +
-			"- Extract the name of the event or entity that triggered the stock’s increase.\n" +
-			"   - Example 1: If Tesla's stock rose due to a new supercomputer, 'Tesla' is the event, and 'supercomputer' is the reason. Companies mentioned in the question prompt can only be used as part of the reason, not the theme.\n" +
-			"   - Example 2: If an individual's action caused the event, such as Trump's statement leading to a stock increase, 'Trump' becomes the event, and 'statement' is the reason.\n" +
-			"   - Example 3: For broader themes, like a push for resource production within a country, 'domestic' would be the event, and 'production push' the reason.\n" +
-			"- Proceed to Step 3 with the extracted event trigger name.\n\n" +
+			+ "Step 3: **Ensure the Theme and Cause are Clear and Consistent**\n"
+			+ "- The theme must represent a single main concept (e.g., industry, technology, policy).\n"
+			+ "- The cause should describe the main factor affecting the theme, such as an event, actor, or action.\n"
+			+ "  - Example: 'Ukraine Reconstruction'\n"
+			+ "    - Theme: 'Ukraine Reconstruction'\n"
+			+ "    - Cause: 'Agricultural Contract'\n"
+			+ "  - Example: 'The government announces renewable energy subsidies'\n"
+			+ "    - Theme: 'Renewable Energy'\n"
+			+ "    - Cause: 'Government Announcement'\n"
+			+ "- If the cause is the event itself, use the event name as the theme and leave the cause blank.\n"
+			+ "- Proceed with the identified theme and cause to the next step.\n\n"
 
-			"**Step 3: Exclude Stock-Intrinsic Events**\n" +
-			"- If the event is intrinsic to the stock itself (e.g., 'IPO,' 'share buyback,' or 'price limit reached'), exclude it as a primary theme.\n"
-			+ "- Internal events are defined as actions or announcements initiated solely by the company and not influenced by external factors.\n"
-			+ "- Examples of excluded events: 'dividend announcement,' 'executive change,' or 'earnings report.'"
-			+ "- Proceed to Step 4 with the event trigger name.\n\n"
+			+ "Step 4: **Define the Output Format**\n"
+			+ "- Output the theme and cause in the following format:\n"
+			+ "  - Theme: [Theme Name]\n"
+			+ "  - Cause: [Cause Name]\n"
+			+ "- The theme and cause must be written in Korean. If the original text is in another language, translate it appropriately.\n"
+			+ "- Dates must strictly follow the YYYY-MM-DD format.\n"
 
 			+ "### Steps to Find the Next Event\n"
 			+ "**Step 1: Extract Closest Significant Future Date**\n"
