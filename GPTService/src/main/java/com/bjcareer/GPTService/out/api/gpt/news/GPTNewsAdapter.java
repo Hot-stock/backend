@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AUdia0v9";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AXJ0izFn";
 	private final WebClient webClient;
 
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
@@ -39,14 +39,12 @@ public class GPTNewsAdapter {
 				.getMessage()
 				.getParsedContent();
 
-			if (parsedContent.isFakeNews() || !parsedContent.getName().equals(stockName)) {
+			if (!parsedContent.isRelevant()) {
 				log.warn("Wrong Parsed content: {}", parsedContent);
 			}
 
-			log.info("Parsed content: {}", parsedContent);
-
 			return Optional.of(
-				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(), parsedContent.getNextReason(), originalNews));
+				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(), parsedContent.getNextReason(), originalNews,parsedContent.isRelevant()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
@@ -63,7 +61,7 @@ public class GPTNewsAdapter {
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 
-		return new GPTNewsRequestDTO("gpt-4o", List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
+		return new GPTNewsRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {

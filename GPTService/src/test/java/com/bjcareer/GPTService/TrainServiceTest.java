@@ -39,11 +39,11 @@ class TrainServiceTest {
 
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
-		String stockName = "대동";
+		String stockName = "제우스";
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 11, 20);
+		LocalDate startDate = LocalDate.of(2024, 11, 25);
 		LocalDate endDate = LocalDate.now();
 
 		int numberOfRepetitions = 0;
@@ -94,17 +94,17 @@ class TrainServiceTest {
 		String userPrompt = generateUserPrompt(stockName, news);
 		trainService.addMessage(GPTWebConfig.USER_ROLE, userPrompt);
 
-		String assistantResponse = stockRaiseReason.map(reason -> {
-				try {
-					return createAssistantResponse(mapper, stockName, reason);
-				} catch (JsonProcessingException e) {
-					throw new RuntimeException(e);
-				}
-			})
-			.orElse(createEmptyAssistantResponse(mapper, stockName));
-
-		trainService.addMessage("assistant", assistantResponse);
-		return trainService;
+		if (stockRaiseReason.isEmpty()) {
+			String assistantResponse = createEmptyAssistantResponse(mapper, stockName);
+			trainService.addMessage("assistant", assistantResponse);
+			return trainService;
+		}else
+		{
+			GPTNewsDomain reason = stockRaiseReason.get();
+			String assistantResponse = createAssistantResponse(mapper, stockName, reason);
+			trainService.addMessage("assistant", assistantResponse);
+			return trainService;
+		}
 	}
 
 	private String generateUserPrompt(String stockName, OriginalNews news) {
@@ -113,13 +113,13 @@ class TrainServiceTest {
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(true, stockName, "", "", ""));
+			new TrainService.NewsPrompt(false, stockName, "", "", ""));
 	}
 
 	private String createAssistantResponse(ObjectMapper mapper, String stockName, GPTNewsDomain reason) throws
 		JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(false, stockName, reason.getReason(), reason.getNext().toString(),
+			new TrainService.NewsPrompt(reason.isRelated(), stockName, reason.getReason(), reason.getNext().toString(),
 				reason.getNextReason()));
 	}
 
