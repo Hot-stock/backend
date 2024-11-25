@@ -15,13 +15,15 @@ public class GPTThema {
 	private String upcomingDate;
 	private String upcomingDateReason;
 	private OriginalNews news;
+	private ThemaInfo themaInfo;
 
 	public GPTThema(boolean isRelatedThema, String summary, String upcomingDate, String upcomingDateReason,
-		String historyPattern, OriginalNews news) {
+		OriginalNews news, ThemaInfo themaInfoes) {
 		this.isRelatedThema = isRelatedThema;
 		this.summary = summary;
 		this.upcomingDate = upcomingDate;
 		this.upcomingDateReason = upcomingDateReason;
 		this.news = news;
+		this.themaInfo = themaInfoes;
 	}
 }

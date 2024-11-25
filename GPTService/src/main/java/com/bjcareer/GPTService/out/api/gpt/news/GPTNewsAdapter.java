@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

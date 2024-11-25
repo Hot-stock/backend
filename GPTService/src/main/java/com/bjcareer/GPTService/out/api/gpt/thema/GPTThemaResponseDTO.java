@@ -38,11 +38,11 @@ public class GPTThemaResponseDTO {
 
 	@Data
 	public static class Content {
-		@JsonProperty("isRelatedThema")
-		private boolean isRelatedThema;
+		@JsonProperty("isRealNew")
+		private boolean isRealNew;
 		private String summary;
 		private String upcomingDate;
 		private String upcomingDateReason;
-		private String historyPattern;
+		private ThemaVariableResponseDTO thema;
 	}
 }

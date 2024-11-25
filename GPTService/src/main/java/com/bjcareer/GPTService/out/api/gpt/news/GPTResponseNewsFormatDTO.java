@@ -2,6 +2,7 @@ package com.bjcareer.GPTService.out.api.gpt.news;
 
 import com.bjcareer.GPTService.out.api.gpt.JsonSchema;
 import com.bjcareer.GPTService.out.api.gpt.Schema;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.NewsProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GPTResponseNewsFormatDTO {
