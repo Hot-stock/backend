@@ -1,7 +1,7 @@
-package com.bjcareer.GPTService.out.api.gpt.news;
+package com.bjcareer.GPTService.out.api.gpt.thema.Prompt;
 
 public class ThemaPrompt {
-	public static final String THEMA_PROMPT =
+	public static final String PROMPT =
 		"Imagine three different experts are answering this question.\n"
 			+ "All experts will write down one step of their thinking,\n"
 			+ "then share it with the group.\n"
@@ -58,4 +58,3 @@ public class ThemaPrompt {
 			+ "- The theme and cause must be written in Korean. If the original text is in another language, translate it appropriately.\n"
 			+ "- Dates must strictly follow the YYYY-MM-DD format.\n";
 }
-
