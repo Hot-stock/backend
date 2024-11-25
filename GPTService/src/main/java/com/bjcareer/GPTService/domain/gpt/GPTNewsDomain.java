@@ -1,14 +1,13 @@
 package com.bjcareer.GPTService.domain.gpt;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -20,19 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Document(collection = "news")  // MongoDB의 "news" 컬렉션에 매핑
 public class GPTNewsDomain {
+	@JsonIgnore
+	private boolean isRelated;
 	private String stockName;
 	private String reason;
-	private List<GPTThema> themas;
 	private String nextReason;
 	private LocalDate next;
 	private OriginalNews news;
 	@MongoId
 	private String link;
 
-	public GPTNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason, OriginalNews news) {
+	public GPTNewsDomain(String stockName, String reason, String next, String nextReason, OriginalNews news) {
 		this.stockName = stockName;
 		this.reason = reason;
-		this.themas = themas;
 		this.nextReason = nextReason;
 		this.news = news;
 		this.link= news.getNewsLink();
@@ -41,8 +40,19 @@ public class GPTNewsDomain {
 		parseLocalDate(next);
 	}
 
+	public GPTNewsDomain(String stockName, String reason, String next, String nextReason, OriginalNews news, boolean isRelated) {
+		this.stockName = stockName;
+		this.reason = reason;
+		this.nextReason = nextReason;
+		this.news = news;
+		this.link= news.getNewsLink();
+
+		log.info("stockName: {}", stockName);
+		this.isRelated = isRelated;
+		parseLocalDate(next);
+	}
+
 	private void parseLocalDate(String next) {
-		log.info("next: {}", next);
 		if (next == null || next.isEmpty()) {
 			this.next = null;
 		} else {
@@ -52,36 +62,6 @@ public class GPTNewsDomain {
 				log.error("Failed to parse date: {}", next);
 				this.next = null;
 			}
-		}
-	}
-
-	@Override
-	public boolean equals(Object object) {
-		if (this == object)
-			return true;
-		if (object == null || getClass() != object.getClass())
-			return false;
-		GPTNewsDomain that = (GPTNewsDomain)object;
-		return Objects.equals(stockName, that.stockName) && Objects.equals(reason, that.reason)
-			&& Objects.equals(themas, that.themas) && Objects.equals(nextReason, that.nextReason)
-			&& Objects.equals(next, that.next) && Objects.equals(news, that.news)
-			&& Objects.equals(link, that.link);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(stockName, reason, themas, nextReason, next, news, link);
-	}
-
-	@Data
-	@NoArgsConstructor
-	public static class GPTThema {
-		private String name;
-		private String reason;
-
-		public GPTThema(String name, String reason) {
-			this.name = name;
-			this.reason = reason;
 		}
 	}
 

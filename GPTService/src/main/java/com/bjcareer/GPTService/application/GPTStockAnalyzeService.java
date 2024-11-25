@@ -60,11 +60,15 @@ public class GPTStockAnalyzeService {
 
 	private Optional<GPTNewsDomain> processAnalyzeNewsLink(String newsLink) {
 		log.info("Processing news link: {}", newsLink);
-		ParseNewsContentResponseDTO parsedContent = pythonSearchServerAdapter.fetchNewsBody(newsLink);
-		log.info("Parsed news content: {} {}", parsedContent.getTitle(), parsedContent.getPublishDate());
-		OriginalNews originalNews = createOriginalNewsFromResponse(newsLink, parsedContent);
-		log.info("Original news: {} {}", originalNews.getTitle(), originalNews.getPubDate());
-		return gptNewsAdapter.findStockRaiseReason(originalNews, originalNews.getTitle(), originalNews.getPubDate());
+		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(newsLink);
+
+		if (originalNews.isEmpty()) {
+			log.error("Failed to fetch news body for link: {}", newsLink);
+			return Optional.empty();
+		}
+
+		return gptNewsAdapter.findStockRaiseReason(originalNews.get(), originalNews.get().getTitle(),
+			originalNews.get().getPubDate());
 	}
 
 	private List<NewsResponseDTO> fetchNewsForStock(LocalDate date, String stockName) {
