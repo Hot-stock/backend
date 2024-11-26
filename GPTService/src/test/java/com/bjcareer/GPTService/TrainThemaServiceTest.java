@@ -35,7 +35,7 @@ class TrainThemaServiceTest {
 
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
-		String keyword = "피씨디렉트";
+		String keyword = "진성티이씨";
 		String fileName = "./test-4o-mini" + keyword + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
@@ -50,16 +50,16 @@ class TrainThemaServiceTest {
 				newsResponseDTO.getLink()).ifPresent(targetNews::add);
 		}
 
-		processNews(targetNews, keyword);
+		processNews(targetNews, "우크라이나 재건, 인프라 투자");
 		saveTrainsToFile(fileName);
 	}
 
-	private void processNews(List<OriginalNews> newsList, String stockName) throws
+	private void processNews(List<OriginalNews> newsList, String knownThema) throws
 		JsonProcessingException {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 
 		for (OriginalNews news : newsList) {
-			TrainService trainService = createTrainServiceWithMessages(stockName, news, mapper);
+			TrainService trainService = createTrainServiceWithMessages(knownThema, news, mapper);
 
 			if (trainService == null) {
 				continue;
@@ -69,15 +69,15 @@ class TrainThemaServiceTest {
 		}
 	}
 
-	private TrainService createTrainServiceWithMessages(String keyword, OriginalNews news,
+	private TrainService createTrainServiceWithMessages(String knownThema, OriginalNews news,
 		ObjectMapper mapper) throws JsonProcessingException {
 
 		TrainService trainService = new TrainService();
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_THEMA_TEXT);
 
-		Optional<GPTThema> optGptThema = gptThemaAdapter.summaryThemaNews(news, keyword);
+		Optional<GPTThema> optGptThema = gptThemaAdapter.summaryThemaNews(news, knownThema);
 
-		String userPrompt = generateUserPrompt(keyword, news);
+		String userPrompt = generateUserPrompt(knownThema, news);
 		trainService.addMessage(GPTWebConfig.USER_ROLE, userPrompt);
 
 		if (optGptThema.isEmpty()) {

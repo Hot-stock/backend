@@ -29,9 +29,9 @@ public class AnalyzeThemaAspect {
 	}
 
 	@AfterReturning(pointcut = "cut()", returning = "result")
-	public void rateLimiting(JoinPoint joinPoint, Object result) {
+	public void extractThemaInStockNew(JoinPoint joinPoint, Object result) {
 		Signature signature = joinPoint.getSignature();
-		log.debug("Rate Limiting Aspect invoked for method: {}", signature.getName());
+		log.debug("extractThemaInStockNew invoked for method: {}", signature.getName());
 
 		if (result instanceof GPTNewsDomain) {
 			isAlreadyExtract((GPTNewsDomain)result);

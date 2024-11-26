@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.domain.gpt.thema;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -54,5 +55,26 @@ public class GPTThema {
 				return null;
 			}
 		}
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object)
+			return true;
+		if (object == null || getClass() != object.getClass())
+			return false;
+		GPTThema gptThema = (GPTThema)object;
+		return isRelatedThema == gptThema.isRelatedThema && isPositive == gptThema.isPositive && Objects.equals(
+			summary, gptThema.summary) && Objects.equals(upcomingDate, gptThema.upcomingDate)
+			&& Objects.equals(upcomingDateReasonFact, gptThema.upcomingDateReasonFact)
+			&& Objects.equals(upcomingDateReasonOpinion, gptThema.upcomingDateReasonOpinion)
+			&& Objects.equals(news, gptThema.news) && Objects.equals(themaInfo, gptThema.themaInfo)
+			&& Objects.equals(link, gptThema.link);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(isRelatedThema, isPositive, summary, upcomingDate, upcomingDateReasonFact,
+			upcomingDateReasonOpinion, news, themaInfo, link);
 	}
 }

@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaAdapter {
-	public static final String THEMA_MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AVZSfNt0";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AXizm8Ps";
 	private final WebClient webClient;
 
 	public Optional<GPTThema> summaryThemaNews(OriginalNews news, String knownThema) {
@@ -64,7 +64,7 @@ public class GPTThemaAdapter {
 
 		GPTResponseThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaFormatDTO();
 
-		return new GPTThemaRequestDTO("gpt-4o", List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
+		return new GPTThemaRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTThemaRequestDTO requestDTO) {
