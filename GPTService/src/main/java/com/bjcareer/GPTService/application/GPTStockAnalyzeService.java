@@ -55,6 +55,8 @@ public class GPTStockAnalyzeService {
 		return newsLinks.stream()
 			.map(link -> gptStockNewsRepository.findByLink(link.getLink()))
 			.flatMap(Optional::stream)
+			.filter(GPTNewsDomain::isRelated)
+			.filter(t -> t.getStockName().equals(stockName))
 			.toList();
 	}
 

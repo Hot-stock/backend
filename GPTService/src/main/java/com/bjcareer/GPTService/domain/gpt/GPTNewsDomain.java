@@ -23,32 +23,21 @@ public class GPTNewsDomain {
 	private boolean isRelated;
 	private String stockName;
 	private String reason;
-	private String nextReason;
+	private String nextReasonFact;
+	private String nextReasonOption;
 	private LocalDate next;
 	private OriginalNews news;
 	@MongoId
 	private String link;
 
-	public GPTNewsDomain(String stockName, String reason, String next, String nextReason, OriginalNews news) {
-		this.stockName = stockName;
-		this.reason = reason;
-		this.nextReason = nextReason;
-		this.news = news;
-		this.link= news.getNewsLink();
-
-		log.info("stockName: {}", stockName);
-		parseLocalDate(next);
-	}
-
-	public GPTNewsDomain(String stockName, String reason, String next, String nextReason, OriginalNews news, boolean isRelated) {
-		this.stockName = stockName;
-		this.reason = reason;
-		this.nextReason = nextReason;
-		this.news = news;
-		this.link= news.getNewsLink();
-
-		log.info("stockName: {}", stockName);
+	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact, String nextReasonOption, OriginalNews news, boolean isRelated) {
 		this.isRelated = isRelated;
+		this.stockName = stockName;
+		this.reason = reason;
+		this.nextReasonFact = nextReasonFact;
+		this.nextReasonOption = nextReasonOption;
+		this.news = news;
+		this.link= news.getNewsLink();
 		parseLocalDate(next);
 	}
 
