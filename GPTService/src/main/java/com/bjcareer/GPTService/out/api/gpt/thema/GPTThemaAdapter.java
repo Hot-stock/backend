@@ -30,6 +30,7 @@ public class GPTThemaAdapter {
 		GPTThemaRequestDTO requestDTO = createRequestDTO(news.getContent(), news.getPubDate(), knownThema);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
+		log.debug("News link: {}", news.getNewsLink());
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
