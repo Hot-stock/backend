@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema;
+package com.bjcareer.GPTService.out.api.gpt.thema.Prompt;
 
 public class SummaryPrompt {
 	public static final String PROMPT =

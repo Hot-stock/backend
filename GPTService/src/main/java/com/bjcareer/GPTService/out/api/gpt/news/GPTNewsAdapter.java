@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,9 @@ public class GPTNewsAdapter {
 			}
 
 			return Optional.of(
-				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(), parsedContent.getNextReason(), originalNews,parsedContent.isRelevant()));
+				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(),
+					parsedContent.getNextReason().getFact(), parsedContent.getNextReason().getOpinion(), originalNews,
+					parsedContent.isRelevant()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리

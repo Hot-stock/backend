@@ -15,17 +15,17 @@ import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
-import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.TrainService;
+import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
-import com.bjcareer.GPTService.out.api.gpt.news.QuestionPrompt;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
-class TrainServiceTest {
+class TrainStockServiceTest {
 	@Autowired
 	private PythonSearchServerAdapter pythonSearchServerAdapter;
 
@@ -46,26 +46,12 @@ class TrainServiceTest {
 		LocalDate startDate = LocalDate.of(2024, 11, 25);
 		LocalDate endDate = LocalDate.now();
 
-		int numberOfRepetitions = 0;
-		int threshold = 10;
+		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
+			new NewsCommand(stockName, startDate, endDate));
 
-		while (true) {
-			if (startDate.isAfter(endDate)) {
-				break;
-			}
-
-			List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
-				new NewsCommand(stockName, startDate, endDate));
-
-			for (NewsResponseDTO newsResponseDTO : newsResponseDTOS) {
-				pythonSearchServerAdapter.fetchNewsBody(
-					newsResponseDTO.getLink()).ifPresent(targetNews::add);
-			}
-
-			break;
-
-			// numberOfRepetitions++;
-			// startDate = startDate.plusDays(1);
+		for (NewsResponseDTO newsResponseDTO : newsResponseDTOS) {
+			pythonSearchServerAdapter.fetchNewsBody(
+				newsResponseDTO.getLink()).ifPresent(targetNews::add);
 		}
 
 		processNews(targetNews, stockName);
@@ -98,8 +84,7 @@ class TrainServiceTest {
 			String assistantResponse = createEmptyAssistantResponse(mapper, stockName);
 			trainService.addMessage("assistant", assistantResponse);
 			return trainService;
-		}else
-		{
+		} else {
 			GPTNewsDomain reason = stockRaiseReason.get();
 			String assistantResponse = createAssistantResponse(mapper, stockName, reason);
 			trainService.addMessage("assistant", assistantResponse);
@@ -113,21 +98,14 @@ class TrainServiceTest {
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(false, stockName, "", "", ""));
+			new TrainService.NewsPrompt(false, stockName, "", "", new NextScheduleReasonResponseDTO("", "")));
 	}
 
 	private String createAssistantResponse(ObjectMapper mapper, String stockName, GPTNewsDomain reason) throws
 		JsonProcessingException {
 		return mapper.writeValueAsString(
 			new TrainService.NewsPrompt(reason.isRelated(), stockName, reason.getReason(), reason.getNext().toString(),
-				reason.getNextReason()));
-	}
-
-	private String createThemaAssistantResponse(ObjectMapper mapper, boolean isRelated, GPTThema thema) throws
-		JsonProcessingException {
-		return mapper.writeValueAsString(
-			new TrainService.GPTThema(isRelated, thema.getSummary(), thema.getUpcomingDate(),
-				thema.getUpcomingDateReason()));
+				new NextScheduleReasonResponseDTO(reason.getNextReasonFact(), reason.getNextReasonFact())));
 	}
 
 	private void saveTrainsToFile(String filePath) {

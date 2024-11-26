@@ -22,7 +22,7 @@ class GPTStockNewsRepositoryTest {
 	void 저장테스트() {
 		OriginalNews originalNews = new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서");
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
-			originalNews);
+			"더위가 심해진다", originalNews, true);
 		GPTNewsDomain saved = gptStockNewsRepository.save(gptNewsDomain);
 		assertNotNull(saved);
 	}
@@ -33,7 +33,7 @@ class GPTStockNewsRepositoryTest {
 
 		OriginalNews originalNews = new OriginalNews("배럴", link, "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서");
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
-			originalNews);
+			"더위가 심해진다", originalNews, true);
 
 		gptStockNewsRepository.save(gptNewsDomain);
 		assertTrue(gptStockNewsRepository.findByLink(link).isPresent());
@@ -44,7 +44,7 @@ class GPTStockNewsRepositoryTest {
 		String link = "www.naver.com";
 		OriginalNews originalNews = new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서");
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
-			originalNews);
+			"더위가 심해진다", originalNews, true);
 
 		GPTNewsDomain saved = gptStockNewsRepository.save(gptNewsDomain);
 		assertEquals(saved, gptStockNewsRepository.save(saved));

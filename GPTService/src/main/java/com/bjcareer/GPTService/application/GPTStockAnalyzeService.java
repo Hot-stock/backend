@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.GPTService.application.aop.AnalyzeThema;
 import com.bjcareer.GPTService.application.port.in.AnalyzeStockNewsCommand;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
@@ -23,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class GPTStockAnalyzeService {
+	private final ApplicationEventPublisher applicationEventPublisher;
 	private final GPTStockNewsRepository gptStockNewsRepository;
 	private final GPTNewsAdapter gptNewsAdapter;
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
@@ -30,6 +33,8 @@ public class GPTStockAnalyzeService {
 	/**
 	 * Handles asynchronous requests, typically triggered via Kafka.
 	 */
+
+	@AnalyzeThema
 	public GPTNewsDomain analyzeStockNewsByNewsLink(AnalyzeStockNewsCommand command) {
 		if (isNewsNotProcessed(command.getNewsLink())) {
 			Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink());
@@ -40,6 +45,8 @@ public class GPTStockAnalyzeService {
 	}
 
 	//동기식 요청을 처리하기 위한 함수 당일 한정 사용
+
+	@AnalyzeThema
 	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate date, String stockName) {
 		log.debug("Analyzing stock news for date: {} stock: {}", date, stockName);
 		List<NewsResponseDTO> newsLinks = fetchNewsForStock(date, stockName);
@@ -55,6 +62,8 @@ public class GPTStockAnalyzeService {
 		return newsLinks.stream()
 			.map(link -> gptStockNewsRepository.findByLink(link.getLink()))
 			.flatMap(Optional::stream)
+			.filter(GPTNewsDomain::isRelated)
+			.filter(t -> t.getStockName().equals(stockName))
 			.toList();
 	}
 

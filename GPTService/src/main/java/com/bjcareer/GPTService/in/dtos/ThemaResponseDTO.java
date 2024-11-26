@@ -1,14 +1,27 @@
 package com.bjcareer.GPTService.in.dtos;
 
-import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
+import java.time.LocalDate;
 
 import lombok.Getter;
 
 @Getter
 public class ThemaResponseDTO {
-	// private final String name;
+	private final boolean isPositive;
+	private final String summary;
+	private final ThemaInfoResponseDTO themaInfo;
+	private final LocalDate nextEventDate;
+	private final String nextEventReasonFact;
+	private final String nextEventReasonOpinion;
+	private final NewsResponseDTO news;
 
-	public ThemaResponseDTO() {
-		// this.name = thema.getName();
+	public ThemaResponseDTO(String summary, ThemaInfoResponseDTO themaInfo, LocalDate nextEventDate,
+		String nextEventReasonFact, String nextEventReasonOpinion, NewsResponseDTO news, boolean isPositive) {
+		this.summary = summary;
+		this.themaInfo = themaInfo;
+		this.nextEventDate = nextEventDate;
+		this.nextEventReasonFact = nextEventReasonFact;
+		this.nextEventReasonOpinion = nextEventReasonOpinion;
+		this.news = news;
+		this.isPositive = isPositive;
 	}
 }

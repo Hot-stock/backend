@@ -9,12 +9,12 @@ import lombok.Getter;
 @Getter
 public class ListStockNewsResponseDTO {
 	private final String stockName;
-	private final List<RaiseStockReasonDTO> reason;
+	private final List<RaiseStockReasonDTO> result;
 
 	public ListStockNewsResponseDTO(String stockName, List<GPTNewsDomain> raiseReasons) {
 		this.stockName = stockName;
-		this.reason = raiseReasons.stream()
-			.map(newDomain -> new RaiseStockReasonDTO(new NewsResponseDTO(newDomain.getNews()), newDomain.getReason()))
+		this.result = raiseReasons.stream()
+			.map(newDomain -> new RaiseStockReasonDTO(new NewsResponseDTO(newDomain.getNews()), newDomain))
 			.toList();
 	}
 }

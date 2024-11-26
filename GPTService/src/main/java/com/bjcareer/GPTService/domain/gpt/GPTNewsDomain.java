@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.domain.gpt;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,32 +24,21 @@ public class GPTNewsDomain {
 	private boolean isRelated;
 	private String stockName;
 	private String reason;
-	private String nextReason;
+	private String nextReasonFact;
+	private String nextReasonOption;
 	private LocalDate next;
 	private OriginalNews news;
 	@MongoId
 	private String link;
 
-	public GPTNewsDomain(String stockName, String reason, String next, String nextReason, OriginalNews news) {
-		this.stockName = stockName;
-		this.reason = reason;
-		this.nextReason = nextReason;
-		this.news = news;
-		this.link= news.getNewsLink();
-
-		log.info("stockName: {}", stockName);
-		parseLocalDate(next);
-	}
-
-	public GPTNewsDomain(String stockName, String reason, String next, String nextReason, OriginalNews news, boolean isRelated) {
-		this.stockName = stockName;
-		this.reason = reason;
-		this.nextReason = nextReason;
-		this.news = news;
-		this.link= news.getNewsLink();
-
-		log.info("stockName: {}", stockName);
+	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact, String nextReasonOption, OriginalNews news, boolean isRelated) {
 		this.isRelated = isRelated;
+		this.stockName = stockName;
+		this.reason = reason;
+		this.nextReasonFact = nextReasonFact;
+		this.nextReasonOption = nextReasonOption;
+		this.news = news;
+		this.link= news.getNewsLink();
 		parseLocalDate(next);
 	}
 
@@ -67,5 +57,24 @@ public class GPTNewsDomain {
 
 	public Optional<LocalDate> getNext() {
 		return Optional.ofNullable(next);
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object)
+			return true;
+		if (object == null || getClass() != object.getClass())
+			return false;
+		GPTNewsDomain that = (GPTNewsDomain)object;
+		return isRelated == that.isRelated && Objects.equals(stockName, that.stockName)
+			&& Objects.equals(reason, that.reason) && Objects.equals(nextReasonFact,
+			that.nextReasonFact) && Objects.equals(nextReasonOption, that.nextReasonOption)
+			&& Objects.equals(next, that.next) && Objects.equals(news, that.news)
+			&& Objects.equals(link, that.link);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(isRelated, stockName, reason, nextReasonFact, nextReasonOption, next, news, link);
 	}
 }
