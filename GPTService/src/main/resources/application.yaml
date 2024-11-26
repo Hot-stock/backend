@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: GPTService
+  config:
+    import: aws-secretsmanager:hotstock/api/keys
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://${RDB_PRIVATE_ADDRESS}:${RDB_PORT}/search_service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  data:
+    mongodb:
+      database: news
+      uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PUBLIC_ADDRESS}:${MONGO_PORT}
+
+  kafka:
+    bootstrap-servers: 3.34.145.22:9093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      ack-mode: manual
+    template:
+      default-topic: dead-letter-topic
+
+redis:
+  address: redis://${REDIS_PUBLIC_ADDRESS}:${REDIS_PORT}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug # SQL ?? ?? ??
+    org.hibernate.orm.jdbc.bind: TRACE
+    com.bjcareer.GPTService.*: debug
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+naver:
+  keyword-custom-id: ${NAVER_KEYWORD_CUSTOM_ID}
+  keyword-access-key: ${NAVER_KEYWORD_ACCESSKEY_KEY}
+  keyword-secret-key: ${NAVER_KEYWORD_SECRET_KEY}
+
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
+
+  client-new-id: ${NAVER_NEWS_CLIENT_ID}
+  client-new-secret: ${NAVER_NEWS_CLIENT_SECRET}
+
+GPT:
+  api-key: ${GPT_API_KEY}
+
+python-search:
+  address: http://${PYTHON_PUBLIC_SEARCH_SERVER_ADDRESS}:${PYTHON_SEARCH_SERVER_PORT}
