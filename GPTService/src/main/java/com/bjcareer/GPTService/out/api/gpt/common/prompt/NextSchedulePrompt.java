@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.Prompt;
+package com.bjcareer.GPTService.out.api.gpt.common.prompt;
 
 public class NextSchedulePrompt {
 	public static final String PROMPT =

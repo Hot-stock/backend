@@ -1,6 +1,10 @@
-package com.bjcareer.GPTService.out.api.gpt.news.Prompt;
+package com.bjcareer.GPTService.out.api.gpt.news;
 
 import com.bjcareer.GPTService.out.api.gpt.PropertyDetail;
+import com.bjcareer.GPTService.out.api.gpt.common.prompt.NextSchedulePrompt;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.NameFilterPrompt;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.NewsFilterPrompt;
+import com.bjcareer.GPTService.out.api.gpt.news.Prompt.RoseReasonPrompt;
 
 //한글보다 영어로가 더 좋다
 //대문자로 쓰면 더 좋다.
@@ -22,9 +26,6 @@ public class NewsProperties {
 		"string", NextSchedulePrompt.PROMPT);
 
 	// Next Reason: Explanation for the selected date in "next"
-	public PropertyDetail nextReason = new PropertyDetail(
-		"string",
-		"Why the Date Was Mentioned and Its Classification as Fact or Opinion."
-	);
+	public PropertyDetail nextReason = new PropertyDetail("string", NextSchedulePrompt.PROMPT);
 
 }

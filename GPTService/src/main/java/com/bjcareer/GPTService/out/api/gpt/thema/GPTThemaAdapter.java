@@ -43,8 +43,10 @@ public class GPTThemaAdapter {
 				log.warn("The response is not related to the topic.");
 			}
 
-			return Optional.of(new GPTThema(parsedContent.isRealNew(), parsedContent.getSummary(),
-				parsedContent.getUpcomingDate(), parsedContent.getUpcomingDateReason(), news,
+			return Optional.of(
+				new GPTThema(parsedContent.isRealNew(), parsedContent.isPositive(), parsedContent.getSummary(),
+					parsedContent.getUpcomingDate(), parsedContent.getUpcomingDateReason().getFact(),
+					parsedContent.getUpcomingDateReason().getOpinion(), news,
 				new ThemaInfo(parsedContent.getThema().getName(), parsedContent.getThema().getReason())));
 		} else {
 			handleErrorResponse(response);
