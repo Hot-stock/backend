@@ -3,6 +3,7 @@ package com.bjcareer.GPTService.out.api.gpt.thema;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonResponseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,9 +41,12 @@ public class GPTThemaResponseDTO {
 	public static class Content {
 		@JsonProperty("isRealNew")
 		private boolean isRealNew;
+		@JsonProperty("isPositive")
+		private boolean isPositive;
+
 		private String summary;
 		private String upcomingDate;
-		private String upcomingDateReason;
+		private NextScheduleReasonResponseDTO upcomingDateReason;
 		private ThemaVariableResponseDTO thema;
 	}
 }

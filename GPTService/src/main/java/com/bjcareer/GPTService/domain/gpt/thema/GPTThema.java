@@ -26,7 +26,6 @@ public class GPTThema {
 	private String upcomingDateReasonOpinion;
 	private OriginalNews news;
 	private ThemaInfo themaInfo;
-
 	@MongoId
 	private String link;
 
