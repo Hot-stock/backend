@@ -12,7 +12,7 @@ public class AnalyzeBestNews {
 	public Optional<GPTNewsDomain> getBestNews(List<GPTNewsDomain> news) {
 		Optional<GPTNewsDomain> bestNew = news.stream()
 			.filter(n -> !n.getReason().isEmpty())
-			.filter(n -> !n.getNextReason().isEmpty())
+			.filter(n -> !n.getNextReasonFact().isEmpty())
 			.findFirst();
 
 		return bestNew;

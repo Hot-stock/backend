@@ -45,7 +45,9 @@ public class GPTNewsAdapter {
 			}
 
 			return Optional.of(
-				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(), parsedContent.getNextReason(), originalNews,parsedContent.isRelevant()));
+				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(),
+					parsedContent.getNextReason().getFact(), parsedContent.getNextReason().getOpinion(), originalNews,
+					parsedContent.isRelevant()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
