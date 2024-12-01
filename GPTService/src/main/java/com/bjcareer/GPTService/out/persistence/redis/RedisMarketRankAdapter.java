@@ -55,6 +55,10 @@ public class RedisMarketRankAdapter {
 			.map(key -> (GPTNewsDomain)redissonClient.getBucket(key).get())
 			.toList();
 
+	public void updateRankingNewsByStockName(String stockName) {
+		String key = BUKET_KEY + stockName;
+		RBucket<String> bucket = redissonClient.getBucket(key);
+		bucket.expire(Duration.ofMinutes(10));
 	}
 
 	public void removeRankingNews(GPTNewsDomain news) {

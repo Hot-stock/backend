@@ -34,9 +34,7 @@ public class SearchRankingService {
 
 
 		SoarStockResponseDTO soarStock = tossServerAdapter.getSoarStock();
-		log.debug("SoarStock: {}", soarStock);
 		LocalDate baseAt = LocalDate.parse(soarStock.getResult().getBasedAt().split("T")[0]);
-		log.debug("baseAt: {}", baseAt);
 		List<String> stockNames = soarStock.getResult().getProducts().stream().map(
 			SoarStockResponseDTO.Result.Product::getName).toList();
 

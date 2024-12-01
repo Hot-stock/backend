@@ -78,6 +78,9 @@ public class GPTStockAnalyzeService {
 				List<GPTNewsDomain> gptNewsDomains = this.analyzeStockNewsByDateWithStockName(command.getBaseAt(), stockName);
 				Optional<GPTNewsDomain> optBestNews = analyzeBestNews.getBestNews(gptNewsDomains);// 가장 좋은 뉴스를 찾아서 처리
 				optBestNews.ifPresent(redisMarketRankAdapter::updateRankingNews);
+			}else{
+				log.info("analyze-ranking-stock already exist: {}", stockName);
+				redisMarketRankAdapter.updateRankingNewsByStockName(stockName);
 			}
 		}
 	}
