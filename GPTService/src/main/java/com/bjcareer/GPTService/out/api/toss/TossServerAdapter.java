@@ -8,18 +8,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class TossServerAdapter {
-	private String CANDLE_URI = "https://wts-info-api.tossinvest.com/api/v2/stock-prices/A%s/period-candles/day:1?count=365";
 	private String SOAR_STOCK_URI = "https://wts-cert-api.tossinvest.com/api/v2/dashboard/wts/overview/ranking";
 	private final WebClient webClient;
-
-	public CandleResponseDTO getStockPriceURI(String stockCode) {
-		CandleResponseDTO block = webClient.get()
-			.uri(String.format(CANDLE_URI, stockCode))
-			.retrieve()
-			.bodyToMono(CandleResponseDTO.class)
-			.block();
-		return block;
-	}
 
 	public SoarStockResponseDTO getSoarStock() {
 		SoarStockRequestDTO soarStockRequestDTO = new SoarStockRequestDTO();
