@@ -2,6 +2,7 @@ package com.bjcareer.GPTService.domain.gpt.thema;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -44,17 +45,13 @@ public class GPTThema {
 		this.link = news.getNewsLink();
 	}
 
-	private LocalDate parseLocalDate(String next) {
-		if (next == null || next.isEmpty()) {
-			return null;
-		} else {
-			try {
-				return LocalDate.parse(next);
-			} catch (Exception e) {
-				log.error("Failed to parse date: {}", next);
-				return null;
-			}
-		}
+	public Optional<LocalDate> getNext() {
+		return Optional.ofNullable(upcomingDate);
+	}
+
+	public String createNextReason() {
+		return String.format("%s 테마의 예정된 이벤트 일자는 %s고, 그 이유의 사실은 %s 의견은 %s\n", themaInfo.getName(), upcomingDate,
+			upcomingDateReasonFact, upcomingDateReasonOpinion);
 	}
 
 	@Override
@@ -76,5 +73,18 @@ public class GPTThema {
 	public int hashCode() {
 		return Objects.hash(isRelatedThema, isPositive, summary, upcomingDate, upcomingDateReasonFact,
 			upcomingDateReasonOpinion, news, themaInfo, link);
+	}
+
+	private LocalDate parseLocalDate(String next) {
+		if (next == null || next.isEmpty()) {
+			return null;
+		} else {
+			try {
+				return LocalDate.parse(next);
+			} catch (Exception e) {
+				log.error("Failed to parse date: {}", next);
+				return null;
+			}
+		}
 	}
 }

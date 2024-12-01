@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,8 @@ import com.bjcareer.search.domain.gpt.GTPNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionResponseDTO;
+import com.bjcareer.search.out.api.toss.TossServerAdapter;
+import com.bjcareer.search.out.api.toss.dtos.CandleResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -33,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class StockController {
 	private final StockService stockService;
 	private final NewsServiceUsecase newsServiceUsecase;
+	private final TossServerAdapter tossServerAdapter;
 
 	@GetMapping("/update")
 	@Operation(summary = "주식 정보 갱신", description = "주식 정보를 갱신함")
@@ -40,6 +44,15 @@ public class StockController {
 		stockService.updateAllStock();
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+
+	@GetMapping("/{code}/ohlc")
+	@Operation(summary = "차트 데이터 갱신 요청", description = "ohlc 데이터를 갱신함")
+	public ResponseEntity<CandleResponseDTO> updateAllStock(@PathVariable("code") String code,
+		@RequestParam(name = "period", required = false, defaultValue = "day") String period) {
+		CandleResponseDTO stockPriceURI = tossServerAdapter.getStockPriceURI(code, period);
+		return new ResponseEntity<>(stockPriceURI, HttpStatus.OK);
+	}
+
 
 	@PostMapping
 	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")

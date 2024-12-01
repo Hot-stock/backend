@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: GPTService
+  config:
+    import: aws-secretsmanager:hotstock/api/keys
+
+  data:
+    mongodb:
+      database: news
+      uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PUBLIC_ADDRESS}:${MONGO_PORT}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_PRIVATE_ADDRESS}:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      ack-mode: manual
+    template:
+      default-topic: dead-letter-topic
+
+redis:
+  address: redis://${REDIS_PUBLIC_ADDRESS}:${REDIS_PORT}
+  password: ${REDIS_PASSWORD}
+  database: ${REDIS_DATABASE}
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug # SQL ?? ?? ??
+    org.hibernate.orm.jdbc.bind: TRACE
+    com.bjcareer.GPTService.*: debug
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+GPT:
+  api-key: ${GPT_API_KEY}
+
+python-search:
+  address: http://${PYTHON_PUBLIC_SEARCH_SERVER_ADDRESS}:${PYTHON_SEARCH_SERVER_PORT}

@@ -1,9 +1,5 @@
 package com.bjcareer.GPTService.in;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -11,8 +7,6 @@ import org.springframework.stereotype.Component;
 import com.bjcareer.GPTService.application.AnalyzeBestNews;
 import com.bjcareer.GPTService.application.GPTStockAnalyzeService;
 import com.bjcareer.GPTService.application.port.in.AnalyzeStockNewsCommand;
-import com.bjcareer.GPTService.config.AppConfig;
-import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.in.dtos.RankingStocksDTO;
 import com.bjcareer.GPTService.out.persistence.redis.RedisMarketRankAdapter;
 
@@ -42,16 +36,7 @@ public class KafkaConsumerController {
 	@KafkaListener(topics = "analyze-ranking-stock", groupId = "analyze-hot-ranking-group")
 	public void consumeAnalyzeRankingStock(RankingStocksDTO command, Acknowledgment acknowledgment) {
 		try {
-			for (String stockName : command.getRankingStocks()) {
-				if (!redisMarketRankAdapter.isExistInCache(stockName)) {
-					log.info("analyze-ranking-stock start: {}", stockName);
-					List<GPTNewsDomain> gptNewsDomains = analyzeService.analyzeStockNewsByDateWithStockName(
-						LocalDate.now(AppConfig.ZONE_ID).minusDays(1), stockName);
-
-					Optional<GPTNewsDomain> optBestNews = analyzeBestNews.getBestNews(gptNewsDomains);// 가장 좋은 뉴스를 찾아서 처리
-					optBestNews.ifPresent(redisMarketRankAdapter::updateRankingNews);
-				}
-			}
+			analyzeService.analyzeRankingStock(command);
 		} catch (Exception e) {
 			log.error("Rank Error: {} {}", e, command);
 		} finally {

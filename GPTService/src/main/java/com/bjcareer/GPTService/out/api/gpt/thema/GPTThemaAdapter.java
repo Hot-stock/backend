@@ -13,7 +13,7 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
-import com.bjcareer.GPTService.out.api.gpt.thema.Prompt.ThemaQuestionPrompt;
+import com.bjcareer.GPTService.out.api.gpt.thema.prompt.ThemaQuestionPrompt;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -24,6 +24,11 @@ class RedisThemaRepositoryTest {
 		String s = redisThemaRepository.loadThema();
 
 		assertEquals("테마1,테마2", s);
+	}
 
+
+	@Test
+	void 테마_삭제(){
+		String s = redisThemaRepository.removeThema("국민의힘");
 	}
 }

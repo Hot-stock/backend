@@ -117,7 +117,7 @@ public class ChatGPTInsightAdapter {
 				.append(news.getNews().getNewsLink()).append("\n");
 			news.getNext().ifPresent(nextDate -> {
 				if (nextDate.isAfter(LocalDate.now())) {
-					result.append(nextDate).append(" ").append(news.getNextReason()).append(" ")
+					result.append(nextDate).append(" ").append(news.getNextReasonFact()).append(" ")
 						.append(news.getNews().getNewsLink()).append("\n");
 				}
 			});
@@ -131,7 +131,7 @@ public class ChatGPTInsightAdapter {
 			result.append(thema.getSummary()).append("\n")
 				.append(thema.getSummary()).append("\n")
 				.append(thema.getUpcomingDate()).append("\n")
-				.append(thema.getUpcomingDateReason()).append("\n");
+				.append(thema.getUpcomingDateReasonFact()).append("\n");
 		});
 		return result.toString();
 	}

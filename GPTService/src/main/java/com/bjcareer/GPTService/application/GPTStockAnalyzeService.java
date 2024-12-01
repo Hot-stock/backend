@@ -4,19 +4,21 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.GPTService.application.aop.AnalyzeThema;
 import com.bjcareer.GPTService.application.port.in.AnalyzeStockNewsCommand;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
+import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
+import com.bjcareer.GPTService.in.dtos.RankingStocksDTO;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
 import com.bjcareer.GPTService.out.api.python.ParseNewsContentResponseDTO;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
+import com.bjcareer.GPTService.out.persistence.redis.RedisMarketRankAdapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class GPTStockAnalyzeService {
-	private final ApplicationEventPublisher applicationEventPublisher;
 	private final GPTStockNewsRepository gptStockNewsRepository;
 	private final GPTNewsAdapter gptNewsAdapter;
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
+	private final RedisMarketRankAdapter redisMarketRankAdapter;
 
 	/**
 	 * Handles asynchronous requests, typically triggered via Kafka.
@@ -65,6 +67,19 @@ public class GPTStockAnalyzeService {
 			.filter(GPTNewsDomain::isRelated)
 			.filter(t -> t.getStockName().equals(stockName))
 			.toList();
+	}
+
+	@AnalyzeThema
+	public void analyzeRankingStock(RankingStocksDTO command) {
+		AnalyzeBestNews analyzeBestNews = new AnalyzeBestNews();
+		for (String stockName : command.getRankingStocks()) {
+			if (!redisMarketRankAdapter.isExistInCache(stockName)) {
+				log.info("analyze-ranking-stock start: {}", stockName);
+				List<GPTNewsDomain> gptNewsDomains = this.analyzeStockNewsByDateWithStockName(command.getBaseAt(), stockName);
+				Optional<GPTNewsDomain> optBestNews = analyzeBestNews.getBestNews(gptNewsDomains);// 가장 좋은 뉴스를 찾아서 처리
+				optBestNews.ifPresent(redisMarketRankAdapter::updateRankingNews);
+			}
+		}
 	}
 
 	private Optional<GPTNewsDomain> processAnalyzeNewsLink(String newsLink) {

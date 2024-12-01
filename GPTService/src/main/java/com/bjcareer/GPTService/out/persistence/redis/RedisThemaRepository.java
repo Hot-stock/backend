@@ -22,6 +22,12 @@ public class RedisThemaRepository {
 		set.add(thema);
 	}
 
+	public String removeThema(String thema) {
+		RSet<String> set = redissonClient.getSet(BUKET_KEY);
+		set.remove(thema);
+		return thema;
+	}
+
 	public String loadThema() {
 		RSet<String> set = redissonClient.getSet(BUKET_KEY);
 		return set.stream().collect(Collectors.joining(","));
