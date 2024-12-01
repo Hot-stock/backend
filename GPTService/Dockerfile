@@ -24,7 +24,7 @@ ARG PINPOINT_VERSION=2.5.3
 #    && mv pinpoint-agent-${PINPOINT_VERSION} /pinpoint-agent
 
 # JAR 파일 준비
-RUN cp /app/build/libs/search-0.0.1-SNAPSHOT.jar /app/app.jar
+RUN cp /app/build/libs/GPTService-0.0.1-SNAPSHOT.jar /app/app.jar
 
 ## AWS CLI 설치
 #RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \

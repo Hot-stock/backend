@@ -18,20 +18,24 @@ import lombok.extern.slf4j.Slf4j;
 public class News {
 	private String title;
 	private String originalLink;
-	private String link;
+	private String imgLink;
 	private String description;
 	private LocalDate pubDate;
 	private String content;
 
-	public News(String title, String originalLink, String link, String description, String pubDate, String content) {
+	public News(String title, String originalLink, String imgLink, String description, String pubDate, String content) {
 		this.title = title;
 		this.originalLink = originalLink;
-		this.link = link;
+		this.imgLink = imgLink;
 		this.description = description;
 		this.pubDate = changeLocalDate(pubDate);
 		this.content = content;
 	}
 	private LocalDate changeLocalDate(String pubDate) {
+
+		if (pubDate.isEmpty()) {
+			return null;
+		}
 		// 날짜 형식에 맞는 DateTimeFormatter 생성
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV", Locale.ENGLISH);
 
@@ -50,12 +54,12 @@ public class News {
 			return false;
 		News news = (News)object;
 		return Objects.equals(title, news.title) && Objects.equals(originalLink, news.originalLink)
-			&& Objects.equals(link, news.link) && Objects.equals(description, news.description)
+			&& Objects.equals(imgLink, news.imgLink) && Objects.equals(description, news.description)
 			&& Objects.equals(pubDate, news.pubDate) && Objects.equals(content, news.content);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(title, originalLink, link, description, pubDate, content);
+		return Objects.hash(title, originalLink, imgLink, description, pubDate, content);
 	}
 }

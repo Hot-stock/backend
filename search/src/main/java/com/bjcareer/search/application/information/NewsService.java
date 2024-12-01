@@ -144,7 +144,7 @@ public class NewsService implements NewsServiceUsecase {
 		for (News n : news) {
 			log.debug("Checking news for {} {}", n.getPubDate(), targetDate);
 			if (isSameDate(targetDate, n)) {
-				log.debug("Find news for and query to gpt{} {} {}", stockName, n.getPubDate(), n.getLink());
+				log.debug("Find news for and query to gpt{} {} {}", stockName, n.getPubDate(), n.getOriginalLink());
 				Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(n.getContent(), stockName,
 					targetDate);
 
