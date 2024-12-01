@@ -8,4 +8,6 @@ public class SearchServerURI {
 	public static final String FIND_NEXT_SCHEDULE = "/api/v0/stock/next-schedule";
 
 	public static final String TOP_STOCK_NEWS = "/api/v0/ranking/stocks";
+
+	public static final String OHLC = "/api/v0/stock/{code}/ohlc";
 }

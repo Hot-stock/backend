@@ -2,6 +2,7 @@ package com.bjcareer.gateway.in.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import com.bjcareer.gateway.application.ports.out.SearchServerPort;
 import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.in.api.request.StockAdditionRequestDTO;
+import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextScheduleOfStockDTO;
 
@@ -49,5 +51,12 @@ public class StockController {
 		ResponseDomain<NextScheduleOfStockDTO> nextScheduleOfStock = port.findNextScheduleOfStock(keyword);
 
 		return new ResponseEntity<>(nextScheduleOfStock, nextScheduleOfStock.getStatusCode());
+	}
+
+	@GetMapping("/{code}/ohlc")
+	@Operation(summary = "차트 OHLC 데이터 요청", description = "일봉데이터 요청")
+	public ResponseEntity<ResponseDomain<CandleResponseDTO>> getOHLC(@PathVariable("code") String code, @RequestParam(name = "period", required = false, defaultValue = "day") String period) {
+		ResponseDomain<CandleResponseDTO> ohlc = port.getOHLC(code, period);
+		return new ResponseEntity<>(ohlc, ohlc.getStatusCode());
 	}
 }
