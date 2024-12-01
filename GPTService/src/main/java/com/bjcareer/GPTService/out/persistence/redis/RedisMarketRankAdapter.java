@@ -54,12 +54,21 @@ public class RedisMarketRankAdapter {
 			.filter(key -> redissonClient.getBucket(key).isExists())
 			.map(key -> (GPTNewsDomain)redissonClient.getBucket(key).get())
 			.toList();
+	}
 
 	public void updateRankingNewsByStockName(String stockName) {
 		String key = BUKET_KEY + stockName;
 		RBucket<String> bucket = redissonClient.getBucket(key);
-		bucket.expire(Duration.ofMinutes(10));
+
+		// 키가 존재하지 않을 경우 null 반환 가능
+		if (bucket.isExists()) {
+			bucket.expire(Duration.ofMinutes(10)); // 만료 시간만 갱신
+		} else {
+			// 키가 없는 경우 처리 (필요 시 초기화하거나 로그 출력)
+			log.warn("Key does not exist for: " + key);
+		}
 	}
+
 
 	public void removeRankingNews(GPTNewsDomain news) {
 		String key = BUKET_KEY + news.getStockName();
