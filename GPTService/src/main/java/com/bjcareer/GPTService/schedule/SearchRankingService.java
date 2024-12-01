@@ -1,5 +1,6 @@
 package com.bjcareer.GPTService.schedule;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,10 +32,15 @@ public class SearchRankingService {
 			return;
 		}
 
-		SoarStockResponseDTO soarStock = tossServerAdapter.getSoarStock();
-		List<String> stockNames = soarStock.getResult().getProducts().stream().map(n -> n.getName()).toList();
 
-		RankingStocksDTO rankingStocksDTO = new RankingStocksDTO(stockNames);
+		SoarStockResponseDTO soarStock = tossServerAdapter.getSoarStock();
+		log.debug("SoarStock: {}", soarStock);
+		LocalDate baseAt = LocalDate.parse(soarStock.getResult().getBasedAt().split("T")[0]);
+		log.debug("baseAt: {}", baseAt);
+		List<String> stockNames = soarStock.getResult().getProducts().stream().map(
+			SoarStockResponseDTO.Result.Product::getName).toList();
+
+		RankingStocksDTO rankingStocksDTO = new RankingStocksDTO(stockNames, baseAt);
 		gptStockAnalyzeService.analyzeRankingStock(rankingStocksDTO);
 	}
 }

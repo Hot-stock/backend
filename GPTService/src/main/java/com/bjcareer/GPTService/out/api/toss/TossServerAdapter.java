@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class TossServerAdapter {
-	private String SOAR_STOCK_URI = "https://wts-cert-api.tossinvest.com/api/v2/dashboard/wts/overview/ranking";
+	private final String SOAR_STOCK_URI = "https://wts-cert-api.tossinvest.com/api/v2/dashboard/wts/overview/ranking";
 	private final WebClient webClient;
 
 	public SoarStockResponseDTO getSoarStock() {
