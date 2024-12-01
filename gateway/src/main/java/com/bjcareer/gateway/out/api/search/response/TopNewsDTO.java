@@ -16,8 +16,7 @@ public class TopNewsDTO {
 	static class RaiseReasonDTO {
 		private String stockName;
 		private String reason;
-		private List<String> thema;
-		private String pubDate;
-		private String ling;
+		private String link;
+		private String imgLink;
 	}
 }

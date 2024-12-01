@@ -9,15 +9,21 @@ import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
+import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
+import com.bjcareer.GPTService.out.persistence.redis.dto.RedisRankingStockDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class RedisMarketRankAdapter {
 	private final RedissonClient redissonClient;
-	private final static String BUKET_KEY = "KAKFA:MARKET_RANKING_NEWS:";
+	private final static String BUKET_KEY = "MARKET_RANKING_NEWS:";
 
 	public boolean isExistInCache(String stocName) {
 		String key = BUKET_KEY + stocName;
@@ -25,9 +31,20 @@ public class RedisMarketRankAdapter {
 	}
 
 	public void updateRankingNews(GPTNewsDomain news) {
-		String key = BUKET_KEY + news.getStockName();
-		RBucket<GPTNewsDomain> bucket = redissonClient.getBucket(key);
-		bucket.set(news, Duration.ofMinutes(10));
+		ObjectMapper mapper = AppConfig.customObjectMapper();
+
+		RedisRankingStockDTO redisRankingStockDTO = new RedisRankingStockDTO(news.getStockName(),
+			news.getNews().getTitle(), news.getReason(),
+			news.getNews().getNewsLink(), news.getNews().getImgLink());
+
+		try {
+			String key = BUKET_KEY + news.getStockName();
+			RBucket<String> bucket = redissonClient.getBucket(key);
+			bucket.set(mapper.writeValueAsString(redisRankingStockDTO), Duration.ofMinutes(10));
+
+		} catch (JsonProcessingException e) {
+			log.error("Failed to convert object to json: {}", redisRankingStockDTO);
+		}
 	}
 
 	public List<GPTNewsDomain> getRankingNews() {
