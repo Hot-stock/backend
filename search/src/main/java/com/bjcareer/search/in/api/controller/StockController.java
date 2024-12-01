@@ -26,7 +26,6 @@ import com.bjcareer.search.out.api.toss.dtos.CandleResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,8 +47,9 @@ public class StockController {
 
 	@GetMapping("/{code}/ohlc")
 	@Operation(summary = "차트 데이터 갱신 요청", description = "ohlc 데이터를 갱신함")
-	public ResponseEntity<CandleResponseDTO> updateAllStock(@PathVariable("code") String code) {
-		CandleResponseDTO stockPriceURI = tossServerAdapter.getStockPriceURI(code);
+	public ResponseEntity<CandleResponseDTO> updateAllStock(@PathVariable("code") String code,
+		@RequestParam(name = "period", required = false, defaultValue = "day") String period) {
+		CandleResponseDTO stockPriceURI = tossServerAdapter.getStockPriceURI(code, period);
 		return new ResponseEntity<>(stockPriceURI, HttpStatus.OK);
 	}
 
