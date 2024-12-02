@@ -28,7 +28,7 @@ import com.bjcareer.search.out.api.gpt.news.QuestionPrompt;
 import com.bjcareer.search.out.api.gpt.thema.ChatGPTThemaAdapter;
 import com.bjcareer.search.out.api.gpt.thema.ThemaQuestionPrompt;
 import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
-import com.bjcareer.search.out.persistence.repository.thema.ThemaInfoRepositoryAdapter;
+import com.bjcareer.search.out.persistence.thema.ThemaInfoRepositoryAdapter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

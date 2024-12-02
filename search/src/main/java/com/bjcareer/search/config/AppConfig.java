@@ -8,8 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.candidate.cache.CacheTrieService;
-import com.bjcareer.search.out.persistence.repository.cache.CacheRepository;
-import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.cache.CacheRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

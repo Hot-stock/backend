@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.stock;
+package com.bjcareer.search.out.persistence.stock;
 
 import java.util.Collection;
 import java.util.List;

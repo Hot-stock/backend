@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.thema;
+package com.bjcareer.search.out.persistence.thema;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +12,6 @@ import com.bjcareer.search.application.port.out.persistence.thema.LoadStockByThe
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.entity.ThemaInfo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

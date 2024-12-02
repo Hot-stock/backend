@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import com.bjcareer.search.candidate.noSQL.DocumentQueryKeywords;
-import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
 
 @SpringBootTest
 class DocumentRepositoryTest {

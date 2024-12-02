@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.application.port.in.RankingUsecase;
-import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

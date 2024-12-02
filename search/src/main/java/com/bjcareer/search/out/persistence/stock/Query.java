@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.stock;
+package com.bjcareer.search.out.persistence.stock;
 
 public class Query {
 	public static final String FIND_STOCK_BY_CODE = "SELECT s FROM Stock s WHERE s.code = :code";

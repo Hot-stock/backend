@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.thema;
+package com.bjcareer.search.out.persistence.thema;
 
 import java.util.List;
 import java.util.Optional;

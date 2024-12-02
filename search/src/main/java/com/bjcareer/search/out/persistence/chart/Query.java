@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.chart;
+package com.bjcareer.search.out.persistence.chart;
 
 public class Query {
 	public static final String FIND_OHLC_ABOVE_THRESHOLD =

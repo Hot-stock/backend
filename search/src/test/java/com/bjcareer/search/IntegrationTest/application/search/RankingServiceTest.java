@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.application.search.RankingService;
-import com.bjcareer.search.out.persistence.repository.cache.CacheRepository;
+import com.bjcareer.search.out.persistence.cache.CacheRepository;
 
 @SpringBootTest
 class RankingServiceTest {

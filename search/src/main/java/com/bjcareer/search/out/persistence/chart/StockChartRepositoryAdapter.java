@@ -1,6 +1,5 @@
-package com.bjcareer.search.out.persistence.repository.chart;
+package com.bjcareer.search.out.persistence.chart;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

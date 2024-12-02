@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.memory;
+package com.bjcareer.search.out.persistence.memory;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.cache.dtos;
+package com.bjcareer.search.out.persistence.cache.dtos;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

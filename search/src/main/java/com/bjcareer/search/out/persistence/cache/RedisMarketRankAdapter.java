@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.cache;
+package com.bjcareer.search.out.persistence.cache;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.gpt.GTPNewsDomain;
-import com.bjcareer.search.out.persistence.repository.cache.dtos.RedisRankingStockDTO;
+import com.bjcareer.search.out.persistence.cache.dtos.RedisRankingStockDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

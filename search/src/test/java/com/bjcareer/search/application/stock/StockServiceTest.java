@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
 import com.bjcareer.search.application.port.out.api.StockChartQueryCommand;
 import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.out.persistence.stock.StockRepository;
 
 @ExtendWith(MockitoExtension.class)
 class StockServiceTest {

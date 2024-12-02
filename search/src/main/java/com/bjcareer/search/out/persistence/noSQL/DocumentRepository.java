@@ -1,4 +1,4 @@
-package com.bjcareer.search.out.persistence.repository.noSQL;
+package com.bjcareer.search.out.persistence.noSQL;
 
 import static com.mongodb.client.model.Filters.*;
 
