@@ -10,4 +10,5 @@ public class SearchServerURI {
 	public static final String TOP_STOCK_NEWS = "/api/v0/ranking/stocks";
 
 	public static final String OHLC = "/api/v0/stock/{code}/ohlc";
+	public static final String NEXT_EVENT = "/api/v0/event";
 }

@@ -20,6 +20,7 @@ import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.NextScheduleOfStockDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
@@ -137,6 +138,25 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 
 		if (res.statusCode().is2xxSuccessful()) {
 			CandleResponseDTO responseDTO = res.bodyToMono(CandleResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of getOHLC: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<NextEventNewsDTO> getNextEventNews() {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.NEXT_EVENT)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.NEXT_EVENT, res.statusCode());
+
+		if (res.statusCode().is2xxSuccessful()) {
+			NextEventNewsDTO responseDTO = res.bodyToMono(NextEventNewsDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
