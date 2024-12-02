@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.hibernate.annotations.BatchSize;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;
@@ -53,19 +53,19 @@ public class StockChart {
 		addOHLC(ohlcList);
 	}
 
-	public List<GTPNewsDomain> loadNewByDate(LocalDate date) {
+	public List<GPTNewsDomain> loadNewByDate(LocalDate date) {
 		OHLC ohlc = getSameDateOHLC(date);
 		return convertJsonTypeToObject(ohlc);
 	}
 
-	public List<GTPNewsDomain> getNextSchedule(LocalDate baseDate) {
-		List<GTPNewsDomain> news = new ArrayList<>();
+	public List<GPTNewsDomain> getNextSchedule(LocalDate baseDate) {
+		List<GPTNewsDomain> news = new ArrayList<>();
 
 		for (OHLC ohlc : ohlcList) {
 			if (!ohlc.getNews().isEmpty()) {
-				List<GTPNewsDomain> gtpNewsDomains = convertJsonTypeToObject(ohlc);
+				List<GPTNewsDomain> GPTNewsDomains = convertJsonTypeToObject(ohlc);
 
-				gtpNewsDomains.stream()
+				GPTNewsDomains.stream()
 					.filter(gtpNewsDomain -> gtpNewsDomain.getNext().isPresent())
 					.filter(gtpNewsDomain -> gtpNewsDomain.getNext().get().isAfter(baseDate))
 					.forEach(news::add);
@@ -75,8 +75,8 @@ public class StockChart {
 		return news;
 	}
 
-	public List<GTPNewsDomain> getAllNews() {
-		List<GTPNewsDomain> news = new ArrayList<>();
+	public List<GPTNewsDomain> getAllNews() {
+		List<GPTNewsDomain> news = new ArrayList<>();
 
 		for (OHLC ohlc : ohlcList) {
 			if (!ohlc.getNews().isEmpty()) {
@@ -87,7 +87,7 @@ public class StockChart {
 		return news;
 	}
 
-	public void addNewsToOhlc(GTPNewsDomain news, LocalDate date) {
+	public void addNewsToOhlc(GPTNewsDomain news, LocalDate date) {
 		getSameDateOHLC(date).addRoseNews(news);
 	}
 
@@ -98,8 +98,8 @@ public class StockChart {
 		}
 	}
 
-	private List<GTPNewsDomain> convertJsonTypeToObject(OHLC ohlc) {
-		List<GTPNewsDomain> result = new ArrayList<>();
+	private List<GPTNewsDomain> convertJsonTypeToObject(OHLC ohlc) {
+		List<GPTNewsDomain> result = new ArrayList<>();
 
 		if (ohlc.getNews().isEmpty()) {
 			log.debug("Cannot convert JSON node to news: stock={}, date={}",
@@ -110,7 +110,7 @@ public class StockChart {
 
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 		return mapper.convertValue(ohlc.getNews(),
-			mapper.getTypeFactory().constructCollectionType(List.class, GTPNewsDomain.class));
+			mapper.getTypeFactory().constructCollectionType(List.class, GPTNewsDomain.class));
 	}
 
 	private OHLC getSameDateOHLC(LocalDate date) {

@@ -19,7 +19,7 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.bjcareer.search.out.api.gpt.thema.ChatGPTThemaAdapter;
 import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
@@ -55,13 +55,13 @@ public class ScheduleUpdateRaiseReaseon {
 		});
 
 		for (OHLC ohlc : chart.getOhlcList()) {
-			List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stock.getName(),
+			List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stock.getName(),
 				ohlc.getDate());
 
 			if (raiseReasonThatDate.isEmpty()) {
 				log.info("No raise reason found for {} {}", stock.getName(), ohlc.getDate());
 			} else {
-				for (GTPNewsDomain gptNewsDomain : raiseReasonThatDate) {
+				for (GPTNewsDomain gptNewsDomain : raiseReasonThatDate) {
 					log.info("Raise reason found for {} {}", stock.getName(), ohlc.getDate());
 
 					gptNewsDomain.getThemas().forEach(thema -> {

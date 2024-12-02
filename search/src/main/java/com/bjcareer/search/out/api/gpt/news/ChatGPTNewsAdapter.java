@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.search.application.port.out.api.GPTNewsPort;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 
 	@Override
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
-	public Optional<GTPNewsDomain> findStockRaiseReason(String message, String name,
+	public Optional<GPTNewsDomain> findStockRaiseReason(String message, String name,
 		LocalDate pubDate) {
 		GPTNewsRequestDTO requestDTO = createRequestDTO(message, name, pubDate);
 
@@ -44,14 +44,14 @@ public class ChatGPTNewsAdapter implements GPTNewsPort {
 				return Optional.empty();
 			}
 
-			List<GTPNewsDomain.GPTThema> themaDomain = new ArrayList<>();
+			List<GPTNewsDomain.GPTThema> themaDomain = new ArrayList<>();
 
 			for (ThemaVariableResponseDTO thema : parsedContent.getThemas()) {
-				themaDomain.add(new GTPNewsDomain.GPTThema(thema.name, thema.reason));
+				themaDomain.add(new GPTNewsDomain.GPTThema(thema.name, thema.reason));
 			}
 
 			return Optional.of(
-				new GTPNewsDomain(parsedContent.getName(), parsedContent.getReason(), themaDomain,
+				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), themaDomain,
 					parsedContent.getNext(), parsedContent.getNextReason()));
 		} else {
 			handleErrorResponse(response);

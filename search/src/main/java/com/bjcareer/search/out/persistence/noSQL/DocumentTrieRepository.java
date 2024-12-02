@@ -11,6 +11,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.candidate.noSQL.DocumentQueryKeywords;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
@@ -21,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DocumentTrieRepository {
 	private final MongoCollection<Document> collection;
-	public static final String TRIE_COLLECTION_NAME = "Trie";
+	private final String TRIE_COLLECTION_NAME = "Trie";
 
-	public DocumentTrieRepository(MongoDatabase database) {
-		this.collection = database.getCollection(TRIE_COLLECTION_NAME);
+	public DocumentTrieRepository(MongoClient client) {
+		collection = client.getDatabase("keywords").getCollection(TRIE_COLLECTION_NAME);
 	}
 
 	public void insertAndUpdateKeyword(String keyword) {

@@ -22,7 +22,7 @@ import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.bjcareer.search.out.api.gpt.news.QuestionPrompt;
 import com.bjcareer.search.out.api.gpt.thema.ChatGPTThemaAdapter;
@@ -147,7 +147,7 @@ class TrainServiceTest {
 		TrainService trainService = new TrainService();
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_NEWS_TEXT);
 
-		Optional<GTPNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(
+		Optional<GPTNewsDomain> stockRaiseReason = gptNewsPort.findStockRaiseReason(
 			news.getContent(), stock.getName(), news.getPubDate());
 
 		String userPrompt = generateUserPrompt(stock, news);
@@ -176,7 +176,7 @@ class TrainServiceTest {
 			new TrainService.NewsPrompt(true, stock.getName(), "", new ArrayList<>(), "", ""));
 	}
 
-	private String createAssistantResponse(ObjectMapper mapper, Stock stock, GTPNewsDomain reason) throws
+	private String createAssistantResponse(ObjectMapper mapper, Stock stock, GPTNewsDomain reason) throws
 		JsonProcessingException {
 		return mapper.writeValueAsString(
 			new TrainService.NewsPrompt(false, stock.getName(), reason.getReason(),

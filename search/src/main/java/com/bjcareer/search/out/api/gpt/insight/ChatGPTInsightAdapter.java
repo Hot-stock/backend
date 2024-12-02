@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.search.application.port.out.api.GPTInsightPort;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.config.gpt.GPTWebConfig;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.domain.gpt.insight.BuyRecommendationVariableDomain;
 import com.bjcareer.search.domain.gpt.insight.GPTInsight;
 import com.bjcareer.search.domain.gpt.insight.KeyDateVariableDomain;
@@ -30,7 +30,7 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 	private final WebClient webClient;
 
 	@Override
-	public GPTInsight getInsight(List<GTPNewsDomain> newsList, List<GPTThema> themas, LocalDate baseDate) {
+	public GPTInsight getInsight(List<GPTNewsDomain> newsList, List<GPTThema> themas, LocalDate baseDate) {
 		GPTRequestInsightDTO requestDTO = createRequestDTO(newsList, themas);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
@@ -100,7 +100,7 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 			.collect(Collectors.toList());
 	}
 
-	private GPTRequestInsightDTO createRequestDTO(List<GTPNewsDomain> newsList, List<GPTThema> themas) {
+	private GPTRequestInsightDTO createRequestDTO(List<GPTNewsDomain> newsList, List<GPTThema> themas) {
 		String domainJson = createDomainJson(newsList) + createThemaDomainJson(themas);
 		GPTRequestInsightDTO.Message systemMessage = new GPTRequestInsightDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "You possess the insights of a 'Super Ant Time Traveler'");
@@ -111,7 +111,7 @@ public class ChatGPTInsightAdapter implements GPTInsightPort {
 			new GPTResponseInsightFormatDTO());
 	}
 
-	private String createDomainJson(List<GTPNewsDomain> newsList) {
+	private String createDomainJson(List<GPTNewsDomain> newsList) {
 		StringBuilder result = new StringBuilder("그동안 7%이상 상승한 날들에 대한 이유를 요약해봤어\n");
 
 		newsList.forEach(news -> {

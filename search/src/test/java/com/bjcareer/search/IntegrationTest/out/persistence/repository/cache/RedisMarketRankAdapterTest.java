@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.application.port.out.persistence.ranking.MarketRankingPort;
 import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 
 @SpringBootTest
 class RedisMarketRankAdapterTest {
@@ -20,7 +20,7 @@ class RedisMarketRankAdapterTest {
 	MarketRankingPort marketRankingPort;
 
 	Stock stock = new Stock("370090", "퓨런티어");
-	GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("퓨런티어", "test", null, "2021-08-01", "test");
+	GPTNewsDomain GPTNewsDomain = new GPTNewsDomain("퓨런티어", "test", null, "2021-08-01", "test");
 
 	@BeforeEach
 	void setUp() {
@@ -33,15 +33,15 @@ class RedisMarketRankAdapterTest {
 
 	@Test
 	void stock이랑news가update되는지_return_true() {
-		marketRankingPort.updateRankingNews(gtpNewsDomain, stock);
+		marketRankingPort.updateRankingNews(GPTNewsDomain, stock);
 		boolean existInCache = marketRankingPort.isExistInCache(stock);
 		assertTrue(existInCache);
 	}
 
 	@Test
 	void 저장된_뉴스가_불러와지는지_테스트함() {
-		marketRankingPort.updateRankingNews(gtpNewsDomain, stock);
-		List<GTPNewsDomain> rankingNews = marketRankingPort.getRankingNews();
+		marketRankingPort.updateRankingNews(GPTNewsDomain, stock);
+		List<GPTNewsDomain> rankingNews = marketRankingPort.getRankingNews();
 		System.out.println("rankingNews = " + rankingNews);
 		assertFalse(rankingNews.isEmpty());
 	}

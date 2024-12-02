@@ -1,5 +1,6 @@
 package com.bjcareer.search.out.persistence.cache;
 
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import com.bjcareer.search.application.port.out.persistence.ranking.MarketRankin
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.out.persistence.cache.dtos.RedisRankingStockDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,18 +36,18 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 	}
 
 	@Override
-	public void updateRankingNews(GTPNewsDomain news, Stock stock) {
+	public void updateRankingNews(GPTNewsDomain news, Stock stock) {
 		String key = BUKET_KEY + stock.getName();
-		RBucket<GTPNewsDomain> bucket = redissonClient.getBucket(key);
+		RBucket<GPTNewsDomain> bucket = redissonClient.getBucket(key);
 		bucket.set(news, Duration.ofMinutes(10));
 	}
 
 	@Override
-	public List<GTPNewsDomain> getRankingNews() {
+	public List<GPTNewsDomain> getRankingNews() {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 		List<String> keys = scanKeys(BUKET_KEY + "*");
 
-		List<GTPNewsDomain> result = new ArrayList<>();
+		List<GPTNewsDomain> result = new ArrayList<>();
 
 		List<RedisRankingStockDTO> list = keys.stream()
 			.filter(key -> redissonClient.getBucket(key).isExists())
@@ -56,7 +57,7 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 
 		for (RedisRankingStockDTO dto : list) {
 			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getImageURL(), "", "", "");
-			GTPNewsDomain gtpNewsDomain = new GTPNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
+			GPTNewsDomain gtpNewsDomain = new GPTNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
 
 			gtpNewsDomain.addNewsDomain(news);
 			result.add(gtpNewsDomain);

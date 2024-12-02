@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 
 @ExtendWith(MockitoExtension.class)
 class StockChartTest {
@@ -46,14 +46,14 @@ class StockChartTest {
 		LocalDate targetDate = LocalDate.now();
 		addNewsToOhldUsingDate(targetDate);
 
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(targetDate);
-		assertEquals(2, gtpNewsDomains.size());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.loadNewByDate(targetDate);
+		assertEquals(2, GPTNewsDomains.size());
 	}
 
 	@Test
 	void 주어진_날의_뉴스가_없을때() {
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(LocalDate.now().plusDays(1));
-		assertTrue(gtpNewsDomains.isEmpty());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.loadNewByDate(LocalDate.now().plusDays(1));
+		assertTrue(GPTNewsDomains.isEmpty());
 	}
 
 	@Test
@@ -61,23 +61,23 @@ class StockChartTest {
 		LocalDate targetDate = LocalDate.now();
 		addNewsToOhldUsingDate(targetDate);
 
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(targetDate);
-		assertEquals(2, gtpNewsDomains.size());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.loadNewByDate(targetDate);
+		assertEquals(2, GPTNewsDomains.size());
 	}
 
 	@Test
 	void 주어진_날짜에_뉴스가_없을_때() {
 		LocalDate targetDate = LocalDate.now().plusDays(1);
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(targetDate);
-		assertEquals(0, gtpNewsDomains.size());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.loadNewByDate(targetDate);
+		assertEquals(0, GPTNewsDomains.size());
 	}
 
 	@Test
 	void 뉴스는_있지만_다음_일정이_없는_뉴스들_일떄() {
 		LocalDate targetDate = LocalDate.now();
 		addNewsToOhldUsingDate(targetDate);
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.getNextSchedule(targetDate);
-		assertEquals(0, gtpNewsDomains.size());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.getNextSchedule(targetDate);
+		assertEquals(0, GPTNewsDomains.size());
 	}
 
 	@Test
@@ -87,10 +87,10 @@ class StockChartTest {
 
 		Map<String, String> themas = Map.of("자율주행", "트럼프가 좋아함");
 		ohlcList.getFirst().addRoseNews(
-			new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), nextSchedulerDate.toString(), null));
+			new GPTNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), nextSchedulerDate.toString(), null));
 
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.getNextSchedule(LocalDate.now());
-		assertEquals(1, gtpNewsDomains.size());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.getNextSchedule(LocalDate.now());
+		assertEquals(1, GPTNewsDomains.size());
 	}
 
 	@Test
@@ -100,27 +100,27 @@ class StockChartTest {
 		addNewsToOhldUsingDate(LocalDate.now());
 		addNewsToOhldUsingDate(LocalDate.now().plusDays(1));
 
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.getAllNews();
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.getAllNews();
 
-		assertEquals(4, gtpNewsDomains.size());
+		assertEquals(4, GPTNewsDomains.size());
 	}
 
 	@Test
 	void 모든_뉴스를_가지고_옴_하지만_등록된_뉴스는_없음() {
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.getAllNews();
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.getAllNews();
 
-		assertEquals(0, gtpNewsDomains.size());
+		assertEquals(0, GPTNewsDomains.size());
 	}
 
 	@Test
 	void 주어진_날짜에_뉴스를_링크할_수_있는지() {
 		Map<String, String> themas = Map.of("자율주행", "트럼프가 좋아함");
-		GTPNewsDomain gtpNewsDomain = new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), null, null);
-		this.chart.addNewsToOhlc(gtpNewsDomain, LocalDate.now());
+		GPTNewsDomain GPTNewsDomain = new GPTNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), null, null);
+		this.chart.addNewsToOhlc(GPTNewsDomain, LocalDate.now());
 
-		List<GTPNewsDomain> gtpNewsDomains = this.chart.loadNewByDate(LocalDate.now());
+		List<GPTNewsDomain> GPTNewsDomains = this.chart.loadNewByDate(LocalDate.now());
 
-		assertEquals(1, gtpNewsDomains.size());
+		assertEquals(1, GPTNewsDomains.size());
 	}
 
 	@Test
@@ -166,8 +166,8 @@ class StockChartTest {
 
 		for (OHLC ohlc : ohlcList) {
 			if (ohlc.getDate().isEqual(date)) {
-				ohlc.addRoseNews(new GTPNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), null, null));
-				ohlc.addRoseNews(new GTPNewsDomain("퓨런티어", "트럼프 당선 확률이 높아지면서 올랐다", new ArrayList<>(), null, null));
+				ohlc.addRoseNews(new GPTNewsDomain("퓨런티어", "트럼프 당선이 예상되면서 테슬라가 올라서 같이 올랐다", new ArrayList<>(), null, null));
+				ohlc.addRoseNews(new GPTNewsDomain("퓨런티어", "트럼프 당선 확률이 높아지면서 올랐다", new ArrayList<>(), null, null));
 			}
 		}
 	}

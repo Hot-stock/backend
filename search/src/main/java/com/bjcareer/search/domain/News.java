@@ -23,14 +23,24 @@ public class News {
 	private LocalDate pubDate;
 	private String content;
 
-	public News(String title, String originalLink, String imgLink, String description, String pubDate, String content) {
+	public News(String title, String newsLink, String imgLink, String description, String pubDate, String content) {
 		this.title = title;
-		this.originalLink = originalLink;
+		this.originalLink = newsLink;
 		this.imgLink = imgLink;
 		this.description = description;
 		this.pubDate = changeLocalDate(pubDate);
 		this.content = content;
 	}
+
+	public News(String title, String newsLink, String imgLink, String description, LocalDate pubDate, String content) {
+		this.title = title;
+		this.originalLink = newsLink;
+		this.imgLink = imgLink;
+		this.description = description;
+		this.pubDate = pubDate;
+		this.content = content;
+	}
+
 	private LocalDate changeLocalDate(String pubDate) {
 
 		if (pubDate.isEmpty()) {

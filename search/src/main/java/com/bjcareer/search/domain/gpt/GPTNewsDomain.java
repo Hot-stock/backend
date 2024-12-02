@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ToString
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class GTPNewsDomain {
+public class GPTNewsDomain {
 	private String stockName;
 	private String reason;
 	private List<GPTThema> themas;
@@ -25,13 +25,19 @@ public class GTPNewsDomain {
 	private Optional<LocalDate> next;
 	private News news;
 
-	public GTPNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason) {
+	public GPTNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason,
+		News news) {
 		this.stockName = stockName;
 		this.reason = reason;
 		this.themas = themas;
 		this.nextReason = nextReason;
+		this.news = news;
 
 		parseLocalDate(next);
+	}
+
+	public GPTNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason) {
+		this(stockName, reason, themas, next, nextReason, null);
 	}
 
 	private void parseLocalDate(String next) {
@@ -57,7 +63,7 @@ public class GTPNewsDomain {
 			return true;
 		if (object == null || getClass() != object.getClass())
 			return false;
-		GTPNewsDomain that = (GTPNewsDomain)object;
+		GPTNewsDomain that = (GPTNewsDomain)object;
 		return Objects.equals(stockName, that.stockName) && Objects.equals(news, that.news);
 	}
 
