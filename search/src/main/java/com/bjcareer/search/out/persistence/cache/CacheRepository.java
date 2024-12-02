@@ -11,7 +11,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.candidate.cache.CacheNode;
-import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 @Repository
 public class CacheRepository {
@@ -19,9 +19,9 @@ public class CacheRepository {
 	public static final String TRIE_BUCKET = "TRIE:";
 	public static final int UPDATE_COUNT = -1;
 	private final RedissonClient redissonClient;
-	private final DocumentRepository repository;
+	private final DocumentTrieRepository repository;
 
-	public CacheRepository(RedissonClient redissonClient, DocumentRepository repository) {
+	public CacheRepository(RedissonClient redissonClient, DocumentTrieRepository repository) {
 		this.redissonClient = redissonClient;
 		this.repository = repository;
 	}

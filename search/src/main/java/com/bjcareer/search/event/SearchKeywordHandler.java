@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.application.port.in.RankingUsecase;
-import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class SearchKeywordHandler {
 	Queue<SearchedKeyword> eventQueue = new LinkedList<>();
 
 	private final RankingUsecase usecase;
-	private final DocumentRepository documentRepository;
+	private final DocumentTrieRepository documentRepository;
 
 	@EventListener
 	public void handle(SearchedKeyword event) {

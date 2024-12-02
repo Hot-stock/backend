@@ -8,7 +8,7 @@ import org.bson.Document;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.out.persistence.cache.CacheRepository;
-import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CacheTrieService implements Trie {
 	private final CacheRepository cacheRepository;
-	private final DocumentRepository documentRepository;
+	private final DocumentTrieRepository documentRepository;
 
 	@Override
 	public void update(String keyword) {

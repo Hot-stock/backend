@@ -19,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j
-public class DocumentRepository {
+public class DocumentTrieRepository {
 	private final MongoCollection<Document> collection;
 	public static final String TRIE_COLLECTION_NAME = "Trie";
 
-	public DocumentRepository(MongoDatabase database) {
+	public DocumentTrieRepository(MongoDatabase database) {
 		this.collection = database.getCollection(TRIE_COLLECTION_NAME);
 	}
 

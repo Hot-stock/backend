@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.bjcareer.search.out.persistence.cache.CacheRepository;
-import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 class CacheTrieServiceTest {
 
@@ -23,7 +23,7 @@ class CacheTrieServiceTest {
 	private CacheRepository cacheRepository;
 
 	@Mock
-	private DocumentRepository documentRepository;
+	private DocumentTrieRepository documentRepository;
 
 	@InjectMocks
 	private CacheTrieService cacheTrieService;

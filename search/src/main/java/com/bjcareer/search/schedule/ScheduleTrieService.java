@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.candidate.noSQL.DocumentQueryKeywords;
-import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ScheduleTrieService {
 	private final Trie trie;
-	private final DocumentRepository documentRepository;
+	private final DocumentTrieRepository documentRepository;
 
 	// @Scheduled(fixedDelay = 10000)
 	//프로메테우스로 빼기

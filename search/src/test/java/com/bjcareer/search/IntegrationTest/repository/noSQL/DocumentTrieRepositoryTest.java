@@ -14,17 +14,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import com.bjcareer.search.candidate.noSQL.DocumentQueryKeywords;
-import com.bjcareer.search.out.persistence.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 @SpringBootTest
-class DocumentRepositoryTest {
+class DocumentTrieRepositoryTest {
 
 	private static final String TEST_KEYWORD = "test_keyword";
 	private static final int SEARCH_COUNT = 0;
 	private static final boolean END_OF_WORD = false;
 
 	@Autowired
-	private DocumentRepository documentRepository;
+	private DocumentTrieRepository documentRepository;
 
 	private Document document;
 	private ObjectId documentId;
