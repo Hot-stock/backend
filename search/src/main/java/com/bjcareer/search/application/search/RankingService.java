@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.application.port.in.RankingUsecase;
-import com.bjcareer.search.out.persistence.repository.cache.CacheRepository;
+import com.bjcareer.search.out.persistence.cache.CacheRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

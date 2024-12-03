@@ -17,9 +17,6 @@ public class MongoDBConfig {
 	@Value("${mongodb.uri}")
 	private String uri;
 
-	@Value("${mongodb.database}")
-	private String database;
-
 	private MongoClient mongoClient;
 
 	@Bean
@@ -27,12 +24,6 @@ public class MongoDBConfig {
 		this.mongoClient = MongoClients.create(uri);
 		return this.mongoClient;
 	}
-
-	@Bean
-	public MongoDatabase mongoDatabase(MongoClient mongoClient) {
-		return mongoClient.getDatabase(database);
-	}
-
 	@PreDestroy
 	public void closeMongoClient() {
 		mongoClient.close();

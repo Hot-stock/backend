@@ -1,7 +1,5 @@
 package com.bjcareer.search.IntegrationTest.chart;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -11,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.StockChart;
-import com.bjcareer.search.out.persistence.repository.chart.StockChartRepositoryAdapter;
+import com.bjcareer.search.out.persistence.chart.StockChartRepositoryAdapter;
 
 @SpringBootTest
 class StockChartRepositoryAdapterTest {

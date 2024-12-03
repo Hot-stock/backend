@@ -17,7 +17,7 @@ import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.stock.StockService;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionResponseDTO;
@@ -78,7 +78,7 @@ public class StockController {
 			date = LocalDate.now(AppConfig.ZONE_ID);
 		}
 
-		List<GTPNewsDomain> nextSchedule = newsServiceUsecase.findNextSchedule(stockName, date);
+		List<GPTNewsDomain> nextSchedule = newsServiceUsecase.findNextSchedule(stockName, date);
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
 			nextSchedule);
 
@@ -91,7 +91,7 @@ public class StockController {
 		@RequestParam(name = "name") String stockName, @RequestParam(name = "date") LocalDate date) {
 		log.debug("request: {} {} ", stockName, date);
 
-		List<GTPNewsDomain> raiseReasonThatDate = newsServiceUsecase.findRaiseReasonThatDate(stockName, date);
+		List<GPTNewsDomain> raiseReasonThatDate = newsServiceUsecase.findRaiseReasonThatDate(stockName, date);
 
 		if (raiseReasonThatDate.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

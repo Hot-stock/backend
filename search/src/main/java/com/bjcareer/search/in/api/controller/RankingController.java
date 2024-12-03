@@ -3,7 +3,6 @@ package com.bjcareer.search.in.api.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.information.HotTopicService;
 import com.bjcareer.search.application.port.in.RankingUsecase;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +36,7 @@ public class RankingController {
 	@GetMapping("/stocks")
 	@Operation(summary = "HotTopic 조회", description = "현재 상승률이 가장 높은 10종목(코스피, 코스닥)의 이류를 반환합니다. 다만 반듯이 이류를 찾는 것이 아니기 때문에 총 20개가 안될 수도 있습니다.")
 	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> getHotTopic() {
-		List<GTPNewsDomain> hotTopics = hotTopicService.getTrendingStory();
+		List<GPTNewsDomain> hotTopics = hotTopicService.getTrendingStory();
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(hotTopics);
 		return ResponseEntity.ok(responseDTO);
 	}

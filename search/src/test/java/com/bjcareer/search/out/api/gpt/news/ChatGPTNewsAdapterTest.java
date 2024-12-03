@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 
 @SpringBootTest
 class ChatGPTNewsAdapterTest {
@@ -18,7 +18,7 @@ class ChatGPTNewsAdapterTest {
 
 	@Test
 	void 비정상적인_뉴스임으로_isFiltered는_true가_됨() {
-		Optional<GTPNewsDomain> stockRaiseReason = ChatGPTNewsAdapter.findStockRaiseReason(
+		Optional<GPTNewsDomain> stockRaiseReason = ChatGPTNewsAdapter.findStockRaiseReason(
 			"진성티이씨는 11월 8일 11시 18분 전일 대비 약 11% 급등한 8,050원에 거래되고 있다. 진성티이씨는 코스닥 상장 기업으로 기계,장비 업종에 속해 있다. 시가총액은 1,629억원으로 코스닥 상장기업 중 309위에 위치 해 있다.\n"
 			+ "\n"
 				+ "[종목 성향 진단]\n"
@@ -57,7 +57,7 @@ class ChatGPTNewsAdapterTest {
 
 	@Test
 	void 정상적인_뉴스임으로_isFiltered는_false가_됨() {
-		Optional<GTPNewsDomain> stockRaiseReason = ChatGPTNewsAdapter.findStockRaiseReason(
+		Optional<GPTNewsDomain> stockRaiseReason = ChatGPTNewsAdapter.findStockRaiseReason(
 			"진양산업 주가가 상승 중이다.\n"
 				+ "\n"
 				+ "14일 한국거래소에 따르면 진양산업은 이날 오전 10시 11분 기준 전 거래일 대비 230원 (2.55%) 오른 9240원에 거래 중이다.\n"

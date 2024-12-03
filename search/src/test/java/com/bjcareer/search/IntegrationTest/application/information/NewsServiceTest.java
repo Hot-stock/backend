@@ -18,7 +18,7 @@ import com.bjcareer.search.application.port.out.persistence.stock.StockRepositor
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
@@ -57,7 +57,7 @@ class NewsServiceTest {
 		LocalDate date = LocalDate.now().plusDays(1);
 
 		//when
-		List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
+		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
 		assertTrue(raiseReasonThatDate.isEmpty());
 	}
 
@@ -66,7 +66,7 @@ class NewsServiceTest {
 		String stockName = "우신시스템";
 		LocalDate date = LocalDate.of(2024, 10, 25);
 
-		List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
+		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
 		assertFalse(raiseReasonThatDate.isEmpty());
 
 		LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand(stockName, date);
@@ -107,17 +107,17 @@ class NewsServiceTest {
 		chart.addOHLC(ohlcList);
 
 		//when
-		List<GTPNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate("우신시스템",
+		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate("우신시스템",
 			LocalDate.of(2020, 9, 2));
 
 		assertFalse(raiseReasonThatDate.isEmpty());
 
 		LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand("우신시스템", LocalDate.of(2020, 9, 2));
 		StockChart chartByDate = stockChartRepositoryPort.findChartByDate(command);
-		List<GTPNewsDomain> allNews = chartByDate.getAllNews();
+		List<GPTNewsDomain> allNews = chartByDate.getAllNews();
 
-		for (GTPNewsDomain gtpNewsDomain : allNews) {
-			System.out.println(gtpNewsDomain);
+		for (GPTNewsDomain GPTNewsDomain : allNews) {
+			System.out.println(GPTNewsDomain);
 		}
 	}
 

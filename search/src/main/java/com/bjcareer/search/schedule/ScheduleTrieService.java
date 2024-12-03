@@ -3,12 +3,11 @@ package com.bjcareer.search.schedule;
 import java.util.List;
 
 import org.bson.Document;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.candidate.noSQL.DocumentQueryKeywords;
-import com.bjcareer.search.out.persistence.repository.noSQL.DocumentRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ScheduleTrieService {
 	private final Trie trie;
-	private final DocumentRepository documentRepository;
+	private final DocumentTrieRepository documentRepository;
 
 	// @Scheduled(fixedDelay = 10000)
 	//프로메테우스로 빼기

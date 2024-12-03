@@ -3,7 +3,7 @@ package com.bjcareer.search.in.api.controller.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bjcareer.search.domain.gpt.GTPNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 
 import lombok.Data;
 import lombok.Getter;
@@ -13,10 +13,10 @@ public class QueryToFindRaiseReasonResponseDTO {
 	private int total;
 	private List<Content> content = new ArrayList<>();
 
-	public QueryToFindRaiseReasonResponseDTO(List<GTPNewsDomain> contents) {
-		for (GTPNewsDomain gtpNewsDomain : contents) {
-			this.content.add(new Content(gtpNewsDomain.getStockName(), gtpNewsDomain.getReason(),
-				gtpNewsDomain.getNews().getImgLink(), gtpNewsDomain.getNews().getOriginalLink()));
+	public QueryToFindRaiseReasonResponseDTO(List<GPTNewsDomain> contents) {
+		for (GPTNewsDomain GPTNewsDomain : contents) {
+			this.content.add(new Content(GPTNewsDomain.getStockName(), GPTNewsDomain.getReason(),
+				GPTNewsDomain.getNews().getImgLink(), GPTNewsDomain.getNews().getOriginalLink()));
 		}
 		this.total = content.size();
 	}

@@ -19,11 +19,11 @@ import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.KeywordCountResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
@@ -85,6 +85,15 @@ public class SearchController {
 		SearchResult result = searchServerPort.searchResult(new KeywordCommand(query));
 		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, result, null), HttpStatus.OK);
 	}
+
+	@GetMapping("/api/v0/event")
+	@Operation(summary = "앞으로 남은 일정들 조회 가능", description = "앞으로 남은 일정들을 사용자에게 알려줍니다."
+	)
+	public ResponseEntity<ResponseDomain<NextEventNewsDTO>> searchResult() {
+		ResponseDomain<NextEventNewsDTO> result = searchServerPort.getNextEventNews();
+		return new ResponseEntity<>(result, result.getStatusCode());
+	}
+
 
 	private boolean validationKeyword(String query) {
 		return query == null || query.isEmpty();

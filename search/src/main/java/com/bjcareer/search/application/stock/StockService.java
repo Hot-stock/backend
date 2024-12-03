@@ -18,7 +18,7 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.api.python.PythonSearchServerAdapter;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepository;
+import com.bjcareer.search.out.persistence.stock.StockRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

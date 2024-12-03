@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
-import com.bjcareer.search.out.persistence.repository.stock.StockRepositoryAdapter;
+import com.bjcareer.search.out.persistence.stock.StockRepositoryAdapter;
 
 @SpringBootTest
 class StockRepositoryAdapterTest {

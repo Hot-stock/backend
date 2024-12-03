@@ -16,7 +16,7 @@ class TossServerAdapterTest {
 
 	@Test
 	void test(){
-		CandleResponseDTO responseDTO = tossServerAdapter.getStockPriceURI("041020");
+		CandleResponseDTO responseDTO = tossServerAdapter.getStockPriceURI("041020", "day");
 		System.out.println("stockPriceURI = " + responseDTO);
 
 		System.out.println("sto = " + responseDTO.getResult());
