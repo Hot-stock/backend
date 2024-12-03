@@ -29,7 +29,7 @@ public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepos
 	@Override
 	public List<Thema> loadSearchKeyword(String keyword) {
 		Pageable pageable = PageRequest.of(0, 10);
-		return themaRepository.findAllByKeywordContaining(keyword, pageable);
+		return themaRepository.findAllByKeywordContaining(keyword);
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepos
 
 	@Override
 	public List<Thema> loadAllByKeywordContaining(LoadThemaUsingkeywordCommand command) {
-		return themaRepository.findAllByKeywordContaining(command.getKeyword(), command.getPageable());
+		return themaRepository.findAllByKeywordContaining(command.getKeyword());
 	}
 
 	@Override

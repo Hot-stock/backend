@@ -11,9 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
 
-import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.entity.Stock;
@@ -22,8 +20,6 @@ import com.bjcareer.search.domain.entity.ThemaInfo;
 
 @ExtendWith(MockitoExtension.class)
 class SearchServiceTest {
-	@Mock
-	ApplicationEventPublisher eventPublisher;
 	@Mock
 	ThemaRepositoryPort themaRepositoryPort;
 	@Mock
@@ -43,7 +39,7 @@ class SearchServiceTest {
 			List.of(new Thema(new Stock("2134", "진서티이씨"), new ThemaInfo("중국"))));
 
 		//when
-		List<Thema> searchResult = searchService.getSearchResult(keyword, page, size);
+		List<Thema> searchResult = searchService.filterThemesByQuery(keyword);
 
 		//then
 		assertFalse(searchResult.isEmpty());

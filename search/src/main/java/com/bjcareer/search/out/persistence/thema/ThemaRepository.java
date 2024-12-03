@@ -3,7 +3,6 @@ package com.bjcareer.search.out.persistence.thema;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,5 +16,5 @@ public interface ThemaRepository extends JpaRepository<Thema, Long> {
 		+ "CASE WHEN ti.name = :keyword THEN 1 "
 		+ "WHEN ti.name LIKE :keyword% THEN 2 "
 		+ "ELSE 3 END")
-	List<Thema> findAllByKeywordContaining(String keyword, Pageable pageable);
+	List<Thema> findAllByKeywordContaining(String keyword);
 }

@@ -51,7 +51,7 @@ class SearchServiceMockTest {
 		when(themaRepositoryPort.loadAllByKeywordContaining(any())).thenReturn(mockThemas);
 
 		// When: 검색 결과가 있는 경우
-		List<Thema> result = searchService.getSearchResult(name, 0, 10);
+		List<Thema> result = searchService.filterThemesByQuery(name);
 
 		// Then: 검색 결과를 반환하고, 이벤트가 호출되었는지 확인
 		assertFalse(result.isEmpty());  // 검색 결과가 비어있지 않음을 검증
@@ -66,7 +66,7 @@ class SearchServiceMockTest {
 		when(themaRepositoryPort.loadAllByKeywordContaining(any())).thenReturn(Collections.emptyList());
 
 		// When: 검색 결과가 없는 경우
-		List<Thema> result = searchService.getSearchResult(anyString(), page, size);
+		List<Thema> result = searchService.filterThemesByQuery(anyString());
 
 		// Then: 검색 결과가 없고, 이벤트가 호출되지 않았는지 확인
 		assertTrue(result.isEmpty());  // 검색 결과가 비어있음을 검증

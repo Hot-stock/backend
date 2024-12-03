@@ -3,8 +3,6 @@ package com.bjcareer.search.application.search;
 import java.util.List;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.application.port.in.SearchUsecase;
@@ -23,9 +21,8 @@ public class SearchService implements SearchUsecase {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final Trie trie;
 
-	public List<Thema> getSearchResult(String keyword, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		LoadThemaUsingkeywordCommand command = new LoadThemaUsingkeywordCommand(keyword, pageable);
+	public List<Thema> filterThemesByQuery(String keyword) {
+		LoadThemaUsingkeywordCommand command = new LoadThemaUsingkeywordCommand(keyword);
 		List<Thema> resultOfSearch = themaRepositoryPort.loadAllByKeywordContaining(command);
 
 		if (!resultOfSearch.isEmpty()) {

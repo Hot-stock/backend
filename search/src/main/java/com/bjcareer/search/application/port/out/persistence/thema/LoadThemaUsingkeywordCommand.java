@@ -9,5 +9,4 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoadThemaUsingkeywordCommand {
 	private final String keyword;
-	private final Pageable pageable;
 }
