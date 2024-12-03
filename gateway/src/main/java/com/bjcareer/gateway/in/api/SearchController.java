@@ -16,10 +16,10 @@ import com.bjcareer.gateway.application.ports.out.SearchServerPort;
 import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ResponseDomain;
-import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.KeywordCountResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,22 +57,8 @@ public class SearchController {
 		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, absoluteValueOfKeyword, null), HttpStatus.OK);
 	}
 
-	@GetMapping("/api/v0/search")
-	@APIRateLimit
-	@Operation(summary = "검색어 후보 기능", description = "사용자가 검색을 할 때, 검색어를 입력하면 검색어 후보를 Return합니다.")
-	public ResponseEntity<ResponseDomain<SearchCandidate>> search(@RequestParam(name = "q") String query, HttpServletRequest request) {
-		log.info("Request query: {}", query);
-		if (validationKeyword(query)) {
-			log.debug("Request query is empty");
-			return ResponseEntity.badRequest().build();
-		}
-
-		SearchCandidate searchCandidate = searchServerPort.searchCandidate(new KeywordCommand(query));
-		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, searchCandidate, null), HttpStatus.OK);
-	}
-
-	@GetMapping("/api/v0/sr")
-	@APIRateLimit
+	// @APIRateLimit
+	@GetMapping("/api/v0/thema/sr")
 	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
 	public ResponseEntity<ResponseDomain<SearchResult>> searchResult(@RequestParam(name = "q") String query,
 		HttpServletRequest request) {
@@ -84,6 +70,22 @@ public class SearchController {
 
 		SearchResult result = searchServerPort.searchResult(new KeywordCommand(query));
 		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, result, null), HttpStatus.OK);
+	}
+
+	@GetMapping("/api/v0/stock/sr")
+	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
+	public ResponseEntity<ResponseDomain<StockerFilterResultResponseDTO>> filterStocksByQuery(
+		@RequestParam(name = "q") String query,
+		HttpServletRequest request) {
+		log.info("Request query: {}", query);
+		if (validationKeyword(query)) {
+			log.debug("Request query is empty");
+			return ResponseEntity.badRequest().build();
+		}
+
+		ResponseDomain<StockerFilterResultResponseDTO> res = searchServerPort.filterStockByQuery(
+			new KeywordCommand(query));
+		return new ResponseEntity<>(res, res.getStatusCode());
 	}
 
 	@GetMapping("/api/v0/event")

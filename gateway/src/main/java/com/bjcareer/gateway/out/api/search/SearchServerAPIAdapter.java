@@ -16,12 +16,12 @@ import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ErrorDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
-import com.bjcareer.gateway.domain.SearchCandidate;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.NextScheduleOfStockDTO;
+import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
 @Component
@@ -47,20 +47,9 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 	}
 
 	@Override
-	public SearchCandidate searchCandidate(KeywordCommand command) {
-		SearchCandidate result = webClient.get()
-			.uri(SearchServerURI.SEARCH_CANDIDATE + "?q=" + command.getKeyword())
-			.retrieve()
-			.bodyToMono(SearchCandidate.class)
-			.block();  // 동기적으로 결과 대기
-
-		return result;  // 결과 반환
-	}
-
-	@Override
 	public SearchResult searchResult(KeywordCommand command) {
 		SearchResult result = webClient.get()
-			.uri(SearchServerURI.SEARCH_RESULT + "?q=" + command.getKeyword())
+			.uri(SearchServerURI.FILTER_THEMA_SEARCH_RESULT + "?q=" + command.getKeyword())
 			.retrieve()
 			.bodyToMono(SearchResult.class)
 			.block();  // 동기적으로 결과 대기
@@ -68,6 +57,24 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 		log.info("Response of findNextScheduleOfStock: {}", result);
 
 		return result;
+	}
+
+	@Override
+	public ResponseDomain<StockerFilterResultResponseDTO> filterStockByQuery(KeywordCommand command) {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.FILTER_STOCK_SEARCH_RESULT + "?q=" + command.getKeyword())
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.FILTER_STOCK_SEARCH_RESULT, res.statusCode());
+		if (res.statusCode().is2xxSuccessful()) {
+			StockerFilterResultResponseDTO responseDTO = res.bodyToMono(StockerFilterResultResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of addStockInfo: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
 	}
 
 	@Override
