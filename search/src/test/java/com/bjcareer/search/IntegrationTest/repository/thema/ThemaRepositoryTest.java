@@ -1,4 +1,4 @@
-package com.bjcareer.search.IntegrationTest.repository.stock;
+package com.bjcareer.search.IntegrationTest.repository.thema;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
@@ -27,7 +26,7 @@ class ThemaRepositoryTest {
 
 		allThemas.forEach(thema -> {
 			long durationInMillis = measureExecutionTime(() -> {
-				LoadThemaUsingkeywordCommand command = new LoadThemaUsingkeywordCommand(thema.getStock().getName(), PageRequest.of(0, 10000));
+				LoadThemaUsingkeywordCommand command = new LoadThemaUsingkeywordCommand(thema.getStock().getName());
 				themaRepository.loadAllByKeywordContaining(command);
 			});
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import com.bjcareer.search.application.port.out.persistence.stock.LoadStockCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 
@@ -50,5 +51,12 @@ public class StockRepositoryAdapter implements StockRepositoryPort {
 		for (Stock stock : stocks) {
 			em.persist(stock);
 		}
+	}
+
+	@Override
+	public List<Stock> loadAllByKeywordContaining(LoadStockCommand command) {
+		return em.createQuery(Query.FILTER_STOCK_BY_KEYWORD, Stock.class)
+			.setParameter("keyword", command.getKeyword() + "%")
+			.getResultList();
 	}
 }

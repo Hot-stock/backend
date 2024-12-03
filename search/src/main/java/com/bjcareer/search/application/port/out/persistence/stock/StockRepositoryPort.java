@@ -16,4 +16,6 @@ public interface StockRepositoryPort {
 	void save(Stock stock);
 
 	void saveALl(Collection<Stock> stocks);
+
+	List<Stock> loadAllByKeywordContaining(LoadStockCommand command);
 }
