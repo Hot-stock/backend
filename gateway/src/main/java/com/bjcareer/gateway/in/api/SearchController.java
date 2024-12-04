@@ -1,5 +1,6 @@
 package com.bjcareer.gateway.in.api;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
+import com.bjcareer.gateway.application.ports.out.FindRaiseReasonOfStock;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
@@ -18,7 +20,7 @@ import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.KeywordCountResponseDTO;
-import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +34,7 @@ public class SearchController {
 	private final SearchServerPort searchServerPort;
 	private final Logger log;
 
-	@GetMapping("/api/v0/keyword")
+	@GetMapping("/api/v0/search/keyword")
 	@APIRateLimit
 	@Operation(
 		summary = "키워드 검색 통계 조회",
@@ -58,7 +60,7 @@ public class SearchController {
 	}
 
 	// @APIRateLimit
-	@GetMapping("/api/v0/thema/sr")
+	@GetMapping("/api/v0/search/thema")
 	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
 	public ResponseEntity<ResponseDomain<SearchResult>> searchResult(@RequestParam(name = "q") String query,
 		HttpServletRequest request) {
@@ -72,7 +74,7 @@ public class SearchController {
 		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, result, null), HttpStatus.OK);
 	}
 
-	@GetMapping("/api/v0/stock/sr")
+	@GetMapping("/api/v0/search/stock")
 	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
 	public ResponseEntity<ResponseDomain<StockerFilterResultResponseDTO>> filterStocksByQuery(
 		@RequestParam(name = "q") String query,
@@ -88,25 +90,22 @@ public class SearchController {
 		return new ResponseEntity<>(res, res.getStatusCode());
 	}
 
-	@GetMapping("/api/v0/event")
-	@Operation(summary = "앞으로 남은 일정들 조회 가능", description = "앞으로 남은 일정들을 사용자에게 알려줍니다."
+	@GetMapping("/api/v0/search/raise-reason")
+	@Operation(
+		summary = "요청한 날짜에 해당하는 주식의 상승 이유 조회",
+		description = "쿼리파람의 dater가 있으면 특정 날짜의 주식 상승 이유를 조회하는 API입니다. 없다면 최근 일자부터 상승 이유를 반환."
 	)
-	public ResponseEntity<ResponseDomain<NextEventNewsDTO>> searchResult() {
-		ResponseDomain<NextEventNewsDTO> result = searchServerPort.getNextEventNews();
-		return new ResponseEntity<>(result, result.getStatusCode());
+	public ResponseEntity<ResponseDomain<RaiseReasonResponseDTO>> filterStocksByQuery(
+		@RequestParam(name = "q") String query, @RequestParam(name = "date", required = false) LocalDate date,
+		HttpServletRequest request) {
+		log.info("Request query: {}", query);
+
+		FindRaiseReasonOfStock findRaiseReasonOfStock = new FindRaiseReasonOfStock(query, date);
+		ResponseDomain<RaiseReasonResponseDTO> res = searchServerPort.findRaiseReasonOfStock(
+			findRaiseReasonOfStock);
+
+		return new ResponseEntity<>(res, res.getStatusCode());
 	}
-
-	@GetMapping("/api/v0/event/next-schedule")
-	@Operation(summary = "해당 주식이 오를 수 있는 일정과 그동안의 뉴스들을 조회", description = "현재 검색 키워드는 '특징주 + 주식이름'을 통해서 네이버 뉴스를 크롤링하고, 다음 일정 및 뉴스 요약을 위해서 GPT API를 사용함 따라서 많은 시간이 소요됨")
-	public ResponseEntity<ResponseDomain<NextEventNewsDTO>> findNextScheduleOfStock(
-		@RequestParam(name = "q") String keyword) {
-		log.info("Request: {}", keyword);
-
-		ResponseDomain<NextEventNewsDTO> nextScheduleOfStock = searchServerPort.getNextEventNewsFilterByStockName(
-			keyword);
-		return new ResponseEntity<>(nextScheduleOfStock, nextScheduleOfStock.getStatusCode());
-	}
-
 
 	private boolean validationKeyword(String query) {
 		return query == null || query.isEmpty();

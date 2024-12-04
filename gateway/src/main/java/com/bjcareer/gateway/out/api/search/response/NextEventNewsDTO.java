@@ -11,15 +11,14 @@ import lombok.ToString;
 @ToString
 public class NextEventNewsDTO {
 	private Integer total;
-	private List<EventDTO> content;
+	private List<EventDTO> items;
 
 	@Getter
 	private static class EventDTO {
 		private String stockName;
-		private String summary;
 		private String nextEventReason;
 		private String imgLink;
 		private String link;
-		private LocalDate eventDate;
+		private LocalDate nextEventDate;
 	}
 }

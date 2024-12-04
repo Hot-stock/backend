@@ -1,14 +1,17 @@
 package com.bjcareer.gateway.out.api.search;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.bjcareer.gateway.application.ports.in.StockInfoCommand;
+import com.bjcareer.gateway.application.ports.out.FindRaiseReasonOfStock;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
@@ -20,10 +23,9 @@ import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
-
-import reactor.core.publisher.Mono;
 
 @Component
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
@@ -70,6 +72,29 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 		log.info("Response of {} {}", SearchServerURI.FILTER_STOCK_SEARCH_RESULT, res.statusCode());
 		if (res.statusCode().is2xxSuccessful()) {
 			StockerFilterResultResponseDTO responseDTO = res.bodyToMono(StockerFilterResultResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of addStockInfo: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(FindRaiseReasonOfStock command) {
+		String uri = UriComponentsBuilder.fromUriString(SearchServerURI.FIND_RAISE_REASON)
+			.queryParam("q", command.getStockName()) // stockName은 항상 추가
+			.queryParamIfPresent("date", Optional.ofNullable(command.getDate())) // date는 null이 아니면 추가
+			.toUriString();
+
+		ClientResponse res = webClient.get()
+			.uri(uri)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.FIND_RAISE_REASON, res.statusCode());
+		if (res.statusCode().is2xxSuccessful()) {
+			RaiseReasonResponseDTO responseDTO = res.bodyToMono(RaiseReasonResponseDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
