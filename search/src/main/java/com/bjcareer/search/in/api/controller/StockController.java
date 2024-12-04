@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.stock.StockService;
-import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
@@ -66,23 +65,6 @@ public class StockController {
 			thema.getStock().getName(), thema.getThemaInfo().getName(), thema.getStock().getCode());
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
-	}
-
-	@GetMapping("/next-schedule")
-	@Operation(summary = "이 주식은 오를 수 있을까?", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
-	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> searchNextSchedule(
-		@RequestParam(name = "q") String stockName, @RequestParam(name = "date", required = false) LocalDate date) {
-		log.debug("request: {} {}", stockName, date);
-
-		if(date == null){
-			date = LocalDate.now(AppConfig.ZONE_ID);
-		}
-
-		List<GPTNewsDomain> nextSchedule = newsServiceUsecase.findNextSchedule(stockName, date);
-		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
-			nextSchedule);
-
-		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
 
 	@GetMapping("/reason")

@@ -14,9 +14,10 @@ public class QueryToFindRaiseReasonResponseDTO {
 	private List<Content> content = new ArrayList<>();
 
 	public QueryToFindRaiseReasonResponseDTO(List<GPTNewsDomain> contents) {
-		for (GPTNewsDomain GPTNewsDomain : contents) {
-			this.content.add(new Content(GPTNewsDomain.getStockName(), GPTNewsDomain.getReason(),
-				GPTNewsDomain.getNews().getImgLink(), GPTNewsDomain.getNews().getOriginalLink()));
+		for (GPTNewsDomain gptNewsDomain : contents) {
+			this.content.add(
+				new Content(gptNewsDomain.getStockName(), gptNewsDomain.getReason(), gptNewsDomain.getNextReason(),
+					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink()));
 		}
 		this.total = content.size();
 	}
@@ -24,13 +25,15 @@ public class QueryToFindRaiseReasonResponseDTO {
 	@Data
 	private static class Content {
 		private String stockName;
-		private String reason;
+		private String summary;
+		private String nextEventReason;
 		private String imgLink;
 		private String link;
 
-		public Content(String stockName, String reason, String imgLink, String link) {
+		public Content(String stockName, String summary, String nextEventReason, String imgLink, String link) {
 			this.stockName = stockName;
-			this.reason = reason;
+			this.summary = summary;
+			this.nextEventReason = nextEventReason;
 			this.imgLink = imgLink;
 			this.link = link;
 		}

@@ -15,10 +15,10 @@ public class NextEventService {
 	private final DocumentAnalyzeRepository documentAnalyzeRepository;
 
 	public List<GPTNewsDomain> getUpcomingEvents(){
-		List<GPTNewsDomain> upcomingNews = documentAnalyzeRepository.getUpcomingNews();
-		return upcomingNews;
+		return documentAnalyzeRepository.getUpcomingNews();
 	}
 
-
-
+	public List<GPTNewsDomain> filterUpcomingEventsByStockName(String stockName) {
+		return documentAnalyzeRepository.getUpcomingNewsByStockName(stockName);
+	}
 }

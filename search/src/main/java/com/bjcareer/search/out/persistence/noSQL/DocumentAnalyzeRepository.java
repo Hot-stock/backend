@@ -23,21 +23,37 @@ public class DocumentAnalyzeRepository {
 	public static final String COLLECTION_NAME = "news";
 
 	public DocumentAnalyzeRepository(MongoClient mongoClient) {
-		collection = mongoClient.getDatabase("news").getCollection("news");
+		collection = mongoClient.getDatabase(COLLECTION_NAME).getCollection(COLLECTION_NAME);
 	}
 
 	public List<GPTNewsDomain> getUpcomingNews() {
-		List<GPTNewsDomain> result = new ArrayList<>();
 		List<Document> documents = collection.find(Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)))
 			.into(new ArrayList<>());
+		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
+		return result;
+	}
 
+	public List<GPTNewsDomain> getUpcomingNewsByStockName(String stockName) {
+		List<Document> documents = collection.find(
+			Filters.and(
+				Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)),
+				Filters.eq("stockName", stockName)
+			)
+		).into(new ArrayList<>());
+
+		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
+
+		return result;
+	}
+
+	private List<GPTNewsDomain> convertDocumentsToGPTNewsDomains(List<Document> documents) {
+		List<GPTNewsDomain> result = new ArrayList<>();
 		for (Document document : documents) {
 			Boolean isRelated = document.getBoolean("isRelated");
 
-			if(!isRelated){
+			if (!isRelated) {
 				continue;
 			}
-
 
 			GPTNewsDomain gptNewsDomain = changeDocumentToGPTNewsDomain(document);
 			News news = changeDocumentToNewsDomain(document);
