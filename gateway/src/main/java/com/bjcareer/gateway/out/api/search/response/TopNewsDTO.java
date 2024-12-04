@@ -9,13 +9,13 @@ import lombok.ToString;
 @ToString
 public class TopNewsDTO {
 	private Integer total;
-	private List<RaiseReasonDTO> content;
+	private List<RaiseReasonDTO> items;
 
 	@Getter
 	@ToString
 	static class RaiseReasonDTO {
 		private String stockName;
-		private String reason;
+		private String summary;
 		private String link;
 		private String imgLink;
 	}

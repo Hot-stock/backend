@@ -27,7 +27,10 @@ import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
 	private final WebClient webClient;
 	private final Logger log;
@@ -187,7 +190,6 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 			.block();
 
 		log.info("Response of {} {}", SearchServerURI.FILTER_NEXT_SCHEDULE_BY_STOCKNAME, res.statusCode());
-
 		if (res.statusCode().is2xxSuccessful()) {
 			NextEventNewsDTO responseDTO = res.bodyToMono(NextEventNewsDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);

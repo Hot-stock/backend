@@ -95,11 +95,11 @@ public class SearchController {
 		summary = "요청한 날짜에 해당하는 주식의 상승 이유 조회",
 		description = "쿼리파람의 dater가 있으면 특정 날짜의 주식 상승 이유를 조회하는 API입니다. 없다면 최근 일자부터 상승 이유를 반환."
 	)
-	public ResponseEntity<ResponseDomain<RaiseReasonResponseDTO>> filterStocksByQuery(
+	public ResponseEntity<ResponseDomain<RaiseReasonResponseDTO>> findRaiseReason(
 		@RequestParam(name = "q") String query, @RequestParam(name = "date", required = false) LocalDate date,
 		HttpServletRequest request) {
-		log.info("Request query: {}", query);
 
+		log.info("Request query: {} {}", query, date);
 		FindRaiseReasonOfStock findRaiseReasonOfStock = new FindRaiseReasonOfStock(query, date);
 		ResponseDomain<RaiseReasonResponseDTO> res = searchServerPort.findRaiseReasonOfStock(
 			findRaiseReasonOfStock);
