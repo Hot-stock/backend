@@ -5,14 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.stereotype.Repository;
 
+import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +31,7 @@ public class DocumentAnalyzeRepository {
 
 	public List<GPTNewsDomain> getUpcomingNews() {
 		List<Document> documents = collection.find(Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)))
-			.into(new ArrayList<>());
+			.sort(Sorts.ascending("next")).into(new ArrayList<>());
 		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
 		return result;
 	}
@@ -39,11 +42,31 @@ public class DocumentAnalyzeRepository {
 				Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)),
 				Filters.eq("stockName", stockName)
 			)
-		).into(new ArrayList<>());
+		).sort(Sorts.ascending("next")).into(new ArrayList<>());
 
 		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
 
 		return result;
+	}
+
+	public List<GPTNewsDomain> getRaiseReason(LoadStockRaiseReason command) {
+		Bson filter = Filters.and(
+			Filters.eq("stockName", command.getStockName()),
+			Filters.eq("isRelated", true)
+		);
+
+		if (command.getDate() != null) {
+			filter = Filters.and(
+				filter,
+				Filters.eq("news.pubDate", command.getDate())
+			);
+		}
+
+		List<Document> documents = collection.find(filter)
+			.sort(Sorts.descending("news.pubDate"))
+			.into(new ArrayList<>());
+
+		return convertDocumentsToGPTNewsDomains(documents);
 	}
 
 	private List<GPTNewsDomain> convertDocumentsToGPTNewsDomains(List<Document> documents) {
@@ -68,7 +91,9 @@ public class DocumentAnalyzeRepository {
 	private GPTNewsDomain changeDocumentToGPTNewsDomain(Document document) {
 		String stockName = document.getString("stockName");
 		String reason = document.getString("reason");
-		LocalDate next = document.getDate("next").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate();
+
+		String next = getDate(document);
+
 		String nextReason = document.getString("nextReasonFact");
 
 		return new GPTNewsDomain(stockName, reason, new ArrayList<>(), next.toString(), nextReason);
@@ -85,5 +110,12 @@ public class DocumentAnalyzeRepository {
 		String content = newsDocument.getString("content");
 
 		return new News(title, newsLink, imgLink, description, pubDate, content);
+	}
+
+	private String getDate(Document document) {
+		if (document.getDate("next") != null) {
+			return document.getDate("next").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate().toString();
+		}
+		return "";
 	}
 }

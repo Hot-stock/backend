@@ -39,13 +39,13 @@ public class EventController {
 	}
 
 	@GetMapping("/next-schedule")
-	@Operation(summary = "이 주식은 오를 수 있을까?", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
-	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> searchNextSchedule(
+	@Operation(summary = "이 주식의 다음 일정을 요청함ㄹㄷ?", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
+	public ResponseEntity<QueryToFindNextEventReasonResponseDTO> searchNextSchedule(
 		@RequestParam(name = "q") String stockName) {
 		log.debug("request next-schedule: {}", stockName);
 
 		List<GPTNewsDomain> nextSchedule = eventService.filterUpcomingEventsByStockName(stockName);
-		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(
+		QueryToFindNextEventReasonResponseDTO responseDTO = new QueryToFindNextEventReasonResponseDTO(
 			nextSchedule);
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);

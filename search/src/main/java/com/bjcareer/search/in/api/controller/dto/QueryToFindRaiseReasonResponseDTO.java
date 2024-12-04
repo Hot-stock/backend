@@ -1,6 +1,5 @@
 package com.bjcareer.search.in.api.controller.dto;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,35 +11,29 @@ import lombok.Getter;
 @Getter
 public class QueryToFindRaiseReasonResponseDTO {
 	private int total;
-	private List<Content> content = new ArrayList<>();
+	private List<Content> items = new ArrayList<>();
 
 	public QueryToFindRaiseReasonResponseDTO(List<GPTNewsDomain> contents) {
 		for (GPTNewsDomain gptNewsDomain : contents) {
-			this.content.add(
-				new Content(gptNewsDomain.getStockName(), gptNewsDomain.getReason(), gptNewsDomain.getNextReason(),
-					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink(),
-					gptNewsDomain.getNext().get()));
+			this.items.add(
+				new Content(gptNewsDomain.getStockName(), gptNewsDomain.getReason(),
+					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink()));
 		}
-		this.total = content.size();
+		this.total = items.size();
 	}
 
 	@Data
 	private static class Content {
 		private String stockName;
 		private String summary;
-		private String nextEventReason;
 		private String imgLink;
 		private String link;
-		private LocalDate eventDate;
 
-		public Content(String stockName, String summary, String nextEventReason, String imgLink, String link,
-			LocalDate eventDate) {
+		public Content(String stockName, String summary, String imgLink, String link) {
 			this.stockName = stockName;
 			this.summary = summary;
-			this.nextEventReason = nextEventReason;
 			this.imgLink = imgLink;
 			this.link = link;
-			this.eventDate = eventDate;
 		}
 	}
 }

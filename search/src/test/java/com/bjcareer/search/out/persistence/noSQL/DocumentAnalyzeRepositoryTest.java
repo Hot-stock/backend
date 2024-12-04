@@ -1,13 +1,15 @@
 package com.bjcareer.search.out.persistence.noSQL;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.time.LocalDate;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 
@@ -20,16 +22,33 @@ class DocumentAnalyzeRepositoryTest {
 	void 오늘_날짜_이후에_진행되는_뉴스들을_반환() {
 		List<GPTNewsDomain> upcomingNews = documentAnalyzeRepository.getUpcomingNews();
 
-
 		for(GPTNewsDomain gptNewsDomain : upcomingNews){
-			System.out.println("gptNewsDomain.getNews().getTitle() = " + gptNewsDomain.getStockName());
 			assertTrue(gptNewsDomain.getNext().isPresent());
 			assertTrue(LocalDate.now(AppConfig.ZONE_ID).isBefore(gptNewsDomain.getNext().get()));
-
-			System.out.println("gptNewsDomain.getReason() = " + gptNewsDomain.getNextReason());
-			System.out.println("gptNewsDomain.getNews().getTitle() = " + gptNewsDomain.getNews().getTitle());
 		}
+	}
 
+	@Test
+	void 특정_주식의_상승_이유를_요청() {
+		String target = "와이즈버즈";
+		LoadStockRaiseReason command = new LoadStockRaiseReason(target, null);
+		List<GPTNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
+
+		for (GPTNewsDomain gptNewsDomain : reason) {
+			assertEquals(gptNewsDomain.getStockName(), target);
+		}
+	}
+
+	@Test
+	void 특정_날짜의_주식의_상승_이유를_요청() {
+		String target = "에이텍";
+		LoadStockRaiseReason command = new LoadStockRaiseReason(target, LocalDate.now());
+		List<GPTNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
+
+		for (GPTNewsDomain gptNewsDomain : reason) {
+			assertEquals(gptNewsDomain.getStockName(), target);
+			assertEquals(gptNewsDomain.getNews().getPubDate(), LocalDate.now());
+		}
 	}
 
 }

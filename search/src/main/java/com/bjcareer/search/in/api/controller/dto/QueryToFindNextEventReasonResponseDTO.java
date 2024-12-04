@@ -12,15 +12,15 @@ import lombok.Getter;
 @Getter
 public class QueryToFindNextEventReasonResponseDTO {
 	private int total;
-	private List<Content> content = new ArrayList<>();
+	private List<Content> items = new ArrayList<>();
 
 	public QueryToFindNextEventReasonResponseDTO(List<GPTNewsDomain> contents) {
 		for (GPTNewsDomain GPTNewsDomain : contents) {
-			this.content.add(new Content(GPTNewsDomain.getStockName(), GPTNewsDomain.getNextReason(),
+			this.items.add(new Content(GPTNewsDomain.getStockName(), GPTNewsDomain.getNextReason(),
 				GPTNewsDomain.getNews().getImgLink(), GPTNewsDomain.getNews().getOriginalLink(),
 				GPTNewsDomain.getNext().get()));
 		}
-		this.total = content.size();
+		this.total = items.size();
 	}
 
 	@Data
