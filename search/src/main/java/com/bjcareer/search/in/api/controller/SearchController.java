@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.port.in.SearchUsecase;
-import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
@@ -61,12 +60,10 @@ public class SearchController {
 	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> filterStocksByQuery(
 		@RequestParam(name = "q") String query, @RequestParam(name = "date", required = false) LocalDate date) {
 
+		log.debug("request raise-reason: {} {}", query, date);
+
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
-		}
-
-		if (date == null) {
-			date = LocalDate.now(AppConfig.ZONE_ID);
 		}
 
 		List<GPTNewsDomain> contents = usecase.findRaiseReason(query, date);
