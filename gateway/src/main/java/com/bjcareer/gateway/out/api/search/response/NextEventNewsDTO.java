@@ -16,9 +16,10 @@ public class NextEventNewsDTO {
 	@Getter
 	private static class EventDTO {
 		private String stockName;
+		private String summary;
 		private String nextEventReason;
 		private String imgLink;
 		private String link;
-		private LocalDate nextEventDate;
+		private LocalDate eventDate;
 	}
 }

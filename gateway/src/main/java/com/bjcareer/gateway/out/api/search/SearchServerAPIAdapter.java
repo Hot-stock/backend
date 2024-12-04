@@ -20,9 +20,10 @@ import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
-import com.bjcareer.gateway.out.api.search.response.NextScheduleOfStockDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
+
+import reactor.core.publisher.Mono;
 
 @Component
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
@@ -97,25 +98,6 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 	}
 
 	@Override
-	public ResponseDomain<NextScheduleOfStockDTO> findNextScheduleOfStock(String keyword) {
-		ClientResponse res = webClient.get()
-			.uri(SearchServerURI.FIND_NEXT_SCHEDULE + "?q=" + keyword)
-			.exchange()
-			.block();
-
-		log.info("Response of {} {}", SearchServerURI.FIND_NEXT_SCHEDULE, res.statusCode());
-
-		if (res.statusCode().is2xxSuccessful()) {
-			NextScheduleOfStockDTO responseDTO = res.bodyToMono(NextScheduleOfStockDTO.class).block();
-			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
-		} else {
-			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
-			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
-			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
-		}
-	}
-
-	@Override
 	public ResponseDomain<TopNewsDTO> findTopStockNews() {
 		ClientResponse res = webClient.get()
 			.uri(SearchServerURI.TOP_STOCK_NEWS)
@@ -168,6 +150,25 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
 			log.error("Error response of getOHLC: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<NextEventNewsDTO> getNextEventNewsFilterByStockName(String stockName) {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.FILTER_NEXT_SCHEDULE_BY_STOCKNAME + "?q=" + stockName)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.FILTER_NEXT_SCHEDULE_BY_STOCKNAME, res.statusCode());
+
+		if (res.statusCode().is2xxSuccessful()) {
+			NextEventNewsDTO responseDTO = res.bodyToMono(NextEventNewsDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
 			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
 		}
 	}

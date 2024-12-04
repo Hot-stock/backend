@@ -14,7 +14,7 @@ public interface SearchServerPort {
 	SearchResult searchResult(KeywordCommand command);
 	ResponseDomain<StockerFilterResultResponseDTO> filterStockByQuery(KeywordCommand command);
 	ResponseDomain<StockAdditionResponseDTO> addStockInfo(StockInfoCommand command);
-	ResponseDomain<NextScheduleOfStockDTO> findNextScheduleOfStock(String keyword);
+	ResponseDomain<NextEventNewsDTO> getNextEventNewsFilterByStockName(String stockName);
 	ResponseDomain<TopNewsDTO> findTopStockNews();
 	ResponseDomain<CandleResponseDTO> getOHLC(String code, String period);
 	ResponseDomain<NextEventNewsDTO> getNextEventNews();

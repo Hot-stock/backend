@@ -96,6 +96,17 @@ public class SearchController {
 		return new ResponseEntity<>(result, result.getStatusCode());
 	}
 
+	@GetMapping("/api/v0/event/next-schedule")
+	@Operation(summary = "해당 주식이 오를 수 있는 일정과 그동안의 뉴스들을 조회", description = "현재 검색 키워드는 '특징주 + 주식이름'을 통해서 네이버 뉴스를 크롤링하고, 다음 일정 및 뉴스 요약을 위해서 GPT API를 사용함 따라서 많은 시간이 소요됨")
+	public ResponseEntity<ResponseDomain<NextEventNewsDTO>> findNextScheduleOfStock(
+		@RequestParam(name = "q") String keyword) {
+		log.info("Request: {}", keyword);
+
+		ResponseDomain<NextEventNewsDTO> nextScheduleOfStock = searchServerPort.getNextEventNewsFilterByStockName(
+			keyword);
+		return new ResponseEntity<>(nextScheduleOfStock, nextScheduleOfStock.getStatusCode());
+	}
+
 
 	private boolean validationKeyword(String query) {
 		return query == null || query.isEmpty();

@@ -1,5 +1,6 @@
 package com.bjcareer.search.in.api.controller.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,8 @@ public class QueryToFindRaiseReasonResponseDTO {
 		for (GPTNewsDomain gptNewsDomain : contents) {
 			this.content.add(
 				new Content(gptNewsDomain.getStockName(), gptNewsDomain.getReason(), gptNewsDomain.getNextReason(),
-					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink()));
+					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink(),
+					gptNewsDomain.getNext().get()));
 		}
 		this.total = content.size();
 	}
@@ -29,13 +31,16 @@ public class QueryToFindRaiseReasonResponseDTO {
 		private String nextEventReason;
 		private String imgLink;
 		private String link;
+		private LocalDate eventDate;
 
-		public Content(String stockName, String summary, String nextEventReason, String imgLink, String link) {
+		public Content(String stockName, String summary, String nextEventReason, String imgLink, String link,
+			LocalDate eventDate) {
 			this.stockName = stockName;
 			this.summary = summary;
 			this.nextEventReason = nextEventReason;
 			this.imgLink = imgLink;
 			this.link = link;
+			this.eventDate = eventDate;
 		}
 	}
 }
