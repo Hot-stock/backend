@@ -1,8 +1,5 @@
 package com.bjcareer.search.in.api.controller;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.search.application.port.in.NewsServiceUsecase;
 import com.bjcareer.search.application.stock.StockService;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
-import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionRequestDTO;
 import com.bjcareer.search.in.api.controller.dto.StockAdditionResponseDTO;
 import com.bjcareer.search.out.api.toss.TossServerAdapter;
@@ -34,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StockController {
 	private final StockService stockService;
-	private final NewsServiceUsecase newsServiceUsecase;
 	private final TossServerAdapter tossServerAdapter;
 
 	@GetMapping("/update")
@@ -65,22 +58,5 @@ public class StockController {
 			thema.getStock().getName(), thema.getThemaInfo().getName(), thema.getStock().getCode());
 
 		return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
-	}
-
-	@GetMapping("/reason")
-	@Operation(summary = "주식이 해당 일자의 뉴스의 상승 이유를 찾아서 보여줌", description = "name: 주식 이름, date: 날짜(yyyy-MM-dd)")
-	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> searchStockRaiseReason(
-		@RequestParam(name = "name") String stockName, @RequestParam(name = "date") LocalDate date) {
-		log.debug("request: {} {} ", stockName, date);
-
-		List<GPTNewsDomain> raiseReasonThatDate = newsServiceUsecase.findRaiseReasonThatDate(stockName, date);
-
-		if (raiseReasonThatDate.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-
-		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(raiseReasonThatDate);
-
-		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
 }
