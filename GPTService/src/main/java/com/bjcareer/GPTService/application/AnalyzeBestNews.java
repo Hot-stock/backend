@@ -11,7 +11,9 @@ import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 public class AnalyzeBestNews {
 	public Optional<GPTNewsDomain> getBestNews(List<GPTNewsDomain> news) {
 		Optional<GPTNewsDomain> bestNew = news.stream()
+			.filter(GPTNewsDomain::isRelated)
 			.filter(n -> !n.getReason().isEmpty())
+			.sorted((n1, n2) -> -(n2.getReason().length() - n1.getReason().length()))
 			.findFirst();
 
 		return bestNew;
