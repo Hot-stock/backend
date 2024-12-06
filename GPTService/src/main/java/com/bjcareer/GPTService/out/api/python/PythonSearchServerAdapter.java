@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -82,10 +81,9 @@ public class PythonSearchServerAdapter {
 				log.error("Failed to fetch from server. URL: {}, Status Code: {}", url, response.statusCode());
 				return Optional.empty();
 			}
-		} catch (RestClientException e) {
+		} catch (RuntimeException e) {
 			log.error("Exception while fetching data from server. URL: {}, Error: {}", url, e.getMessage());
 			return Optional.empty();
 		}
-
 	}
 }
