@@ -24,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v0/register")
+@Slf4j
 public class RegisterController {
 	private final RegisterServerPort port;
-	private final Logger log;
 
 	@PostMapping
 	public ResponseEntity<ResponseDomain<RegisterDomain>> register(@RequestBody RegisterRequestDTO request) {

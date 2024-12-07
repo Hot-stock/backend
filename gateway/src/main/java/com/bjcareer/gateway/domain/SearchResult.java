@@ -10,7 +10,7 @@ import lombok.Getter;
 @Data
 public class SearchResult {
 	private String keyword;
-	private List<StockDTO> results;
+	private List<StockDTO> items;
 
 	@Getter
 	@Data

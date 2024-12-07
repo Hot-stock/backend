@@ -13,13 +13,14 @@ import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/v0/news")
 public class RankingController {
 	private final SearchServerPort searchServerPort;
-	private final Logger log;
 
 	@GetMapping("/top-stock")
 	@Operation(summary = "당일 상승 종목 top 20의 뉴스들을 돌려줌", description = "로그인 요청 기능입니다.", responses = {

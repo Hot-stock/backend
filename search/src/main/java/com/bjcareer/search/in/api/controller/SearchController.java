@@ -13,7 +13,9 @@ import com.bjcareer.search.application.port.in.SearchUsecase;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.QueryToFindThemaNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockerFilterResultResponseDTO;
 
@@ -29,7 +31,7 @@ public class SearchController {
 	private final SearchUsecase usecase;
 
 	@GetMapping("/thema")
-	@Operation(summary = "검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
+	@Operation(summary = "테마 검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
 	public ResponseEntity<SearchResultResponseDTO> filterThemesByQuery(@RequestParam(name = "q") String query) {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
@@ -52,21 +54,36 @@ public class SearchController {
 		return ResponseEntity.ok(response);
 	}
 
+	@GetMapping("/news/thema")
+	@Operation(summary = "테마 뉴스 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
+	public ResponseEntity<QueryToFindThemaNewsResponseDTO> filterThemaNewsByQuery(
+		@RequestParam(name = "q") String code,
+		@RequestParam(name = "theme", required = false, defaultValue = "ALL") String theme,
+		@RequestParam(name = "date", required = false) LocalDate date) {
+
+		if (validationKeyword(code)) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		List<GPTThema> themasNews = usecase.findThemasNews(code, theme, date);
+		return ResponseEntity.ok(new QueryToFindThemaNewsResponseDTO(themasNews));
+	}
+
 	@GetMapping("/raise-reason")
 	@Operation(
 		summary = "요청한 날짜에 해당하는 주식의 상승 이유 조회",
 		description = "쿼리파람의 dater가 있으면 특정 날짜의 주식 상승 이유를 조회하는 API입니다. 없다면 최근 일자부터 상승 이유를 반환."
 	)
 	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> filterStocksByQuery(
-		@RequestParam(name = "q") String query, @RequestParam(name = "date", required = false) LocalDate date) {
+		@RequestParam(name = "q") String code, @RequestParam(name = "date", required = false) LocalDate date) {
 
-		log.debug("request raise-reason: {} {}", query, date);
+		log.debug("request raise-reason: {} {}", code, date);
 
-		if (validationKeyword(query)) {
+		if (validationKeyword(code)) {
 			return ResponseEntity.badRequest().build();
 		}
 
-		List<GPTNewsDomain> contents = usecase.findRaiseReason(query, date);
+		List<GPTNewsDomain> contents = usecase.findRaiseReason(code, date);
 		QueryToFindRaiseReasonResponseDTO response = new QueryToFindRaiseReasonResponseDTO(
 			contents);
 

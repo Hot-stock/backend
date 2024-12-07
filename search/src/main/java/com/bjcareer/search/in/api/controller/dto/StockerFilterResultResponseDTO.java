@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StockerFilterResultResponseDTO {
 	private final String keyword;
-	private final List<Content> itmes = new ArrayList<>();
+	private final List<Content> items = new ArrayList<>();
 
 	public StockerFilterResultResponseDTO(String keyword, List<Stock> stocks) {
 		this.keyword = keyword;
@@ -20,7 +20,7 @@ public class StockerFilterResultResponseDTO {
 		for (Stock stock : stocks) {
 			List<String> themas = stock.getThemas().stream().map(t -> t.getThemaInfo().getName()).toList();
 			Content content = new Content(stock.getName(), stock.getCode(), themas);
-			this.itmes.add(content);
+			this.items.add(content);
 		}
 	}
 

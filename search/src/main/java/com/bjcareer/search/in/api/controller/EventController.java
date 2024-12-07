@@ -1,6 +1,7 @@
 package com.bjcareer.search.in.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.information.NextEventService;
+import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
+import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindNextEventReasonResponseDTO;
 
@@ -40,10 +43,10 @@ public class EventController {
 	@GetMapping("/next-schedule")
 	@Operation(summary = "이 주식의 다음 일정을 요청함", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
 	public ResponseEntity<QueryToFindNextEventReasonResponseDTO> searchNextSchedule(
-		@RequestParam(name = "q") String stockName) {
-		log.debug("request next-schedule: {}", stockName);
+		@RequestParam(name = "q") String code) {
+		log.debug("request next-schedule: {}", code);
 
-		List<GPTNewsDomain> nextSchedule = eventService.filterUpcomingEventsByStockName(stockName);
+		List<GPTNewsDomain> nextSchedule = eventService.filterUpcomingEventsByStockName(code);
 		QueryToFindNextEventReasonResponseDTO responseDTO = new QueryToFindNextEventReasonResponseDTO(
 			nextSchedule);
 

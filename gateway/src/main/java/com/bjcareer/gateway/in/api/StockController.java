@@ -21,13 +21,14 @@ import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v0/stock")
+@Slf4j
 public class StockController {
 	private final SearchServerPort port;
-	private final Logger log;
 
 	@PostMapping
 	@Operation(summary = "테마 추가 기능", description = "검색되지 않은 테마를 사용자가 추가할 수 있음.")

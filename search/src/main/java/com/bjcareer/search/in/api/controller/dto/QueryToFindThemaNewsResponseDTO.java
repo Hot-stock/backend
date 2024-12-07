@@ -6,37 +6,37 @@ import java.util.List;
 import java.util.Objects;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 
 import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public class QueryToFindRaiseReasonResponseDTO {
+public class QueryToFindThemaNewsResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
 
-	public QueryToFindRaiseReasonResponseDTO(List<GPTNewsDomain> contents) {
-		for (GPTNewsDomain gptNewsDomain : contents) {
+	public QueryToFindThemaNewsResponseDTO(List<GPTThema> contents) {
+		for (GPTThema gptThemaDomain : contents) {
 			this.items.add(
-				new Content(gptNewsDomain.getStockName(), gptNewsDomain.getNews().getTitle(), gptNewsDomain.getReason(),
-					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink(),
-					gptNewsDomain.getNews().getPubDate()));
+				new Content(gptThemaDomain.getName(), gptThemaDomain.getNews().getTitle(), gptThemaDomain.getSummary(),
+					gptThemaDomain.getNews().getImgLink(), gptThemaDomain.getNews().getOriginalLink(),
+					gptThemaDomain.getNews().getPubDate()));
 		}
 		this.total = items.size();
 	}
 
 	@Data
 	private static class Content {
-		private String stockName;
+		private String name;
 		private String title;
 		private String summary;
 		private String imgLink;
 		private String link;
 		private String date;
 
-		public Content(String stockName, String title, String summary, String imgLink, String link, LocalDate date) {
-			this.stockName = stockName;
+		public Content(String name, String title, String summary, String imgLink, String link, LocalDate date) {
+			this.name = name;
 			this.title = title;
 			this.summary = summary;
 			this.imgLink = imgLink;

@@ -5,14 +5,14 @@ import com.bjcareer.GPTService.out.api.gpt.PropertyObject;
 import com.bjcareer.GPTService.out.api.gpt.common.prompt.NextSchedulePrompt;
 import com.bjcareer.GPTService.out.api.gpt.common.prompt.PositivePrompt;
 import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonVariable;
-import com.bjcareer.GPTService.out.api.gpt.thema.prompt.RelatedFilterPrompt;
+// import com.bjcareer.GPTService.out.api.gpt.thema.prompt.RelatedFilterPrompt;
 import com.bjcareer.GPTService.out.api.gpt.thema.prompt.SummaryPrompt;
 
 public class ThemaProperties {
 	public static final String[] required = {"isRealNew", "summary", "upcomingDate", "upcomingDateReason",
 		"thema", "isPositive", "oppositeThema","isRealNewDetail"};
 
-	public PropertyDetail isRealNew = new PropertyDetail("boolean", RelatedFilterPrompt.PROMPT);
+	public PropertyDetail isRealNew = new PropertyDetail("boolean", "TT");
 	public PropertyDetail isRealNewDetail = new PropertyDetail("string", "isRealNew필드의 결과에 대한 이유를 설명하세요. 예를들면 몇 단계에서 필터링되서 결과값이 도출됐다. 답변은 한국어로 고정됩니다.");
 	public PropertyDetail isPositive = new PropertyDetail("boolean", PositivePrompt.PROMPT);
 

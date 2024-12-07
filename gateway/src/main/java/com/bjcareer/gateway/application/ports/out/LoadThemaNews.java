@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class FindRaiseReasonOfStock {
-	private final String stockName;
+public class LoadThemaNews {
+	private final String code;
+	private final String name;
 	private final LocalDate date;
 }

@@ -9,9 +9,11 @@ import org.bson.conversions.Bson;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
+import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -22,22 +24,24 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 @Slf4j
 public class DocumentAnalyzeRepository {
-	private final MongoCollection<Document> collection;
+	private final MongoCollection<Document> stockNewsCollection;
+	private final MongoCollection<Document> themaNewsCollection;
 	public static final String COLLECTION_NAME = "news";
 
 	public DocumentAnalyzeRepository(MongoClient mongoClient) {
-		collection = mongoClient.getDatabase(COLLECTION_NAME).getCollection(COLLECTION_NAME);
+		stockNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection(COLLECTION_NAME);
+		themaNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection("thema-news");
 	}
 
 	public List<GPTNewsDomain> getUpcomingNews() {
-		List<Document> documents = collection.find(Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)))
+		List<Document> documents = stockNewsCollection.find(Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)))
 			.sort(Sorts.ascending("next")).into(new ArrayList<>());
 		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
 		return result;
 	}
 
 	public List<GPTNewsDomain> getUpcomingNewsByStockName(String stockName) {
-		List<Document> documents = collection.find(
+		List<Document> documents = stockNewsCollection.find(
 			Filters.and(
 				Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)),
 				Filters.eq("stockName", stockName)
@@ -62,11 +66,51 @@ public class DocumentAnalyzeRepository {
 			);
 		}
 
-		List<Document> documents = collection.find(filter)
+		List<Document> documents = stockNewsCollection.find(filter)
 			.sort(Sorts.descending("news.pubDate"))
 			.into(new ArrayList<>());
 
 		return convertDocumentsToGPTNewsDomains(documents);
+	}
+
+	public List<GPTThema> getThemaNews(LoadThemaNewsCommand command) {
+		Bson filter = Filters.and(
+			Filters.eq("themaInfo.name", command.getThemaName()),
+			Filters.eq("isRelatedThema", true)
+		);
+
+		if (command.getDate() != null) {
+			filter = Filters.and(
+				filter,
+				Filters.eq("news.pubDate", command.getDate())
+			);
+		}
+
+		List<Document> documents = themaNewsCollection.find(filter)
+			.sort(Sorts.descending("news.pubDate"))
+			.into(new ArrayList<>());
+
+		return convertDocumentsToGPTThemaDomains(documents, command.getThemaName());
+	}
+
+	private List<GPTThema> convertDocumentsToGPTThemaDomains(List<Document> documents, String themaName) {
+		List<GPTThema> result = new ArrayList<>();
+
+		for (Document document : documents) {
+			GPTThema gptThema = changeDocumentToGPTThemaDomain(document, themaName);
+			result.add(gptThema);
+		}
+
+		return result;
+	}
+
+	private GPTThema changeDocumentToGPTThemaDomain(Document document, String themaName) {
+		String summary = document.getString("summary");
+		String upComingDate = getUpComingDate(document);
+		String upComingDateReason = document.getString("upcomingDateReasonFact");
+		News news = changeDocumentToNewsDomain(document);
+
+		return new GPTThema(themaName, summary, upComingDate, upComingDateReason, news);
 	}
 
 	private List<GPTNewsDomain> convertDocumentsToGPTNewsDomains(List<Document> documents) {
@@ -115,6 +159,13 @@ public class DocumentAnalyzeRepository {
 	private String getDate(Document document) {
 		if (document.getDate("next") != null) {
 			return document.getDate("next").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate().toString();
+		}
+		return "";
+	}
+
+	private String getUpComingDate(Document document) {
+		if (document.getDate("upcomingDate") != null) {
+			return document.getDate("upcomingDate").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate().toString();
 		}
 		return "";
 	}

@@ -12,12 +12,13 @@ import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class EventController {
 	private final SearchServerPort searchServerPort;
-	private final Logger log;
 
 	@GetMapping("/api/v0/event")
 	@Operation(summary = "앞으로 남은 일정들 조회 가능", description = "앞으로 남은 일정들을 사용자에게 알려줍니다."

@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
+import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThema;
 
 @SpringBootTest
 class DocumentAnalyzeRepositoryTest {
@@ -48,6 +50,17 @@ class DocumentAnalyzeRepositoryTest {
 		for (GPTNewsDomain gptNewsDomain : reason) {
 			assertEquals(gptNewsDomain.getStockName(), target);
 			assertEquals(gptNewsDomain.getNews().getPubDate(), LocalDate.now());
+		}
+	}
+
+	@Test
+	void 테마이름을_찾을_수_있는지_체크() {
+		String target = "이재명";
+		LoadThemaNewsCommand command = new LoadThemaNewsCommand(target, null);
+		List<GPTThema> reason = documentAnalyzeRepository.getThemaNews(command);
+
+		for (GPTThema thema : reason) {
+			assertEquals(target, thema.getName(), "테마 이름이 일치하지 않습니다.");
 		}
 	}
 

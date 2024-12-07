@@ -7,17 +7,17 @@ import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public class RaiseReasonResponseDTO {
+public class ThemaNewsResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
 
 	@Data
 	private static class Content {
+		private String name;
 		private String title;
-		private String stockName;
 		private String summary;
 		private String imgLink;
-		private String date;
 		private String link;
+		private String date;
 	}
 }

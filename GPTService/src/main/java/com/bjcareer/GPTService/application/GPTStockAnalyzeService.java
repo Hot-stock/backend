@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.application;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.bjcareer.GPTService.application.aop.AnalyzeThema;
 import com.bjcareer.GPTService.application.port.in.AnalyzeStockNewsCommand;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
-import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.in.dtos.RankingStocksDTO;
@@ -70,12 +70,15 @@ public class GPTStockAnalyzeService {
 	}
 
 	@AnalyzeThema
-	public void analyzeRankingStock(RankingStocksDTO command) {
+	public List<GPTNewsDomain> analyzeRankingStock(RankingStocksDTO command) {
+		List<GPTNewsDomain> rankingNews = new ArrayList<>();
 		AnalyzeBestNews analyzeBestNews = new AnalyzeBestNews();
 		for (String stockName : command.getRankingStocks()) {
 			if (!redisMarketRankAdapter.isExistInCache(stockName)) {
 				log.info("analyze-ranking-stock start: {}", stockName);
 				List<GPTNewsDomain> gptNewsDomains = this.analyzeStockNewsByDateWithStockName(command.getBaseAt(), stockName);
+				rankingNews.addAll(gptNewsDomains);
+
 				Optional<GPTNewsDomain> optBestNews = analyzeBestNews.getBestNews(gptNewsDomains);// 가장 좋은 뉴스를 찾아서 처리
 				optBestNews.ifPresent(redisMarketRankAdapter::updateRankingNews);
 			}else{
@@ -83,6 +86,8 @@ public class GPTStockAnalyzeService {
 				redisMarketRankAdapter.updateRankingNewsByStockName(stockName);
 			}
 		}
+
+		return rankingNews;
 	}
 
 	private Optional<GPTNewsDomain> processAnalyzeNewsLink(String newsLink) {

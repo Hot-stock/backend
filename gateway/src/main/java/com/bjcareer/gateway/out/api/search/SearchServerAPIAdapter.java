@@ -11,11 +11,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.bjcareer.gateway.application.ports.in.StockInfoCommand;
-import com.bjcareer.gateway.application.ports.out.FindRaiseReasonOfStock;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
+import com.bjcareer.gateway.application.ports.out.LoadRaiseReasonOfStock;
+import com.bjcareer.gateway.application.ports.out.LoadThemaNews;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ErrorDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
@@ -25,6 +25,7 @@ import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
 	private final WebClient webClient;
-	private final Logger log;
 
-	public SearchServerAPIAdapter(@Qualifier("searchWebClient") WebClient webClient, Logger logger) {
+	public SearchServerAPIAdapter(@Qualifier("searchWebClient") WebClient webClient) {
 		this.webClient = webClient;
-		this.log = logger;
 	}
 
 	@Override
@@ -84,9 +83,9 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 	}
 
 	@Override
-	public ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(FindRaiseReasonOfStock command) {
+	public ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(LoadRaiseReasonOfStock command) {
 		String uri = UriComponentsBuilder.fromUriString(SearchServerURI.FIND_RAISE_REASON)
-			.queryParam("q", command.getStockName()) // stockName은 항상 추가
+			.queryParam("q", command.getStockCode()) // stockName은 항상 추가
 			.queryParamIfPresent("date", Optional.ofNullable(command.getDate())) // date는 null이 아니면 추가
 			.toUriString();
 
@@ -98,6 +97,32 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 		log.info("Response of {} {}", SearchServerURI.FIND_RAISE_REASON, res.statusCode());
 		if (res.statusCode().is2xxSuccessful()) {
 			RaiseReasonResponseDTO responseDTO = res.bodyToMono(RaiseReasonResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of addStockInfo: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command) {
+		String uri = UriComponentsBuilder.fromUriString(SearchServerURI.FIND_THEMA_NEWS)
+			.queryParam("q", command.getName())
+			.queryParam("theme", command.getName())
+			.queryParamIfPresent("date", Optional.ofNullable(command.getDate())) // date는 null이 아니면 추가
+			.toUriString();
+
+		System.out.println("res = " + uri);
+
+		ClientResponse res = webClient.get()
+			.uri(uri)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.FIND_RAISE_REASON, res.statusCode());
+		if (res.statusCode().is2xxSuccessful()) {
+			ThemaNewsResponseDTO responseDTO = res.bodyToMono(ThemaNewsResponseDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();

@@ -8,6 +8,7 @@ import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
 public interface SearchServerPort {
@@ -19,5 +20,6 @@ public interface SearchServerPort {
 	ResponseDomain<CandleResponseDTO> getOHLC(String code, String period);
 	ResponseDomain<NextEventNewsDTO> getNextEventNews();
 
-	ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(FindRaiseReasonOfStock command);
+	ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(LoadRaiseReasonOfStock command);
+	ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command);
 }

@@ -14,7 +14,6 @@ import com.bjcareer.gateway.application.ports.in.LogoutCommand;
 import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.in.api.request.LoginRequestDTO;
@@ -24,13 +23,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/v0/auth")
 public class AuthController {
 	private final AuthServerPort port;
-	private final Logger log;
 
 	@PostMapping("/login")
 	@Operation(summary = "로그인 요청", description = "로그인 요청 기능입니다.", responses = {

@@ -14,7 +14,7 @@ import lombok.Getter;
 @Getter
 public class SearchResultResponseDTO {
 	private final String keyword;
-	private final List<StockDTO> results;
+	private final List<StockDTO> items;
 
 	@JsonIgnore
 	private final Map<String, StockDTO> map = new HashMap<>();
@@ -33,7 +33,7 @@ public class SearchResultResponseDTO {
 			map.put(result.getStock().getName(), stockDTO);
 		});
 
-		results = map.values().stream().toList();
+		items = map.values().stream().toList();
 	}
 
 	@Getter

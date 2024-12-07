@@ -22,14 +22,15 @@ import com.bjcareer.gateway.out.api.timeDeal.response.ParticipationEventResponse
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v0/time-deal")
+@Slf4j
 public class TimeDealController {
 	private final TimeDealServerPort port;
 	private final CouponEventPushUsecase usecase;
-	private final Logger log;
 
 	@PostMapping("/tickets/{eventId}")
 	@Operation(summary = "eventId에 참여하는 API", description = "eventId에 참여하는 API 결과는 SSE로 전달됨")

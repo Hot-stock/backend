@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StockerFilterResultResponseDTO {
 	private String keyword;
-	private List<Content> itmes;
+	private List<Content> items;
 
 	@Getter
 	static class Content {

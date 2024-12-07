@@ -11,28 +11,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
-import com.bjcareer.gateway.application.ports.out.FindRaiseReasonOfStock;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
+import com.bjcareer.gateway.application.ports.out.LoadRaiseReasonOfStock;
+import com.bjcareer.gateway.application.ports.out.LoadThemaNews;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.KeywordCountResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class SearchController {
 	private final KeywordServerPort keywordServerPort;
 	private final SearchServerPort searchServerPort;
-	private final Logger log;
 
 	@GetMapping("/api/v0/search/keyword")
 	@APIRateLimit
@@ -79,7 +81,7 @@ public class SearchController {
 	public ResponseEntity<ResponseDomain<StockerFilterResultResponseDTO>> filterStocksByQuery(
 		@RequestParam(name = "q") String query,
 		HttpServletRequest request) {
-		log.info("Request query: {}", query);
+		log.info("Request search query: {}", query);
 		if (validationKeyword(query)) {
 			log.debug("Request query is empty");
 			return ResponseEntity.badRequest().build();
@@ -100,10 +102,26 @@ public class SearchController {
 		HttpServletRequest request) {
 
 		log.info("Request query: {} {}", query, date);
-		FindRaiseReasonOfStock findRaiseReasonOfStock = new FindRaiseReasonOfStock(query, date);
+		LoadRaiseReasonOfStock loadRaiseReasonOfStock = new LoadRaiseReasonOfStock(query, date);
 		ResponseDomain<RaiseReasonResponseDTO> res = searchServerPort.findRaiseReasonOfStock(
-			findRaiseReasonOfStock);
+			loadRaiseReasonOfStock);
 
+		return new ResponseEntity<>(res, res.getStatusCode());
+	}
+
+	@GetMapping("/api/v0/search/news/thema")
+	@Operation(summary = "테마 뉴스 조회", description = "사용자가 요청한 테마를 기반으로 검색된 뉴스를 돌려줍니다.")
+	public ResponseEntity<ResponseDomain<ThemaNewsResponseDTO>> searchThemaNews(@RequestParam(name = "q") String code,
+		@RequestParam(name = "date", required = false) LocalDate date,
+		@RequestParam(name = "theme", required = false, defaultValue = "ALL") String theme, HttpServletRequest request) {
+		log.info("Request query: {} {} {}", code, date, theme);
+
+		if (validationKeyword(code)) {
+			log.debug("Request query is empty");
+			return ResponseEntity.badRequest().build();
+		}
+
+		ResponseDomain<ThemaNewsResponseDTO> res = searchServerPort.findThemaNews(new LoadThemaNews(code, theme, date));
 		return new ResponseEntity<>(res, res.getStatusCode());
 	}
 

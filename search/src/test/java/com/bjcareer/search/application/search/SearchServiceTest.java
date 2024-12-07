@@ -29,7 +29,7 @@ class SearchServiceTest {
 	SearchService searchService;
 
 	@Test
-	void 주어진_키워드로_검색결과를_반환하는지() {
+	void 주어진_키워드로__검색결과를_반환하는지() {
 		//given
 		String keyword = "중국";
 		int page = 0;
