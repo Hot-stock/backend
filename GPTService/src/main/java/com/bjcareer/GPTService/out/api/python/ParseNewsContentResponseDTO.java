@@ -34,4 +34,8 @@ public class ParseNewsContentResponseDTO {
 		}
 		return text;
 	}
+
+	public void setPublishDate(String publishDate) {
+		this.publishDate = publishDate;
+	}
 }

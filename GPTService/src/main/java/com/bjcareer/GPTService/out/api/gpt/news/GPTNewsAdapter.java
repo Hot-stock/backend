@@ -40,6 +40,11 @@ public class GPTNewsAdapter {
 				.getMessage()
 				.getParsedContent();
 
+			if(parsedContent == null) {
+				log.warn("Parsed content is null");
+				return Optional.empty();
+			}
+
 			if (!parsedContent.isRelevant()) {
 				log.warn("Wrong Parsed content: {}", parsedContent);
 			}
