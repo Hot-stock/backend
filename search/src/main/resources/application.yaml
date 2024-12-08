@@ -41,6 +41,8 @@ server:
       force: true
       enabled: true
 
+  port: 8090
+
 management:
   endpoints:
     web:
@@ -74,3 +76,6 @@ GPT:
 
 python-search:
   address: http://${PYTHON_PUBLIC_SEARCH_SERVER_ADDRESS}:${PYTHON_SEARCH_SERVER_PORT}
+analyze-search:
+  address: http://localhost:8080
+
