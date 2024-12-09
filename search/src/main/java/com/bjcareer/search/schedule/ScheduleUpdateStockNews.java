@@ -27,10 +27,11 @@ public class ScheduleUpdateStockNews {
 	private final AnalyzeServiceServerAdapter analyzeServiceServerAdapter;
 	private final TossServerAdapter tossServerAdapter;
 
-	@Scheduled(fixedDelay = 10000000)
+
+	@Scheduled(cron = "40 4 * * * *")
 	@Transactional
 	public void updateNewsOfStock() {
-		List<Stock> stocks = stockRepository.findAll();
+		List<Stock> stocks = stockRepository.findAll().reversed();
 
 		for (Stock stock : stocks) {
 			CandleResponseDTO res = tossServerAdapter.getStockPriceURI(stock.getCode(), "day");
@@ -49,8 +50,6 @@ public class ScheduleUpdateStockNews {
 				log.info("Stock: {} candles: {}", stock.getName(), target);
 				analyzeServiceServerAdapter.updateNewsOfStock(stock.getName(), target.toString());
 			}
-
-			//bulk insert
 		}
 	}
 
