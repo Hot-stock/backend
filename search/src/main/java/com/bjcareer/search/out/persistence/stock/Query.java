@@ -5,5 +5,5 @@ public class Query {
 	public static final String FIND_STOCK_BY_NAME = "SELECT s FROM Stock s WHERE s.name = :name";
 	public static final String FIND_ALL = "SELECT s FROM Stock s";
 
-	public static final String FILTER_STOCK_BY_KEYWORD = "SELECT s FROM Stock s LEFT JOIN FETCH s.themas t LEFT JOIN FETCH t.themaInfo WHERE s.name LIKE :keyword";
+	public static final String FILTER_STOCK_BY_KEYWORD = "SELECT s FROM Stock s LEFT JOIN FETCH s.themas t LEFT JOIN FETCH t.themaInfo WHERE s.name LIKE :keyword ORDER BY s.name";
 }
