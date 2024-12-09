@@ -51,7 +51,7 @@ public class AnalyzeEventHandler {
 			log.debug("Extracted Thema: {}", gptThema.get());
 			ThemaInfo themaInfo = gptThema.get().getThemaInfo();
 
-			if (themaInfo.getName().isEmpty()) {
+			if (themaInfo.getName().isEmpty() && !gptThema.get().isRelatedThema()) {
 				log.debug("추출된 테마가 없습니다.");
 				return;
 			}

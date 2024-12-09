@@ -2,7 +2,10 @@ package com.bjcareer.GPTService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -39,19 +42,29 @@ class TrainStockServiceTest {
 
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
-		String stockName = "제우스";
+		String stockName = "이스타코";
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 11, 25);
-		LocalDate endDate = LocalDate.now();
+		LocalDate startDate = LocalDate.of(2024, 12, 9);
+		LocalDate endDate = LocalDate.of(2024, 12, 9);
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(stockName, startDate, endDate));
 
-		for (NewsResponseDTO newsResponseDTO : newsResponseDTOS) {
+		Map<String, NewsResponseDTO> newsMap = new HashMap<>();
+
+		newsResponseDTOS.stream()
+			.filter(Objects::nonNull)
+			.map(t -> newsMap.putIfAbsent(t.getLink(), t)).toList();
+
+		List<NewsResponseDTO> target = new ArrayList<>(newsMap.values());
+		System.out.println("target.size() = " + target.get(0));
+
+		for (NewsResponseDTO newsResponseDTO : target) {
+			System.out.println("newsResponseDTO = " + newsResponseDTO);
 			pythonSearchServerAdapter.fetchNewsBody(
-				newsResponseDTO.getLink()).ifPresent(targetNews::add);
+				newsResponseDTO.getLink(), startDate).ifPresent(targetNews::add);
 		}
 
 		processNews(targetNews, stockName);

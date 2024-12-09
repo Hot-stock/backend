@@ -35,11 +35,11 @@ class TrainThemaServiceTest {
 
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
-		String keyword = "진성티이씨";
+		String keyword = "코나아이";
 		String fileName = "./test-4o-mini" + keyword + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 11, 26);
+		LocalDate startDate = LocalDate.of(2024, 12, 8);
 		LocalDate endDate = LocalDate.now();
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
@@ -47,7 +47,7 @@ class TrainThemaServiceTest {
 
 		for (NewsResponseDTO newsResponseDTO : newsResponseDTOS) {
 			pythonSearchServerAdapter.fetchNewsBody(
-				newsResponseDTO.getLink()).ifPresent(targetNews::add);
+				newsResponseDTO.getLink(), startDate).ifPresent(targetNews::add);
 		}
 
 		processNews(targetNews, "우크라이나 재건, 인프라 투자");

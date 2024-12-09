@@ -46,8 +46,7 @@ public class PythonSearchServerAdapter {
 	}
 
 	public Optional<OriginalNews> fetchNewsBody(String link, LocalDate date) {
-		String encodedLink = URLEncoder.encode(link, StandardCharsets.UTF_8);
-		String url = address + PythonServerURI.PARSE_CONTENT + encodedLink;
+		String url = address + PythonServerURI.PARSE_CONTENT + link;
 		log.debug("Requesting news body for link: {}", url);
 
 		Optional<ParseNewsContentResponseDTO> responseDTO = fetchFromServer(url,

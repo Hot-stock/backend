@@ -39,8 +39,8 @@ public class GPTThemaResponseDTO {
 
 	@Data
 	public static class Content {
-		@JsonProperty("isRealNew")
-		private boolean isRealNew;
+		@JsonProperty("isRealNews")
+		private boolean isRealNews;
 		@JsonProperty("isPositive")
 		private boolean isPositive;
 

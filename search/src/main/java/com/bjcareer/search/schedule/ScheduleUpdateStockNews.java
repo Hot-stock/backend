@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.out.api.analyze.AnalyzeServiceServerAdapter;
 import com.bjcareer.search.out.api.toss.TossServerAdapter;
@@ -27,8 +26,7 @@ public class ScheduleUpdateStockNews {
 	private final AnalyzeServiceServerAdapter analyzeServiceServerAdapter;
 	private final TossServerAdapter tossServerAdapter;
 
-
-	@Scheduled(cron = "40 4 * * * *")
+	@Scheduled(fixedDelay = 300000)
 	@Transactional
 	public void updateNewsOfStock() {
 		List<Stock> stocks = stockRepository.findAll().reversed();
@@ -37,19 +35,16 @@ public class ScheduleUpdateStockNews {
 			CandleResponseDTO res = tossServerAdapter.getStockPriceURI(stock.getCode(), "day");
 
 			List<CandleResponseDTO.Result.Candle> candles = res.getResult().getCandles();
+			double upPoint = getUpPoint(candles, 0);
+			String date = candles.get(0).getStartDate().split("T")[0];
+			LocalDate target = LocalDate.parse(date).plusDays(1);
 
-			for (int i = 0; i < candles.size(); i++) {
-				double upPoint = getUpPoint(candles, i);
-
-				if (upPoint < 6) {
-					continue;
-				}
-				String date = candles.get(i).getStartDate().split("T")[0];
-				LocalDate target = LocalDate.parse(date).plusDays(1);
-
-				log.info("Stock: {} candles: {}", stock.getName(), target);
-				analyzeServiceServerAdapter.updateNewsOfStock(stock.getName(), target.toString());
+			if (upPoint < 6) {
+				continue;
 			}
+
+			log.info("Stock: {} candles: {}", stock.getName(), target);
+			analyzeServiceServerAdapter.updateNewsOfStock(stock.getName(), target.toString());
 		}
 	}
 
