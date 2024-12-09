@@ -24,7 +24,7 @@ class GPTThemaAdapterTest {
 	@Test
 	void test() {
 		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"https://www.widedaily.com/news/articleView.html?idxno=252027");
+			"https://www.widedaily.com/news/articleView.html?idxno=252027", null);
 
 		Optional<GPTThema> gptThema = gptThemaAdapter.summaryThemaNews(originalNews.get(), "우크라이나 재건");
 		assertTrue(gptThema.isPresent());

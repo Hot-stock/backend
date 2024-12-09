@@ -40,12 +40,12 @@ public class GPTThemaAdapter {
 				.getMessage()
 				.getParsedContent();
 
-			if (!parsedContent.isRealNew()) {
+			if (!parsedContent.isRealNews()) {
 				log.warn("The response is not related to the topic.");
 			}
 
 			return Optional.of(
-				new GPTThema(parsedContent.isRealNew(), parsedContent.isPositive(), parsedContent.getSummary(),
+				new GPTThema(parsedContent.isRealNews(), parsedContent.isPositive(), parsedContent.getSummary(),
 					parsedContent.getUpcomingDate(), parsedContent.getUpcomingDateReason().getFact(),
 					parsedContent.getUpcomingDateReason().getOpinion(), news,
 				new ThemaInfo(parsedContent.getThema().getName(), parsedContent.getThema().getReason())));

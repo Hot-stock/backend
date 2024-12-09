@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.bjcareer.search.application.CommonValidations;
 import com.bjcareer.search.application.port.in.GetInsightCommand;
 import com.bjcareer.search.application.port.in.InsightUsecase;
-import com.bjcareer.search.application.port.out.api.GPTNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
@@ -23,8 +22,6 @@ public class InsightService implements InsightUsecase {
 
 	private final StockRepositoryPort stockRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
-
-	private final GPTNewsPort gptNewsPort;
 
 	@Override
 	public void getInsight(GetInsightCommand command) {

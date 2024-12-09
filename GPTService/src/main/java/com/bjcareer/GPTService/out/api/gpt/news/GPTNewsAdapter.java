@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AXJ0izFn";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AcOoOpPg";
 	private final WebClient webClient;
 
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
@@ -39,6 +39,11 @@ public class GPTNewsAdapter {
 				.get(0)
 				.getMessage()
 				.getParsedContent();
+
+			if(parsedContent == null) {
+				log.warn("Parsed content is null");
+				return Optional.empty();
+			}
 
 			if (!parsedContent.isRelevant()) {
 				log.warn("Wrong Parsed content: {}", parsedContent);

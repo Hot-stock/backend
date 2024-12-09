@@ -3,6 +3,7 @@ package com.bjcareer.GPTService.out.api.python;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,9 +45,8 @@ public class PythonSearchServerAdapter {
 		return newsResponseDTOS.get();
 	}
 
-	public Optional<OriginalNews> fetchNewsBody(String link) {
-		String encodedLink = URLEncoder.encode(link, StandardCharsets.UTF_8);
-		String url = address + PythonServerURI.PARSE_CONTENT + encodedLink;
+	public Optional<OriginalNews> fetchNewsBody(String link, LocalDate date) {
+		String url = address + PythonServerURI.PARSE_CONTENT + link;
 		log.debug("Requesting news body for link: {}", url);
 
 		Optional<ParseNewsContentResponseDTO> responseDTO = fetchFromServer(url,
@@ -58,10 +58,13 @@ public class PythonSearchServerAdapter {
 			return Optional.empty();
 		} else {
 			log.debug("Fetched news body for link: {}", link);
-
 			ParseNewsContentResponseDTO parseNewsContentResponseDTO = responseDTO.get();
+
+			if (parseNewsContentResponseDTO.getPublishDate() == null){
+				parseNewsContentResponseDTO.setPublishDate(date.toString());
+			}
 			return Optional.of(new OriginalNews(parseNewsContentResponseDTO.getTitle(), link,
-				parseNewsContentResponseDTO.getImgLink(), parseNewsContentResponseDTO.getPublishDate(),
+				parseNewsContentResponseDTO.getImgLink(), date.toString(),
 				parseNewsContentResponseDTO.getText()));
 		}
 	}

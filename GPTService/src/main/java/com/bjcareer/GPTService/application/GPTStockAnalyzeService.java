@@ -39,7 +39,7 @@ public class GPTStockAnalyzeService {
 	@AnalyzeThema
 	public GPTNewsDomain analyzeStockNewsByNewsLink(AnalyzeStockNewsCommand command) {
 		if (isNewsNotProcessed(command.getNewsLink())) {
-			Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink());
+			Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink(), LocalDate.now());
 			optionalGPTNewsDomain.ifPresent(gptStockNewsRepository::save);
 		}
 
@@ -56,7 +56,7 @@ public class GPTStockAnalyzeService {
 
 		newsLinks.stream()
 			.filter(n -> isNewsNotProcessed(n.getLink()))
-			.map(n -> processAnalyzeNewsLink(n.getLink()))
+			.map(n -> processAnalyzeNewsLink(n.getLink(), date))
 			.flatMap(Optional::stream)
 			.map(gptStockNewsRepository::save)
 			.toList();
@@ -90,9 +90,9 @@ public class GPTStockAnalyzeService {
 		return rankingNews;
 	}
 
-	private Optional<GPTNewsDomain> processAnalyzeNewsLink(String newsLink) {
+	private Optional<GPTNewsDomain> processAnalyzeNewsLink(String newsLink, LocalDate date) {
 		log.info("Processing news link: {}", newsLink);
-		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(newsLink);
+		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(newsLink, date);
 
 		if (originalNews.isEmpty()) {
 			log.error("Failed to fetch news body for link: {}", newsLink);

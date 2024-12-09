@@ -36,7 +36,7 @@ public class GPTThemaNewsAnalyzeService {
 			new NewsCommand(keyword, date, date));
 
 		return newsResponseDTOS.stream()
-			.map(n -> pythonSearchServerAdapter.fetchNewsBody(n.getLink()))
+			.map(n -> pythonSearchServerAdapter.fetchNewsBody(n.getLink(), date))
 			.flatMap(Optional::stream)
 			.toList();
 	}
