@@ -43,7 +43,7 @@ class GPTStockNewsServiceTest {
 		AnalyzeStockNewsCommand command = new AnalyzeStockNewsCommand("www.naver.com");
 		OriginalNews originalNews = new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서");
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
-			"더위가 심해진다", originalNews, true);
+			"더위가 심해진다", originalNews, true, "");
 		when(gptStockNewsRepository.findByLink(anyString())).thenReturn(Optional.of(gptNewsDomain));
 
 		GPTNewsDomain gptStockNews = gptStockNewsService.analyzeStockNewsByNewsLink(command);
@@ -60,7 +60,7 @@ class GPTStockNewsServiceTest {
 
 		OriginalNews originalNews = new OriginalNews("배럴", "fakeLink", "img_fake", TestUtil.PUB_DATE, "더위가 심해지면서");
 		GPTNewsDomain gptNewsDomain = new GPTNewsDomain("배럴", "더위", "2021-07-01", "더위가 심해지면서",
-			"더위가 심해진다", originalNews, true);
+			"더위가 심해진다", originalNews, true, "");
 
 		when(pythonSearchServerAdapter.fetchNews(any())).thenReturn(result);
 		when(gptStockNewsRepository.findByLink(result.get(0).getLink())).thenReturn(Optional.of(gptNewsDomain));
