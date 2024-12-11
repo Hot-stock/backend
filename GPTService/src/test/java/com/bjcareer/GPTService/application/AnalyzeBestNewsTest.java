@@ -21,9 +21,9 @@ class AnalyzeBestNewsTest {
 
 		// when
 		Optional<GPTNewsDomain> bestNews = analyzeBestNews.getBestNews(List.of(
-			new GPTNewsDomain("배럴", "", "", "", "", originalNews, true),
-			new GPTNewsDomain("배럴", "이유1", null, "", "다음이유2", originalNews, true),
-			new GPTNewsDomain("배럴", "이유2", null, "다음이유1", "다음이유3", originalNews, true)
+			new GPTNewsDomain("배럴", "", "", "", "", originalNews, true, ""),
+			new GPTNewsDomain("배럴", "이유1", null, "", "다음이유2", originalNews, true, ""),
+			new GPTNewsDomain("배럴", "이유2", null, "다음이유1", "다음이유3", originalNews, true, "")
 		));
 
 		// then
