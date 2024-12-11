@@ -52,7 +52,7 @@ public class GPTNewsAdapter {
 			return Optional.of(
 				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(),
 					parsedContent.getNextReason().getFact(), parsedContent.getNextReason().getOpinion(), originalNews,
-					parsedContent.isRelevant()));
+					parsedContent.isRelevant(), parsedContent.getRelevantDetail()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
@@ -65,10 +65,9 @@ public class GPTNewsAdapter {
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "뉴스를 분석해줘");
 
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message));
+		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
-
 		return new GPTNewsRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
