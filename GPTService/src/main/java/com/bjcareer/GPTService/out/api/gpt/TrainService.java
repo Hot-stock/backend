@@ -2,7 +2,6 @@ package com.bjcareer.GPTService.out.api.gpt;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,12 +54,14 @@ public class TrainService {
 		private final String name;
 		private final String reason;
 		private final String next;
+		private final String relevantDetail;
 		@JsonProperty("next_reason")
 		private final NextScheduleReasonResponseDTO nextReason;
 
-		public NewsPrompt(boolean isRelevant, String name, String reason, String next,
+		public NewsPrompt(boolean isRelevant, String relevantDetail, String name, String reason, String next,
 			NextScheduleReasonResponseDTO nextReason) {
 			this.isRelevant = isRelevant;
+			this.relevantDetail = relevantDetail;
 			this.name = name;
 			this.reason = reason;
 			this.next = next;
@@ -87,38 +88,29 @@ public class TrainService {
 
 	@Getter
 	public static class GPTTrainThema {
-		@JsonProperty("isRealNew")
-		private final boolean isRealNew;
+
 		@JsonProperty("isPositive")
-		private final boolean isPositive;
-		private final String summary;
-		private final String upcomingDate;
-		private final NextScheduleReasonResponseDTO upcomingDateReason;
-		private final ThemaInfo thema;
+		private boolean isPositive;
+		@JsonProperty("isRelated")
+		private boolean isRelated;
+		private String relatedDetail;
+		private List<ThemaInfo> thema;
 
-		public GPTTrainThema(boolean isPositive, String summary, LocalDate upcomingDate,
-			NextScheduleReasonResponseDTO upcomingDateReason, ThemaInfo thema, boolean isRealNew) {
+		public GPTTrainThema(boolean isRelated, boolean isPositive, String relatedDetail, List<ThemaInfo> thema) {
+			this.isRelated = isRelated;
 			this.isPositive = isPositive;
-			this.summary = summary;
-
-			if (upcomingDate != null) {
-				this.upcomingDate = upcomingDate.toString();
-			} else {
-				this.upcomingDate = "";
-			}
-			this.upcomingDateReason = upcomingDateReason;
+			this.relatedDetail = relatedDetail;
 			this.thema = thema;
-			this.isRealNew = isRealNew;
-		}
-
-		@JsonProperty("isRealNew") // 명시적으로 JSON 키 설정
-		public boolean getIsRealNew() {
-			return isRealNew;
 		}
 
 		@JsonProperty("isPositive") // 명시적으로 JSON 키 설정
 		public boolean getIsPositive() {
 			return isPositive;
+		}
+
+		@JsonProperty("isRelated") // 명시적으로 JSON 키 설정
+		public boolean getIsRelated() {
+			return isRelated;
 		}
 	}
 
