@@ -18,6 +18,22 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  kafka:
+    bootstrap-servers: ${KAFKA_PRIVATE_ADDRESS}:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: manual
+    template:
+      default-topic: dead-letter-topic
+
 
 redis:
   address: redis://${REDIS_PRIVATE_ADDRESS}:${REDIS_PORT}
