@@ -29,22 +29,24 @@ public class GPTThemaNewsAnalyzeService {
 	private final GPTThemaNewsRepository gptThemaNewsRepository;
 
 	public List<GPTThema> analyzeThemaNewsByNewsLink(AnalyzeThemaNewsCommand command) {
-		List<OriginalNews> originalNews = fetchNewsForThem(command.getDate(), command.getKeyword());
-		String themas = redisThemaRepository.loadThema();
+		// List<OriginalNews> originalNews = fetchNewsForThem(command.getDate(), command.getKeyword());
+		// String themas = redisThemaRepository.loadThema();
+		//
+		// List<GPTThema> gptThemas = fetchThemaFromNewsAndSaveDB(originalNews, themas);
+		//
+		// if (themas.isEmpty()) {
+		// 	return gptThemas.stream().filter(GPTThema::isRelatedThema).toList();
+		// } else {
+		// 	List<GPTThema> result = gptThemas.stream()
+		// 		.map(gptThemaNewsRepository::save)
+		// 		.filter(GPTThema::isRelatedThema)
+		// 		.toList();
+		// 	result.forEach(t -> redisThemaRepository.updateThema(t.getThemaInfo().getName()));
+		// 	return result;
+		//
+		// }
 
-		List<GPTThema> gptThemas = fetchThemaFromNewsAndSaveDB(originalNews, themas);
-
-		if (themas.isEmpty()) {
-			return gptThemas.stream().filter(GPTThema::isRelatedThema).toList();
-		} else {
-			List<GPTThema> result = gptThemas.stream()
-				.map(gptThemaNewsRepository::save)
-				.filter(GPTThema::isRelatedThema)
-				.toList();
-			result.forEach(t -> redisThemaRepository.updateThema(t.getThemaInfo().getName()));
-			return result;
-
-		}
+		return null;
 	}
 
 	private List<OriginalNews> fetchNewsForThem(LocalDate date, String keyword) {

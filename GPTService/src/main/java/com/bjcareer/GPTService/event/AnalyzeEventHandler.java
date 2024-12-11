@@ -1,5 +1,6 @@
 package com.bjcareer.GPTService.event;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.event.EventListener;
@@ -8,12 +9,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
-import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
+import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
-import com.bjcareer.GPTService.in.dtos.ThemaInfoResponseDTO;
-import com.bjcareer.GPTService.out.api.gpt.thema.GPTThemaAdapter;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTThemaNewsRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class AnalyzeEventHandler {
-	private final GPTThemaAdapter gptThemaAdapter;
-	private final KafkaTemplate<String, ThemaInfo> kafkaTemplate;
+	private final GPTThemaOfStockNewsAdapter gptThemaOfStockNewsAdapter;
+	private final KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final GPTThemaNewsRepository gptThemaNewsRepository;
 	private final RedisThemaRepository redisThemaRepository;
+	private final ObjectMapper objectMapper;
 
 	@EventListener
 	@Async
@@ -45,20 +48,47 @@ public class AnalyzeEventHandler {
 			return;
 		}
 
-		Optional<GPTThema> gptThema = gptThemaAdapter.summaryThemaNews(news.getNews(), thema);
+		Optional<GPTStockThema> byLink = gptThemaNewsRepository.findByLink(news.getLink());
+
+		if (byLink.isPresent()) {
+			GPTStockThema gptStockThema = byLink.get();
+			log.debug("Already Extracted Thema: {}", gptStockThema.getThemaInfo());
+			return;
+		}
+
+		Optional<GPTStockThema> gptThema = gptThemaOfStockNewsAdapter.getThema(news, thema);
 
 		if (gptThema.isPresent()) {
 			log.debug("Extracted Thema: {}", gptThema.get());
-			ThemaInfo themaInfo = gptThema.get().getThemaInfo();
+			GPTStockThema gptStockThema = gptThema.get();
 
-			if (themaInfo.getName().isEmpty() && !gptThema.get().isRelatedThema()) {
-				log.debug("추출된 테마가 없습니다.");
+			if (!gptStockThema.isRelated()) {
 				return;
 			}
 
-			kafkaTemplate.send("thema-topic", themaInfo);
-			redisThemaRepository.updateThema(themaInfo.getName());
-			gptThemaNewsRepository.save(gptThema.get());
+			gptThemaNewsRepository.save(gptStockThema);
+			List<ThemaInfo> themaInfo = gptThema.get().getThemaInfo();
+			themaInfo.forEach(this::sendThemaToKafka);
 		}
+	}
+
+	private void sendThemaToKafka(ThemaInfo themaInfo) {
+		log.debug("Send Thema to Kafka: {}", themaInfo);
+		if (!isNeedToSendToKafka(themaInfo)) {
+			return;
+		}
+
+		try {
+			byte[] bytes = objectMapper.writeValueAsBytes(themaInfo);
+			kafkaTemplate.send("thema-topic", bytes);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+
+		redisThemaRepository.updateThema(themaInfo.getName());
+	}
+
+	private boolean isNeedToSendToKafka(ThemaInfo themaInfo) {
+		return !themaInfo.getName().isEmpty() && !themaInfo.getStockName().isEmpty();
 	}
 }

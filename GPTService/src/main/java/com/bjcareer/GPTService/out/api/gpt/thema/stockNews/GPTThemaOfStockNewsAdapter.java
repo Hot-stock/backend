@@ -37,6 +37,15 @@ public class GPTThemaOfStockNewsAdapter {
 				.getMessage()
 				.getParsedContent();
 
+			if(parsedContent == null) {
+				log.warn("Parsed content is null");
+				return Optional.empty();
+			}
+
+			if(!parsedContent.isRelated()) {
+				log.warn("Wrong Parsed content: {}", parsedContent);
+			}
+
 			List<ThemaInfo> themaInfos = parsedContent.getThema()
 				.stream()
 				.map(t -> new ThemaInfo(t.getStockNames(), t.getName(), t.getReason()))

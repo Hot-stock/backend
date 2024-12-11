@@ -39,6 +39,7 @@ public class AnalyzeThemaAspect {
 			((List<?>)result).stream()
 				.filter(item -> item instanceof GPTNewsDomain) // 타입 확인
 				.map(item -> (GPTNewsDomain)item) // 안전한 캐스팅
+				.filter(GPTNewsDomain::isRelated)
 				.forEach(this::isAlreadyExtract); // 이벤트 발행
 		}
 	}
