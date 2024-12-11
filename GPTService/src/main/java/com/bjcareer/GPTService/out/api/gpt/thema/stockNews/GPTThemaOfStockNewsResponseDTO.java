@@ -1,9 +1,9 @@
-package com.bjcareer.GPTService.out.api.gpt.thema;
+package com.bjcareer.GPTService.out.api.gpt.thema.stockNews;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonResponseDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.ThemaVariableResponseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
-public class GPTThemaResponseDTO {
+public class GPTThemaOfStockNewsResponseDTO {
 	private List<Choice> choices = new ArrayList<>();
 
 	@Data
@@ -38,15 +38,13 @@ public class GPTThemaResponseDTO {
 	}
 
 	@Data
+	@JsonIgnoreProperties(ignoreUnknown = true) // 정의되지 않은 필드 무시
 	public static class Content {
-		@JsonProperty("isRealNews")
-		private boolean isRealNews;
 		@JsonProperty("isPositive")
 		private boolean isPositive;
-
-		private String summary;
-		private String upcomingDate;
-		private NextScheduleReasonResponseDTO upcomingDateReason;
-		private ThemaVariableResponseDTO thema;
+		@JsonProperty("isRelated")
+		private boolean isRelated;
+		private String relatedDetail;
+		private List<ThemaVariableResponseDTO> thema;
 	}
 }

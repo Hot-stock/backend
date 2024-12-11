@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
+import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.GPTThemaAdapter;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 
 @SpringBootTest
@@ -24,9 +25,9 @@ class GPTThemaAdapterTest {
 	@Test
 	void test() {
 		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"https://www.widedaily.com/news/articleView.html?idxno=252027", null);
+			"https://www.edaily.co.kr/News/Read?newsId=01784326639117208&mediaCodeNo=257", null);
 
-		Optional<GPTThema> gptThema = gptThemaAdapter.summaryThemaNews(originalNews.get(), "우크라이나 재건");
+		Optional<GPTThema> gptThema = gptThemaAdapter.summaryThemaNews(originalNews.get(), "");
 		assertTrue(gptThema.isPresent());
 	}
 

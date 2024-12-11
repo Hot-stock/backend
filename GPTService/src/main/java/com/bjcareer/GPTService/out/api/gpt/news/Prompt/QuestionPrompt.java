@@ -24,8 +24,8 @@ public class QuestionPrompt {
 			+ "</question>\n\n"
 
 			+ "### Steps to Summarize article\n"
-			+ "Step 1: **Extract Thema Name and Remove XML Tags**\n"
-			+ "- Retrieve the thema name from within the <stock> </stock> XML tags.\n"
+			+ "Step 1: **Extract Stock Name and Remove XML Tags**\n"
+			+ "- Retrieve the Stock name from within the <stock> </stock> XML tags.\n"
 			+ "- Remove the XML tags within <article> </article>.\n"
 
 			+ "Step 2: **Summarize the Content**\n"
@@ -48,9 +48,9 @@ public class QuestionPrompt {
 			+ "  1. If the explanation relies solely on financial metrics (e.g., past performance, generic financial analysis) that are not direct causes of the increase.\n"
 			+ "  2. If it fails to provide clear external or internal reasons for the increase, such as significant investor activities, economic policies, or market events.\n"
 			+ "  3. If the article mentions internal company strategies (e.g., restructuring, leadership changes) but lacks external validation or broader market implications, classify it as 'IRRELEVANT.'\n"
-			+ "  4. If the article attributes the stock's increase to generic investor behavior (e.g., foreign or institutional buying), classify it as 'IRRELEVANT.'\n"
-			+ "  5. If the article primarily discusses financial metrics (e.g., institutional net buying/selling, trading volume), classify it as 'IRRELEVANT.'\n"
-			+ "  6. If the article attributes stock performance to projections or forecasts (e.g., positive outlook for revenue or profit) without specifying the source or context of the announcement, classify it as 'IRRELEVANT.'\n"
+			+ "  4. INVESTOR ACTIONS, SUCH AS FOREIGN OR INSTITUTIONAL BUYING, SHALL NOT BE CONSIDERED AS EXTERNAL FACTORS ON THEIR OWN. SUCH ACTIONS MUST BE LINKED TO POLICY, INDUSTRIAL EVENTS, OR ECONOMIC CHANGES TO BE RECOGNIZED AS A REASON FOR THE STOCK INCREASE.\n"
+			+ "  5. INFERENTIAL CONTENT NOT EXPLICITLY STATED IN THE ARTICLE (E.G., 'IMPLIED,' 'SUGGESTED') SHALL BE EXCLUDED FROM THE EVALUATION.\n"
+			+ "  6. BROAD MARKET TRENDS (E.G., KOSDAQ INDEX INCREASE) SHALL NOT BE CONSIDERED AS A REASON FOR A SPECIFIC STOCK'S INCREASE. THE SPECIFIC STOCK'S REASONS FOR INCREASE MUST BE EXPLICITLY STATED IN THE ARTICLE.\n"
 			+ "  7. If the article mentions only the stock's performance metrics (e.g., hitting upper limit or percentage increase) without providing the reasons behind the performance, classify it as 'IRRELEVANT.'\n"
 			+ "- If none of the above applies, proceed to the next step.\n\n"
 
@@ -93,3 +93,4 @@ public class QuestionPrompt {
 			+ "### Output Requirements\n"
 			+ "- The response must be written in Korean.\n";
 }
+
