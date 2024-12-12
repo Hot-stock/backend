@@ -1,13 +1,13 @@
 package com.bjcareer.search.domain.gpt;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.bjcareer.search.domain.News;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -20,24 +20,24 @@ import lombok.extern.slf4j.Slf4j;
 public class GPTNewsDomain {
 	private String stockName;
 	private String reason;
-	private List<GPTThema> themas;
+	private List<String> keywords = new ArrayList<>();
 	private String nextReason;
 	private Optional<LocalDate> next;
 	private News news;
 
-	public GPTNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason,
+	public GPTNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason,
 		News news) {
 		this.stockName = stockName;
 		this.reason = reason;
-		this.themas = themas;
 		this.nextReason = nextReason;
 		this.news = news;
+		this.keywords = keywords;
 
 		parseLocalDate(next);
 	}
 
-	public GPTNewsDomain(String stockName, String reason, List<GPTThema> themas, String next, String nextReason) {
-		this(stockName, reason, themas, next, nextReason, null);
+	public GPTNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason) {
+		this(stockName, reason, keywords, next, nextReason, null);
 	}
 
 	private void parseLocalDate(String next) {
@@ -70,17 +70,5 @@ public class GPTNewsDomain {
 	@Override
 	public int hashCode() {
 		return Objects.hash(stockName, news);
-	}
-
-	@Data
-	@NoArgsConstructor
-	public static class GPTThema {
-		private String name;
-		private String reason;
-
-		public GPTThema(String name, String reason) {
-			this.name = name;
-			this.reason = reason;
-		}
 	}
 }
