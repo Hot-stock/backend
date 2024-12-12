@@ -24,6 +24,7 @@ public class NameFilterPrompt {
 			+ "- If no stock name is prominently discussed, return a blank string.\n\n"
 
 			+ "**Final Output**\n"
+			+ "답변은 반듯이 한글로 해줘\n"
 			+ "- Use the determined stock name from Step 2 or Step 3 as the final stock name.\n"
 			+ "- If neither Step 2 nor Step 3 can determine a valid stock name, return an empty string \"\".\n";
 

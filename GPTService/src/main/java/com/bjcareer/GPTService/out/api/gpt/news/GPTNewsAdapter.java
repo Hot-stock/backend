@@ -52,7 +52,7 @@ public class GPTNewsAdapter {
 			return Optional.of(
 				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(),
 					parsedContent.getNextReason().getFact(), parsedContent.getNextReason().getOpinion(), originalNews,
-					parsedContent.isRelevant(), parsedContent.getRelevantDetail()));
+					parsedContent.isRelevant(), parsedContent.getIsRelevantDetail(), parsedContent.isThema(), parsedContent.getKeywords()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
@@ -68,7 +68,7 @@ public class GPTNewsAdapter {
 		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
-		return new GPTNewsRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
+		return new GPTNewsRequestDTO("ft:gpt-4o-mini-2024-07-18:personal::Adb6Z2KN", List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {
@@ -81,7 +81,7 @@ public class GPTNewsAdapter {
 	private GPTNewsResponseDTO handleSuccessResponse(ClientResponse response) {
 		// 동기적으로 body를 읽음
 		GPTNewsResponseDTO gptResponse = response.bodyToMono(GPTNewsResponseDTO.class).block();
-		log.debug("GPT response: {}", gptResponse);
+		log.debug("GPT News response: {}", gptResponse);
 		return gptResponse;
 	}
 

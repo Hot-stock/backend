@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.domain.gpt;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,8 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 public class GPTNewsDomain {
 	@JsonIgnore
 	private boolean isRelated;
-	@JsonIgnore
 	private String isRelatedDetail;
+	@JsonIgnore
+	private boolean isThema;
+	@JsonIgnore
+	private List<String> keywords;
 	private String stockName;
 	private String reason;
 	private String nextReasonFact;
@@ -33,15 +37,18 @@ public class GPTNewsDomain {
 	@MongoId
 	private String link;
 
-	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact, String nextReasonOption, OriginalNews news, boolean isRelated, String isRelatedDetail) {
+	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact, String nextReasonOption,
+		OriginalNews news, boolean isRelated, String isRelatedDetail,  boolean isThema, List<String> keywords) {
 		this.isRelated = isRelated;
+		this.isRelatedDetail = isRelatedDetail;
 		this.stockName = stockName;
 		this.reason = reason;
 		this.nextReasonFact = nextReasonFact;
 		this.nextReasonOption = nextReasonOption;
+		this.isThema = isThema;
 		this.news = news;
 		this.link= news.getNewsLink();
-		this.isRelatedDetail = isRelatedDetail;
+		this.keywords = keywords;
 		parseLocalDate(next);
 	}
 

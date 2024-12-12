@@ -41,7 +41,10 @@ public class GPTNewsResponseDTO {
 	public static class Content {
 		@JsonProperty("isRelevant")  // JSON 필드 "isRelevant"를 매핑
 		private boolean isRelevant;
-		private String relevantDetail;
+		private String isRelevantDetail;
+		@JsonProperty("isThema")  // JSON 필드 "isThema"를 매핑
+		private boolean isThema;
+		private List<String> keywords;
 		private String name;
 		private String reason;
 		private String next;
