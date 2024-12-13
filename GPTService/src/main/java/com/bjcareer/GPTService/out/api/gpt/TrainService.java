@@ -89,26 +89,16 @@ public class TrainService {
 
 		@JsonProperty("isPositive")
 		private boolean isPositive;
-		@JsonProperty("isRelated")
-		private boolean isRelated;
-		private String relatedDetail;
 		private List<ThemaInfo> thema;
 
-		public GPTTrainThema(boolean isRelated, boolean isPositive, String relatedDetail, List<ThemaInfo> thema) {
-			this.isRelated = isRelated;
+		public GPTTrainThema(boolean isPositive, List<ThemaInfo> thema) {
 			this.isPositive = isPositive;
-			this.relatedDetail = relatedDetail;
 			this.thema = thema;
 		}
 
 		@JsonProperty("isPositive") // 명시적으로 JSON 키 설정
 		public boolean getIsPositive() {
 			return isPositive;
-		}
-
-		@JsonProperty("isRelated") // 명시적으로 JSON 키 설정
-		public boolean getIsRelated() {
-			return isRelated;
 		}
 	}
 

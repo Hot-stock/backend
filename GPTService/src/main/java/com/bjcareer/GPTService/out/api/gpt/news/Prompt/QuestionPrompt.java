@@ -9,6 +9,7 @@ public class QuestionPrompt {
 		"이 뉴스의 발행일은 %s 입니다.\n"
 			+ "오늘의 날짜는 " + LocalDate.now(AppConfig.ZONE_ID) + "입니다.\n"
 			+ "주식 이름: <stock> %s </stock>\n"
+			+ "기사 제목: %s\n"
 			+ "기사 내용: <article> %s </article>\n" + "기사는 질문지에 제공한 주식 이름을 중점으로 분석해줘"
 
 			+ "Imagine a panel of three experts collaboratively addressing this question.\n"

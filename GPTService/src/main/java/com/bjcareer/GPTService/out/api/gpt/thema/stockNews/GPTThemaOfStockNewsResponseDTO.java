@@ -42,9 +42,6 @@ public class GPTThemaOfStockNewsResponseDTO {
 	public static class Content {
 		@JsonProperty("isPositive")
 		private boolean isPositive;
-		@JsonProperty("isRelated")
-		private boolean isRelated;
-		private String relatedDetail;
 		private List<ThemaVariableResponseDTO> thema;
 	}
 }
