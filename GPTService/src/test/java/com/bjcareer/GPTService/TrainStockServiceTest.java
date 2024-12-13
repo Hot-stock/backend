@@ -42,12 +42,13 @@ class TrainStockServiceTest {
 
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
-		String stockName = "에이텍"; //태영건설ㄴ
+		//씨큐센부터 option 없음
+		String stockName = "형지엘리트";//ㅁ //태영건설ㄴ
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 12, 10);
-		LocalDate endDate = LocalDate.of(2024, 12, 10);
+		LocalDate startDate = LocalDate.of(2024, 12, 13);
+		LocalDate endDate = LocalDate.of(2024, 12, 13);
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(stockName, startDate, endDate));
@@ -114,14 +115,21 @@ class TrainStockServiceTest {
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(false, "", stockName, "", "", new NextScheduleReasonResponseDTO("", "")));
+			new TrainService.NewsPrompt(false, "",false, new ArrayList<>(), stockName, "", "",
+				new NextScheduleReasonResponseDTO("", "")));
 	}
 
 	private String createAssistantResponse(ObjectMapper mapper, String stockName, GPTNewsDomain reason) throws
 		JsonProcessingException {
+		String date = "";
+		if(reason.getNext().isPresent()){
+			date = reason.getNext().get().toString();
+		}
+
 		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(reason.isRelated(), reason.getIsRelatedDetail(), stockName, reason.getReason(),
-				reason.getNext().toString(),
+			new TrainService.NewsPrompt(reason.isRelated(), reason.getIsRelatedDetail(), reason.isThema(), reason.getKeywords(), stockName,
+				reason.getReason(),
+				date,
 				new NextScheduleReasonResponseDTO(reason.getNextReasonFact(), reason.getNextReasonFact())));
 	}
 
