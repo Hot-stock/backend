@@ -23,7 +23,7 @@ public class SearchRankingService {
 	private final RedisThemaRepository redisThemaRepository;
 	private final TossServerAdapter tossServerAdapter;
 
-	@Scheduled(cron = "0 */1 * * * *")
+	@Scheduled(cron = "0 */5 * * * *")
 	void updateRanking() {
 		String thema = redisThemaRepository.loadThema();
 

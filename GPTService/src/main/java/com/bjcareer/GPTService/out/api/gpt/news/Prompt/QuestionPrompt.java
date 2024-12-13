@@ -147,9 +147,10 @@ public class QuestionPrompt {
 			+ "- Opinion: 'This policy change is expected to drive growth in the relevant industry and attract investor interest.'\n\n"
 
 			+ "Extract Stock Rise Keywords\n"
-			+ "- Identify nouns and verbs related to stock price increases in the article.\n"
-			+ "- Use phrases indicating explicit reasons for increases, such as 'due to,' 'as a result of,' or similar.\n"
-			+ "- Highlight keywords associated with the stock's rise, such as industry trends, government policies, and company-specific events.\n\n"
+			+ "reason 필드에서 설명한 주가 상승 원인을 키워드로 추출합니다.\n"
+			+ "단어의 획일화를 위해서 인물이 추출되면 인물의 이름만을 사용하고, 제품이 추출되면 제품의 고유한 이름을 사용합니다."
+			+ "확장적인 단어보단 폐쇄적 단어를 사용합니다 예를들면 정치적 이벤트 -> 탄핵소추안"
+			+ "키워드는 없을 수도 있습니다."
 
 
 			+ "### Output Requirements\n"
