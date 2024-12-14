@@ -1,5 +1,6 @@
 package com.bjcareer.GPTService.out.persistence.redis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +29,9 @@ public class RedisThemaRepository {
 		return thema;
 	}
 
-	public String loadThema() {
+	public List<String> loadThema() {
 		RSet<String> set = redissonClient.getSet(BUKET_KEY);
-		return set.stream().collect(Collectors.joining(","));
+		return new ArrayList<>(set);
 	}
 
 	public void uploadToFailSet(GPTNewsDomain news) {

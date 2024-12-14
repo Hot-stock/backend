@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema;
+package com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews;
 
 import com.bjcareer.GPTService.out.api.gpt.PropertyDetail;
 import com.bjcareer.GPTService.out.api.gpt.thema.prompt.OppositeThemaPrompt;

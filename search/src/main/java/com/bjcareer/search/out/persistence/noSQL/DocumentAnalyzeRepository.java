@@ -30,7 +30,7 @@ public class DocumentAnalyzeRepository {
 
 	public DocumentAnalyzeRepository(MongoClient mongoClient) {
 		stockNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection(COLLECTION_NAME);
-		themaNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection("thema-news");
+		themaNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection("stock-thema-news");
 	}
 
 	public List<GPTNewsDomain> getUpcomingNews() {
@@ -76,7 +76,7 @@ public class DocumentAnalyzeRepository {
 	public List<GPTThema> getThemaNews(LoadThemaNewsCommand command) {
 		Bson filter = Filters.and(
 			Filters.eq("themaInfo.name", command.getThemaName()),
-			Filters.eq("isRelatedThema", true)
+			Filters.eq("isRelated", true)
 		);
 
 		if (command.getDate() != null) {

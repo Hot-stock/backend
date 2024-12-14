@@ -22,12 +22,12 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AcOoOpPg";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AdspZUDm";
 	private final WebClient webClient;
 
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
 	public Optional<GPTNewsDomain> findStockRaiseReason(OriginalNews originalNews, String stockName, LocalDate pubDate) {
-		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), stockName, pubDate);
+		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -52,23 +52,22 @@ public class GPTNewsAdapter {
 			return Optional.of(
 				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(),
 					parsedContent.getNextReason().getFact(), parsedContent.getNextReason().getOpinion(), originalNews,
-					parsedContent.isRelevant()));
+					parsedContent.isRelevant(), parsedContent.getIsRelevantDetail(), parsedContent.isThema(), parsedContent.getKeywords()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
 		}
 	}
 
-	private GPTNewsRequestDTO createRequestDTO(String message, String name,
+	private GPTNewsRequestDTO createRequestDTO(String content, String title, String name,
 		LocalDate pubDate) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "뉴스를 분석해줘");
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message));
+		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, title, content));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
-
 		return new GPTNewsRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
@@ -82,7 +81,7 @@ public class GPTNewsAdapter {
 	private GPTNewsResponseDTO handleSuccessResponse(ClientResponse response) {
 		// 동기적으로 body를 읽음
 		GPTNewsResponseDTO gptResponse = response.bodyToMono(GPTNewsResponseDTO.class).block();
-		log.debug("GPT response: {}", gptResponse);
+		log.debug("GPT News response: {}", gptResponse);
 		return gptResponse;
 	}
 

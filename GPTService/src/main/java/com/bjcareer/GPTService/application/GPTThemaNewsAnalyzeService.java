@@ -11,9 +11,10 @@ import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
-import com.bjcareer.GPTService.out.api.gpt.thema.GPTThemaAdapter;
+import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.GPTThemaAdapter;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTThemaNewsRepository;
+import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +24,29 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GPTThemaNewsAnalyzeService {
 	private final GPTThemaAdapter gptThemaAdapter;
+	private final RedisThemaRepository redisThemaRepository;
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final GPTThemaNewsRepository gptThemaNewsRepository;
 
 	public List<GPTThema> analyzeThemaNewsByNewsLink(AnalyzeThemaNewsCommand command) {
-		List<OriginalNews> originalNews = fetchNewsForThem(command.getDate(), command.getKeyword());
-		return fetchThemaFromNewsAndSaveDB(originalNews, "오세훈 이재명");
+		// List<OriginalNews> originalNews = fetchNewsForThem(command.getDate(), command.getKeyword());
+		// String themas = redisThemaRepository.loadThema();
+		//
+		// List<GPTThema> gptThemas = fetchThemaFromNewsAndSaveDB(originalNews, themas);
+		//
+		// if (themas.isEmpty()) {
+		// 	return gptThemas.stream().filter(GPTThema::isRelatedThema).toList();
+		// } else {
+		// 	List<GPTThema> result = gptThemas.stream()
+		// 		.map(gptThemaNewsRepository::save)
+		// 		.filter(GPTThema::isRelatedThema)
+		// 		.toList();
+		// 	result.forEach(t -> redisThemaRepository.updateThema(t.getThemaInfo().getName()));
+		// 	return result;
+		//
+		// }
+
+		return null;
 	}
 
 	private List<OriginalNews> fetchNewsForThem(LocalDate date, String keyword) {
@@ -46,8 +64,6 @@ public class GPTThemaNewsAnalyzeService {
 			.map(news -> gptThemaAdapter.summaryThemaNews(news, knownThema))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
-			.map(gptThemaNewsRepository::save)
-			.filter(GPTThema::isRelatedThema)
 			.toList();
 	}
 }

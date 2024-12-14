@@ -2,7 +2,6 @@ package com.bjcareer.GPTService.out.api.gpt;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 public class TrainService {
@@ -51,16 +48,25 @@ public class TrainService {
 	public static class NewsPrompt {
 		@JsonProperty("isRelevant")
 		private final boolean isRelevant;
-
-		private final String name;
-		private final String reason;
-		private final String next;
+		@JsonProperty("isThema")
+		private final boolean isThema;
 		@JsonProperty("next_reason")
 		private final NextScheduleReasonResponseDTO nextReason;
 
-		public NewsPrompt(boolean isRelevant, String name, String reason, String next,
+		private String isRelevantDetail;
+		private final String name;
+		private final String reason;
+		private final String next;
+		private final List<String> keywords;
+
+		public NewsPrompt(boolean isRelevant, String isRelevantDetail, boolean isThema, List<String> keywords,
+			String name, String reason,
+			String next,
 			NextScheduleReasonResponseDTO nextReason) {
 			this.isRelevant = isRelevant;
+			this.isRelevantDetail = isRelevantDetail;
+			this.isThema = isThema;
+			this.keywords = keywords;
 			this.name = name;
 			this.reason = reason;
 			this.next = next;
@@ -72,48 +78,22 @@ public class TrainService {
 			return isRelevant;
 		}
 
-		@Data
-		@NoArgsConstructor
-		public static class ThemaPrompt {
-			private String name;
-			private String reason;
-
-			public ThemaPrompt(String name, String reason) {
-				this.name = name;
-				this.reason = reason;
-			}
+		@JsonProperty("isThema") // 명시적으로 JSON 키 설정
+		public boolean isThema() {
+			return isThema;
 		}
 	}
 
 	@Getter
 	public static class GPTTrainThema {
-		@JsonProperty("isRealNew")
-		private final boolean isRealNew;
+
 		@JsonProperty("isPositive")
-		private final boolean isPositive;
-		private final String summary;
-		private final String upcomingDate;
-		private final NextScheduleReasonResponseDTO upcomingDateReason;
-		private final ThemaInfo thema;
+		private boolean isPositive;
+		private List<ThemaInfo> thema;
 
-		public GPTTrainThema(boolean isPositive, String summary, LocalDate upcomingDate,
-			NextScheduleReasonResponseDTO upcomingDateReason, ThemaInfo thema, boolean isRealNew) {
+		public GPTTrainThema(boolean isPositive, List<ThemaInfo> thema) {
 			this.isPositive = isPositive;
-			this.summary = summary;
-
-			if (upcomingDate != null) {
-				this.upcomingDate = upcomingDate.toString();
-			} else {
-				this.upcomingDate = "";
-			}
-			this.upcomingDateReason = upcomingDateReason;
 			this.thema = thema;
-			this.isRealNew = isRealNew;
-		}
-
-		@JsonProperty("isRealNew") // 명시적으로 JSON 키 설정
-		public boolean getIsRealNew() {
-			return isRealNew;
 		}
 
 		@JsonProperty("isPositive") // 명시적으로 JSON 키 설정

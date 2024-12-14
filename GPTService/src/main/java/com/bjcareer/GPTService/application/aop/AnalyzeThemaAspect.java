@@ -44,6 +44,9 @@ public class AnalyzeThemaAspect {
 	}
 
 	private void isAlreadyExtract(GPTNewsDomain result) {
+		if (!(result.isRelated() & result.isThema())) {
+			return;
+		}
 		if (gptThemaNewsRepository.findByLink(result.getLink()).isEmpty()) {
 			applicationEventPublisher.publishEvent(result);
 		}

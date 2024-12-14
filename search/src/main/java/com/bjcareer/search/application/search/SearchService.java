@@ -2,7 +2,9 @@ package com.bjcareer.search.application.search;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -16,6 +18,7 @@ import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsC
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.candidate.Trie;
+import com.bjcareer.search.domain.NewsHelper;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
@@ -53,6 +56,7 @@ public class SearchService implements SearchUsecase {
 
 	@Override
 	public List<GPTNewsDomain> findRaiseReason(String stockCode, LocalDate date) {
+		Map<LocalDate, List<GPTNewsDomain>> newsMap = new HashMap<>();
 		Optional<Stock> byCode = stockRepositoryPort.findByCode(stockCode);
 
 		if (byCode.isEmpty()) {
@@ -61,6 +65,8 @@ public class SearchService implements SearchUsecase {
 
 		LoadStockRaiseReason command = new LoadStockRaiseReason(byCode.get().getName(), date);
 		List<GPTNewsDomain> raiseReason = documentAnalyzeRepository.getRaiseReason(command);
+		raiseReason = NewsHelper.RemoveDuplicatedNews(raiseReason);
+
 		return raiseReason;
 	}
 

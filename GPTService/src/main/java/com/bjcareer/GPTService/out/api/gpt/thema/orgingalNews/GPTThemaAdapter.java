@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema;
+package com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +12,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
-import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
 import com.bjcareer.GPTService.out.api.gpt.thema.prompt.ThemaQuestionPrompt;
 
 import lombok.RequiredArgsConstructor;
@@ -23,36 +22,45 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AXizm8Ps";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AYTYXzqH";
 	private final WebClient webClient;
 
 	public Optional<GPTThema> summaryThemaNews(OriginalNews news, String knownThema) {
 		GPTThemaRequestDTO requestDTO = createRequestDTO(news.getContent(), news.getPubDate(), knownThema);
 
-		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
-		log.debug("News link: {}", news.getNewsLink());
-		ClientResponse response = sendRequestToGPT(requestDTO).block();
+		// // 동기적으로 요청을 보내고 결과를 block()으로 기다림
+		// log.debug("News link: {}", news.getNewsLink());
+		// ClientResponse response = sendRequestToGPT(requestDTO).block();
+		//
+		// if (response != null && response.statusCode().is2xxSuccessful()) {
+		// 	GPTThemaResponseDTO gptThemaResponseDTO = handleSuccessResponse(response);
+		// 	GPTThemaResponseDTO.Content parsedContent = gptThemaResponseDTO.getChoices()
+		// 		.get(0)
+		// 		.getMessage()
+		// 		.getParsedContent();
+		//
+		// 	if (!parsedContent.isRealNews()) {
+		// 		log.warn("The response is not related to the topic.");
+		// 	}
+		//
+		// 	ThemaInfo themaInfo = new ThemaInfo(parsedContent.getThema().getStockName(),
+		// 		parsedContent.getThema().getName(),
+		// 		parsedContent.getThema().getReason());
+		//
+		// 	ThemaInfo oppositeThemaInfo = new ThemaInfo(parsedContent.getThema().getStockName(),
+		// 		parsedContent.getOppositeThema().getName(),
+		// 		parsedContent.getOppositeThema().getReason());
+		//
+		// 	return Optional.of(
+		// 		new GPTThema(parsedContent.isRealNews(), parsedContent.isPositive(), parsedContent.getSummary(),
+		// 			parsedContent.getUpcomingDate(), parsedContent.getUpcomingDateReason().getFact(),
+		// 			parsedContent.getUpcomingDateReason().getOpinion(), news, themaInfo, oppositeThemaInfo));
+		// } else {
+		// 	handleErrorResponse(response);
+		// 	return Optional.empty();
+		// }
 
-		if (response != null && response.statusCode().is2xxSuccessful()) {
-			GPTThemaResponseDTO gptThemaResponseDTO = handleSuccessResponse(response);
-			GPTThemaResponseDTO.Content parsedContent = gptThemaResponseDTO.getChoices()
-				.get(0)
-				.getMessage()
-				.getParsedContent();
-
-			if (!parsedContent.isRealNews()) {
-				log.warn("The response is not related to the topic.");
-			}
-
-			return Optional.of(
-				new GPTThema(parsedContent.isRealNews(), parsedContent.isPositive(), parsedContent.getSummary(),
-					parsedContent.getUpcomingDate(), parsedContent.getUpcomingDateReason().getFact(),
-					parsedContent.getUpcomingDateReason().getOpinion(), news,
-				new ThemaInfo(parsedContent.getThema().getName(), parsedContent.getThema().getReason())));
-		} else {
-			handleErrorResponse(response);
-			return Optional.empty();
-		}
+		return Optional.empty();
 	}
 
 	private GPTThemaRequestDTO createRequestDTO(String content, LocalDate pubDate, String knownThema) {

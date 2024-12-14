@@ -12,14 +12,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
 import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
+import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
-import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
+import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.TrainService;
-import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonResponseDTO;
-import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
-import com.bjcareer.GPTService.out.api.gpt.thema.GPTThemaAdapter;
+import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.AnalyzeThemaQuestionPrompt;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
+import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
+import com.bjcareer.GPTService.out.persistence.document.MongoDBRepository;
+import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,18 +33,28 @@ class TrainThemaServiceTest {
 	private PythonSearchServerAdapter pythonSearchServerAdapter;
 
 	@Autowired
-	GPTThemaAdapter gptThemaAdapter;
+	private RedisThemaRepository redisThemaRepository;
+
+	@Autowired
+	GPTThemaOfStockNewsAdapter gptThemaAdapter;
+
+	@Autowired
+	GPTNewsAdapter gptNewsAdapter;
+
+	@Autowired
+	GPTStockNewsRepository gptStockNewsRepository;
 
 	private final List<TrainService> trains = new ArrayList<>();
 
 	@Test
-	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
-		String keyword = "코나아이";
-		String fileName = "./test-4o-mini" + keyword + ".json";
+	void 테스트_테마_파일_생성() throws JsonProcessingException {
+		String keyword = "케이씨에스";  //알티캐스트, 액션스퀘어
+		String fileName = "./thema-" + keyword + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
+		List<GPTNewsDomain> targetGPTNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 12, 8);
-		LocalDate endDate = LocalDate.now();
+		LocalDate startDate = LocalDate.of(2024, 12, 12);
+		LocalDate endDate = LocalDate.of(2024, 12, 12);
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(keyword, startDate, endDate));
@@ -50,15 +64,35 @@ class TrainThemaServiceTest {
 				newsResponseDTO.getLink(), startDate).ifPresent(targetNews::add);
 		}
 
-		processNews(targetNews, "우크라이나 재건, 인프라 투자");
+		for (OriginalNews news : targetNews) {
+			if (targetGPTNews.size() >= 10) {
+				break;
+			}
+
+			Optional<GPTNewsDomain> byLink = gptStockNewsRepository.findByLink(news.getNewsLink());
+
+			if (byLink.isPresent()) {
+				GPTNewsDomain gptNewsDomain = byLink.get();
+				if (gptNewsDomain.isRelated() && gptNewsDomain.isThema()) {
+					targetGPTNews.add(gptNewsDomain);
+				}
+				continue;
+			}
+
+			gptNewsAdapter.findStockRaiseReason(news, keyword, news.getPubDate())
+				.filter(t -> t.isRelated() && t.isThema())
+				.ifPresent(targetGPTNews::add);
+		}
+
+		processNews(targetGPTNews, "");
 		saveTrainsToFile(fileName);
 	}
 
-	private void processNews(List<OriginalNews> newsList, String knownThema) throws
+	private void processNews(List<GPTNewsDomain> newsList, String knownThema) throws
 		JsonProcessingException {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 
-		for (OriginalNews news : newsList) {
+		for (GPTNewsDomain news : newsList) {
 			TrainService trainService = createTrainServiceWithMessages(knownThema, news, mapper);
 
 			if (trainService == null) {
@@ -69,37 +103,35 @@ class TrainThemaServiceTest {
 		}
 	}
 
-	private TrainService createTrainServiceWithMessages(String knownThema, OriginalNews news,
+	private TrainService createTrainServiceWithMessages(String knownThema, GPTNewsDomain news,
 		ObjectMapper mapper) throws JsonProcessingException {
 
 		TrainService trainService = new TrainService();
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_THEMA_TEXT);
 
-		Optional<GPTThema> optGptThema = gptThemaAdapter.summaryThemaNews(news, knownThema);
+		Optional<GPTStockThema> optGptThema = gptThemaAdapter.getThema(news, knownThema);
 
-		String userPrompt = generateUserPrompt(knownThema, news);
+		String userPrompt = generateUserPrompt(news.getNews(), news.getStockName(), knownThema);
 		trainService.addMessage(GPTWebConfig.USER_ROLE, userPrompt);
 
 		if (optGptThema.isEmpty()) {
 			return null;
 		} else {
-			GPTThema gptThema = optGptThema.get();
-			String assistantResponse = createAssistantResponse(mapper, gptThema);
+			GPTStockThema gptStockThema = optGptThema.get();
+			String assistantResponse = createAssistantResponse(mapper, gptStockThema);
 			trainService.addMessage("assistant", assistantResponse);
 			return trainService;
 		}
 	}
 
-	private String generateUserPrompt(String stockName, OriginalNews news) {
-		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), stockName, news.getContent());
+	private String generateUserPrompt(OriginalNews news, String stockName, String knownThema) {
+		return AnalyzeThemaQuestionPrompt.QUESTION_PROMPT.formatted(news.getPubDate(), news.getContent(), stockName, knownThema);
 	}
 
-	private String createAssistantResponse(ObjectMapper mapper, GPTThema reason) throws
+	private String createAssistantResponse(ObjectMapper mapper, GPTStockThema stockThema) throws
 		JsonProcessingException {
 		return mapper.writeValueAsString(
-			new TrainService.GPTTrainThema(reason.isPositive(), reason.getSummary(), reason.getUpcomingDate(),
-				new NextScheduleReasonResponseDTO(reason.getUpcomingDateReasonFact(),
-					reason.getUpcomingDateReasonOpinion()), reason.getThemaInfo(), reason.isRelatedThema()));
+			new TrainService.GPTTrainThema(stockThema.isPositive(), stockThema.getThemaInfo()));
 	}
 
 	private void saveTrainsToFile(String filePath) {

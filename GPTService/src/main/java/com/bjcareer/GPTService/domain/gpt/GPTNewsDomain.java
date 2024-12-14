@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.domain.gpt;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,6 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 public class GPTNewsDomain {
 	@JsonIgnore
 	private boolean isRelated;
+	private String isRelatedDetail;
+	@JsonIgnore
+	private boolean isThema;
+	@JsonIgnore
+	private List<String> keywords;
 	private String stockName;
 	private String reason;
 	private String nextReasonFact;
@@ -31,14 +37,18 @@ public class GPTNewsDomain {
 	@MongoId
 	private String link;
 
-	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact, String nextReasonOption, OriginalNews news, boolean isRelated) {
+	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact, String nextReasonOption,
+		OriginalNews news, boolean isRelated, String isRelatedDetail,  boolean isThema, List<String> keywords) {
 		this.isRelated = isRelated;
+		this.isRelatedDetail = isRelatedDetail;
 		this.stockName = stockName;
 		this.reason = reason;
 		this.nextReasonFact = nextReasonFact;
 		this.nextReasonOption = nextReasonOption;
+		this.isThema = isThema;
 		this.news = news;
 		this.link= news.getNewsLink();
+		this.keywords = keywords;
 		parseLocalDate(next);
 	}
 
@@ -57,6 +67,15 @@ public class GPTNewsDomain {
 
 	public Optional<LocalDate> getNext() {
 		return Optional.ofNullable(next);
+	}
+
+	public String createRaiseReason() {
+		return String.format("%s 주식이 상승한 날짜는 %s 올랐던 이유는 %s\n", stockName, news.getPubDate(), reason);
+	}
+
+	public String createNextReason() {
+		return String.format("%s 주식이 예정된 이벤트 일자는 %s고, 그 이유의 사실은 %s 의견은 %s\n", stockName, next, nextReasonFact,
+			nextReasonOption);
 	}
 
 	@Override

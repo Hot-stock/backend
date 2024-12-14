@@ -18,6 +18,21 @@ spring:
         format_sql: true
     show-sql: true
 
+  kafka:
+    bootstrap-servers: ${KAFKA_PUBLIC_ADDRESS}:9093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: manual
+    template:
+      default-topic: dead-letter-topic
 
 redis:
   address: redis://${REDIS_PUBLIC_ADDRESS}:${REDIS_PORT}
