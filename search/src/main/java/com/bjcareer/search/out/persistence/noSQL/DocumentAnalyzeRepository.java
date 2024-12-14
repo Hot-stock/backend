@@ -3,9 +3,11 @@ package com.bjcareer.search.out.persistence.noSQL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -64,13 +66,17 @@ public class DocumentAnalyzeRepository {
 		);
 
 		if (command.getDate() != null) {
-			LocalDateTime startDate = changeISOFormat(command.getDate(), "T00:00:00.000Z");
-			LocalDateTime endDate = changeISOFormat(command.getDate(), "T23:59:59.000Z");
+			// KST -> UTC 변환
+			ZonedDateTime startKST = command.getDate().atStartOfDay(ZoneId.of("Asia/Seoul"));
+			ZonedDateTime endKST = command.getDate().atTime(23, 59, 59).atZone(ZoneId.of("Asia/Seoul"));
+
+			Date startDate = Date.from(startKST.toInstant());
+			Date endDate = Date.from(endKST.toInstant());
 
 			filter = Filters.and(
 				filter,
-				Filters.gte("news.pubDate", startDate.toInstant(ZoneOffset.UTC)),
-				Filters.lte("news.pubDate", endDate.toInstant(ZoneOffset.UTC)));
+				Filters.gte("news.pubDate", startDate),
+				Filters.lte("news.pubDate", endDate));
 		}
 
 		List<Document> documents = stockNewsCollection.find(filter)
