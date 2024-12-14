@@ -27,7 +27,7 @@ public class GPTNewsAdapter {
 
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
 	public Optional<GPTNewsDomain> findStockRaiseReason(OriginalNews originalNews, String stockName, LocalDate pubDate) {
-		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), stockName, pubDate);
+		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName, pubDate);
 
 		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -59,13 +59,13 @@ public class GPTNewsAdapter {
 		}
 	}
 
-	private GPTNewsRequestDTO createRequestDTO(String message, String name,
+	private GPTNewsRequestDTO createRequestDTO(String content, String title, String name,
 		LocalDate pubDate) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT + "뉴스를 분석해줘");
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, message));
+		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, title, content));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 		return new GPTNewsRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);

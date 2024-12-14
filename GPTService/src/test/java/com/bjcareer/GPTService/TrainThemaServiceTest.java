@@ -84,8 +84,6 @@ class TrainThemaServiceTest {
 				.ifPresent(targetGPTNews::add);
 		}
 
-		String s = redisThemaRepository.loadThema();
-
 		processNews(targetGPTNews, "");
 		saveTrainsToFile(fileName);
 	}
@@ -95,7 +93,6 @@ class TrainThemaServiceTest {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 
 		for (GPTNewsDomain news : newsList) {
-			System.out.println("news.getStockName() = " + news.getLink());
 			TrainService trainService = createTrainServiceWithMessages(knownThema, news, mapper);
 
 			if (trainService == null) {

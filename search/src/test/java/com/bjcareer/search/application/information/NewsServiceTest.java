@@ -23,6 +23,7 @@ import com.bjcareer.search.application.port.out.api.LoadNewsPort;
 import com.bjcareer.search.application.port.out.api.LoadStockInformationPort;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
+import com.bjcareer.search.application.search.SearchService;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
@@ -46,7 +47,7 @@ class NewsServiceTest {
 	GPTNewsPort gptAPIPort;
 
 	@InjectMocks
-	NewsService newsService;
+	SearchService newsService;
 
 	Set<String> thema = Set.of("수영복");
 
@@ -57,7 +58,7 @@ class NewsServiceTest {
 		LocalDate date = LocalDate.now();
 
 		assertThrows(InvalidStockInformationException.class,
-			() -> newsService.findRaiseReasonThatDate(stockName, date));
+			() -> newsService.findRaiseReason(stockName, date));
 	}
 
 	@Test
@@ -82,7 +83,7 @@ class NewsServiceTest {
 		when(loadStockInformationServerPort.loadStockChart(any())).thenReturn(tempChart);
 
 		// When
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
+		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
 
 		// Then
 		assertTrue(raiseReasonThatDate.isEmpty());
@@ -119,7 +120,7 @@ class NewsServiceTest {
 		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), any())).thenReturn(
 			Optional.of(GPTNewsDomain));
 
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, date);
+		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
 
 		// Then
 		assertFalse(raiseReasonThatDate.isEmpty());
@@ -156,7 +157,7 @@ class NewsServiceTest {
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
 		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate(stockName, LocalDate.now());
+		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, LocalDate.now());
 
 		assertEquals(2, raiseReasonThatDate.size());
 	}

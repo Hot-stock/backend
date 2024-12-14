@@ -2,6 +2,8 @@ package com.bjcareer.GPTService.domain.gpt.thema;
 
 import java.util.List;
 
+import com.bjcareer.GPTService.domain.helper.LevenshteinDistance;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -18,5 +20,14 @@ public class ThemaInfo {
 		this.stockName = stockName;
 		this.name = name;
 		this.reason = reason;
+	}
+
+	public void changeThemaNameUsingLevenshteinDistance(List<String> themas) {
+		for (String thema : themas) {
+			if (LevenshteinDistance.calculateLevenshteinDistance(this.name, thema) <= 7) {
+				this.name = thema;
+				return;
+			}
+		}
 	}
 }

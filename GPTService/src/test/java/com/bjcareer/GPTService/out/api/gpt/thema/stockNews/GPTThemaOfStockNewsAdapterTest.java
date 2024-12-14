@@ -29,13 +29,13 @@ class GPTThemaOfStockNewsAdapterTest {
 	@Test
 	void 정확한_형식으로_들어오는지_테스트() {
 		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"https://www.widedaily.com/news/articleView.html?idxno=253430", LocalDate.now());
-		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), "리가켐바이오",
+			"https://www.gukjenews.com/news/articleView.html?idxno=3159377", LocalDate.now());
+		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), "윌비스",
 			originalNews.get().getPubDate());
 
 		System.out.println("stockRaiseReason.get() = " + stockRaiseReason.get());
 
-		Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(stockRaiseReason.get(), "저출산");
+		Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(stockRaiseReason.get(), "'일자리 관련주', '코로나 관련주'");
 		assertTrue(r.isPresent());
 	}
 	//https://www.thebigdata.co.kr/view.php?ud=202412090221357106cd1e7f0bdf_23

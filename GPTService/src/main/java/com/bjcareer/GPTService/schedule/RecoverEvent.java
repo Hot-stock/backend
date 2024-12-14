@@ -21,7 +21,7 @@ public class RecoverEvent {
 
 	@Scheduled(cron = "0 */5 * * * *")
 	void recoverExtractThemaInNews() {
-		String thema = redisThemaRepository.loadThema();
+		List<String> thema = redisThemaRepository.loadThema();
 
 		if (thema.isEmpty()) {
 			log.error("thema가 아직 복구되지 않았습니다.");

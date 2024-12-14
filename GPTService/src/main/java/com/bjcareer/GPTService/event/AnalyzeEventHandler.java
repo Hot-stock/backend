@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.domain.helper.LevenshteinDistance;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTThemaNewsRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
@@ -35,16 +36,8 @@ public class AnalyzeEventHandler {
 	public void extractThemaInStockNews(GPTNewsDomain news) {
 		log.debug("Extract Thema in Stock News: {}", news.getLink());
 
-		if (!news.isRelated()) {
+		if (!(news.isRelated() && news.isThema())) {
 			log.debug("주식과 상관없는 뉴스임으로 분석하지 않아도 됨");
-			return;
-		}
-
-		String thema = redisThemaRepository.loadThema();
-
-		if (thema.isEmpty()) {
-			log.error("Thema is empty Go to fail queue");
-			redisThemaRepository.uploadToFailSet(news);
 			return;
 		}
 
@@ -56,25 +49,28 @@ public class AnalyzeEventHandler {
 			return;
 		}
 
-		Optional<GPTStockThema> gptThema = gptThemaOfStockNewsAdapter.getThema(news, thema);
+		Optional<GPTStockThema> gptThema = gptThemaOfStockNewsAdapter.getThema(news, "");
 
 		if (gptThema.isPresent()) {
 			log.debug("Extracted Thema: {}", gptThema.get());
+
 			GPTStockThema gptStockThema = gptThema.get();
 
-			if (!gptStockThema.isRelated()) {
-				return;
-			}
-
+			List<ThemaInfo> themaInfo = gptStockThema.getThemaInfo();
+			themaInfo.forEach(t -> sendThemaToKafka(t, news.getStockName()));
 			gptThemaNewsRepository.save(gptStockThema);
-			List<ThemaInfo> themaInfo = gptThema.get().getThemaInfo();
-			themaInfo.forEach(this::sendThemaToKafka);
 		}
 	}
 
-	private void sendThemaToKafka(ThemaInfo themaInfo) {
+	private void sendThemaToKafka(ThemaInfo themaInfo, String stockName) {
 		log.debug("Send Thema to Kafka: {}", themaInfo);
-		if (!isNeedToSendToKafka(themaInfo)) {
+		if (!isNeedToSendToKafka(themaInfo, stockName)) {
+			return;
+		}
+
+		log.debug("themaInfo: {}, {}", themaInfo, stockName);
+		if (!themaInfo.getStockName().contains(stockName)) {
+			log.error("StockName is not matched");
 			return;
 		}
 
@@ -88,7 +84,7 @@ public class AnalyzeEventHandler {
 		redisThemaRepository.updateThema(themaInfo.getName());
 	}
 
-	private boolean isNeedToSendToKafka(ThemaInfo themaInfo) {
-		return !themaInfo.getName().isEmpty() && !themaInfo.getStockName().isEmpty();
+	private boolean isNeedToSendToKafka(ThemaInfo themaInfo, String stockName) {
+		return !(themaInfo.getName().isEmpty() || themaInfo.getStockName().isEmpty());
 	}
 }

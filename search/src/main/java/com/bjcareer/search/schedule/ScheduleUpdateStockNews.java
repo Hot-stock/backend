@@ -26,8 +26,8 @@ public class ScheduleUpdateStockNews {
 	private final AnalyzeServiceServerAdapter analyzeServiceServerAdapter;
 	private final TossServerAdapter tossServerAdapter;
 
-	@Scheduled(fixedDelay = 300000)
-	@Transactional
+	// @Scheduled(fixedDelay = 300000)
+	// @Transactional
 	public void updateNewsOfStock() {
 		List<Stock> stocks = stockRepository.findAll().reversed();
 

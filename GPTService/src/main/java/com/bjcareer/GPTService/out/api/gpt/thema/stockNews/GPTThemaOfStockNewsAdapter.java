@@ -13,6 +13,7 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +23,13 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaOfStockNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AdA3utUP";
+	public static final String MODEL = "ft:gpt-4o-2024-08-06:personal::AeDV6Sq6";
 	private final WebClient webClient;
+	private final RedisThemaRepository redisThemaRepository;
 
 	public Optional<GPTStockThema> getThema(GPTNewsDomain stockNews, String knownThema) {
 		GPTThemaOfStockRequestDTO requestDTO = createRequestDTO(stockNews.getNews().getContent(),
-			stockNews.getNews().getPubDate(), knownThema);
+			stockNews.getNews().getPubDate(), knownThema, stockNews.getStockName());
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
@@ -37,13 +39,11 @@ public class GPTThemaOfStockNewsAdapter {
 				.getMessage()
 				.getParsedContent();
 
+			List<String> themas = redisThemaRepository.loadThema();
+
 			if(parsedContent == null) {
 				log.warn("Parsed content is null");
 				return Optional.empty();
-			}
-
-			if(!parsedContent.isRelated()) {
-				log.warn("Wrong Parsed content: {}", parsedContent);
 			}
 
 			List<ThemaInfo> themaInfos = parsedContent.getThema()
@@ -51,23 +51,29 @@ public class GPTThemaOfStockNewsAdapter {
 				.map(t -> new ThemaInfo(t.getStockNames(), t.getName(), t.getReason()))
 				.toList();
 
+			themaInfos.stream().filter(t -> t.getStockName().contains(stockNews.getStockName()))
+				.forEach(t -> {
+					t.changeThemaNameUsingLevenshteinDistance(themas);
+					themas.add(t.getName());
+				});
+
 			return Optional.of(
-				new GPTStockThema(parsedContent.isRelated(), parsedContent.isPositive(), parsedContent.getRelatedDetail(),
-					stockNews.getNews(),
-					themaInfos));
+				new GPTStockThema(stockNews.getLink(), parsedContent.isPositive(), themaInfos));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty();
 		}
 	}
 
-	private GPTThemaOfStockRequestDTO createRequestDTO(String content, LocalDate pubDate, String knownThema) {
+	private GPTThemaOfStockRequestDTO createRequestDTO(String content, LocalDate pubDate, String knownThema,
+		String stockName) {
 		GPTThemaOfStockRequestDTO.Message systemMessage = new GPTThemaOfStockRequestDTO.Message(
 			GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 
 		GPTThemaOfStockRequestDTO.Message userMessage = new GPTThemaOfStockRequestDTO.Message(
-			GPTWebConfig.USER_ROLE, AnalyzeThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, content, knownThema));
+			GPTWebConfig.USER_ROLE,
+			AnalyzeThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, content, stockName, knownThema));
 
 		GPTResponseStockNewsOfThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseStockNewsOfThemaFormatDTO();
 

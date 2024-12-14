@@ -25,9 +25,9 @@ public class SearchRankingService {
 
 	@Scheduled(cron = "0 */5 * * * *")
 	void updateRanking() {
-		String thema = redisThemaRepository.loadThema();
+		List<String> strings = redisThemaRepository.loadThema();
 
-		if (thema.isEmpty()) {
+		if (strings.isEmpty()) {
 			log.error("thema가 아직 복구되지 않았습니다.");
 			return;
 		}

@@ -18,19 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Document(collection = "stock-thema-news")
 public class GPTStockThema {
-	private boolean isRelated;
-	private String relatedDetail;
 	private boolean isPositive;
 	private List<ThemaInfo> themaInfo;
 	@MongoId
 	private String link;
 
-	public GPTStockThema(boolean isRelated, boolean isPositive, String relatedDetail, OriginalNews news,
-		List<ThemaInfo> themaInfo) {
-		this.isRelated = isRelated;
+	public GPTStockThema(String link, boolean isPositive,List<ThemaInfo> themaInfo) {
+		this.link = link;
 		this.isPositive = isPositive;
-		this.relatedDetail = relatedDetail;
 		this.themaInfo = themaInfo;
-		this.link = news.getNewsLink();
 	}
 }
