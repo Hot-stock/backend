@@ -28,17 +28,25 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework:spring-webflux:6.1.13'
     implementation 'org.redisson:redisson-spring-boot-starter:3.33.0'
-    compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
+
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.apache.commons:commons-csv:1.8'
     testImplementation 'org.mockito:mockito-core:5.12.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+
+    //kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    //aws
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:3.0.0'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
-    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'software.amazon.awssdk:s3:2.20.89' // AWS SDK for S3 최신 버전 사용
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Spring Web 의존성
 
     implementation 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

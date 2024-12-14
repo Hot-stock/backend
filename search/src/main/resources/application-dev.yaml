@@ -34,6 +34,12 @@ spring:
     template:
       default-topic: dead-letter-topic
 
+aws:
+  s3:
+    bucket: ${BUCKET}
+    region: ap-northeast-2
+    access-key: ${BUCKET_ACCESS_KEY}
+    secret-key: ${BUCKET_SECRET_KEY}
 
 redis:
   address: redis://${REDIS_PRIVATE_ADDRESS}:${REDIS_PORT}
