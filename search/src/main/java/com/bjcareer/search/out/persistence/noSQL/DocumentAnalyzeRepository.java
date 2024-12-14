@@ -1,6 +1,10 @@
 package com.bjcareer.search.out.persistence.noSQL;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,10 +64,13 @@ public class DocumentAnalyzeRepository {
 		);
 
 		if (command.getDate() != null) {
+			LocalDateTime startDate = changeISOFormat(command.getDate(), "T00:00:00.000Z");
+			LocalDateTime endDate = changeISOFormat(command.getDate(), "T23:59:59.000Z");
+
 			filter = Filters.and(
 				filter,
-				Filters.eq("news.pubDate", command.getDate())
-			);
+				Filters.gte("news.pubDate", startDate.toInstant(ZoneOffset.UTC)),
+				Filters.lte("news.pubDate", endDate.toInstant(ZoneOffset.UTC)));
 		}
 
 		List<Document> documents = stockNewsCollection.find(filter)
@@ -72,7 +79,6 @@ public class DocumentAnalyzeRepository {
 
 		return convertDocumentsToGPTNewsDomains(documents);
 	}
-
 	public List<GPTThema> getThemaNews(LoadThemaNewsCommand command) {
 		Bson filter = Filters.and(
 			Filters.eq("themaInfo.name", command.getThemaName()),
@@ -169,4 +175,15 @@ public class DocumentAnalyzeRepository {
 		}
 		return "";
 	}
+
+	private LocalDateTime changeISOFormat(LocalDate date, String time) {
+		String target = date.toString() + time;
+		LocalDateTime dateTime = LocalDateTime.from(
+			Instant.from(
+				DateTimeFormatter.ISO_DATE_TIME.parse(target)
+			).atZone(AppConfig.ZONE_ID));
+
+		return dateTime;
+	}
+
 }

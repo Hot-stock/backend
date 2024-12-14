@@ -44,12 +44,15 @@ class DocumentAnalyzeRepositoryTest {
 	@Test
 	void 특정_날짜의_주식의_상승_이유를_요청() {
 		String target = "에이텍";
-		LoadStockRaiseReason command = new LoadStockRaiseReason(target, LocalDate.now());
+		LocalDate date = LocalDate.of(2024,12,12);
+		LoadStockRaiseReason command = new LoadStockRaiseReason(target, date);
 		List<GPTNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
+
+		System.out.println("reason = " + reason);
 
 		for (GPTNewsDomain gptNewsDomain : reason) {
 			assertEquals(gptNewsDomain.getStockName(), target);
-			assertEquals(gptNewsDomain.getNews().getPubDate(), LocalDate.now());
+			assertEquals(gptNewsDomain.getNews().getPubDate(), date);
 		}
 	}
 
