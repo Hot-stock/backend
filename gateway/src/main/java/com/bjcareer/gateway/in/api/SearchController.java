@@ -33,33 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SearchController {
-	private final KeywordServerPort keywordServerPort;
 	private final SearchServerPort searchServerPort;
-
-	@GetMapping("/api/v0/search/keyword")
-	@APIRateLimit
-	@Operation(
-		summary = "키워드 검색 통계 조회",
-		description = "요청한 키워드들의 검색 건수를 집계하여 반환하는 API입니다. " +
-			"외부 검색 API와 통신하여 데이터를 수집하며, 각 키워드의 검색 수를 계산하여 제공합니다." +
-			"따라서 느릴 수 있습니다" +
-			"유료 결제 회원만 사용 가능합니다"
-	)
-	public ResponseEntity<ResponseDomain<List<KeywordCountResponseDTO>>> getKeywordCount(@RequestParam(name = "q") String keyword) {
-		log.info("Request keyword: {}", keyword);
-		if (validationKeyword(keyword)) {
-			log.debug("Request keyword is empty");
-			return ResponseEntity.badRequest().build();
-		}
-
-		List<AbsoluteRankKeyword> searchCount = keywordServerPort.searchCount(new KeywordCommand(keyword));
-
-		List<KeywordCountResponseDTO> absoluteValueOfKeyword = searchCount.stream()
-			.map(it -> new KeywordCountResponseDTO(it.getAbsoluteKeywordCount(), it.getPeriod()))
-			.collect(Collectors.toList());
-		log.info("Response keyword: {}", absoluteValueOfKeyword);
-		return new ResponseEntity<>(new ResponseDomain<>(HttpStatus.OK, absoluteValueOfKeyword, null), HttpStatus.OK);
-	}
 
 	// @APIRateLimit
 	@GetMapping("/api/v0/search/thema")

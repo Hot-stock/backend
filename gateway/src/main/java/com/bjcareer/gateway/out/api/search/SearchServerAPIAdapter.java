@@ -1,10 +1,8 @@
 package com.bjcareer.gateway.out.api.search;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,11 +10,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.bjcareer.gateway.application.ports.in.StockInfoCommand;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
-import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.LoadRaiseReasonOfStock;
 import com.bjcareer.gateway.application.ports.out.LoadThemaNews;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
-import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ErrorDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchResult;
@@ -24,6 +20,7 @@ import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
@@ -32,23 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPort {
+public class SearchServerAPIAdapter implements SearchServerPort {
 	private final WebClient webClient;
 
 	public SearchServerAPIAdapter(@Qualifier("searchWebClient") WebClient webClient) {
 		this.webClient = webClient;
-	}
-
-	@Override
-	public List<AbsoluteRankKeyword> searchCount(KeywordCommand command) {
-		List<AbsoluteRankKeyword> result = webClient.get()
-			.uri(SearchServerURI.KEYWORD_COUNT + "?q=" + command.getKeyword())
-			.retrieve()
-			.bodyToMono(new ParameterizedTypeReference<List<AbsoluteRankKeyword>>() {
-			})
-			.block();  // 동기적으로 결과 대기
-
-		return result;  // 결과 반환
 	}
 
 	@Override
@@ -217,6 +202,25 @@ public class SearchServerAPIAdapter implements KeywordServerPort, SearchServerPo
 		log.info("Response of {} {}", SearchServerURI.FILTER_NEXT_SCHEDULE_BY_STOCKNAME, res.statusCode());
 		if (res.statusCode().is2xxSuccessful()) {
 			NextEventNewsDTO responseDTO = res.bodyToMono(NextEventNewsDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<RankStocksResponseDTO> getRankingStock() {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.TOT_STOCK_KEYWORD)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.TOT_STOCK_KEYWORD, res.statusCode());
+
+		if (res.statusCode().is2xxSuccessful()) {
+			RankStocksResponseDTO responseDTO = res.bodyToMono(RankStocksResponseDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
