@@ -51,7 +51,7 @@ public class RankingController {
 	@Operation(summary = "HotTopic 조회", description = "현재 상승률이 가장 높은 10종목(코스피, 코스닥)의 이류를 반환합니다. 다만 반듯이 이류를 찾는 것이 아니기 때문에 총 20개가 안될 수도 있습니다.")
 	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> getHotTopic() {
 		log.info("Request hot topic");
-		List<GPTNewsDomain> hotTopics = hotTopicService.getTrendingStory();
+		List<Pair<String, GPTNewsDomain>> hotTopics = hotTopicService.getTrendingStory();
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(hotTopics);
 		return ResponseEntity.ok(responseDTO);
 	}
