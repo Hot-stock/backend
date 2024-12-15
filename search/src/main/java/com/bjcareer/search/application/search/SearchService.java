@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import com.bjcareer.search.application.port.in.SearchUsecase;
@@ -71,15 +72,11 @@ public class SearchService implements SearchUsecase {
 	}
 
 	@Override
-	public List<GPTThema> findThemasNews(String stockCode, String themaName, LocalDate date) {
+	public Pair<List<String>, List<GPTThema>> findThemasNews(String stockCode, String themaName, LocalDate date) {
 		Optional<Stock> byCode = stockRepositoryPort.findByCode(stockCode);
 
 		List<String> target = new ArrayList<>();
 		List<GPTThema> result = new ArrayList<>();
-
-		if (byCode.isEmpty()) {
-			return List.of();
-		}
 
 		if (themaName.equals("ALL")) {
 			Stock stock = byCode.get();
@@ -91,7 +88,8 @@ public class SearchService implements SearchUsecase {
 		target.stream().map(thema -> documentAnalyzeRepository.getThemaNews(new LoadThemaNewsCommand(thema, date)))
 			.forEach(result::addAll);
 
-		return result;
+		List<String> theams = byCode.get().getThemas().stream().map(t -> t.getThemaInfo().getName()).toList();
+		return Pair.of(theams, result);
 	}
 
 	@Override

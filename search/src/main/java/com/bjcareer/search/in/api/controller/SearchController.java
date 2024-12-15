@@ -3,6 +3,7 @@ package com.bjcareer.search.in.api.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,8 +66,8 @@ public class SearchController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		List<GPTThema> themasNews = usecase.findThemasNews(code, theme, date);
-		return ResponseEntity.ok(new QueryToFindThemaNewsResponseDTO(themasNews));
+		Pair<List<String>, List<GPTThema>> themasNews = usecase.findThemasNews(code, theme, date);
+		return ResponseEntity.ok(new QueryToFindThemaNewsResponseDTO(themasNews.getSecond(), themasNews.getFirst()));
 	}
 
 	@GetMapping("/raise-reason")
