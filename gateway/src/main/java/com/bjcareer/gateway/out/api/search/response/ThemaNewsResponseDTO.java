@@ -10,6 +10,7 @@ import lombok.Getter;
 public class ThemaNewsResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
+	private List<String> themas = new ArrayList<>();
 
 	@Data
 	private static class Content {
