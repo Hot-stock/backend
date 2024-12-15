@@ -66,6 +66,7 @@ public class SearchController {
 			return ResponseEntity.badRequest().build();
 		}
 
+		log.debug("request news-thema: {} {} {}", code, theme, date);
 		Pair<List<String>, List<GPTThema>> themasNews = usecase.findThemasNews(code, theme, date);
 		return ResponseEntity.ok(new QueryToFindThemaNewsResponseDTO(themasNews.getSecond(), themasNews.getFirst()));
 	}

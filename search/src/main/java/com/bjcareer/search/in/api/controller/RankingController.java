@@ -3,7 +3,6 @@ package com.bjcareer.search.in.api.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +20,12 @@ import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v0/ranking")
 @RequiredArgsConstructor
+@Slf4j
 public class RankingController {
 	private final RankingUsecase usecase;
 	private final HotTopicService hotTopicService;
@@ -49,6 +50,7 @@ public class RankingController {
 	@GetMapping("/stocks")
 	@Operation(summary = "HotTopic 조회", description = "현재 상승률이 가장 높은 10종목(코스피, 코스닥)의 이류를 반환합니다. 다만 반듯이 이류를 찾는 것이 아니기 때문에 총 20개가 안될 수도 있습니다.")
 	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> getHotTopic() {
+		log.info("Request hot topic");
 		List<GPTNewsDomain> hotTopics = hotTopicService.getTrendingStory();
 		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(hotTopics);
 		return ResponseEntity.ok(responseDTO);
