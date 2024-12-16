@@ -57,7 +57,6 @@ public class SearchService implements SearchUsecase {
 
 	@Override
 	public List<GPTStockNewsDomain> findRaiseReason(String stockCode, LocalDate date) {
-		Map<LocalDate, List<GPTStockNewsDomain>> newsMap = new HashMap<>();
 		Optional<Stock> byCode = stockRepositoryPort.findByCode(stockCode);
 
 		if (byCode.isEmpty()) {

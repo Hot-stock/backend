@@ -19,7 +19,7 @@ class PythonSearchServerAdapterTest {
 
 	@Test
 	void 지정된_뉴스를_패치할_수_있는지_검증() {
-		NewsCommand newsCommand = new NewsCommand("오세훈", LocalDate.of(2024, 11, 23), LocalDate.of(2024, 11, 23));
+		NewsCommand newsCommand = new NewsCommand("이준석", LocalDate.of(2024, 12, 17), LocalDate.of(2024, 12, 17));
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(newsCommand);
 		assertNotNull(newsResponseDTOS);
 		System.out.println("originalNews = " + newsResponseDTOS);

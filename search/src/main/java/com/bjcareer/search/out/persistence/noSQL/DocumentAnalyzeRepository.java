@@ -168,11 +168,13 @@ public class DocumentAnalyzeRepository {
 		String stockName = document.getString("stockName");
 		String reason = document.getString("reason");
 
+		List<String> keywords = (List<String>) document.getOrDefault("keywords", new ArrayList<>());
+
 		String next = getDate(document);
 
 		String nextReason = document.getString("nextReasonFact");
 
-		return new GPTStockNewsDomain(stockName, reason, new ArrayList<>(), next.toString(), nextReason);
+		return new GPTStockNewsDomain(stockName, reason, keywords, next.toString(), nextReason);
 	}
 
 	private News changeDocumentToNewsDomain(Document document) {

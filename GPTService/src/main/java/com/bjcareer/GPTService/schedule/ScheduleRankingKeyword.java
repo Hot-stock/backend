@@ -21,7 +21,7 @@ public class ScheduleRankingKeyword {
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final RedisTrendKeywordRankAdapter trendKeywordRankAdapter;
 
-	@Scheduled(cron = "0 0 10 * * *")
+	@Scheduled(cron = "0 10 9 * * *", zone = "Asia/Seoul")
 	public void updateRankingKeyword() {
 		log.info("Start update ranking keyword");
 

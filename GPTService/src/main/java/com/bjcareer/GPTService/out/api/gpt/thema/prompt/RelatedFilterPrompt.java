@@ -1,10 +1,12 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.prompt;
+package com.bjcareer.GPTService.out.api.gpt.news;
 
 public class RelatedFilterPrompt {
 	public static final String PROMPT =
-		"Imagine three experts evaluating a news article's relevance to the stock market.\n"
-			+ "Each expert will analyze the article step by step and refine their conclusions collaboratively.\n"
-			+ "The content of the news article is provided within <article></article> tags.\n\n"
+		"세 명의 전문가가 뉴스 기사의 정보성을 평가한다고 상상해보세요.\n"
+			+ "각 전문가는 자신의 판단 과정을 한 단계씩 기록하고,\n"
+			+ "그 후 그룹 내에서 공유합니다.\n"
+			+ "모든 전문가가 함께 다음 단계로 진행합니다.\n"
+			+ "어느 전문가라도 자신이 틀렸다고 판단하는 경우, 논의에서 떠납니다.\n\n"
 
 			+ "질문: 기사의 정보성을 평가하고, 해당 기사가 테마를 가질 수 있는 뉴스인지 평가하세요.\n\n"
 
