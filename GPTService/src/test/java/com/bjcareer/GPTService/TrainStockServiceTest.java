@@ -43,12 +43,12 @@ class TrainStockServiceTest {
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
 		//씨큐센부터 option 없음
-		String stockName = "형지엘리트";//ㅁ //태영건설ㄴ
+		String stockName = "케이씨에스";//ㅁ //태영건설ㄴ
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 12, 13);
-		LocalDate endDate = LocalDate.of(2024, 12, 13);
+		LocalDate startDate = LocalDate.of(2024, 12, 16);
+		LocalDate endDate = LocalDate.of(2024, 12, 16);
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(stockName, startDate, endDate));
@@ -110,7 +110,7 @@ class TrainStockServiceTest {
 	}
 
 	private String generateUserPrompt(String stockName, OriginalNews news) {
-		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), stockName, news.getContent());
+		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), news.getTitle(), stockName, news.getContent());
 	}
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {

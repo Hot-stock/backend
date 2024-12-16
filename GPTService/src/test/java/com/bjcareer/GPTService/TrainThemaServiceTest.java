@@ -109,7 +109,7 @@ class TrainThemaServiceTest {
 		TrainService trainService = new TrainService();
 		trainService.addMessage(GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_THEMA_TEXT);
 
-		Optional<GPTStockThema> optGptThema = gptThemaAdapter.getThema(news, knownThema);
+		Optional<GPTStockThema> optGptThema = gptThemaAdapter.getThema(news);
 
 		String userPrompt = generateUserPrompt(news.getNews(), news.getStockName(), knownThema);
 		trainService.addMessage(GPTWebConfig.USER_ROLE, userPrompt);
