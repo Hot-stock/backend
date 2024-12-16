@@ -42,6 +42,6 @@ public class RankingService implements RankingUsecase {
 		Optional<Stock> byName = stockRepositoryPort.findByName(t.getFirst());
 		Stock stock = byName.get();
 		stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
-		result.add(Pair.of(stock, t.getSecond().toString()));
+				result.add(Pair.of(stock, String.valueOf(t.getSecond().intValue() * -1)));
 	}
 }
