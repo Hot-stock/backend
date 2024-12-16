@@ -8,7 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -55,7 +55,7 @@ public class ThemaInfo {
 		this(name, null);
 	}
 
-	public void addThemaNews(List<GPTThema> themas) {
+	public void addThemaNews(List<GPTThemaNewsDomain> themas) {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 		ArrayNode arrayNode = mapper.convertValue(themas, ArrayNode.class);
 
@@ -67,8 +67,8 @@ public class ThemaInfo {
 		return "ThemaInfo{" + "id=" + id + ", name='" + name + '\'' + ", href='" + href + '\'' + '}';
 	}
 
-	public List<GPTThema> getNews() {
-		return AppConfig.customObjectMapper().convertValue(news, new TypeReference<List<GPTThema>>() {});
+	public List<GPTThemaNewsDomain> getNews() {
+		return AppConfig.customObjectMapper().convertValue(news, new TypeReference<List<GPTThemaNewsDomain>>() {});
 	}
 
 }

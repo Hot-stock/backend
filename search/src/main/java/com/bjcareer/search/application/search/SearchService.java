@@ -22,8 +22,8 @@ import com.bjcareer.search.candidate.Trie;
 import com.bjcareer.search.domain.NewsHelper;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.bjcareer.search.event.SearchedKeyword;
 import com.bjcareer.search.out.persistence.noSQL.DocumentAnalyzeRepository;
 
@@ -56,8 +56,8 @@ public class SearchService implements SearchUsecase {
 	}
 
 	@Override
-	public List<GPTNewsDomain> findRaiseReason(String stockCode, LocalDate date) {
-		Map<LocalDate, List<GPTNewsDomain>> newsMap = new HashMap<>();
+	public List<GPTStockNewsDomain> findRaiseReason(String stockCode, LocalDate date) {
+		Map<LocalDate, List<GPTStockNewsDomain>> newsMap = new HashMap<>();
 		Optional<Stock> byCode = stockRepositoryPort.findByCode(stockCode);
 
 		if (byCode.isEmpty()) {
@@ -65,18 +65,18 @@ public class SearchService implements SearchUsecase {
 		}
 
 		LoadStockRaiseReason command = new LoadStockRaiseReason(byCode.get().getName(), date);
-		List<GPTNewsDomain> raiseReason = documentAnalyzeRepository.getRaiseReason(command);
+		List<GPTStockNewsDomain> raiseReason = documentAnalyzeRepository.getRaiseReason(command);
 		raiseReason = NewsHelper.RemoveDuplicatedNews(raiseReason);
 
 		return raiseReason;
 	}
 
 	@Override
-	public Pair<List<String>, List<GPTThema>> findThemasNews(String stockCode, String themaName, LocalDate date) {
+	public Pair<List<String>, List<GPTThemaNewsDomain>> findThemasNews(String stockCode, String themaName, LocalDate date) {
 		Optional<Stock> byCode = stockRepositoryPort.findByCode(stockCode);
 
 		List<String> target = new ArrayList<>();
-		List<GPTThema> result = new ArrayList<>();
+		List<GPTThemaNewsDomain> result = new ArrayList<>();
 
 		if (themaName.equals("ALL")) {
 			Stock stock = byCode.get();

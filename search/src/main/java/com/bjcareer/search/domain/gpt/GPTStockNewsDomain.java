@@ -17,15 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ToString
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class GPTNewsDomain {
+public class GPTStockNewsDomain {
 	private String stockName;
 	private String reason;
 	private List<String> keywords = new ArrayList<>();
 	private String nextReason;
 	private Optional<LocalDate> next;
 	private News news;
+	private String preSignedStockLogoUrl;
+	private List<String> themas = new ArrayList<>();
 
-	public GPTNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason,
+
+	public GPTStockNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason,
 		News news) {
 		this.stockName = stockName;
 		this.reason = reason;
@@ -36,7 +39,7 @@ public class GPTNewsDomain {
 		parseLocalDate(next);
 	}
 
-	public GPTNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason) {
+	public GPTStockNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason) {
 		this(stockName, reason, keywords, next, nextReason, null);
 	}
 
@@ -57,13 +60,21 @@ public class GPTNewsDomain {
 		this.news = news;
 	}
 
+	public void addThema(List<String> thema) {
+		this.themas = thema;
+	}
+
+	public void linkPreSignedStockLogoUrl(String preSignedStockLogoUrl) {
+		this.preSignedStockLogoUrl = preSignedStockLogoUrl;
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object)
 			return true;
 		if (object == null || getClass() != object.getClass())
 			return false;
-		GPTNewsDomain that = (GPTNewsDomain)object;
+		GPTStockNewsDomain that = (GPTStockNewsDomain)object;
 		return Objects.equals(stockName, that.stockName) && Objects.equals(news, that.news);
 	}
 

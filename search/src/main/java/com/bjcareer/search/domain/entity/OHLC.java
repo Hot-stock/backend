@@ -6,7 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -60,7 +60,7 @@ public class OHLC {
 		this.percentageIncrease = percentageIncrease;
 	}
 
-	public void addRoseNews(GPTNewsDomain news) {
+	public void addRoseNews(GPTStockNewsDomain news) {
 		this.news.add(AppConfig.customObjectMapper().convertValue(news, JsonNode.class));
 	}
 

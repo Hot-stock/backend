@@ -7,26 +7,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 public final class NewsHelper {
-	public static List<GPTNewsDomain> RemoveDuplicatedNews(List<GPTNewsDomain> news) {
-		Map<LocalDate, List<GPTNewsDomain>> newsByDate = new HashMap<>();
+	public static List<GPTStockNewsDomain> RemoveDuplicatedNews(List<GPTStockNewsDomain> news) {
+		Map<LocalDate, List<GPTStockNewsDomain>> newsByDate = new HashMap<>();
 
-		for (GPTNewsDomain gptNewsDomain : news) {
-			if (!newsByDate.containsKey(gptNewsDomain.getNews().getPubDate())) {
-				newsByDate.put(gptNewsDomain.getNews().getPubDate(), new ArrayList<>());
+		for (GPTStockNewsDomain gptStockNewsDomain : news) {
+			if (!newsByDate.containsKey(gptStockNewsDomain.getNews().getPubDate())) {
+				newsByDate.put(gptStockNewsDomain.getNews().getPubDate(), new ArrayList<>());
 			}
-			List<GPTNewsDomain> gptNewsDomains = newsByDate.get(gptNewsDomain.getNews().getPubDate());
+			List<GPTStockNewsDomain> gptStockNewsDomains = newsByDate.get(gptStockNewsDomain.getNews().getPubDate());
 
-			boolean duplicated = isDuplicated(gptNewsDomains, gptNewsDomain);
+			boolean duplicated = isDuplicated(gptStockNewsDomains, gptStockNewsDomain);
 
 			if (!duplicated) {
-				newsByDate.get(gptNewsDomain.getNews().getPubDate()).add(gptNewsDomain);
+				newsByDate.get(gptStockNewsDomain.getNews().getPubDate()).add(gptStockNewsDomain);
 			}
 		}
 
-		List<GPTNewsDomain> result = new ArrayList<>();
+		List<GPTStockNewsDomain> result = new ArrayList<>();
 		List<LocalDate> sortedPubDate = newsByDate.keySet().stream().sorted().toList().reversed();
 
 		for (LocalDate key : sortedPubDate) {
@@ -36,8 +36,8 @@ public final class NewsHelper {
 		return result;
 	}
 
-	private static boolean isDuplicated(List<GPTNewsDomain> source, GPTNewsDomain target) {
-		for (GPTNewsDomain newsDomain : source) {
+	private static boolean isDuplicated(List<GPTStockNewsDomain> source, GPTStockNewsDomain target) {
+		for (GPTStockNewsDomain newsDomain : source) {
 			boolean result = !Collections.disjoint(newsDomain.getKeywords(), target.getKeywords());
 
 			if (result) {

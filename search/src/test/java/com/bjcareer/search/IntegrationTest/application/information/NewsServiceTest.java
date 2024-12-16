@@ -3,22 +3,19 @@ package com.bjcareer.search.IntegrationTest.application.information;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.exceptions.InvalidStockInformationException;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
-import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.application.search.SearchService;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
@@ -57,7 +54,7 @@ class NewsServiceTest {
 		LocalDate date = LocalDate.now().plusDays(1);
 
 		//when
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
+		List<GPTStockNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
 		assertTrue(raiseReasonThatDate.isEmpty());
 	}
 
@@ -66,7 +63,7 @@ class NewsServiceTest {
 		String stockName = "우신시스템";
 		LocalDate date = LocalDate.of(2024, 10, 25);
 
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
+		List<GPTStockNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
 		assertFalse(raiseReasonThatDate.isEmpty());
 
 		LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand(stockName, date);
@@ -107,17 +104,17 @@ class NewsServiceTest {
 	// 	chart.addOHLC(ohlcList);
 	//
 	// 	//when
-	// 	List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate("우신시스템",
+	// 	List<GPTStockNewsDomain> raiseReasonThatDate = newsService.findRaiseReasonThatDate("우신시스템",
 	// 		LocalDate.of(2020, 9, 2));
 	//
 	// 	assertFalse(raiseReasonThatDate.isEmpty());
 	//
 	// 	LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand("우신시스템", LocalDate.of(2020, 9, 2));
 	// 	StockChart chartByDate = stockChartRepositoryPort.findChartByDate(command);
-	// 	List<GPTNewsDomain> allNews = chartByDate.getAllNews();
+	// 	List<GPTStockNewsDomain> allNews = chartByDate.getAllNews();
 	//
-	// 	for (GPTNewsDomain GPTNewsDomain : allNews) {
-	// 		System.out.println(GPTNewsDomain);
+	// 	for (GPTStockNewsDomain GPTStockNewsDomain : allNews) {
+	// 		System.out.println(GPTStockNewsDomain);
 	// 	}
 	// }
 

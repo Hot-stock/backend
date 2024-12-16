@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.data.util.Pair;
-
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 import lombok.Data;
 import lombok.Getter;
@@ -18,14 +16,9 @@ public class QueryToFindRaiseReasonResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
 
-	public QueryToFindRaiseReasonResponseDTO(List<Pair<String, GPTNewsDomain>> contents) {
-		for (Pair<String, GPTNewsDomain> pair : contents) {
-			String logoURL = pair.getFirst();
-			GPTNewsDomain gptNewsDomain = pair.getSecond();
-			this.items.add(
-				new Content(gptNewsDomain.getStockName(), gptNewsDomain.getNews().getTitle(), gptNewsDomain.getReason(),
-					gptNewsDomain.getNews().getImgLink(), gptNewsDomain.getNews().getOriginalLink(),
-					gptNewsDomain.getNews().getPubDate(), logoURL));
+	public QueryToFindRaiseReasonResponseDTO(List<GPTStockNewsDomain> contents) {
+		for (GPTStockNewsDomain gptStockNewsDomain : contents) {
+			this.items.add(new Content(gptStockNewsDomain));
 		}
 		this.total = items.size();
 	}
@@ -33,22 +26,25 @@ public class QueryToFindRaiseReasonResponseDTO {
 	@Data
 	private static class Content {
 		private String stockName;
+		private String logoLink;
+		private List<String> themas = new ArrayList<>();
+
 		private String title;
 		private String summary;
 		private String imgLink;
-		private String logoLink;
 		private String link;
 		private String date;
 
-		public Content(String stockName, String title, String summary, String imgLink, String link, LocalDate date,
-			String logoLink) {
-			this.stockName = stockName;
-			this.title = title;
-			this.summary = summary;
-			this.imgLink = imgLink;
-			this.link = link;
-			this.logoLink = logoLink;
-			this.date = Objects.requireNonNullElseGet(date, () -> LocalDate.now(AppConfig.ZONE_ID)).toString();
+		public Content(GPTStockNewsDomain gptStockNewsDomain) {
+			this.stockName = gptStockNewsDomain.getStockName();
+			this.title = gptStockNewsDomain.getNews().getTitle();
+			this.summary = gptStockNewsDomain.getReason();
+			this.themas = gptStockNewsDomain.getThemas();
+			this.imgLink = gptStockNewsDomain.getNews().getImgLink();
+			this.link = gptStockNewsDomain.getNews().getOriginalLink();
+			this.logoLink = gptStockNewsDomain.getPreSignedStockLogoUrl();
+			this.date = Objects.requireNonNullElseGet(gptStockNewsDomain.getNews().getPubDate(),
+				() -> LocalDate.now(AppConfig.ZONE_ID)).toString();
 		}
 	}
 }

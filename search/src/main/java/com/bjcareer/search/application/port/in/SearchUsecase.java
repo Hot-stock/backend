@@ -7,13 +7,13 @@ import org.springframework.data.util.Pair;
 
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 
 public interface SearchUsecase {
 	List<Thema> filterThemesByQuery(String keyword);
 	List<Stock> filterStockByQuery(String keyword);
-	List<GPTNewsDomain> findRaiseReason(String stockName, LocalDate date);
-	Pair<List<String>, List<GPTThema>> findThemasNews(String code, String themaName, LocalDate date);
+	List<GPTStockNewsDomain> findRaiseReason(String stockName, LocalDate date);
+	Pair<List<String>, List<GPTThemaNewsDomain>> findThemasNews(String code, String themaName, LocalDate date);
 	List<String> getSuggestionKeyword(String keyword);
 }

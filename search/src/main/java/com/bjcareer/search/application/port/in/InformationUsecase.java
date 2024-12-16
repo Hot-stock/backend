@@ -3,8 +3,8 @@ package com.bjcareer.search.application.port.in;
 import java.time.LocalDate;
 import java.util.Map;
 
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 public interface InformationUsecase {
-	Map<LocalDate, GPTNewsDomain> findSearchRaiseReason(String stockName);
+	Map<LocalDate, GPTStockNewsDomain> findSearchRaiseReason(String stockName);
 }

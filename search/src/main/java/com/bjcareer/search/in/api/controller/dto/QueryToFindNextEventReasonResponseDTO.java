@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 import lombok.Data;
 import lombok.Getter;
@@ -14,11 +14,11 @@ public class QueryToFindNextEventReasonResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
 
-	public QueryToFindNextEventReasonResponseDTO(List<GPTNewsDomain> contents) {
-		for (GPTNewsDomain GPTNewsDomain : contents) {
-			this.items.add(new Content(GPTNewsDomain.getStockName(), GPTNewsDomain.getNextReason(),
-				GPTNewsDomain.getNews().getImgLink(), GPTNewsDomain.getNews().getOriginalLink(),
-				GPTNewsDomain.getNext().get()));
+	public QueryToFindNextEventReasonResponseDTO(List<GPTStockNewsDomain> contents) {
+		for (GPTStockNewsDomain GPTStockNewsDomain : contents) {
+			this.items.add(new Content(GPTStockNewsDomain.getStockName(), GPTStockNewsDomain.getNextReason(),
+				GPTStockNewsDomain.getNews().getImgLink(), GPTStockNewsDomain.getNews().getOriginalLink(),
+				GPTStockNewsDomain.getNext().get()));
 		}
 		this.total = items.size();
 	}
