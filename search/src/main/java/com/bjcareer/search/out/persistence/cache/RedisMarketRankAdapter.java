@@ -18,7 +18,7 @@ import com.bjcareer.search.application.port.out.persistence.stock.StockRepositor
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.out.persistence.cache.dtos.RedisRankingStockDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,27 +32,25 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisMarketRankAdapter implements MarketRankingPort {
 	private final RedissonClient redissonClient;
 	private final static String BUKET_KEY = "MARKET_RANKING_NEWS:";
-	private final StockRepositoryPort stockRepositoryPort;
-	private final S3Service s3Service;
-
+	private final ObjectMapper mapper = AppConfig.customObjectMapper();
 	public boolean isExistInCache(Stock stock) {
 		String key = BUKET_KEY + stock.getName();
 		return redissonClient.getBucket(key).isExists();
 	}
 
 	@Override
-	public void updateRankingNews(GPTNewsDomain news, Stock stock) {
+	public void updateRankingNews(GPTStockNewsDomain news, Stock stock) {
 		String key = BUKET_KEY + stock.getName();
-		RBucket<GPTNewsDomain> bucket = redissonClient.getBucket(key);
+		RBucket<GPTStockNewsDomain> bucket = redissonClient.getBucket(key);
 		bucket.set(news, Duration.ofMinutes(10));
 	}
 
 	@Override
-	public List<Pair<String, GPTNewsDomain>> getRankingNews() {
+	public List<GPTStockNewsDomain> getRankingNews() {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 		List<String> keys = scanKeys(BUKET_KEY + "*");
 
-		List<Pair<String, GPTNewsDomain>> result = new ArrayList<>();
+		List<GPTStockNewsDomain> result = new ArrayList<>();
 
 		List<RedisRankingStockDTO> list = keys.stream()
 			.filter(key -> redissonClient.getBucket(key).isExists())
@@ -61,14 +59,12 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 			.flatMap(Optional::stream).toList();
 
 		for (RedisRankingStockDTO dto : list) {
-			String logoURL = getLogoURL(dto);
 
-			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getNewsURL(), "", "", "");
-			GPTNewsDomain gtpNewsDomain = new GPTNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
+			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getImageURL(), "", "", "");
+			GPTStockNewsDomain gtpNewsDomain = new GPTStockNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
 
 			gtpNewsDomain.addNewsDomain(news);
-
-			result.add(Pair.of(logoURL, gtpNewsDomain));
+			result.add(gtpNewsDomain);
 		}
 
 		return result;
@@ -80,17 +76,6 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 		redissonClient.getBucket(key).delete();
 	}
 
-	private String getLogoURL(RedisRankingStockDTO dto) {
-		String url = s3Service.getStockLogoURL(dto.getStockName());
-
-		if (!url.isEmpty()) {
-			return url;
-		}
-
-		Optional<Stock> byName = stockRepositoryPort.findByName(dto.getStockName());
-		byName.ifPresent(stock -> s3Service.uploadURL(stock.getCode(), stock.getName()));
-		return s3Service.getStockLogoURL(dto.getStockName());
-	}
 
 	private List<String> scanKeys(String pattern) {
 		RKeys keys = redissonClient.getKeys();
@@ -104,6 +89,7 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 
 	private Optional<RedisRankingStockDTO> jsonParser(ObjectMapper mapper, String value) {
 		try {
+
 			return Optional.of(mapper.readValue(value, RedisRankingStockDTO.class));
 		} catch (JsonProcessingException e) {
 			log.error("Failed to convert object to json: {}", value);

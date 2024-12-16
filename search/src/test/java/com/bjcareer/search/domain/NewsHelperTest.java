@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.bjcareer.search.CommonConfig;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 class NewsHelperTest {
 
@@ -21,24 +21,24 @@ class NewsHelperTest {
 		News news1 = new News("이재명", "link", "link", "desc", pubDate, "content");
 		News news2 = new News("정치테마주", "link", "link", "desc", pubDate, "content");
 
-		GPTNewsDomain newsDomain1 = new GPTNewsDomain("써니전자", "이사",
+		GPTStockNewsDomain newsDomain1 = new GPTStockNewsDomain("써니전자", "이사",
 			new ArrayList<>(Arrays.asList("안철수")), "2021-07-01",
 			"다음 이사는 2021-07-01", news);
-		GPTNewsDomain newsDomain2 = new GPTNewsDomain("에이텍", "이사",
+		GPTStockNewsDomain newsDomain2 = new GPTStockNewsDomain("에이텍", "이사",
 			new ArrayList<>(Arrays.asList("이재명")), "2021-07-01",
 			"다음 이사는 2021-07-01", news1);
-		GPTNewsDomain newsDomain3 = new GPTNewsDomain("써니전자", "이사",
+		GPTStockNewsDomain newsDomain3 = new GPTStockNewsDomain("써니전자", "이사",
 			new ArrayList<>(Arrays.asList("정치테마주", "안철수")), "2021-07-01",
 			"다음 이사는 2021-07-01", news2);
 
-		ArrayList<GPTNewsDomain> domains = new ArrayList<>();
+		ArrayList<GPTStockNewsDomain> domains = new ArrayList<>();
 		domains.add(newsDomain1);
 		domains.add(newsDomain2);
 		domains.add(newsDomain3);
 
-		List<GPTNewsDomain> gptNewsDomains = NewsHelper.RemoveDuplicatedNews(domains);
+		List<GPTStockNewsDomain> gptStockNewsDomains = NewsHelper.RemoveDuplicatedNews(domains);
 
-		assertEquals(2, gptNewsDomains.size());
+		assertEquals(2, gptStockNewsDomains.size());
 	}
 
 }

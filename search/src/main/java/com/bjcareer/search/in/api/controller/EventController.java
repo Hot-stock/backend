@@ -1,7 +1,6 @@
 package com.bjcareer.search.in.api.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.information.NextEventService;
-import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
-import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindNextEventReasonResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +30,7 @@ public class EventController {
 		description = "오늘 날짜를 기준으로 앞으로 남은 일정들을 모두 조회"
 	)
 	public ResponseEntity<QueryToFindNextEventReasonResponseDTO> getUpcomingEvent() {
-		List<GPTNewsDomain> upcomingEvents = eventService.getUpcomingEvents();
+		List<GPTStockNewsDomain> upcomingEvents = eventService.getUpcomingEvents();
 		QueryToFindNextEventReasonResponseDTO queryToFindRaiseReasonResponseDTO = new QueryToFindNextEventReasonResponseDTO(
 			upcomingEvents);
 
@@ -46,7 +43,7 @@ public class EventController {
 		@RequestParam(name = "q") String code) {
 		log.debug("request next-schedule: {}", code);
 
-		List<GPTNewsDomain> nextSchedule = eventService.filterUpcomingEventsByStockName(code);
+		List<GPTStockNewsDomain> nextSchedule = eventService.filterUpcomingEventsByStockName(code);
 		QueryToFindNextEventReasonResponseDTO responseDTO = new QueryToFindNextEventReasonResponseDTO(
 			nextSchedule);
 

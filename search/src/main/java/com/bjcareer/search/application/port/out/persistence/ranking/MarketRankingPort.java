@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.data.util.Pair;
 
 import com.bjcareer.search.domain.entity.Stock;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 public interface MarketRankingPort {
-	void updateRankingNews(GPTNewsDomain news, Stock stock);
-	List<Pair<String, GPTNewsDomain>> getRankingNews();
+	void updateRankingNews(GPTStockNewsDomain news, Stock stock);
+	List<GPTStockNewsDomain> getRankingNews();
 	boolean isExistInCache(Stock stock);
 	void removeRankingNews(Stock stock);
 }

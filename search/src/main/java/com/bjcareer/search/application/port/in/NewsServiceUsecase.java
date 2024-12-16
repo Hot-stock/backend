@@ -3,10 +3,10 @@ package com.bjcareer.search.application.port.in;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 public interface NewsServiceUsecase {
-	List<GPTNewsDomain> findNextSchedule(String stockName, LocalDate date);
-	List<GPTNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date);
-	List<GPTNewsDomain> searchThemaNews(String Keyword, LocalDate date);
+	List<GPTStockNewsDomain> findNextSchedule(String stockName, LocalDate date);
+	List<GPTStockNewsDomain> findRaiseReasonThatDate(String stockName, LocalDate date);
+	List<GPTStockNewsDomain> searchThemaNews(String Keyword, LocalDate date);
 }

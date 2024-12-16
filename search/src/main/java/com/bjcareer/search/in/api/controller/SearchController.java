@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bjcareer.search.application.port.in.SearchUsecase;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindThemaNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
@@ -67,7 +67,7 @@ public class SearchController {
 		}
 
 		log.debug("request news-thema: {} {} {}", code, theme, date);
-		Pair<List<String>, List<GPTThema>> themasNews = usecase.findThemasNews(code, theme, date);
+		Pair<List<String>, List<GPTThemaNewsDomain>> themasNews = usecase.findThemasNews(code, theme, date);
 		return ResponseEntity.ok(new QueryToFindThemaNewsResponseDTO(themasNews.getSecond(), themasNews.getFirst()));
 	}
 
@@ -85,7 +85,7 @@ public class SearchController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		List<GPTNewsDomain> contents = usecase.findRaiseReason(code, date);
+		List<GPTStockNewsDomain> contents = usecase.findRaiseReason(code, date);
 		QueryToFindRaiseReasonResponseDTO response = new QueryToFindRaiseReasonResponseDTO(
 			contents);
 

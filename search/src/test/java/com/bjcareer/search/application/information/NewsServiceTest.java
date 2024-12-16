@@ -28,7 +28,7 @@ import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.OHLC;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 @ExtendWith(MockitoExtension.class)
 class NewsServiceTest {
@@ -83,7 +83,7 @@ class NewsServiceTest {
 		when(loadStockInformationServerPort.loadStockChart(any())).thenReturn(tempChart);
 
 		// When
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
+		List<GPTStockNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
 
 		// Then
 		assertTrue(raiseReasonThatDate.isEmpty());
@@ -99,8 +99,8 @@ class NewsServiceTest {
 		News news = new News("title", "link", "link", "묘사", pubDate, "휴가로 인해서 래쉬가드 수요가 증가함");
 
 		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
-		GPTNewsDomain GPTNewsDomain = new GPTNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
-		GPTNewsDomain.addNewsDomain(news);
+		GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
+		GPTStockNewsDomain.addNewsDomain(news);
 
 		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
 		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, 10L, LocalDate.now().plusDays(1));
@@ -118,9 +118,9 @@ class NewsServiceTest {
 		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 		when(loadNewsPort.fetchNews(any())).thenReturn(List.of(news));
 		when(gptAPIPort.findStockRaiseReason(anyString(), anyString(), any())).thenReturn(
-			Optional.of(GPTNewsDomain));
+			Optional.of(GPTStockNewsDomain));
 
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
+		List<GPTStockNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, date);
 
 		// Then
 		assertFalse(raiseReasonThatDate.isEmpty());
@@ -137,27 +137,27 @@ class NewsServiceTest {
 		News news2 = new News("title", "link", "link", "묘사", pubDate, "동남아 여행지로 많이 가서 수요가 증가함");
 
 		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
-		GPTNewsDomain GPTNewsDomain = new GPTNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
-		GPTNewsDomain.addNewsDomain(news1);
+		GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
+		GPTStockNewsDomain.addNewsDomain(news1);
 
 		Map<String, String> themas2 = Map.of("여행", "동남아 여행객 증가로 래쉬가드 수요 증가");
-		GPTNewsDomain GPTNewsDomain2 = new GPTNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", new ArrayList<>(), null, null);
-		GPTNewsDomain2.addNewsDomain(news2);
+		GPTStockNewsDomain GPTStockNewsDomain2 = new GPTStockNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", new ArrayList<>(), null, null);
+		GPTStockNewsDomain2.addNewsDomain(news2);
 
 		Stock stock = new Stock("12345", stockName);
 
 		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
 		OHLC ohlc1 = new OHLC(0, 0, 3, 4, 2, 10L, LocalDate.now().plusDays(1));
 
-		ohlc.addRoseNews(GPTNewsDomain);
-		ohlc.addRoseNews(GPTNewsDomain2);
+		ohlc.addRoseNews(GPTStockNewsDomain);
+		ohlc.addRoseNews(GPTStockNewsDomain2);
 
 		StockChart stockChart = new StockChart(stock.getCode(), new ArrayList<>(List.of(ohlc, ohlc1)));
 
 		when(stockRepositoryPort.findByName(anyString())).thenReturn(Optional.of(stock));
 		when(stockChartRepositoryPort.loadStockChart(stock.getCode())).thenReturn(Optional.of(stockChart));
 
-		List<GPTNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, LocalDate.now());
+		List<GPTStockNewsDomain> raiseReasonThatDate = newsService.findRaiseReason(stockName, LocalDate.now());
 
 		assertEquals(2, raiseReasonThatDate.size());
 	}

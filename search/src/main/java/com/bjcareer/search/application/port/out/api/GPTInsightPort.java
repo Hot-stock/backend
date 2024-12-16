@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.bjcareer.search.domain.gpt.insight.GPTInsight;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 
 public interface GPTInsightPort {
-	GPTInsight getInsight(List<GPTNewsDomain> newes, List<GPTThema> themas, LocalDate baseDate);
+	GPTInsight getInsight(List<GPTStockNewsDomain> newes, List<GPTThemaNewsDomain> themas, LocalDate baseDate);
 }

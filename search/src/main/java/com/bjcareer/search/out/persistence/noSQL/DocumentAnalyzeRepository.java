@@ -18,8 +18,8 @@ import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaise
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -39,14 +39,14 @@ public class DocumentAnalyzeRepository {
 		themaNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection("stock-thema-news");
 	}
 
-	public List<GPTNewsDomain> getUpcomingNews() {
+	public List<GPTStockNewsDomain> getUpcomingNews() {
 		List<Document> documents = stockNewsCollection.find(Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)))
 			.sort(Sorts.ascending("next")).into(new ArrayList<>());
-		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
+		List<GPTStockNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
 		return result;
 	}
 
-	public List<GPTNewsDomain> getUpcomingNewsByStockName(String stockName) {
+	public List<GPTStockNewsDomain> getUpcomingNewsByStockName(String stockName) {
 		List<Document> documents = stockNewsCollection.find(
 			Filters.and(
 				Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)),
@@ -54,12 +54,12 @@ public class DocumentAnalyzeRepository {
 			)
 		).sort(Sorts.ascending("next")).into(new ArrayList<>());
 
-		List<GPTNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
+		List<GPTStockNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
 
 		return result;
 	}
 
-	public List<GPTNewsDomain> getRaiseReason(LoadStockRaiseReason command) {
+	public List<GPTStockNewsDomain> getRaiseReason(LoadStockRaiseReason command) {
 		Bson filter = Filters.and(
 			Filters.eq("stockName", command.getStockName()),
 			Filters.eq("isRelated", true)
@@ -85,7 +85,27 @@ public class DocumentAnalyzeRepository {
 
 		return convertDocumentsToGPTNewsDomains(documents);
 	}
-	public List<GPTThema> getThemaNews(LoadThemaNewsCommand command) {
+
+	public List<String> getThemasOfNews(String link, String stockName) {
+		List<String> result = new ArrayList<>();
+		Bson filter = Filters.and(
+			Filters.eq("_id", link)
+		);
+
+		themaNewsCollection.find(filter).forEach(doc -> {
+			List<Document> themaInfo = (List<Document>)doc.get("themaInfo");
+			themaInfo.forEach(info -> {
+				List<String> stockNames = (List<String>)info.get("stockName");
+				if (stockNames.contains(stockName)) {
+					result.add(info.getString("name"));
+				}
+			});
+		});
+
+		return result;
+	}
+
+	public List<GPTThemaNewsDomain> getThemaNews(LoadThemaNewsCommand command) {
 		Bson filter = Filters.and(
 			Filters.eq("themaInfo.name", command.getThemaName()),
 			Filters.eq("isRelated", true)
@@ -105,28 +125,28 @@ public class DocumentAnalyzeRepository {
 		return convertDocumentsToGPTThemaDomains(documents, command.getThemaName());
 	}
 
-	private List<GPTThema> convertDocumentsToGPTThemaDomains(List<Document> documents, String themaName) {
-		List<GPTThema> result = new ArrayList<>();
+	private List<GPTThemaNewsDomain> convertDocumentsToGPTThemaDomains(List<Document> documents, String themaName) {
+		List<GPTThemaNewsDomain> result = new ArrayList<>();
 
 		for (Document document : documents) {
-			GPTThema gptThema = changeDocumentToGPTThemaDomain(document, themaName);
-			result.add(gptThema);
+			GPTThemaNewsDomain gptThemaNewsDomain = changeDocumentToGPTThemaDomain(document, themaName);
+			result.add(gptThemaNewsDomain);
 		}
 
 		return result;
 	}
 
-	private GPTThema changeDocumentToGPTThemaDomain(Document document, String themaName) {
+	private GPTThemaNewsDomain changeDocumentToGPTThemaDomain(Document document, String themaName) {
 		String summary = document.getString("summary");
 		String upComingDate = getUpComingDate(document);
 		String upComingDateReason = document.getString("upcomingDateReasonFact");
 		News news = changeDocumentToNewsDomain(document);
 
-		return new GPTThema(themaName, summary, upComingDate, upComingDateReason, news);
+		return new GPTThemaNewsDomain(themaName, summary, upComingDate, upComingDateReason, news);
 	}
 
-	private List<GPTNewsDomain> convertDocumentsToGPTNewsDomains(List<Document> documents) {
-		List<GPTNewsDomain> result = new ArrayList<>();
+	private List<GPTStockNewsDomain> convertDocumentsToGPTNewsDomains(List<Document> documents) {
+		List<GPTStockNewsDomain> result = new ArrayList<>();
 		for (Document document : documents) {
 			Boolean isRelated = document.getBoolean("isRelated");
 
@@ -134,17 +154,17 @@ public class DocumentAnalyzeRepository {
 				continue;
 			}
 
-			GPTNewsDomain gptNewsDomain = changeDocumentToGPTNewsDomain(document);
+			GPTStockNewsDomain gptStockNewsDomain = changeDocumentToGPTNewsDomain(document);
 			News news = changeDocumentToNewsDomain(document);
 
-			gptNewsDomain.addNewsDomain(news);
-			result.add(gptNewsDomain);
+			gptStockNewsDomain.addNewsDomain(news);
+			result.add(gptStockNewsDomain);
 		}
 
 		return result;
 	}
 
-	private GPTNewsDomain changeDocumentToGPTNewsDomain(Document document) {
+	private GPTStockNewsDomain changeDocumentToGPTNewsDomain(Document document) {
 		String stockName = document.getString("stockName");
 		String reason = document.getString("reason");
 
@@ -152,7 +172,7 @@ public class DocumentAnalyzeRepository {
 
 		String nextReason = document.getString("nextReasonFact");
 
-		return new GPTNewsDomain(stockName, reason, new ArrayList<>(), next.toString(), nextReason);
+		return new GPTStockNewsDomain(stockName, reason, new ArrayList<>(), next.toString(), nextReason);
 	}
 
 	private News changeDocumentToNewsDomain(Document document) {

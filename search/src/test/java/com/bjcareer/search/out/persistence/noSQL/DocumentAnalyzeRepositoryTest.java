@@ -12,8 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.GPTNewsDomain;
-import com.bjcareer.search.domain.gpt.thema.GPTThema;
+import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 
 @SpringBootTest
 class DocumentAnalyzeRepositoryTest {
@@ -22,11 +22,11 @@ class DocumentAnalyzeRepositoryTest {
 
 	@Test
 	void 오늘_날짜_이후에_진행되는_뉴스들을_반환() {
-		List<GPTNewsDomain> upcomingNews = documentAnalyzeRepository.getUpcomingNews();
+		List<GPTStockNewsDomain> upcomingNews = documentAnalyzeRepository.getUpcomingNews();
 
-		for(GPTNewsDomain gptNewsDomain : upcomingNews){
-			assertTrue(gptNewsDomain.getNext().isPresent());
-			assertTrue(LocalDate.now(AppConfig.ZONE_ID).isBefore(gptNewsDomain.getNext().get()));
+		for(GPTStockNewsDomain gptStockNewsDomain : upcomingNews){
+			assertTrue(gptStockNewsDomain.getNext().isPresent());
+			assertTrue(LocalDate.now(AppConfig.ZONE_ID).isBefore(gptStockNewsDomain.getNext().get()));
 		}
 	}
 
@@ -34,10 +34,10 @@ class DocumentAnalyzeRepositoryTest {
 	void 특정_주식의_상승_이유를_요청() {
 		String target = "와이즈버즈";
 		LoadStockRaiseReason command = new LoadStockRaiseReason(target, null);
-		List<GPTNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
+		List<GPTStockNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
 
-		for (GPTNewsDomain gptNewsDomain : reason) {
-			assertEquals(gptNewsDomain.getStockName(), target);
+		for (GPTStockNewsDomain gptStockNewsDomain : reason) {
+			assertEquals(gptStockNewsDomain.getStockName(), target);
 		}
 	}
 
@@ -46,13 +46,13 @@ class DocumentAnalyzeRepositoryTest {
 		String target = "에이텍";
 		LocalDate date = LocalDate.of(2024,12,12);
 		LoadStockRaiseReason command = new LoadStockRaiseReason(target, date);
-		List<GPTNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
+		List<GPTStockNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
 
 		System.out.println("reason = " + reason);
 
-		for (GPTNewsDomain gptNewsDomain : reason) {
-			assertEquals(gptNewsDomain.getStockName(), target);
-			assertEquals(gptNewsDomain.getNews().getPubDate(), date);
+		for (GPTStockNewsDomain gptStockNewsDomain : reason) {
+			assertEquals(gptStockNewsDomain.getStockName(), target);
+			assertEquals(gptStockNewsDomain.getNews().getPubDate(), date);
 		}
 	}
 
@@ -60,11 +60,20 @@ class DocumentAnalyzeRepositoryTest {
 	void 테마이름을_찾을_수_있는지_체크() {
 		String target = "이재명";
 		LoadThemaNewsCommand command = new LoadThemaNewsCommand(target, null);
-		List<GPTThema> reason = documentAnalyzeRepository.getThemaNews(command);
+		List<GPTThemaNewsDomain> reason = documentAnalyzeRepository.getThemaNews(command);
 
-		for (GPTThema thema : reason) {
+		for (GPTThemaNewsDomain thema : reason) {
 			assertEquals(target, thema.getName(), "테마 이름이 일치하지 않습니다.");
 		}
+	}
+
+	@Test
+	void 뉴스가_가지고_있는_테마_찾기() {
+		String id = "http://www.thebigdata.co.kr/view.php?ud=202412160514188315cd1e7f0bdf_23";
+		String stockName = "효성오앤비";
+
+		List<String> themasOfNews = documentAnalyzeRepository.getThemasOfNews(id, stockName);
+		System.out.println("themasOfNews = " + themasOfNews);
 	}
 
 }
