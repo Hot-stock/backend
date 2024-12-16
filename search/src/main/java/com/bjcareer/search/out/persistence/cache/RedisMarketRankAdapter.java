@@ -11,7 +11,9 @@ import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Repository;
 
+import com.bjcareer.search.application.S3Service;
 import com.bjcareer.search.application.port.out.persistence.ranking.MarketRankingPort;
+import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
@@ -29,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisMarketRankAdapter implements MarketRankingPort {
 	private final RedissonClient redissonClient;
 	private final static String BUKET_KEY = "MARKET_RANKING_NEWS:";
+	private final StockRepositoryPort stockRepositoryPort;
+	private final S3Service s3Service;
 
 	public boolean isExistInCache(Stock stock) {
 		String key = BUKET_KEY + stock.getName();
@@ -56,7 +60,9 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 			.flatMap(Optional::stream).toList();
 
 		for (RedisRankingStockDTO dto : list) {
-			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getImageURL(), "", "", "");
+			String logoURL = getLogoURL(dto);
+
+			News news = new News(dto.getTitle(), dto.getNewsURL(), logoURL, "", "", "");
 			GPTNewsDomain gtpNewsDomain = new GPTNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
 
 			gtpNewsDomain.addNewsDomain(news);
@@ -70,6 +76,18 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 	public void removeRankingNews(Stock stock) {
 		String key = BUKET_KEY + stock.getName();
 		redissonClient.getBucket(key).delete();
+	}
+
+	private String getLogoURL(RedisRankingStockDTO dto) {
+		String url = s3Service.getStockLogoURL(dto.getStockName());
+
+		if (!url.isEmpty()) {
+			return url;
+		}
+
+		Optional<Stock> byName = stockRepositoryPort.findByName(dto.getStockName());
+		byName.ifPresent(stock -> s3Service.uploadURL(stock.getCode(), stock.getName()));
+		return s3Service.getStockLogoURL(dto.getStockName());
 	}
 
 	private List<String> scanKeys(String pattern) {

@@ -1,8 +1,11 @@
 package com.bjcareer.search.in.api.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.information.HotTopicService;
 import com.bjcareer.search.application.port.in.RankingUsecase;
+import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.gpt.GPTNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +29,21 @@ public class RankingController {
 	private final RankingUsecase usecase;
 	private final HotTopicService hotTopicService;
 
-	@GetMapping
-	@Operation(summary = "랭킹 조회 기능", description = "사용자의 검색어 랭킹을 조회할 수 있습니다" + "지금은 폴링이지만 나중에는 웹소켓으로 연동 가능.")
-	public ResponseEntity<Map<String, List<String>>> getRanking(
+	@GetMapping("/keywords")
+	@Operation(summary = "랭킹 조회 기능", description = "사용자의 검색어 랭킹을 조회할 수 있습니다")
+	public ResponseEntity<Map<String, Object>> getRanking(
 		@RequestParam(name = "q", required = false, defaultValue = "10") Integer index) {
-		List<String> rankKeyword = usecase.getRankKeyword(index);
-		Map<String, List<String>> response = Map.of("rank", rankKeyword);
-		return ResponseEntity.ok(response);
+		List<Pair<Stock, String>> rankKeyword = usecase.getRankKeyword(index);
+		List<StockInformationResponseDTO> response = rankKeyword.stream()
+			.map(it -> new StockInformationResponseDTO(it.getFirst(), it.getSecond()))
+			.toList();
+
+		Map<String, Object> map = new HashMap<>();
+
+		map.put("total", response.size());
+		map.put("items", response);
+
+		return ResponseEntity.ok(map);
 	}
 
 	@GetMapping("/stocks")

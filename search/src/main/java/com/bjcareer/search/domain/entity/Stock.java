@@ -14,6 +14,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,6 +50,9 @@ public class Stock {
 	@BatchSize(size = 10)
 	private List<StockRaiseReasonEntity> raiseReasons = new ArrayList<>();
 
+	@Transient
+	private String preSignedURL;
+
 	public Stock(String code, String name, Market market, String href, int issuedShares, int price) {
 		this.code = code;
 		this.name = name;
@@ -73,5 +77,9 @@ public class Stock {
 		this.issuedShares = stock.getIssuedShares();
 		this.price = stock.getPrice();
 		this.marketCapitalization = stock.getMarketCapitalization();
+	}
+
+	public void setPreSignedURL(String preSignedURL) {
+		this.preSignedURL = preSignedURL;
 	}
 }

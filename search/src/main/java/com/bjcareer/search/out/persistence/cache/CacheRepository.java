@@ -8,6 +8,7 @@ import org.bson.Document;
 import org.redisson.api.RBucket;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.candidate.cache.CacheNode;
@@ -17,7 +18,6 @@ import com.bjcareer.search.out.persistence.noSQL.DocumentTrieRepository;
 public class CacheRepository {
 	public static final String RANK_BUCKET = "RANKING_KEYWORD";
 	public static final String TRIE_BUCKET = "TRIE:";
-	public static final int UPDATE_COUNT = -1;
 	private final RedissonClient redissonClient;
 	private final DocumentTrieRepository repository;
 
@@ -47,14 +47,19 @@ public class CacheRepository {
 		bucket.set(node);
 	}
 
-	public Double updateRanking(String keyword) {
+	public Double updateRanking(String keyword, Double percentage) {
 		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
-		return scoredSortedSet.addScore(keyword, UPDATE_COUNT);
+		return scoredSortedSet.addScore(keyword, -percentage);
 	}
 
-	public List<String> getRanking(Integer rank) {
+	// 반환 타입을 Pair 형태로 리팩터링
+	public List<Pair<String, Double>> getRanking(Integer rank) {
 		RScoredSortedSet<Object> scoredSortedSet = redissonClient.getScoredSortedSet(RANK_BUCKET);
-		return scoredSortedSet.valueRange(0, rank).stream().map(Object::toString).collect(Collectors.toList());
+
+		// entryRange로 점수와 값을 가져옴
+		return scoredSortedSet.entryRange(0, rank - 1).stream()
+			.map(entry -> Pair.of(entry.getValue().toString(), entry.getScore()))
+			.collect(Collectors.toList());
 	}
 
 	public void deleteRanking(String keyword) {

@@ -7,6 +7,7 @@ import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
@@ -22,4 +23,7 @@ public interface SearchServerPort {
 
 	ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(LoadRaiseReasonOfStock command);
 	ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command);
+
+	ResponseDomain<RankStocksResponseDTO> getRankingStock();
+
 }
