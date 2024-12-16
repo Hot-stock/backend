@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.redisson.api.RBucket;
 import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
 import com.bjcareer.search.application.S3Service;
@@ -47,11 +48,11 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 	}
 
 	@Override
-	public List<GPTNewsDomain> getRankingNews() {
+	public List<Pair<String, GPTNewsDomain>> getRankingNews() {
 		ObjectMapper mapper = AppConfig.customObjectMapper();
 		List<String> keys = scanKeys(BUKET_KEY + "*");
 
-		List<GPTNewsDomain> result = new ArrayList<>();
+		List<Pair<String, GPTNewsDomain>> result = new ArrayList<>();
 
 		List<RedisRankingStockDTO> list = keys.stream()
 			.filter(key -> redissonClient.getBucket(key).isExists())
@@ -62,11 +63,12 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 		for (RedisRankingStockDTO dto : list) {
 			String logoURL = getLogoURL(dto);
 
-			News news = new News(dto.getTitle(), dto.getNewsURL(), logoURL, "", "", "");
+			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getNewsURL(), "", "", "");
 			GPTNewsDomain gtpNewsDomain = new GPTNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
 
 			gtpNewsDomain.addNewsDomain(news);
-			result.add(gtpNewsDomain);
+
+			result.add(Pair.of(logoURL, gtpNewsDomain));
 		}
 
 		return result;

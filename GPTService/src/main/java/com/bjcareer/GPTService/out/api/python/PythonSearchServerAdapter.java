@@ -1,9 +1,8 @@
 package com.bjcareer.GPTService.out.api.python;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,13 +68,25 @@ public class PythonSearchServerAdapter {
 		}
 	}
 
+	public List<MarketResponseDTO> loadStockInfo(Market market) {
+		String url = address + PythonServerURI.MARKET + "?q=" + market.name();
+		return new ArrayList<>(fetchFromServer(url, new ParameterizedTypeReference<List<MarketResponseDTO>>() {
+		}).orElse(List.of()));
+	}
+
+	public List<AbsoluteRankKeywordDTO> loadRankKeyword(String keyword) {
+		String url = address + PythonServerURI.TREND_KEYWORD + "?q=" + keyword;
+
+		return fetchFromServer(url, new ParameterizedTypeReference<List<AbsoluteRankKeywordDTO>>() {
+		}).orElse(List.of());
+	}
+
 	// 공통 REST 호출 메서드로 재사용성 향상
 	private <T> Optional<T> fetchFromServer(String url, ParameterizedTypeReference<T> responseType) {
 		try {
 			ClientResponse response = webClient.get()
 				.uri(url)
-				.exchange()
-				.timeout(Duration.ofSeconds(30))
+				.exchange().timeout(Duration.ofSeconds(500))
 				.block();
 
 			if (response.statusCode().is2xxSuccessful()) {

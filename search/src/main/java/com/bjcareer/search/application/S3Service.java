@@ -23,8 +23,7 @@ public class S3Service {
 		Pair<Boolean, String> logo = redisS3Adapter.getLogo(name);
 
 		if(!logo.getFirst()) {
-			String code = stockRepositoryPort.findByName(name).get().getCode();
-			uploadURL(code, name);
+			stockRepositoryPort.findByName(name).ifPresent(stock -> uploadURL(stock.getCode(), name));
 			logo = redisS3Adapter.getLogo(name);
 		}
 		return logo.getSecond();

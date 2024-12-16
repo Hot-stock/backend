@@ -93,19 +93,19 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 	@Override
 	public ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command) {
 		String uri = UriComponentsBuilder.fromUriString(SearchServerURI.FIND_THEMA_NEWS)
-			.queryParam("q", command.getName())
+			.queryParam("q", command.getCode())
 			.queryParam("theme", command.getName())
 			.queryParamIfPresent("date", Optional.ofNullable(command.getDate())) // date는 null이 아니면 추가
 			.toUriString();
 
-		System.out.println("res = " + uri);
+		log.info("res = " + uri);
 
 		ClientResponse res = webClient.get()
 			.uri(uri)
 			.exchange()
 			.block();
 
-		log.info("Response of {} {}", SearchServerURI.FIND_RAISE_REASON, res.statusCode());
+		log.info("Response of {} {}", SearchServerURI.FIND_THEMA_NEWS, res.statusCode());
 		if (res.statusCode().is2xxSuccessful()) {
 			ThemaNewsResponseDTO responseDTO = res.bodyToMono(ThemaNewsResponseDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
