@@ -60,7 +60,7 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 
 		for (RedisRankingStockDTO dto : list) {
 
-			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getNewsURL(), "", "", "");
+			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getImageURL(), "", "", "");
 			GPTStockNewsDomain gtpNewsDomain = new GPTStockNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
 
 			gtpNewsDomain.addNewsDomain(news);
