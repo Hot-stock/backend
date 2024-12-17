@@ -87,6 +87,29 @@ public class StockChart {
 		return news;
 	}
 
+	public Integer calcMovingAverageOfIncrease(int days) {
+		if (ohlcList == null || ohlcList.isEmpty() || days <= 0) {
+			log.warn("Invalid input data or days");
+			return 0;
+		}
+
+		int sum = 0;
+		int count = 0;
+
+		// 최근 'days'만큼의 데이터만 순회
+		for (int i = ohlcList.size() - 1; i >= 0 && count < days; i--) {
+			sum += ohlcList.get(i).getPercentageIncrease();
+			count++;
+		}
+
+		// 평균을 계산
+		if (count == 0) {
+			return 0; // 데이터가 부족한 경우
+		}
+
+		return sum / count; // 이동평균 값 반환
+	}
+
 	public void addNewsToOhlc(GPTStockNewsDomain news, LocalDate date) {
 		getSameDateOHLC(date).addRoseNews(news);
 	}

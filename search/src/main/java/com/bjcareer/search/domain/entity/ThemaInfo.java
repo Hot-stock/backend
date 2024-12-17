@@ -22,12 +22,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EqualsAndHashCode
 public class ThemaInfo {
 	@Id
 	@GeneratedValue
@@ -62,13 +64,12 @@ public class ThemaInfo {
 		this.news.addAll(arrayNode);
 	}
 
-	@Override
-	public String toString() {
-		return "ThemaInfo{" + "id=" + id + ", name='" + name + '\'' + ", href='" + href + '\'' + '}';
-	}
-
 	public List<GPTThemaNewsDomain> getNews() {
 		return AppConfig.customObjectMapper().convertValue(news, new TypeReference<List<GPTThemaNewsDomain>>() {});
 	}
 
+	@Override
+	public String toString() {
+		return "ThemaInfo{" + "id=" + id + ", name='" + name + '\'' + ", href='" + href + '\'' + '}';
+	}
 }
