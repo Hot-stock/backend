@@ -5,4 +5,5 @@ public class PythonServerURI {
 	public static final String NEWS = "/news";
 	public static final String MARKET = "/market";
 	public static final String TREND_KEYWORD = "/trend-keyword";
+	public static final String OHLC = "/ohlc";
 }

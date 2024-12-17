@@ -1,5 +1,7 @@
 package com.bjcareer.GPTService.out.api.python;
 
+import static com.bjcareer.GPTService.out.api.python.PythonServerURI.*;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
+import com.bjcareer.GPTService.schedule.OhlcResponseDTO;
+import com.bjcareer.GPTService.schedule.StockChartQueryCommand;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,9 +63,6 @@ public class PythonSearchServerAdapter {
 			log.debug("Fetched news body for link: {}", link);
 			ParseNewsContentResponseDTO parseNewsContentResponseDTO = responseDTO.get();
 
-			if (parseNewsContentResponseDTO.getPublishDate() == null){
-				parseNewsContentResponseDTO.setPublishDate(date.toString());
-			}
 			return Optional.of(new OriginalNews(parseNewsContentResponseDTO.getTitle(), link,
 				parseNewsContentResponseDTO.getImgLink(), date.toString(),
 				parseNewsContentResponseDTO.getText()));
@@ -80,6 +81,14 @@ public class PythonSearchServerAdapter {
 		return fetchFromServer(url, new ParameterizedTypeReference<List<AbsoluteRankKeywordDTO>>() {
 		}).orElse(List.of());
 	}
+
+	public List<OhlcResponseDTO> loadStockChart(StockChartQueryCommand config) {
+		String url = config.buildUrl(address + OHLC);
+
+		return fetchFromServer(url, new ParameterizedTypeReference<List<OhlcResponseDTO>>() {
+		}).orElse(List.of());
+	}
+
 
 	// 공통 REST 호출 메서드로 재사용성 향상
 	private <T> Optional<T> fetchFromServer(String url, ParameterizedTypeReference<T> responseType) {
