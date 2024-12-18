@@ -12,6 +12,7 @@ import lombok.Getter;
 @Getter
 public class TreeMapResponseDTO {
 	private final String name;
+	private final Double value;
 	private final List<Content> children = new ArrayList<>();
 
 	public TreeMapResponseDTO(TreeMapDomain domain) {
@@ -23,6 +24,8 @@ public class TreeMapResponseDTO {
 			.forEach(stock -> {
 				children.add(new Content(stock.getName(), stockIncreaseRate.get(stock).toString()));
 			});
+
+		value = domain.getValue();
 	}
 
 	@Getter

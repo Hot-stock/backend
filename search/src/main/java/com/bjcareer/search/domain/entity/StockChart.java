@@ -57,7 +57,7 @@ public class StockChart {
 		double sum = 0.0; // 소수점 연산을 위해 double 타입 사용
 		int count = 0;
 
-		for (int i = ohlcList.size() - 1; i >= 0 && count < performance; i--) {
+		for(int i = 0; i < performance; ++i){
 			sum += ohlcList.get(i).getPercentageIncrease();
 			count++;
 		}

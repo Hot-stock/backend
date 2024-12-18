@@ -30,11 +30,11 @@ public class Thema {
 	@GeneratedValue
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "STOCK_ID")
 	private Stock stock;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "THEMA_INFO_ID")
 	private ThemaInfo themaInfo;
 
@@ -55,7 +55,7 @@ public class Thema {
 		return "Thema{" +
 			"id=" + id +
 			", stock=" + stock.getName() +
-			", themaInfo=" + themaInfo +
+			", themaInfo=" + themaInfo.getName() +
 			", updatedAt=" + updatedAt +
 			'}';
 	}

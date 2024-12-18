@@ -13,11 +13,11 @@ import lombok.Getter;
 public class TreeMapDomain {
 	private final ThemaInfo themaInfo;
 	private final Map<Stock, Double> stockIncreaseRate = new HashMap<>();
-	private final Double increaseRate;
+	private final Double value;
 
 	public TreeMapDomain(ThemaInfo themaInfo, Map<Stock, StockChart> chart, int performance) {
 		this.themaInfo = themaInfo;
-		this.increaseRate = sortByUpperRate(chart, performance);
+		this.value = sortByUpperRate(chart, performance);
 	}
 
 	private Double sortByUpperRate(Map<Stock, StockChart> chart, int day) {

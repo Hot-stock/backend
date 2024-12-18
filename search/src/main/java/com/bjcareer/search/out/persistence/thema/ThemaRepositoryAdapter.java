@@ -49,7 +49,7 @@ public class ThemaRepositoryAdapter implements LoadSearchKeywordPort, ThemaRepos
 
 	@Override
 	public List<Thema> findAll() {
-		return themaRepository.findAll();
+		return em.createQuery("SELECT t FROM Thema t join fetch t.stock t1 join fetch  t.themaInfo", Thema.class).getResultList();
 	}
 
 	@Override

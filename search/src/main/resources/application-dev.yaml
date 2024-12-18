@@ -17,6 +17,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        insert_ordering: true
+        jdbc:
+          batch_size: 50
 
   kafka:
     bootstrap-servers: ${KAFKA_PRIVATE_ADDRESS}:9092

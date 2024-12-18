@@ -26,6 +26,7 @@ public class TreeMapController {
 	public ResponseEntity<List<TreeMapResponseDTO>> getTreeMap() {
 		List<TreeMapResponseDTO> response = new ArrayList<>();
 		List<TreeMapDomain> domains = treeMapService.calcHitMap(performance);
+		domains.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 		domains.stream().map(TreeMapResponseDTO::new).forEach(response::add);
 		return ResponseEntity.ok(response);
 	}

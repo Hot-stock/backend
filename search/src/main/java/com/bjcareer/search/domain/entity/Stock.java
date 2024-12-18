@@ -2,6 +2,7 @@ package com.bjcareer.search.domain.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -16,14 +17,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode
 public class Stock {
 	@Id
 	@GeneratedValue
@@ -89,5 +88,19 @@ public class Stock {
 			"name='" + name + '\'' +
 			", code='" + code + '\'' +
 			'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof Stock stock))
+			return false;
+		return Objects.equals(code, stock.code) && Objects.equals(name, stock.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(code, name);
 	}
 }

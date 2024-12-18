@@ -13,7 +13,7 @@ public class ThemaCalculatorHelper {
 	public static Map<ThemaInfo, List<Stock>> groupStocksUsingThema(List<Thema> themas) {
 		Map<ThemaInfo, List<Stock>> groupingThema = new HashMap<>();
 
-		themas.stream().forEach(thema -> {
+		themas.forEach(thema -> {
 			ThemaInfo themaInfo = thema.getThemaInfo();
 			Stock stock = thema.getStock();
 

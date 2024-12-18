@@ -16,7 +16,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        insert_ordering: true
+        jdbc:
+          batch_size: 50
     show-sql: true
+
 
   kafka:
     bootstrap-servers: ${KAFKA_PUBLIC_ADDRESS}:9093
@@ -63,6 +67,8 @@ server:
       charset: UTF-8
       force: true
       enabled: true
+
+  port: 8090
 
 management:
   endpoints:
