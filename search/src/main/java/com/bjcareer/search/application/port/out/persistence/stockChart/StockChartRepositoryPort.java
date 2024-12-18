@@ -16,4 +16,5 @@ public interface StockChartRepositoryPort {
 	void saveAll(List<StockChart> stockChart);
 
 	Optional<StockChart> loadStockChart(String stockCode);
+	List<StockChart> loadStockChartInStockCode(List<String> stockCode);
 }

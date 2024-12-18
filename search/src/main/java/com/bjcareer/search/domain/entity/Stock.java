@@ -19,11 +19,9 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class Stock {
@@ -83,5 +81,13 @@ public class Stock {
 
 	public void setPreSignedURL(String preSignedURL) {
 		this.preSignedURL = preSignedURL;
+	}
+
+	@Override
+	public String toString() {
+		return "Stock{" +
+			"name='" + name + '\'' +
+			", code='" + code + '\'' +
+			'}';
 	}
 }

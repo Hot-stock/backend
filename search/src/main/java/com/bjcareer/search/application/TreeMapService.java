@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +19,7 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
-import com.bjcareer.search.out.persistence.RedisHitMapAdapter;
+import com.bjcareer.search.out.persistence.RedisTreeMapAdapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TreeMapService {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
-	private final RedisHitMapAdapter redisHitMapAdapter;
+	private final RedisTreeMapAdapter redisTreeMapAdapter;
 
 	@Transactional(readOnly = true)
 	public List<TreeMapDomain> calcHitMap(Integer performance) {
@@ -39,10 +41,18 @@ public class TreeMapService {
 		for (ThemaInfo themaInfo : groupingThema.keySet()) {
 			Map<Stock, StockChart> chartMap = new HashMap<>();
 			List<Stock> stocks = groupingThema.get(themaInfo);
+			Map<String, Stock> stockMap = stocks.stream()
+				.collect(Collectors.toMap(
+					Stock::getCode,  // 키 생성 함수 (예: Stock 코드)
+					Function.identity()   // 값 생성 함수 (Stock 객체 자체)
+				));
 
-			for (Stock stock : stocks) {
-				Optional<StockChart> stockChart = stockChartRepositoryPort.loadStockChart(stock.getCode());
-				stockChart.ifPresent(chart -> chartMap.put(stock, chart));
+
+			List<StockChart> stockCharts = stockChartRepositoryPort.loadStockChartInStockCode(
+				stocks.stream().map(Stock::getCode).toList());
+
+			for (StockChart stockChart : stockCharts) {
+				chartMap.put(stockMap.get(stockChart.getStockCode()), stockChart);
 			}
 
 			result.add(new TreeMapDomain(themaInfo, chartMap, performance));

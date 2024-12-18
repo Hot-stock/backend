@@ -38,25 +38,23 @@ public class ScheduleOhlcService {
 		updateStockInfo(stocks);
 		log.info("Renew Stocks Success: {}", stocks.size());
 
-		for (Stock stock : stocks.values()) {
-			StockChart stockChart = stockChartRepository.loadStockChart(stock.getCode())
-				.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>()));
-			StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock,
-				stockChart.getLastUpdateDate(),
-				LocalDate.now(AppConfig.ZONE_ID)); //1분
+		List<StockChart> stockCharts = stocks.values()
+			.stream()
+			.map(stock -> stockChartRepository.loadStockChart(stock.getCode())
+				.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>())))
+			.toList();
 
-			StockChart chart = apiServerPort.loadStockChart(stockChartQueryConfig);
-			stockChart.mergeOhlc(chart);
-			stockChartRepository.save(stockChart);
+		for (StockChart chart : stockCharts) {
+			Stock stock = stocks.get(chart.getStockCode());
+			StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock,
+				chart.getLastUpdateDate(),
+				LocalDate.now(AppConfig.ZONE_ID)); //1분
+			chart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
 		}
 
+		stockCharts.forEach(stockChartRepository::save);
 		stockRepository.saveALl(stocks.values());
 		log.info("All Stocks was renewed: {}", stocks.size());
-	}
-
-	@Transactional
-	public void saveStockInfoAndChartData(List<StockChart> charts) {
-		charts.forEach(stockChartRepository::save);
 	}
 
 	private void updateStockInfo(Map<String, Stock> stocks) {

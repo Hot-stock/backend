@@ -74,4 +74,16 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 
 		return chart.isEmpty() ? Optional.empty() : Optional.of(chart.get(0));
 	}
+
+	@Override
+	public List<StockChart> loadStockChartInStockCode(List<String> stockCode) {
+		List<StockChart> chart = em.createQuery(
+				"SELECT sc FROM StockChart sc WHERE sc.stockCode IN :code", StockChart.class
+			)
+			.setParameter("code", stockCode)
+			.getResultList();
+
+		return chart;
+	}
+
 }
