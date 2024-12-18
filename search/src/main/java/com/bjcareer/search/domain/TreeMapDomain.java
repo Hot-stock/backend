@@ -8,15 +8,17 @@ import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class TreeMapDomain {
-	private final ThemaInfo themaInfo;
-	private final Map<Stock, Double> stockIncreaseRate = new HashMap<>();
-	private final Double value;
+	private String themaName;
+	private Map<String, Double> stockIncreaseRate = new HashMap<>();
+	private Double value;
 
 	public TreeMapDomain(ThemaInfo themaInfo, Map<Stock, StockChart> chart, int performance) {
-		this.themaInfo = themaInfo;
+		this.themaName = themaInfo.getName();
 		this.value = sortByUpperRate(chart, performance);
 	}
 
@@ -39,7 +41,7 @@ public class TreeMapDomain {
 
 	private Double setStockRaiseRate(int performance, Stock stock, StockChart stockChart) {
 		Double stockAvg = stockChart.calcMovingAverageOfIncrease(performance);
-		stockIncreaseRate.put(stock, stockAvg);
+		stockIncreaseRate.put(stock.getName(), stockAvg);
 		return stockAvg;
 	}
 }

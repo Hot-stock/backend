@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.bjcareer.search.domain.TreeMapDomain;
-import com.bjcareer.search.domain.entity.Stock;
 
 import lombok.Getter;
 
@@ -16,13 +15,13 @@ public class TreeMapResponseDTO {
 	private final List<Content> children = new ArrayList<>();
 
 	public TreeMapResponseDTO(TreeMapDomain domain) {
-		name = domain.getThemaInfo().getName();
-		Map<Stock, Double> stockIncreaseRate =
+		name = domain.getThemaName();
+		Map<String, Double> stockIncreaseRate =
 			domain.getStockIncreaseRate();
 
-		stockIncreaseRate.keySet().stream()
+		stockIncreaseRate.keySet()
 			.forEach(stock -> {
-				children.add(new Content(stock.getName(), stockIncreaseRate.get(stock).toString()));
+				children.add(new Content(stock, String.format("%.2f", stockIncreaseRate.get(stock))));
 			});
 
 		value = domain.getValue();

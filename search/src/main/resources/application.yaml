@@ -69,7 +69,6 @@ server:
       enabled: true
 
   port: 8090
-
 management:
   endpoints:
     web:

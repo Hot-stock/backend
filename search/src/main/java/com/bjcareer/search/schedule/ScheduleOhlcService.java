@@ -31,7 +31,7 @@ public class ScheduleOhlcService {
 	private final StockRepositoryAdapter stockRepository;
 	private final StockChartRepositoryPort stockChartRepository;
 
-	@Scheduled(fixedDelay = 300000)
+	// @Scheduled(fixedDelay = 300000)
 	@Transactional(readOnly = true)
 	public void saveStockInfoAndChartData() {
 		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);

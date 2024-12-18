@@ -19,7 +19,7 @@ class TreeMapServiceTest {
 	void testCalcHitMap() {
 		Integer avgDay = 3;
 		List<TreeMapDomain> treeMapDomains =
-			treeMapService.calcHitMap(avgDay);
+			treeMapService.calcTreeMap(avgDay);
 
 		assertTrue(!treeMapDomains.isEmpty(), "히트맵이 구성되어야 한다.");
 	}
