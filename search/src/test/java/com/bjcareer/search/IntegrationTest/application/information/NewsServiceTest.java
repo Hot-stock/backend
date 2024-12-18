@@ -69,7 +69,7 @@ class NewsServiceTest {
 		LoadChartSpecificDateCommand command = new LoadChartSpecificDateCommand(stockName, date);
 		StockChart chartByDate = stockChartRepositoryPort.findChartByDate(command);
 
-		assertFalse(chartByDate.loadNewByDate(date).isEmpty());
+		assertFalse(chartByDate.getLastUpdateDate().isEqual(date));
 	}
 
 	@Test

@@ -49,7 +49,7 @@ public class AnalyzeEventHandler {
 			return;
 		}
 
-		Optional<GPTStockThema> gptThema = gptThemaOfStockNewsAdapter.getThema(news, "");
+		Optional<GPTStockThema> gptThema = gptThemaOfStockNewsAdapter.getThema(news);
 
 		if (gptThema.isPresent()) {
 			log.debug("Extracted Thema: {}", gptThema.get());

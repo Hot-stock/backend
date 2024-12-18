@@ -4,9 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,35 +32,27 @@ public class ScheduleOhlcService {
 	private final StockChartRepositoryPort stockChartRepository;
 
 	// @Scheduled(fixedDelay = 300000)
-	@Transactional
+	@Transactional(readOnly = true)
 	public void saveStockInfoAndChartData() {
 		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);
-		log.info("Stocks loaded: {}", stocks.size());
-		updateStockInfo(stocks); // 정보 갱신 완료
+		updateStockInfo(stocks);
 		log.info("Renew Stocks Success: {}", stocks.size());
 
-		// 가상 스레드를 사용한 ExecutorService 생성
-		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			stocks.values().stream()
-				.map(stock -> executor.submit(() -> {
-					Optional<StockChart> optStockChart = stockChartRepository.loadStockChart(stock.getCode());
+		List<StockChart> stockCharts = stocks.values()
+			.stream()
+			.map(stock -> stockChartRepository.loadStockChart(stock.getCode())
+				.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>())))
+			.toList();
 
-					StockChart stockChart = optStockChart.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>()));
-
-					LocalDate startDay = stockChart.calculateStartDayForUpdateStockChart();
-					StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock, startDay,
-						LocalDate.now(AppConfig.ZONE_ID));
-
-					log.debug("StockChartQueryConfig: {}", stockChartQueryConfig);
-					stockChart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
-
-					return stock;
-				}))
-				.collect(Collectors.toList());
-		} catch (Exception e) {
-			log.error("Error occurred while processing stocks in parallel", e);
+		for (StockChart chart : stockCharts) {
+			Stock stock = stocks.get(chart.getStockCode());
+			StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock,
+				chart.getLastUpdateDate(),
+				LocalDate.now(AppConfig.ZONE_ID)); //1분
+			chart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
 		}
 
+		stockCharts.forEach(stockChartRepository::save);
 		stockRepository.saveALl(stocks.values());
 		log.info("All Stocks was renewed: {}", stocks.size());
 	}

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartAboveThresholdCommand;
 import com.bjcareer.search.application.port.out.persistence.stockChart.LoadChartSpecificDateCommand;
@@ -52,8 +54,15 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void save(StockChart stockChart) {
-		em.persist(stockChart);
+		em.merge(stockChart);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void saveAll(List<StockChart> stockChart) {
+		stockChart.forEach(this::save);
 	}
 
 	@Override
@@ -65,4 +74,16 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 
 		return chart.isEmpty() ? Optional.empty() : Optional.of(chart.get(0));
 	}
+
+	@Override
+	public List<StockChart> loadStockChartInStockCode(List<String> stockCode) {
+		List<StockChart> chart = em.createQuery(
+				"SELECT sc FROM StockChart sc WHERE sc.stockCode IN :code", StockChart.class
+			)
+			.setParameter("code", stockCode)
+			.getResultList();
+
+		return chart;
+	}
+
 }

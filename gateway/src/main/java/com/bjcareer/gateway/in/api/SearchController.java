@@ -2,7 +2,6 @@ package com.bjcareer.gateway.in.api;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,16 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bjcareer.gateway.aop.APILimit.APIRateLimit;
 import com.bjcareer.gateway.application.ports.out.KeywordCommand;
-import com.bjcareer.gateway.application.ports.out.KeywordServerPort;
 import com.bjcareer.gateway.application.ports.out.LoadRaiseReasonOfStock;
 import com.bjcareer.gateway.application.ports.out.LoadThemaNews;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
-import com.bjcareer.gateway.domain.AbsoluteRankKeyword;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchResult;
-import com.bjcareer.gateway.in.api.response.KeywordCountResponseDTO;
+import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
@@ -96,6 +92,14 @@ public class SearchController {
 		}
 
 		ResponseDomain<ThemaNewsResponseDTO> res = searchServerPort.findThemaNews(new LoadThemaNews(code, theme, date));
+		return new ResponseEntity<>(res, res.getStatusCode());
+	}
+
+	@GetMapping("/api/v0/markets/visualization")
+	@Operation(summary = "테마 뉴스 조회", description = "사용자가 요청한 테마를 기반으로 검색된 뉴스를 돌려줍니다.")
+	public ResponseEntity<ResponseDomain<List<TreeMapResponseDTO>>> searchTreeMap() {
+		log.info("Request tree map");
+		ResponseDomain<List<TreeMapResponseDTO>> res = searchServerPort.loadTreeMap();
 		return new ResponseEntity<>(res, res.getStatusCode());
 	}
 

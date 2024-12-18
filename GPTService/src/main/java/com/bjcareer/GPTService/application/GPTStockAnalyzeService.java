@@ -56,7 +56,7 @@ public class GPTStockAnalyzeService {
 
 		newsLinks.stream()
 			.filter(n -> isNewsNotProcessed(n.getLink()))
-			.map(n -> processAnalyzeNewsLink(n.getLink(), date))
+			.map(n -> processAnalyzeNewsLink(n.getLink(), n.getDate()))
 			.flatMap(Optional::stream)
 			.map(gptStockNewsRepository::save)
 			.toList();
@@ -104,7 +104,7 @@ public class GPTStockAnalyzeService {
 	}
 
 	private List<NewsResponseDTO> fetchNewsForStock(LocalDate date, String stockName) {
-		return pythonSearchServerAdapter.fetchNews(new NewsCommand(stockName, date, date));
+		return pythonSearchServerAdapter.fetchNews(new NewsCommand(stockName, date, LocalDate.now()));
 	}
 
 	private boolean isNewsNotProcessed(String newsLink) {

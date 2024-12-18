@@ -2,6 +2,7 @@ package com.bjcareer.search.domain.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -22,6 +23,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,7 +40,7 @@ public class ThemaInfo {
 	private String name;
 	private String href;
 
-	@OneToMany(mappedBy = "themaInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "themaInfo", cascade = CascadeType.ALL)
 	@BatchSize(size = 10)
 	private List<Thema> themas = new ArrayList<>();
 
@@ -62,13 +64,24 @@ public class ThemaInfo {
 		this.news.addAll(arrayNode);
 	}
 
+	public List<GPTThemaNewsDomain> getNews() {
+		return AppConfig.customObjectMapper().convertValue(news, new TypeReference<List<GPTThemaNewsDomain>>() {});
+	}
+
 	@Override
 	public String toString() {
 		return "ThemaInfo{" + "id=" + id + ", name='" + name + '\'' + ", href='" + href + '\'' + '}';
 	}
 
-	public List<GPTThemaNewsDomain> getNews() {
-		return AppConfig.customObjectMapper().convertValue(news, new TypeReference<List<GPTThemaNewsDomain>>() {});
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ThemaInfo themaInfo)) return false;
+		return Objects.equals(name, themaInfo.name);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
 }

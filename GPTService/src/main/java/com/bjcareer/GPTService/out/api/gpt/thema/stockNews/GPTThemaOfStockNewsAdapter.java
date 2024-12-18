@@ -27,9 +27,9 @@ public class GPTThemaOfStockNewsAdapter {
 	private final WebClient webClient;
 	private final RedisThemaRepository redisThemaRepository;
 
-	public Optional<GPTStockThema> getThema(GPTNewsDomain stockNews, String knownThema) {
+	public Optional<GPTStockThema> getThema(GPTNewsDomain stockNews) {
 		GPTThemaOfStockRequestDTO requestDTO = createRequestDTO(stockNews.getNews().getContent(),
-			stockNews.getNews().getPubDate(), knownThema, stockNews.getStockName());
+			stockNews.getNews().getPubDate(), stockNews.getStockName());
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
@@ -65,19 +65,18 @@ public class GPTThemaOfStockNewsAdapter {
 		}
 	}
 
-	private GPTThemaOfStockRequestDTO createRequestDTO(String content, LocalDate pubDate, String knownThema,
-		String stockName) {
+	private GPTThemaOfStockRequestDTO createRequestDTO(String content, LocalDate pubDate, String stockName) {
 		GPTThemaOfStockRequestDTO.Message systemMessage = new GPTThemaOfStockRequestDTO.Message(
 			GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 
 		GPTThemaOfStockRequestDTO.Message userMessage = new GPTThemaOfStockRequestDTO.Message(
 			GPTWebConfig.USER_ROLE,
-			AnalyzeThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, content, stockName, knownThema));
+			AnalyzeThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, content, stockName));
 
 		GPTResponseStockNewsOfThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseStockNewsOfThemaFormatDTO();
 
-		return new GPTThemaOfStockRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
+		return new GPTThemaOfStockRequestDTO("gpt-4o", List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTThemaOfStockRequestDTO requestDTO) {

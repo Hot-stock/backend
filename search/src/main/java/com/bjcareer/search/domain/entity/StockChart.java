@@ -3,15 +3,8 @@ package com.bjcareer.search.domain.entity;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.hibernate.annotations.BatchSize;
-
-import com.bjcareer.search.config.AppConfig;
-import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,7 +12,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Transient;
@@ -40,55 +32,45 @@ public class StockChart {
 	@Column(name = "stock_code", nullable = false, unique = true)
 	private String stockCode;
 
-	@Transient
-	private Stock stock;
-
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "chart", cascade = CascadeType.ALL)
 	@BatchSize(size = 100)
 	@OrderBy("date ASC")
 	private List<OHLC> ohlcList = new ArrayList<>();
+
+	@Column(name = "last_update_date", nullable = false)
+	private LocalDate lastUpdateDate = LocalDate.now().minusYears(1);
+
+	@Transient
+	private Stock stock;
 
 	public StockChart(String stockCode, List<OHLC> ohlcList) {
 		this.stockCode = stockCode;
 		addOHLC(ohlcList);
 	}
 
-	public List<GPTStockNewsDomain> loadNewByDate(LocalDate date) {
-		OHLC ohlc = getSameDateOHLC(date);
-		return convertJsonTypeToObject(ohlc);
-	}
-
-	public List<GPTStockNewsDomain> getNextSchedule(LocalDate baseDate) {
-		List<GPTStockNewsDomain> news = new ArrayList<>();
-
-		for (OHLC ohlc : ohlcList) {
-			if (!ohlc.getNews().isEmpty()) {
-				List<GPTStockNewsDomain> GPTStockNewsDomains = convertJsonTypeToObject(ohlc);
-
-				GPTStockNewsDomains.stream()
-					.filter(gtpNewsDomain -> gtpNewsDomain.getNext().isPresent())
-					.filter(gtpNewsDomain -> gtpNewsDomain.getNext().get().isAfter(baseDate))
-					.forEach(news::add);
-			}
+	public Double calcMovingAverageOfIncrease(int performance) {
+		if (ohlcList == null || ohlcList.isEmpty() || performance <= 0) {
+			log.warn("Invalid input data or performance");
+			return 0.0;
 		}
 
-		return news;
-	}
+		double sum = 0.0; // 소수점 연산을 위해 double 타입 사용
+		int count = 0;
 
-	public List<GPTStockNewsDomain> getAllNews() {
-		List<GPTStockNewsDomain> news = new ArrayList<>();
-
-		for (OHLC ohlc : ohlcList) {
-			if (!ohlc.getNews().isEmpty()) {
-				news.addAll(convertJsonTypeToObject(ohlc));
-			}
+		for(int i = 0; i < performance; ++i){
+			sum += ohlcList.get(i).getPercentageIncrease();
+			count++;
 		}
 
-		return news;
-	}
+		// 평균을 계산
+		if (count == 0) {
+			return 0.0; // 데이터가 부족한 경우
+		}
 
-	public void addNewsToOhlc(GPTStockNewsDomain news, LocalDate date) {
-		getSameDateOHLC(date).addRoseNews(news);
+		double movingAverage = sum / count;
+
+		// 소수점 두 자리로 반환
+		return Math.round(movingAverage * 100.0) / 100.0;
 	}
 
 	public void addOHLC(List<OHLC> ohlcs) {
@@ -98,58 +80,22 @@ public class StockChart {
 		}
 	}
 
-	private List<GPTStockNewsDomain> convertJsonTypeToObject(OHLC ohlc) {
-		List<GPTStockNewsDomain> result = new ArrayList<>();
-
-		if (ohlc.getNews().isEmpty()) {
-			log.debug("Cannot convert JSON node to news: stock={}, date={}",
-				stock != null ? stock.getName() : this.stockCode,
-				ohlc.getDate());
-			return result;
-		}
-
-		ObjectMapper mapper = AppConfig.customObjectMapper();
-		return mapper.convertValue(ohlc.getNews(),
-			mapper.getTypeFactory().constructCollectionType(List.class, GPTStockNewsDomain.class));
-	}
-
-	private OHLC getSameDateOHLC(LocalDate date) {
-		for (OHLC ohlc : ohlcList) {
-			if (ohlc.getDate().equals(date)) {
-				return ohlc;
-			}
-		}
-
-		throw new NoResultException("Can't found ohlc data");
-	}
-
-	public LocalDate calculateStartDayForUpdateStockChart() {
-		if (ohlcList.isEmpty()) {
-			return LocalDate.of(1999, 1, 1); // '1999-01-01' 날짜 생성
-		}
-
-		LocalDate date = ohlcList.getLast().getDate();
-		return date.plusDays(1);
-	}
-
 	public void mergeOhlc(StockChart stockChart) {
-		Map<LocalDate, OHLC> existingOhlcMap = ohlcList.stream()
-			.collect(Collectors.toMap(OHLC::getDate, Function.identity()));
-
-		List<OHLC> newOhlcEntries = new ArrayList<>();
 		for (OHLC stockOhlc : stockChart.getOhlcList()) {
-			OHLC existingOhlc = existingOhlcMap.get(stockOhlc.getDate());
-
-			if (existingOhlc != null) {
+			if (this.getLastUpdateDate().isBefore(stockOhlc.getDate())) {
+				lastUpdateDate = stockOhlc.getDate();
 				stockOhlc.addChart(this);
-				newOhlcEntries.add(existingOhlc);
+				ohlcList.add(stockOhlc);
 			}
 		}
-
-		ohlcList.addAll(newOhlcEntries);
 	}
 
-	public void setStock(Stock stock) {
-		this.stock = stock;
+	public LocalDate getLastUpdateDate() {
+		if (lastUpdateDate == null) {
+			return LocalDate.now().minusYears(1);
+		} else {
+			return lastUpdateDate;
+		}
+
 	}
 }

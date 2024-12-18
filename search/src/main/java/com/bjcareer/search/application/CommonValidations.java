@@ -7,7 +7,6 @@ import com.bjcareer.search.application.port.out.persistence.stock.StockRepositor
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
-import com.bjcareer.search.domain.entity.ThemaInfo;
 
 public class CommonValidations {
 	public static Stock validationStock(StockRepositoryPort port, String stockName) {

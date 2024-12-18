@@ -2,6 +2,7 @@ package com.bjcareer.search.domain.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -18,11 +19,9 @@ import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock {
 	@Id
@@ -81,5 +80,27 @@ public class Stock {
 
 	public void setPreSignedURL(String preSignedURL) {
 		this.preSignedURL = preSignedURL;
+	}
+
+	@Override
+	public String toString() {
+		return "Stock{" +
+			"name='" + name + '\'' +
+			", code='" + code + '\'' +
+			'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof Stock stock))
+			return false;
+		return Objects.equals(code, stock.code) && Objects.equals(name, stock.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(code, name);
 	}
 }
