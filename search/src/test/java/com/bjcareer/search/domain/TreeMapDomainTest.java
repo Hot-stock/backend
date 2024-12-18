@@ -14,7 +14,7 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.ThemaInfo;
 
-class HitMapDomainTest {
+class TreeMapDomainTest {
 
 	@Test
 	void test_테마의_히트맵이_구성되는지() {
@@ -30,10 +30,10 @@ class HitMapDomainTest {
 		StockChart chart = new StockChart("1234", ohlcs);
 		chartMap.put(stock, chart);
 
-		HitMapDomain hitMapDomain = new HitMapDomain(themaInfo, chartMap, 3);
+		TreeMapDomain treeMapDomain = new TreeMapDomain(themaInfo, chartMap, 3);
 
-		Integer increaseRate = hitMapDomain.getIncreaseRate();
-		Integer i = hitMapDomain.getStockIncreaseRate().get(stock);
+		Double increaseRate = treeMapDomain.getIncreaseRate();
+		Double i = treeMapDomain.getStockIncreaseRate().get(stock);
 
 		assertEquals(-1, increaseRate, "테마의 히트맵이 구성되어야 한다.");
 		assertEquals(-1, i, "주식의 상승률이 구성되어야 한다.");

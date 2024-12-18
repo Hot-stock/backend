@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bjcareer.search.application.helper.ThemaCalculatorHelper;
 import com.bjcareer.search.application.port.out.persistence.stockChart.StockChartRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
-import com.bjcareer.search.domain.HitMapDomain;
+import com.bjcareer.search.domain.TreeMapDomain;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
 import com.bjcareer.search.domain.entity.Thema;
@@ -20,18 +20,19 @@ import com.bjcareer.search.domain.entity.ThemaInfo;
 import com.bjcareer.search.out.persistence.RedisHitMapAdapter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-public class HitMapService {
+@Slf4j
+public class TreeMapService {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final StockChartRepositoryPort stockChartRepositoryPort;
 	private final RedisHitMapAdapter redisHitMapAdapter;
 
 	@Transactional(readOnly = true)
-	public List<HitMapDomain> calcHitMap(Integer avgDay) {
-		List<HitMapDomain> result = new ArrayList<>();
-
+	public List<TreeMapDomain> calcHitMap(Integer performance) {
+		List<TreeMapDomain> result = new ArrayList<>();
 		List<Thema> themas = themaRepositoryPort.findAll();
 		Map<ThemaInfo, List<Stock>> groupingThema = ThemaCalculatorHelper.groupStocksUsingThema(themas);
 
@@ -44,7 +45,7 @@ public class HitMapService {
 				stockChart.ifPresent(chart -> chartMap.put(stock, chart));
 			}
 
-			result.add(new HitMapDomain(themaInfo, chartMap, avgDay));
+			result.add(new TreeMapDomain(themaInfo, chartMap, performance));
 		}
 
 		return result;

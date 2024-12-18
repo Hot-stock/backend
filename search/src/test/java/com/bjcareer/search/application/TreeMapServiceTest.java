@@ -8,21 +8,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.search.domain.HitMapDomain;
+import com.bjcareer.search.domain.TreeMapDomain;
 
 @SpringBootTest
-class HitMapServiceTest {
-	@Autowired HitMapService hitMapService;
-
+class TreeMapServiceTest {
+	@Autowired
+	TreeMapService treeMapService;
 
 	@Test
 	void testCalcHitMap() {
 		Integer avgDay = 3;
-		List<HitMapDomain> hitMapDomains =
-			hitMapService.calcHitMap(avgDay);
+		List<TreeMapDomain> treeMapDomains =
+			treeMapService.calcHitMap(avgDay);
 
-		hitMapDomains.forEach(hitMapDomain -> {
-			System.out.println("hitMapDomain = " + hitMapDomain);
-		});
+		assertTrue(!treeMapDomains.isEmpty(), "히트맵이 구성되어야 한다.");
 	}
 }
