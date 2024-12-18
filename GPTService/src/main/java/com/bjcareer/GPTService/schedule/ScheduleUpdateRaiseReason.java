@@ -21,7 +21,7 @@ public class ScheduleUpdateRaiseReason {
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final GPTStockAnalyzeService gptStockAnalyzeService;
 
-	@Scheduled(cron = "0 10 9 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 20 9 * * *", zone = "Asia/Seoul")
 	public void updateRankingKeyword() {
 		log.info("Start update ranking keyword");
 

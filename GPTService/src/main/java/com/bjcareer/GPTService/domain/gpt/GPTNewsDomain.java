@@ -71,6 +71,10 @@ public class GPTNewsDomain {
 		return Optional.ofNullable(next);
 	}
 
+	public void addStockCode(String stockCode) {
+		this.stockCode = stockCode;
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object)
@@ -89,4 +93,6 @@ public class GPTNewsDomain {
 	public int hashCode() {
 		return Objects.hash(isRelated, stockName, reason, nextReasonFact, nextReasonOption, next, news, link);
 	}
+
+
 }

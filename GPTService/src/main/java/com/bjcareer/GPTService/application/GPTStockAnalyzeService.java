@@ -2,14 +2,18 @@ package com.bjcareer.GPTService.application;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.GPTService.application.aop.AnalyzeThema;
 import com.bjcareer.GPTService.application.port.in.AnalyzeStockNewsCommand;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
+import com.bjcareer.GPTService.domain.Stock;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.in.dtos.RankingStocksDTO;
@@ -18,6 +22,7 @@ import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
 import com.bjcareer.GPTService.out.api.python.ParseNewsContentResponseDTO;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
+import com.bjcareer.GPTService.out.persistence.rdb.StockRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisMarketRankAdapter;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +36,7 @@ public class GPTStockAnalyzeService {
 	private final GPTNewsAdapter gptNewsAdapter;
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final RedisMarketRankAdapter redisMarketRankAdapter;
+	private final StockRepository stockRepository;
 
 	/**
 	 * Handles asynchronous requests, typically triggered via Kafka.
@@ -47,17 +53,19 @@ public class GPTStockAnalyzeService {
 	}
 
 	@AnalyzeThema
+	@Transactional(readOnly = true)
 	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate date, String stockName) {
 		log.debug("Analyzing stock news for date: {} stock: {}", date, stockName);
 		List<NewsResponseDTO> newsLinks = fetchNewsForStock(date, stockName);
 		log.debug("Fetched news links: {}", newsLinks);
 
-		newsLinks.stream()
+		List<GPTNewsDomain> target = newsLinks.stream()
 			.filter(n -> isNewsNotProcessed(n.getLink()))
 			.map(n -> processAnalyzeNewsLink(n.getLink(), n.getDate()))
-			.flatMap(Optional::stream)
-			.map(gptStockNewsRepository::save)
-			.toList();
+			.flatMap(Optional::stream).toList();
+
+		Map<String, String> stockMap = getStockDomainToHash();
+		setStockCodeToGPTNewsDomain(target, stockMap);
 
 		return newsLinks.stream()
 			.map(link -> gptStockNewsRepository.findByLink(link.getLink()))
@@ -65,6 +73,24 @@ public class GPTStockAnalyzeService {
 			.filter(GPTNewsDomain::isRelated)
 			.filter(t -> t.getStockName().equals(stockName))
 			.toList();
+	}
+
+	private void setStockCodeToGPTNewsDomain(List<GPTNewsDomain> target, Map<String, String> stockMap) {
+		for (GPTNewsDomain gptNewsDomain : target) {
+			String code = stockMap.getOrDefault(gptNewsDomain.getStockName(), "nil");
+			gptNewsDomain.addStockCode(code);
+			gptStockNewsRepository.save(gptNewsDomain);
+		}
+	}
+
+	private Map<String, String> getStockDomainToHash() {
+		List<Stock> stocks = stockRepository.findAll();
+		Map<String, String> stockMap = new HashMap<>();
+
+		for (Stock stock : stocks) {
+			stockMap.put(stock.getName(), stock.getCode());
+		}
+		return stockMap;
 	}
 
 	@AnalyzeThema
