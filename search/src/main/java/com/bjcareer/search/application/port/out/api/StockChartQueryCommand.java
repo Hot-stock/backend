@@ -22,7 +22,7 @@ public class StockChartQueryCommand {
 
 	public StockChartQueryCommand(Stock stock, boolean allData) {
 		this.stock = stock;
-		this.startDay = "2005-01-01";
+		this.startDay = LocalDate.now().minusYears(1).toString();
 		this.endDay = LocalDate.now(seoul).toString();
 	}
 
