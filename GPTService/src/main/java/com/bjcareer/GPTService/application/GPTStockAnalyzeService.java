@@ -46,8 +46,6 @@ public class GPTStockAnalyzeService {
 		return gptStockNewsRepository.findByLink(command.getNewsLink()).orElseThrow();
 	}
 
-	//동기식 요청을 처리하기 위한 함수 당일 한정 사용
-
 	@AnalyzeThema
 	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate date, String stockName) {
 		log.debug("Analyzing stock news for date: {} stock: {}", date, stockName);
