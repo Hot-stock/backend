@@ -60,6 +60,12 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void saveAll(List<StockChart> stockChart) {
+		stockChart.forEach(this::save);
+	}
+
+	@Override
 	public Optional<StockChart> loadStockChart(String stockCode) {
 
 		List<StockChart> chart = em.createQuery(Query.LOAD_STOCK_CHART, StockChart.class)
