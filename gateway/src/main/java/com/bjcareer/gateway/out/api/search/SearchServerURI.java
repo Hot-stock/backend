@@ -1,5 +1,7 @@
 package com.bjcareer.gateway.out.api.search;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+
 public class SearchServerURI {
 	public static final String FILTER_THEMA_SEARCH_RESULT = "/api/v0/search/thema";
 	public static final String FILTER_STOCK_SEARCH_RESULT = "/api/v0//search/stock";
@@ -13,4 +15,5 @@ public class SearchServerURI {
 	public static final String ADD_STOCK = "/api/v0/stock";
 	public static final String TOP_STOCK_NEWS = "/api/v0/ranking/stocks";
 	public static final String OHLC = "/api/v0/stock/{code}/ohlc";
+	public static final String TREE_MAP = "/api/v0/search/treemap";
 }

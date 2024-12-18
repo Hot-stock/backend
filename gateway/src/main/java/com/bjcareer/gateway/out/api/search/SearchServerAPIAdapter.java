@@ -1,8 +1,10 @@
 package com.bjcareer.gateway.out.api.search;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,6 +20,7 @@ import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
+import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
@@ -221,6 +224,23 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 
 		if (res.statusCode().is2xxSuccessful()) {
 			RankStocksResponseDTO responseDTO = res.bodyToMono(RankStocksResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<List<TreeMapResponseDTO>> loadTreeMap() {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.TREE_MAP)
+			.exchange()
+			.block();
+
+		if (res.statusCode().is2xxSuccessful()) {
+			List<TreeMapResponseDTO> responseDTO = res.bodyToFlux(TreeMapResponseDTO.class).collectList().block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
