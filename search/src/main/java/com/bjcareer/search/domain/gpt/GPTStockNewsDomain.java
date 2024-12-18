@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GPTStockNewsDomain {
 	private String stockName;
 	private String reason;
+	private String stockCode;
 	private List<String> keywords = new ArrayList<>();
 	private String nextReason;
 	private Optional<LocalDate> next;
@@ -28,9 +29,10 @@ public class GPTStockNewsDomain {
 	private List<String> themas = new ArrayList<>();
 
 
-	public GPTStockNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason,
+	public GPTStockNewsDomain(String stockName, String stockCode,  String reason, List<String> keywords, String next, String nextReason,
 		News news) {
 		this.stockName = stockName;
+		this.stockCode = stockCode;
 		this.reason = reason;
 		this.nextReason = nextReason;
 		this.news = news;
@@ -39,8 +41,13 @@ public class GPTStockNewsDomain {
 		parseLocalDate(next);
 	}
 
-	public GPTStockNewsDomain(String stockName, String reason, List<String> keywords, String next, String nextReason) {
-		this(stockName, reason, keywords, next, nextReason, null);
+	public GPTStockNewsDomain(String stockName, String stockCode, String reason, List<String> keywords, String next, String nextReason) {
+		this(stockName, stockCode, reason, keywords, next, nextReason, null);
+	}
+
+
+	public GPTStockNewsDomain(String stockName, String reason) {
+		this(stockName, null, reason, new ArrayList<>(), null, null, null);
 	}
 
 	private void parseLocalDate(String next) {

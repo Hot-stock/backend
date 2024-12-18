@@ -15,6 +15,7 @@ public class RaiseReasonResponseDTO {
 	private static class Content {
 		private String title;
 		private String stockName;
+		private String stockCode;
 		private String summary;
 		private String imgLink;
 		private String date;
