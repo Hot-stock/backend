@@ -19,7 +19,7 @@ public class ScheduleTreeMapService {
 	private final TreeMapService treeMapService;
 	private final RedisTreeMapAdapter redisTreeMapAdapter;
 
-	@Scheduled(fixedDelay = 30000)
+	@Scheduled(fixedDelay = 300000)
 	public void makeTrie() {
 		log.debug("TrieService started");
 		List<TreeMapDomain> domains = treeMapService.calcTreeMap(3);

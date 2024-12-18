@@ -49,21 +49,21 @@ public class ScheduleRankingKeyword {
 	private double getWeightedPercentageWithMovingAverage(List<AbsoluteRankKeywordDTO> absoluteValueOfKeyword,
 		int movingAverageDays) {
 		// 데이터가 충분하지 않으면 0 반환
-		if (absoluteValueOfKeyword.size() < movingAverageDays + 1) {
+		if (absoluteValueOfKeyword.size() < movingAverageDays) {
 			return 0;
 		}
 
 		// 현재 카운트
+		log.info("{} {}", absoluteValueOfKeyword.size(), movingAverageDays);
 		Long currentCount = absoluteValueOfKeyword.get(absoluteValueOfKeyword.size() - 1).getAbsoluteKeywordCount();
-
+		List<AbsoluteRankKeywordDTO> absoluteRankKeywordDTOS = absoluteValueOfKeyword.subList(absoluteValueOfKeyword.size() - movingAverageDays, absoluteValueOfKeyword.size() - 1);
 		// 가중 평균 계산
 		double weightedSum = 0;
 		double weightTotal = 0;
 
-		for (int i = absoluteValueOfKeyword.size() - movingAverageDays - 1;
-			 i < absoluteValueOfKeyword.size() - 1; i++) {
-			Long count = absoluteValueOfKeyword.get(i).getAbsoluteKeywordCount();
-			Long prevCount = absoluteValueOfKeyword.get(i - 1).getAbsoluteKeywordCount();
+		for (AbsoluteRankKeywordDTO keywordDTO : absoluteRankKeywordDTOS) {
+			Long count = keywordDTO.getAbsoluteKeywordCount();
+			Long prevCount = keywordDTO.getAbsoluteKeywordCount();
 
 			// 상승률 계산
 			double percentage = (prevCount == 0) ? 0 : ((double)(count - prevCount) / prevCount) * 100;

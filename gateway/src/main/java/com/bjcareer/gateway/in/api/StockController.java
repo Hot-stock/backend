@@ -11,12 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.gateway.application.ports.in.StockInfoCommand;
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.in.api.request.StockAdditionRequestDTO;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
-import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;

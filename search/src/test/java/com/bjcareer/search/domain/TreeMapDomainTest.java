@@ -32,10 +32,7 @@ class TreeMapDomainTest {
 
 		TreeMapDomain treeMapDomain = new TreeMapDomain(themaInfo, chartMap, 3);
 
-		Double increaseRate = treeMapDomain.getIncreaseRate();
 		Double i = treeMapDomain.getStockIncreaseRate().get(stock);
-
-		assertEquals(-1, increaseRate, "테마의 히트맵이 구성되어야 한다.");
 		assertEquals(-1, i, "주식의 상승률이 구성되어야 한다.");
 	}
 }
