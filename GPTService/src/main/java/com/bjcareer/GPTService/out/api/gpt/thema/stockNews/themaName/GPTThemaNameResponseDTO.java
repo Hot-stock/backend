@@ -42,5 +42,6 @@ public class GPTThemaNameResponseDTO {
 	public static class Content {
 		private String thema;
 		private String reason;
+		private String themasName;
 	}
 }

@@ -26,7 +26,6 @@ public class AnalyzeEventHandler {
 	private final GPTThemaOfStockNewsAdapter gptThemaOfStockNewsAdapter;
 	private final KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final GPTThemaNewsRepository gptThemaNewsRepository;
-	private final RedisThemaRepository redisThemaRepository;
 	private final ObjectMapper objectMapper;
 
 	@EventListener
@@ -78,8 +77,6 @@ public class AnalyzeEventHandler {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
-
-		redisThemaRepository.updateThema(themaInfo.getName());
 	}
 
 	private boolean isNeedToSendToKafka(ThemaInfo themaInfo, String stockName) {

@@ -2,6 +2,7 @@ package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatusCode;
@@ -26,7 +27,12 @@ public class GPTThemaNameAdapter {
 	private final RedisThemaRepository redisThemaRepository;
 
 	public Optional<ThemaInfo> getThemaName(List<String> stockNames, String themaName, String reason) {
+		UUID uuid = UUID.randomUUID();
+
+		redisThemaRepository.getLock();
 		List<String> themas = redisThemaRepository.loadThema();
+
+		log.debug("{} Load Themas: {}", uuid, themas);
 		GPTThemaNameRequestDTO requestDTO = createRequestDTO(themaName, reason,
 			themas.stream().collect(Collectors.joining(", ")));
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -42,10 +48,12 @@ public class GPTThemaNameAdapter {
 				log.warn("Parsed content is null");
 				return Optional.empty();
 			}
-
+			log.debug("{} extract Themas: {}, contain {}", uuid, parsedContent.getThema(), parsedContent.getThemasName());
 			ThemaInfo themaInfo = new ThemaInfo(stockNames, parsedContent.getThema(), parsedContent.getReason());
 			themaInfo.changeThemaNameUsingLevenshteinDistance(themas);
 			redisThemaRepository.updateThema(themaInfo.getName());
+			log.debug("{} last ThemaInfo: {}", uuid, themaInfo.getName());
+			redisThemaRepository.releaseLock();
 
 			return Optional.of(themaInfo);
 		} else {

@@ -48,7 +48,7 @@ class TrainThemaServiceTest {
 
 	@Test
 	void 테스트_테마_파일_생성() throws JsonProcessingException {
-		String keyword = "그린리소스";  //알티캐스트, 액션스퀘어
+		String keyword = "태광";  //알티캐스트, 액션스퀘어
 		String fileName = "./thema-" + keyword + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 		List<GPTNewsDomain> targetGPTNews = new ArrayList<>();

@@ -23,7 +23,7 @@ spring:
       uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PUBLIC_ADDRESS}:${MONGO_PORT}
 
   kafka:
-    bootstrap-servers: ${KAFKA_PUBLIC_ADDRESS}:9093
+    bootstrap-servers: 3.34.218.70:9093
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer

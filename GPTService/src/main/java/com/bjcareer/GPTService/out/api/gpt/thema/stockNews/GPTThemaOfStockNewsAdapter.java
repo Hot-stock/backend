@@ -26,7 +26,6 @@ import reactor.core.publisher.Mono;
 public class GPTThemaOfStockNewsAdapter {
 	public static final String MODEL = "ft:gpt-4o-2024-08-06:personal::AeDV6Sq6";
 	private final WebClient webClient;
-	private final RedisThemaRepository redisThemaRepository;
 	private final GPTThemaNameAdapter gptThemaNameAdapter;
 
 	public Optional<GPTStockThema> getThema(GPTNewsDomain stockNews) {

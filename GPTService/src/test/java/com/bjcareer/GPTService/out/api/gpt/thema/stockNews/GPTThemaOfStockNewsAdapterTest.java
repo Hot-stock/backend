@@ -28,9 +28,9 @@ class GPTThemaOfStockNewsAdapterTest {
 
 	@Test
 	void 정확한_형식으로_들어오는지_테스트() {
-		String stockName = "그린리소스";
+		String stockName = "태광";
 		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"http://www.edaily.co.kr/news/newspath.asp?newsid=03466966639120160", LocalDate.now());
+			"https://view.asiae.co.kr/article/2024121907592412252", LocalDate.now());
 		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), stockName,
 			originalNews.get().getPubDate());
 
