@@ -1,20 +1,19 @@
 package com.bjcareer.search.out.persistence.cache;
 
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.redisson.api.BatchResult;
+import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
+import org.redisson.api.RBucketAsync;
 import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
-import com.bjcareer.search.application.S3Service;
 import com.bjcareer.search.application.port.out.persistence.ranking.MarketRankingPort;
-import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.entity.Stock;
@@ -47,26 +46,35 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 
 	@Override
 	public List<GPTStockNewsDomain> getRankingNews() {
-		ObjectMapper mapper = AppConfig.customObjectMapper();
 		List<String> keys = scanKeys(BUKET_KEY + "*");
-
 		List<GPTStockNewsDomain> result = new ArrayList<>();
 
-		List<RedisRankingStockDTO> list = keys.stream()
-			.filter(key -> redissonClient.getBucket(key).isExists())
-			.map(key -> jsonParser(mapper, (String)redissonClient.getBucket(key).get()))
-			.filter(Optional::isPresent)
-			.flatMap(Optional::stream).toList();
+		// RBatch 생성
+		RBatch batch = redissonClient.createBatch();
+		List<RBucketAsync<String>> asyncBuckets = new ArrayList<>();
 
-		for (RedisRankingStockDTO dto : list) {
+		// 각 키에 대한 RBucket 가져오기
+		keys.forEach(key -> {
+			RBucketAsync<String> bucket = batch.getBucket(key);
+			bucket.getAsync();
+			asyncBuckets.add(bucket);
+		});
 
-			News news = new News(dto.getTitle(), dto.getNewsURL(), dto.getImageURL(), "", "", "");
-			GPTStockNewsDomain gtpNewsDomain = new GPTStockNewsDomain(dto.getStockName(), dto.getSummary(), null, null, null);
+		BatchResult<?> batchResult = batch.execute();
 
-			gtpNewsDomain.addNewsDomain(news);
-			result.add(gtpNewsDomain);
+		for (int i = 0; i < asyncBuckets.size(); i++) {
+			String data = (String)batchResult.getResponses().get(i);
+			Optional<RedisRankingStockDTO> redisRankingStockDTO = jsonParser(data);
+
+			if (redisRankingStockDTO.isPresent()) {
+				News news = new News(redisRankingStockDTO.get().getTitle(), redisRankingStockDTO.get().getNewsURL(),
+					redisRankingStockDTO.get().getImageURL(), "", "", "");
+				GPTStockNewsDomain gtpNewsDomain = new GPTStockNewsDomain(redisRankingStockDTO.get().getStockName(),
+					redisRankingStockDTO.get().getSummary());
+				gtpNewsDomain.addNewsDomain(news);
+				result.add(gtpNewsDomain);
+			}
 		}
-
 		return result;
 	}
 
@@ -87,7 +95,7 @@ public class RedisMarketRankAdapter implements MarketRankingPort {
 		return keyList;
 	}
 
-	private Optional<RedisRankingStockDTO> jsonParser(ObjectMapper mapper, String value) {
+	private Optional<RedisRankingStockDTO> jsonParser(String value) {
 		try {
 
 			return Optional.of(mapper.readValue(value, RedisRankingStockDTO.class));

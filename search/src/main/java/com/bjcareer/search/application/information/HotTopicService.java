@@ -1,6 +1,8 @@
 package com.bjcareer.search.application.information;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -20,21 +22,23 @@ public class HotTopicService {
 
 	public List<GPTStockNewsDomain> getTrendingStory() {
 		List<GPTStockNewsDomain> rankingNews = marketRankingPort.getRankingNews();
-		rankingNews.forEach(it -> {
-			String preSignedStockLogoUrl = s3Service.getStockLogoURL(it.getStockName());
-			it.linkPreSignedStockLogoUrl(preSignedStockLogoUrl);
-		});
 
-		for (GPTStockNewsDomain gptStockNewsDomain : rankingNews) {
+		List<String> links = rankingNews.stream()
+			.map(rankDomain -> rankDomain.getNews().getOriginalLink())
+			.collect(Collectors.toList());
+
+		List<GPTStockNewsDomain> stockNewsDomains = documentAnalyzeRepository.getStockNewsByLinks(links);
+
+		for (GPTStockNewsDomain domain : stockNewsDomains) {
 			List<String> themas = documentAnalyzeRepository.getThemasOfNews(
-				gptStockNewsDomain.getNews().getOriginalLink(), gptStockNewsDomain.getStockName());
+				domain.getNews().getOriginalLink(), domain.getStockName());
 
-			gptStockNewsDomain.addThema(themas);
+			domain.addThema(themas);
 
-			String preSignedStockLogoUrl = s3Service.getStockLogoURL(gptStockNewsDomain.getStockName());
-			gptStockNewsDomain.linkPreSignedStockLogoUrl(preSignedStockLogoUrl);
+			String preSignedStockLogoUrl = s3Service.getStockLogoURL(domain.getStockName());
+			domain.linkPreSignedStockLogoUrl(preSignedStockLogoUrl);
 		}
 
-		return rankingNews;
+		return stockNewsDomains;
 	}
 }

@@ -16,6 +16,7 @@ public class TopNewsDTO {
 	@ToString
 	static class RaiseReasonDTO {
 		private String stockName;
+		private String stockCode;
 		private String logoLink;
 		private List<String> themas = new ArrayList<>();
 		private String title;

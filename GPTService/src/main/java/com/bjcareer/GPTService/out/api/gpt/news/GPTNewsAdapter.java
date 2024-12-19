@@ -13,6 +13,7 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
+import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,24 +24,48 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GPTNewsAdapter {
 	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AdspZUDm";
+	public static final String GPT_4o = "gpt-4o";
 	private final WebClient webClient;
 
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
 	public Optional<GPTNewsDomain> findStockRaiseReason(OriginalNews originalNews, String stockName, LocalDate pubDate) {
-		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName, pubDate);
+		ClientResponse response = sendAnalyzeStockNews(originalNews, stockName, pubDate, MODEL);
 
-		// 동기적으로 요청을 보내고 결과를 block()으로 기다림
-		ClientResponse response = sendRequestToGPT(requestDTO).block();
+		log.info("Request with News link: {}", originalNews.getNewsLink());
+		Optional<GPTNewsResponseDTO.Content> res = parseContent(response);
+		if(res.isEmpty()){
+			log.warn("Failed to parse content: {}", response);
+			return Optional.empty();
+		}
 
+		GPTNewsResponseDTO.Content content = res.get();
+		log.info("Request successed with News link: {}", originalNews.getNewsLink());
+
+		if (content.isRelevant()) {
+			log.info("결과가 성공이라고 나와서 검증 시도: {}", content);
+			GPTNewsResponseDTO.Content finalContent = content;
+			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, GPT_4o);
+			content = parseContent(response).orElseGet(() -> {
+				log.warn("Failed to parse content: {}");
+				return finalContent;
+			});
+		}
+
+		return Optional.of(
+				new GPTNewsDomain(content.getName(), content.getReason(), content.getNext(),
+					content.getNextReason().getFact(), content.getNextReason().getOpinion(), originalNews,
+					content.isRelevant(), content.getIsRelevantDetail(), content.isThema(), content.getKeywords()));
+		}
+
+	private Optional<GPTNewsResponseDTO.Content> parseContent(ClientResponse response) {
 		if (response != null && response.statusCode().is2xxSuccessful()) {
-			log.info("Request succeeded with News link: {}", originalNews.getNewsLink());
 			GPTNewsResponseDTO gptNewsResponseDTO = handleSuccessResponse(response);
 			GPTNewsResponseDTO.Content parsedContent = gptNewsResponseDTO.getChoices()
 				.get(0)
 				.getMessage()
 				.getParsedContent();
 
-			if(parsedContent == null) {
+			if (parsedContent == null) {
 				log.warn("Parsed content is null");
 				return Optional.empty();
 			}
@@ -49,18 +74,23 @@ public class GPTNewsAdapter {
 				log.warn("Wrong Parsed content: {}", parsedContent);
 			}
 
-			return Optional.of(
-				new GPTNewsDomain(parsedContent.getName(), parsedContent.getReason(), parsedContent.getNext(),
-					parsedContent.getNextReason().getFact(), parsedContent.getNextReason().getOpinion(), originalNews,
-					parsedContent.isRelevant(), parsedContent.getIsRelevantDetail(), parsedContent.isThema(), parsedContent.getKeywords()));
-		} else {
-			handleErrorResponse(response);
-			return Optional.empty(); // 실패 시 null 반환 또는 예외 처리
+			return Optional.of(parsedContent);
 		}
+
+		return Optional.empty();
+	}
+
+	private ClientResponse sendAnalyzeStockNews(OriginalNews originalNews, String stockName, LocalDate pubDate,
+		String model) {
+		log.debug("Requesting GPT with news with model: {}", model);
+		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName,
+			pubDate, model);
+		ClientResponse response = sendRequestToGPT(requestDTO).block();
+		return response;
 	}
 
 	private GPTNewsRequestDTO createRequestDTO(String content, String title, String name,
-		LocalDate pubDate) {
+		LocalDate pubDate, String model) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 
@@ -68,7 +98,7 @@ public class GPTNewsAdapter {
 		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, title, content));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
-		return new GPTNewsRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
+		return new GPTNewsRequestDTO(model, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {

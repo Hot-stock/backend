@@ -26,8 +26,9 @@ public class QueryToFindRaiseReasonResponseDTO {
 	@Data
 	private static class Content {
 		private String stockName;
+		private String stockCode;
 		private String logoLink;
-		private List<String> themas = new ArrayList<>();
+		private List<String> themas;
 
 		private String title;
 		private String summary;
@@ -37,6 +38,7 @@ public class QueryToFindRaiseReasonResponseDTO {
 
 		public Content(GPTStockNewsDomain gptStockNewsDomain) {
 			this.stockName = gptStockNewsDomain.getStockName();
+			this.stockCode = gptStockNewsDomain.getStockCode();
 			this.title = gptStockNewsDomain.getNews().getTitle();
 			this.summary = gptStockNewsDomain.getReason();
 			this.themas = gptStockNewsDomain.getThemas();
