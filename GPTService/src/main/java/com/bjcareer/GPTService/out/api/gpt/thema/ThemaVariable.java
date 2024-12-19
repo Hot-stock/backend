@@ -9,7 +9,8 @@ public class ThemaVariable {
 
 	// Name: Theme for the stock based on specific keywords
 	public PropertyDetail name = new PropertyDetail("string", ThemaPrompt.PROMPT);
-	public PropertyArrayDetail stockNames = new PropertyArrayDetail("추출된 테마가 상승 이유가 되는 종목들을 보여줘 반듯이 기사에 나온 사실만을 사용하고, 인과관계가 명확해야해",
+	public PropertyArrayDetail stockNames = new PropertyArrayDetail(
+		"name필드와 관련된 주식 종목들의 이름을 나열하세요. 반드시 기사에서 언급된 사실만을 사용하세요",
 		new PropertyDetail("string", "name필드와 관련된 주식 종목들의 이름을 나열하세요. 반드시 기사에서 언급된 사실만을 사용하세요"));
 
 	public PropertyDetail reason = new PropertyDetail("string",
