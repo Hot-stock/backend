@@ -18,6 +18,13 @@ public class RedisThemaRepository {
 	private final RedissonClient redissonClient;
 	private final static String BUKET_KEY = "THEMAS";
 
+	public void getLock() {
+		redissonClient.getLock(BUKET_KEY+"LOCK").lock();
+	}
+	public void releaseLock() {
+		redissonClient.getLock(BUKET_KEY+"LOCK").unlock();
+	}
+
 	public void updateThema(String thema) {
 		RSet<String> set = redissonClient.getSet(BUKET_KEY);
 		set.add(thema);

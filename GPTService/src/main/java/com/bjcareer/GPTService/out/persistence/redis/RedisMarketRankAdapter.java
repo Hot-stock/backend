@@ -46,16 +46,7 @@ public class RedisMarketRankAdapter {
 			log.error("Failed to convert object to json: {}", redisRankingStockDTO);
 		}
 	}
-
-	public List<GPTNewsDomain> getRankingNews() {
-		List<String> keys = scanKeys(BUKET_KEY + "*");
-
-		return keys.stream()
-			.filter(key -> redissonClient.getBucket(key).isExists())
-			.map(key -> (GPTNewsDomain)redissonClient.getBucket(key).get())
-			.toList();
-	}
-
+	
 	public void updateRankingNewsByStockName(String stockName) {
 		String key = BUKET_KEY + stockName;
 		RBucket<String> bucket = redissonClient.getBucket(key);
