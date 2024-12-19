@@ -22,7 +22,7 @@ class GPTThemaNewsRepositoryTest {
 	void GPTStockThema가_저장될_수_있는지() {
 		OriginalNews news = new OriginalNews("", "", "", LocalDate.now().toString(), "");
 		GPTStockThema stockThema = new GPTStockThema(")link", false,
-			List.of(new ThemaInfo(List.of("에이텍", "동신건설"), "이재명", "ttt")));
+			new ThemaInfo(List.of("에이텍", "동신건설"), "이재명", "ttt"));
 		GPTStockThema save = gptThemaNewsRepository.save(stockThema);
 		assertNotNull(save);
 	}
