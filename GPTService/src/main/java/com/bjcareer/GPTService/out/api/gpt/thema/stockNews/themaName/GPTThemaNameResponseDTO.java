@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.stockNews;
+package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)  // 불필요한 필드 무시
-public class GPTThemaOfStockNewsResponseDTO {
+public class GPTThemaNameResponseDTO {
 	private List<Choice> choices = new ArrayList<>();
 
 	@Data
@@ -40,8 +40,7 @@ public class GPTThemaOfStockNewsResponseDTO {
 	@Data
 	@JsonIgnoreProperties(ignoreUnknown = true) // 정의되지 않은 필드 무시
 	public static class Content {
-		@JsonProperty("isPositive")
-		private boolean isPositive;
-		private ThemaVariableResponseDTO thema;
+		private String thema;
+		private String reason;
 	}
 }

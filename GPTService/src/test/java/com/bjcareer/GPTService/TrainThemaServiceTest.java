@@ -48,13 +48,13 @@ class TrainThemaServiceTest {
 
 	@Test
 	void 테스트_테마_파일_생성() throws JsonProcessingException {
-		String keyword = "케이씨에스";  //알티캐스트, 액션스퀘어
+		String keyword = "그린리소스";  //알티캐스트, 액션스퀘어
 		String fileName = "./thema-" + keyword + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 		List<GPTNewsDomain> targetGPTNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 12, 12);
-		LocalDate endDate = LocalDate.of(2024, 12, 12);
+		LocalDate startDate = LocalDate.of(2024, 12, 19);
+		LocalDate endDate = LocalDate.of(2024, 12, 19);
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(keyword, startDate, endDate));

@@ -1,6 +1,5 @@
 package com.bjcareer.GPTService.event;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.context.event.EventListener;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
-import com.bjcareer.GPTService.domain.helper.LevenshteinDistance;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTThemaNewsRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
@@ -56,8 +54,8 @@ public class AnalyzeEventHandler {
 
 			GPTStockThema gptStockThema = gptThema.get();
 
-			List<ThemaInfo> themaInfo = gptStockThema.getThemaInfo();
-			themaInfo.forEach(t -> sendThemaToKafka(t, news.getStockName()));
+			ThemaInfo themaInfo = gptStockThema.getThemaInfo();
+			sendThemaToKafka(themaInfo, news.getStockName());
 			gptThemaNewsRepository.save(gptStockThema);
 		}
 	}

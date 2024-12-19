@@ -19,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 @Document(collection = "stock-thema-news")
 public class GPTStockThema {
 	private boolean isPositive;
-	private List<ThemaInfo> themaInfo;
+	private ThemaInfo themaInfo;
 	@MongoId
 	private String link;
 
-	public GPTStockThema(String link, boolean isPositive,List<ThemaInfo> themaInfo) {
+	public GPTStockThema(String link, boolean isPositive, ThemaInfo themaInfo) {
 		this.link = link;
 		this.isPositive = isPositive;
 		this.themaInfo = themaInfo;

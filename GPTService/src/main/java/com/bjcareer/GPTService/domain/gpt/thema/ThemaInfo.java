@@ -23,8 +23,12 @@ public class ThemaInfo {
 	}
 
 	public void changeThemaNameUsingLevenshteinDistance(List<String> themas) {
+		boolean contains = themas.contains(this.name);
+		if (contains) {
+			return;
+		}
 		for (String thema : themas) {
-			if (LevenshteinDistance.calculateLevenshteinDistance(this.name, thema) <= 5) {
+			if (LevenshteinDistance.calculateLevenshteinDistance(this.name, thema) <= 3) {
 				this.name = thema;
 				return;
 			}
