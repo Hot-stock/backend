@@ -22,7 +22,6 @@ public class SearchRankingService {
 	private final GPTStockAnalyzeService gptStockAnalyzeService;
 	private final TossServerAdapter tossServerAdapter;
 
-	// @Scheduled(cron = "0 */5 * * * *")
 	@Scheduled(fixedDelay = 300000)
 	void updateRanking() {
 		SoarStockResponseDTO soarStock = tossServerAdapter.getSoarStock();
