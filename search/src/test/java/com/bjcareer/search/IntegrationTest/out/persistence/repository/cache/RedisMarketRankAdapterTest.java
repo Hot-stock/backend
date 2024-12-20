@@ -20,7 +20,7 @@ class RedisMarketRankAdapterTest {
 	MarketRankingPort marketRankingPort;
 
 	Stock stock = new Stock("370090", "퓨런티어");
-	GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("퓨런티어", "test", null, "2021-08-01", "test");
+	GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("퓨런티어", "370090", "test", null, "2021-08-01", "test");
 
 	@BeforeEach
 	void setUp() {

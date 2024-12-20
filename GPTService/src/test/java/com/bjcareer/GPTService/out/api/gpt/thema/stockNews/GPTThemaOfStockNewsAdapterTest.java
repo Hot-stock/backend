@@ -28,18 +28,13 @@ class GPTThemaOfStockNewsAdapterTest {
 
 	@Test
 	void 정확한_형식으로_들어오는지_테스트() {
+		String stockName = "태광";
 		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"https://www.pinpointnews.co.kr/news/articleView.html?idxno=306719", LocalDate.now());
-		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), "뱅크웨어글로벌",
+			"https://view.asiae.co.kr/article/2024121907592412252", LocalDate.now());
+		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), stockName,
 			originalNews.get().getPubDate());
 
-		System.out.println("stockRaiseReason.get() = " + stockRaiseReason.get());
-
 		Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(stockRaiseReason.get());
-		System.out.println("r.get() = " + r.get());
 		assertTrue(r.isPresent());
 	}
-	//https://www.thebigdata.co.kr/view.php?ud=202412090221357106cd1e7f0bdf_23
-	// 	https://www.pinpointnews.co.kr/news/articleView.html?idxno=304895
-	//https://theviewers.co.kr/View.aspx?No=3468635
 }

@@ -98,13 +98,12 @@ public class DocumentAnalyzeRepository {
 		);
 
 		themaNewsCollection.find(filter).forEach(doc -> {
-			List<Document> themaInfo = (List<Document>)doc.get("themaInfo");
-			themaInfo.forEach(info -> {
-				List<String> stockNames = (List<String>)info.get("stockName");
-				if (stockNames.contains(stockName)) {
-					result.add(info.getString("name"));
-				}
-			});
+			Document document = doc.get("themaInfo", Document.class);
+			List<String> stockNames = (List<String>)document.get("stockName");
+
+			if (stockNames.contains(stockName)) {
+				result.add(document.getString("name"));
+			}
 		});
 
 		return result;

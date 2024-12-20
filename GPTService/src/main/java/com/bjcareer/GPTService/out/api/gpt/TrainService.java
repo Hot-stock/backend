@@ -89,9 +89,9 @@ public class TrainService {
 
 		@JsonProperty("isPositive")
 		private boolean isPositive;
-		private List<ThemaInfo> thema;
+		private ThemaInfo thema;
 
-		public GPTTrainThema(boolean isPositive, List<ThemaInfo> thema) {
+		public GPTTrainThema(boolean isPositive, ThemaInfo thema) {
 			this.isPositive = isPositive;
 			this.thema = thema;
 		}

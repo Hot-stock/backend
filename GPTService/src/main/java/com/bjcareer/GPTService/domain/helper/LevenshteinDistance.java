@@ -5,11 +5,8 @@ public class LevenshteinDistance {
 	public static int calculateLevenshteinDistance(String str1, String str2) {
 		//비교하지 않는 방식
 		if(str1.length() <= 3){
-			return 10;
+			return 99999;
 		}
-
-		str1 = splitHangul(str1);
-		str2 = splitHangul(str2);
 
 		int lenStr1 = str1.length();
 		int lenStr2 = str2.length();
@@ -39,26 +36,5 @@ public class LevenshteinDistance {
 		}
 
 		return dp[lenStr1][lenStr2];
-	}
-
-	public static String splitHangul(String word) {
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < word.length(); i++) {
-			char syllable = word.charAt(i);
-			if (syllable >= 0xAC00 && syllable <= 0xD7A3) {
-				int unicode = syllable - 0xAC00;
-				int cho = unicode / (21 * 28);
-				int jung = (unicode % (21 * 28)) / 28;
-				int jong = unicode % 28;
-
-				// 초성, 중성, 종성 자모 추출
-				result.append((char)(cho + 0x1100))   // 초성
-					.append((char)(jung + 0x1161))  // 중성
-					.append(jong != 0 ? (char)(jong + 0x11A7) : ""); // 종성 (없으면 빈 문자열)
-			} else {
-				result.append(syllable);
-			}
-		}
-		return result.toString();
 	}
 }

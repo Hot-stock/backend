@@ -20,20 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SearchRankingService {
 	private final GPTStockAnalyzeService gptStockAnalyzeService;
-	private final RedisThemaRepository redisThemaRepository;
 	private final TossServerAdapter tossServerAdapter;
 
-	@Scheduled(cron = "0 */5 * * * *")
+	@Scheduled(fixedDelay = 300000)
 	void updateRanking() {
-		List<String> strings = redisThemaRepository.loadThema();
-
-		if (strings.isEmpty()) {
-			log.error("thema가 아직 복구되지 않았습니다.");
-			return;
-		}
-
-
 		SoarStockResponseDTO soarStock = tossServerAdapter.getSoarStock();
+
 		LocalDate baseAt = LocalDate.parse(soarStock.getResult().getBasedAt().split("T")[0]);
 		List<String> stockNames = soarStock.getResult().getProducts().stream().map(
 			SoarStockResponseDTO.Result.Product::getName).toList();

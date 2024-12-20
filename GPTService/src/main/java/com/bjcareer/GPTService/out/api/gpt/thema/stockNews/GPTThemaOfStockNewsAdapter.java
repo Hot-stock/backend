@@ -13,6 +13,7 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.GPTThemaNameAdapter;
 import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import reactor.core.publisher.Mono;
 public class GPTThemaOfStockNewsAdapter {
 	public static final String MODEL = "ft:gpt-4o-2024-08-06:personal::AeDV6Sq6";
 	private final WebClient webClient;
-	private final RedisThemaRepository redisThemaRepository;
+	private final GPTThemaNameAdapter gptThemaNameAdapter;
 
 	public Optional<GPTStockThema> getThema(GPTNewsDomain stockNews) {
 		GPTThemaOfStockRequestDTO requestDTO = createRequestDTO(stockNews.getNews().getContent(),
@@ -39,26 +40,20 @@ public class GPTThemaOfStockNewsAdapter {
 				.getMessage()
 				.getParsedContent();
 
-			List<String> themas = redisThemaRepository.loadThema();
-
 			if(parsedContent == null) {
 				log.warn("Parsed content is null");
 				return Optional.empty();
 			}
 
-			List<ThemaInfo> themaInfos = parsedContent.getThema()
-				.stream()
-				.map(t -> new ThemaInfo(t.getStockNames(), t.getName(), t.getReason()))
-				.toList();
+			Optional<ThemaInfo> themaName = gptThemaNameAdapter.getThemaName(parsedContent.getThema().getStockNames(),
+				parsedContent.getThema().getName(), parsedContent.getThema().getReason());
 
-			themaInfos.stream().filter(t -> t.getStockName().contains(stockNews.getStockName()))
-				.forEach(t -> {
-					t.changeThemaNameUsingLevenshteinDistance(themas);
-					themas.add(t.getName());
-				});
+			ThemaInfo themaInfo = themaName.orElseGet(() -> null);
 
-			return Optional.of(
-				new GPTStockThema(stockNews.getLink(), parsedContent.isPositive(), themaInfos));
+			GPTStockThema gptStockThema = new GPTStockThema(stockNews.getLink(), parsedContent.isPositive(),
+				themaInfo);
+			log.info("GPTStockThema: {}", gptStockThema);
+			return Optional.of(gptStockThema);
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty();
@@ -86,7 +81,6 @@ public class GPTThemaOfStockNewsAdapter {
 	private GPTThemaOfStockNewsResponseDTO handleSuccessResponse(ClientResponse response) {
 		// 동기적으로 body를 읽음
 		GPTThemaOfStockNewsResponseDTO gptResponse = response.bodyToMono(GPTThemaOfStockNewsResponseDTO.class).block();
-		log.debug("Response body: {}", gptResponse);
 		return gptResponse;
 	}
 

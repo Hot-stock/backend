@@ -95,7 +95,7 @@ public class PythonSearchServerAdapter {
 		try {
 			ClientResponse response = webClient.get()
 				.uri(url)
-				.exchange().timeout(Duration.ofSeconds(500))
+				.exchange().timeout(Duration.ofSeconds(30))
 				.block();
 
 			if (response.statusCode().is2xxSuccessful()) {

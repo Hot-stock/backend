@@ -13,7 +13,6 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
-import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,10 +108,7 @@ public class GPTNewsAdapter {
 	}
 
 	private GPTNewsResponseDTO handleSuccessResponse(ClientResponse response) {
-		// 동기적으로 body를 읽음
-		GPTNewsResponseDTO gptResponse = response.bodyToMono(GPTNewsResponseDTO.class).block();
-		log.debug("GPT News response: {}", gptResponse);
-		return gptResponse;
+		return response.bodyToMono(GPTNewsResponseDTO.class).block();
 	}
 
 	private void handleErrorResponse(ClientResponse response) {
