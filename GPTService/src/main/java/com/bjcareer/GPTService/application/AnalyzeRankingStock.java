@@ -21,10 +21,7 @@ import com.bjcareer.GPTService.out.persistence.redis.RedisTrendKeywordRankAdapte
 import com.bjcareer.GPTService.schedule.OhlcResponseDTO;
 import com.bjcareer.GPTService.schedule.StockChartQueryCommand;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class AnalyzeRankingStock {
 	public static final long MAX_MARKET_CAP = 120000000000L;
 	private final RedisTrendKeywordRankAdapter redisTrendKeywordRankAdapter;
@@ -32,9 +29,19 @@ public class AnalyzeRankingStock {
 	private final StockRepository stockRepository;
 	private final RedisSuggestionStock redisSuggestionStock;
 	private final ApplicationEventPublisher applicationEventPublisher;
-
-	@Qualifier("customTaskExecutor")
 	private final Executor executor;
+
+	public AnalyzeRankingStock(RedisTrendKeywordRankAdapter redisTrendKeywordRankAdapter,
+		PythonSearchServerAdapter pythonSearchServerAdapter, StockRepository stockRepository,
+		RedisSuggestionStock redisSuggestionStock, ApplicationEventPublisher applicationEventPublisher,
+		@Qualifier("customTaskExecutor") Executor executor) {
+		this.redisTrendKeywordRankAdapter = redisTrendKeywordRankAdapter;
+		this.pythonSearchServerAdapter = pythonSearchServerAdapter;
+		this.stockRepository = stockRepository;
+		this.redisSuggestionStock = redisSuggestionStock;
+		this.applicationEventPublisher = applicationEventPublisher;
+		this.executor = executor;
+	}
 
 	public List<Stock> analyzeRankingStock() {
 		LocalDate startDate = LocalDate.now().minusYears(1);
