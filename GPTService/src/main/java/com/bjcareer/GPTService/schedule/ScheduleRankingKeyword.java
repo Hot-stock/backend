@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.GPTService.application.AnalyzeRankingStock;
 import com.bjcareer.GPTService.out.api.python.AbsoluteRankKeywordDTO;
 import com.bjcareer.GPTService.out.api.python.Market;
 import com.bjcareer.GPTService.out.api.python.MarketResponseDTO;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
+import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisTrendKeywordRankAdapter;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ScheduleRankingKeyword {
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final RedisTrendKeywordRankAdapter trendKeywordRankAdapter;
+	private final RedisThemaRepository redisThemaRepository;
+	private final AnalyzeRankingStock analyzeRankingStock;
 
 	@Scheduled(cron = "0 10 9 * * *", zone = "Asia/Seoul")
 	public void updateRankingKeyword() {
@@ -40,7 +44,30 @@ public class ScheduleRankingKeyword {
 
 			double percentage = getWeightedPercentageWithMovingAverage(absoluteValueOfKeyword, 3);
 			log.debug("Start update ranking keyword for stock: {} Percentage: {}", stock.getName(), percentage);
-			trendKeywordRankAdapter.updateRanking(stock.getName(), percentage + 0.0);
+			trendKeywordRankAdapter.updateRanking(stock.getName(), percentage + 0.0, RedisTrendKeywordRankAdapter.STOCK_RANK_BUCKET);
+		}
+
+		analyzeRankingStock.analyzeRankingStock();
+		log.info("End update ranking keyword");
+	}
+
+	@Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
+	public void updateRankingThemaKeyword() {
+		log.info("Start update thema ranking keyword");
+		List<String> strings = redisThemaRepository.loadThema();
+
+		for (String thema : strings) {
+			List<AbsoluteRankKeywordDTO> absoluteValueOfKeyword = pythonSearchServerAdapter.loadRankKeyword(thema);
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				log.warn("Failed to sleep thread {} {}", e, thema);
+			}
+
+			double percentage = getWeightedPercentageWithMovingAverage(absoluteValueOfKeyword, 3);
+			log.debug("Start update ranking keyword for stock: {} Percentage: {}", thema, percentage);
+			trendKeywordRankAdapter.updateRanking(thema, percentage + 0.0, RedisTrendKeywordRankAdapter.THEMA_RANK_BUCKET);
 		}
 
 		log.info("End update ranking keyword");

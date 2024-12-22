@@ -7,12 +7,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTThemaNewsRepository;
-import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,11 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class AnalyzeEventHandler {
+public class AnalyzeThemaEventHandler {
 	private final GPTThemaOfStockNewsAdapter gptThemaOfStockNewsAdapter;
 	private final KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final GPTThemaNewsRepository gptThemaNewsRepository;
-	private final ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper = AppConfig.customObjectMapper();
 
 	@EventListener
 	@Async
