@@ -28,6 +28,7 @@ public interface SearchServerPort {
 	ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command);
 
 	ResponseDomain<RankStocksResponseDTO> getRankingStock();
+	ResponseDomain<RankStocksResponseDTO> getSuggestionStock();
 
 
 	ResponseDomain<List<TreeMapResponseDTO>> loadTreeMap();
