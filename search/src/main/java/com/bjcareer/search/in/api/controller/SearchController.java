@@ -32,16 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchController {
 	private final SearchUsecase usecase;
 
-	@GetMapping("/suggestion")
-	@Operation(summary = "추전 주식 종목 조회", description = "키워드 검색어 기반으로 추천된 종목을 반환함")
-	public ResponseEntity<List<StockInformationResponseDTO>> getSuggestionStocks() {
-		List<Stock> suggestionStocks = usecase.getSuggestionStocks();
-		List<StockInformationResponseDTO> response = suggestionStocks.stream()
-			.map(t -> new StockInformationResponseDTO(t, ""))
-			.toList();
-		return ResponseEntity.ok(response);
-	}
-
 	@GetMapping("/thema")
 	@Operation(summary = "테마 검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
 	public ResponseEntity<SearchResultResponseDTO> filterThemesByQuery(@RequestParam(name = "q") String query) {

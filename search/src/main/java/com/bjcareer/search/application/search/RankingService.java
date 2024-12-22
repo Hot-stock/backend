@@ -12,6 +12,7 @@ import com.bjcareer.search.application.port.in.RankingUsecase;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.out.persistence.cache.CacheRepository;
+import com.bjcareer.search.out.persistence.cache.RedisSuggestionAdapter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RankingService implements RankingUsecase {
 	private final CacheRepository cacheRepository;
 	private final StockRepositoryPort stockRepositoryPort;
+	private final RedisSuggestionAdapter redisSuggestionAdapter;
 	private final S3Service s3Service;
 
 	public void updateKeyword(String keyword) {
@@ -38,10 +40,26 @@ public class RankingService implements RankingUsecase {
 		return result;
 	}
 
+	@Override
+	public List<Stock> getSuggestionStocks() {
+		List<String> suggestionStock = redisSuggestionAdapter.getSuggestionStock();
+		List<Stock> list = suggestionStock.stream()
+			.map(stockRepositoryPort::findByName)
+			.flatMap(Optional::stream)
+			.toList();
+
+		for (Stock stock : list) {
+			stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
+		}
+
+		return list;
+	}
+
 	private void setURLToStockDomain(Pair<String, Double> t, List<Pair<Stock, String>> result) {
 		Optional<Stock> byName = stockRepositoryPort.findByName(t.getFirst());
 		Stock stock = byName.get();
 		stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
 				result.add(Pair.of(stock, String.valueOf(t.getSecond().intValue() * -1)));
 	}
+
 }

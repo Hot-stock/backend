@@ -99,18 +99,4 @@ public class SearchService implements SearchUsecase {
 		return trie.search(keyword);
 	}
 
-	@Override
-	public List<Stock> getSuggestionStocks() {
-		List<String> suggestionStock = redisSuggestionAdapter.getSuggestionStock();
-		List<Stock> list = suggestionStock.stream()
-			.map(stockRepositoryPort::findByName)
-			.flatMap(Optional::stream)
-			.toList();
-
-		for (Stock stock : list) {
-			stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
-		}
-
-		return list;
-	}
 }
