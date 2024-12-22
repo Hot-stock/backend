@@ -2,6 +2,7 @@ package com.bjcareer.search.out.persistence.cache;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
@@ -31,6 +32,6 @@ public class RedisTreeMapAdapter {
 	public List<TreeMapDomain> getTreemap() {
 		RSet<TreeMapDomain> set = redissonClient.getSet(BUKET_KEY);
 		Set<TreeMapDomain> objects = set.readAll();
-		return objects.stream().toList();
+		return objects.stream().collect(Collectors.toList());
 	}
 }
