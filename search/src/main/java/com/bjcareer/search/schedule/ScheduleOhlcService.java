@@ -38,22 +38,26 @@ public class ScheduleOhlcService {
 		updateStockInfo(stocks);
 		log.info("Renew Stocks Success: {}", stocks.size());
 
-		List<StockChart> stockCharts = stocks.values()
-			.stream()
-			.map(stock -> stockChartRepository.loadStockChart(stock.getCode())
-				.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>())))
-			.toList();
+		// List<StockChart> stockCharts = stocks.values()
+		// 	.stream()
+		// 	.map(stock -> stockChartRepository.loadStockChart(stock.getCode())
+		// 		.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>())))
+		// 	.toList();
+
+		List<StockChart> stockCharts = stockChartRepository.loadStockChartInStockCode(
+			stocks.values().stream().map(Stock::getCode).toList());
+
 
 		for (StockChart chart : stockCharts) {
+			log.info("Renew Stock Chart: {}", chart.getStockCode());
 			Stock stock = stocks.get(chart.getStockCode());
 			StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock,
 				chart.getLastUpdateDate(),
 				LocalDate.now(AppConfig.ZONE_ID)); //1분
 			chart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
+			stockChartRepository.save(chart);
 		}
-
-		stockCharts.forEach(stockChartRepository::save);
-		stockRepository.saveALl(stocks.values());
+		// stockRepository.saveALl(stocks.values());
 		log.info("All Stocks was renewed: {}", stocks.size());
 	}
 

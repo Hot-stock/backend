@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.search.application.S3Service;
 import com.bjcareer.search.application.port.in.SearchUsecase;
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
@@ -25,6 +26,7 @@ import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.bjcareer.search.event.SearchedKeyword;
+import com.bjcareer.search.out.persistence.cache.RedisSuggestionAdapter;
 import com.bjcareer.search.out.persistence.noSQL.DocumentAnalyzeRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -36,11 +38,12 @@ public class SearchService implements SearchUsecase {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final StockRepositoryPort stockRepositoryPort;
 	private final DocumentAnalyzeRepository documentAnalyzeRepository;
+	private final RedisSuggestionAdapter redisSuggestionAdapter;
+	private final S3Service	s3Service;
 	private final Trie trie;
 
 	public List<Thema> filterThemesByQuery(String keyword) {
 		LoadThemaUsingkeywordCommand command = new LoadThemaUsingkeywordCommand(keyword);
-		Optional<Stock> byCode = stockRepositoryPort.findByCode(keyword);
 		List<Thema> resultOfSearch = themaRepositoryPort.loadAllByKeywordContaining(command);
 
 		if (!resultOfSearch.isEmpty()) {
@@ -94,5 +97,20 @@ public class SearchService implements SearchUsecase {
 	@Override
 	public List<String> getSuggestionKeyword(String keyword) {
 		return trie.search(keyword);
+	}
+
+	@Override
+	public List<Stock> getSuggestionStocks() {
+		List<String> suggestionStock = redisSuggestionAdapter.getSuggestionStock();
+		List<Stock> list = suggestionStock.stream()
+			.map(stockRepositoryPort::findByName)
+			.flatMap(Optional::stream)
+			.toList();
+
+		for (Stock stock : list) {
+			stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
+		}
+
+		return list;
 	}
 }

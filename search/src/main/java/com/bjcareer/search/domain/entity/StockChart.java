@@ -34,7 +34,7 @@ public class StockChart {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "chart", cascade = CascadeType.ALL)
 	@BatchSize(size = 100)
-	@OrderBy("date ASC")
+	@OrderBy("date DESC")
 	private List<OHLC> ohlcList = new ArrayList<>();
 
 	@Column(name = "last_update_date", nullable = false)
@@ -56,6 +56,8 @@ public class StockChart {
 
 		double sum = 0.0; // 소수점 연산을 위해 double 타입 사용
 		int count = 0;
+
+		performance = Math.min(performance, ohlcList.size());
 
 		for(int i = 0; i < performance; ++i){
 			sum += ohlcList.get(i).getPercentageIncrease();

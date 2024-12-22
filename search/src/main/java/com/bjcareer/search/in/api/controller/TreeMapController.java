@@ -29,7 +29,6 @@ public class TreeMapController {
 		if (domains.isEmpty()) {
 			return ResponseEntity.ok(emptyList());
 		}
-		domains.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 		domains.stream().map(TreeMapResponseDTO::new).forEach(response::add);
 		return ResponseEntity.ok(response);
 	}

@@ -42,6 +42,10 @@ public class TreeMapService {
 			Map<Stock, StockChart> chartMap = new HashMap<>();
 			List<Stock> stocks = groupingThema.get(themaInfo);
 
+			if(stocks.size() <= 2){
+				continue;
+			}
+
 			Map<String, Stock> stockMap = stocks.stream()
 				.collect(Collectors.toMap(
 					Stock::getCode,  // 키 생성 함수 (예: Stock 코드)

@@ -18,6 +18,7 @@ import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindThemaNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockerFilterResultResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,16 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v0/search")
 public class SearchController {
 	private final SearchUsecase usecase;
+
+	@GetMapping("/suggestion")
+	@Operation(summary = "추전 주식 종목 조회", description = "키워드 검색어 기반으로 추천된 종목을 반환함")
+	public ResponseEntity<List<StockInformationResponseDTO>> getSuggestionStocks() {
+		List<Stock> suggestionStocks = usecase.getSuggestionStocks();
+		List<StockInformationResponseDTO> response = suggestionStocks.stream()
+			.map(t -> new StockInformationResponseDTO(t, ""))
+			.toList();
+		return ResponseEntity.ok(response);
+	}
 
 	@GetMapping("/thema")
 	@Operation(summary = "테마 검색 결과 조회", description = "사용자가 요청한 검색어를 기반으로 검색된 결과를 Return합니다.")
