@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.news;
+package com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.prompt;
 
 public class RelatedFilterPrompt {
 	public static final String PROMPT =

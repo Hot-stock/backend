@@ -6,7 +6,7 @@ import com.bjcareer.GPTService.out.api.gpt.common.prompt.NextSchedulePrompt;
 import com.bjcareer.GPTService.out.api.gpt.common.prompt.PositivePrompt;
 import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonVariable;
 import com.bjcareer.GPTService.out.api.gpt.thema.prompt.RelatedFilterPrompt;
-import com.bjcareer.GPTService.out.api.gpt.thema.prompt.SummaryPrompt;
+import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.prompt.SummaryPrompt;
 import com.bjcareer.GPTService.out.api.gpt.thema.ThemaVariable;
 
 public class ThemaProperties {
