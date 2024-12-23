@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class DocumentAnalyzeRepository {
 		String newsLink = newsDocument.getString("newsLink");
 		String imgLink = newsDocument.get("imgLink", String.class);
 		String description = newsDocument.getString("description");
-		LocalDate pubDate = newsDocument.getDate("pubDate").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate();
+		LocalDate pubDate = newsDocument.getDate("pubDate").toInstant().atOffset(ZoneOffset.UTC).toLocalDate();
 		String content = newsDocument.getString("content");
 
 		return new News(title, newsLink, imgLink, description, pubDate, content);
@@ -190,14 +191,14 @@ public class DocumentAnalyzeRepository {
 
 	private String getDate(Document document) {
 		if (document.getDate("next") != null) {
-			return document.getDate("next").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate().toString();
+			return document.getDate("next").toInstant().atOffset(ZoneOffset.UTC).toLocalDate().toString();
 		}
 		return "";
 	}
 
 	private String getUpComingDate(Document document) {
 		if (document.getDate("upcomingDate") != null) {
-			return document.getDate("upcomingDate").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate().toString();
+			return document.getDate("upcomingDate").toInstant().atOffset(ZoneOffset.UTC).toLocalDate().toString();
 		}
 		return "";
 	}

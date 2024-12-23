@@ -18,6 +18,7 @@ import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindThemaNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockerFilterResultResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;

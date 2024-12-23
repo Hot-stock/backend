@@ -216,11 +216,30 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 	@Override
 	public ResponseDomain<RankStocksResponseDTO> getRankingStock() {
 		ClientResponse res = webClient.get()
-			.uri(SearchServerURI.TOT_STOCK_KEYWORD)
+			.uri(SearchServerURI.TOP_STOCK_KEYWORD)
 			.exchange()
 			.block();
 
-		log.info("Response of {} {}", SearchServerURI.TOT_STOCK_KEYWORD, res.statusCode());
+		log.info("Response of {} {}", SearchServerURI.TOP_STOCK_KEYWORD, res.statusCode());
+
+		if (res.statusCode().is2xxSuccessful()) {
+			RankStocksResponseDTO responseDTO = res.bodyToMono(RankStocksResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<RankStocksResponseDTO> getSuggestionStock() {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.SUGGESTION_STOCK)
+			.exchange()
+			.block();
+
+		log.info("Response of {} {}", SearchServerURI.SUGGESTION_STOCK, res.statusCode());
 
 		if (res.statusCode().is2xxSuccessful()) {
 			RankStocksResponseDTO responseDTO = res.bodyToMono(RankStocksResponseDTO.class).block();

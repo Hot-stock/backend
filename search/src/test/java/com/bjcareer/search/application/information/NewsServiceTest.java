@@ -99,7 +99,8 @@ class NewsServiceTest {
 		News news = new News("title", "link", "link", "묘사", pubDate, "휴가로 인해서 래쉬가드 수요가 증가함");
 
 		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
-		GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
+		GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("배럴", "12345", "휴가로 인해서 래쉬가드 수요가 증가함",
+			new ArrayList<>(), null, null);
 		GPTStockNewsDomain.addNewsDomain(news);
 
 		OHLC ohlc = new OHLC(100, 200, 3, 4, 100, 10L, LocalDate.now());
@@ -137,11 +138,13 @@ class NewsServiceTest {
 		News news2 = new News("title", "link", "link", "묘사", pubDate, "동남아 여행지로 많이 가서 수요가 증가함");
 
 		Map<String, String> themas = Map.of("수영복", "휴가로 인해서 래쉬가드 수요가 증가함");
-		GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("배럴", "휴가로 인해서 래쉬가드 수요가 증가함", new ArrayList<>(), null, null);
+		GPTStockNewsDomain GPTStockNewsDomain = new GPTStockNewsDomain("배럴", "12345", "휴가로 인해서 래쉬가드 수요가 증가함",
+			new ArrayList<>(), null, null);
 		GPTStockNewsDomain.addNewsDomain(news1);
 
 		Map<String, String> themas2 = Map.of("여행", "동남아 여행객 증가로 래쉬가드 수요 증가");
-		GPTStockNewsDomain GPTStockNewsDomain2 = new GPTStockNewsDomain("배럴", "동남아 여행지로 많이 가서 수요가 증가함", new ArrayList<>(), null, null);
+		GPTStockNewsDomain GPTStockNewsDomain2 = new GPTStockNewsDomain("배럴", "12345", "동남아 여행지로 많이 가서 수요가 증가함",
+			new ArrayList<>(), null, null);
 		GPTStockNewsDomain2.addNewsDomain(news2);
 
 		Stock stock = new Stock("12345", stockName);

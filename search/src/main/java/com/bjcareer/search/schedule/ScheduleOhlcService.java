@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +18,7 @@ import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.entity.Market;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
+import com.bjcareer.search.event.messages.UpdateStockLogoMessage;
 import com.bjcareer.search.out.persistence.stock.StockRepositoryAdapter;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class ScheduleOhlcService {
 	private final LoadStockInformationPort apiServerPort;
 	private final StockRepositoryAdapter stockRepository;
 	private final StockChartRepositoryPort stockChartRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// @Scheduled(fixedDelay = 300000)
 	@Transactional(readOnly = true)
@@ -38,13 +40,11 @@ public class ScheduleOhlcService {
 		updateStockInfo(stocks);
 		log.info("Renew Stocks Success: {}", stocks.size());
 
-		List<StockChart> stockCharts = stocks.values()
-			.stream()
-			.map(stock -> stockChartRepository.loadStockChart(stock.getCode())
-				.orElseGet(() -> new StockChart(stock.getCode(), new ArrayList<>())))
-			.toList();
+		List<StockChart> stockCharts = stockChartRepository.loadStockChartInStockCode(
+			stocks.values().stream().map(Stock::getCode).toList());
 
 		for (StockChart chart : stockCharts) {
+			log.info("Renew Stock Chart: {}", chart.getStockCode());
 			Stock stock = stocks.get(chart.getStockCode());
 			StockChartQueryCommand stockChartQueryConfig = new StockChartQueryCommand(stock,
 				chart.getLastUpdateDate(),
@@ -52,7 +52,7 @@ public class ScheduleOhlcService {
 			chart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
 		}
 
-		stockCharts.forEach(stockChartRepository::save);
+		stockChartRepository.saveAll(stockCharts);
 		stockRepository.saveALl(stocks.values());
 		log.info("All Stocks was renewed: {}", stocks.size());
 	}
@@ -69,6 +69,7 @@ public class ScheduleOhlcService {
 			if (pastStock != null) {
 				pastStock.updateStockInfo(stock);
 			} else {
+				eventPublisher.publishEvent(new UpdateStockLogoMessage(stock));
 				stocks.put(stock.getCode(), stock);
 			}
 		}

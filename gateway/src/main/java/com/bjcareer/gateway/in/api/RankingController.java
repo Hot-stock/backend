@@ -1,5 +1,7 @@
 package com.bjcareer.gateway.in.api;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
 import com.bjcareer.gateway.domain.ResponseDomain;
+import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
@@ -42,5 +45,13 @@ public class RankingController {
 		ResponseDomain<RankStocksResponseDTO> response = searchServerPort.getRankingStock();
 		log.info("Response keyword: {}", response);
 		return new ResponseEntity<>(response, response.getStatusCode());
+	}
+
+	@GetMapping("/suggestion/stocks")
+	@Operation(summary = "추천 주식 조회", description = "추천 주식을 알려줍니다")
+	public ResponseEntity<ResponseDomain<RankStocksResponseDTO>> searchTreeMap() {
+		log.info("Request tree map");
+		ResponseDomain<RankStocksResponseDTO> suggestionStock = searchServerPort.getSuggestionStock();
+		return new ResponseEntity<>(suggestionStock, suggestionStock.getStatusCode());
 	}
 }

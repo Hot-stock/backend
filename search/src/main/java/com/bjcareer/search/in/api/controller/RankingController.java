@@ -56,4 +56,21 @@ public class RankingController {
 		return ResponseEntity.ok(responseDTO);
 	}
 
+	@GetMapping("/suggestion")
+	@Operation(summary = "추전 주식 종목 조회", description = "키워드 검색어 기반으로 추천된 종목을 반환함")
+	public ResponseEntity<Map<String, Object>> getSuggestionStocks() {
+		List<Stock> suggestionStocks = usecase.getSuggestionStocks();
+		List<StockInformationResponseDTO> response = suggestionStocks.stream()
+			.map(t -> new StockInformationResponseDTO(t, ""))
+			.toList();
+
+		Map<String, Object> map = new HashMap<>();
+
+		map.put("total", response.size());
+		map.put("items", response);
+
+		return ResponseEntity.ok(map);
+	}
+
+
 }

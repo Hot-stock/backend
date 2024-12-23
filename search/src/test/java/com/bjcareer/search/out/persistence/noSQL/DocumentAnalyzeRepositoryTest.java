@@ -32,11 +32,12 @@ class DocumentAnalyzeRepositoryTest {
 
 	@Test
 	void 특정_주식의_상승_이유를_요청() {
-		String target = "와이즈버즈";
+		String target = "신원";
 		LoadStockRaiseReason command = new LoadStockRaiseReason(target, null);
 		List<GPTStockNewsDomain> reason = documentAnalyzeRepository.getRaiseReason(command);
 
 		for (GPTStockNewsDomain gptStockNewsDomain : reason) {
+			System.out.println("gptStockNewsDomain.getNews().getPubDate() = " + gptStockNewsDomain.getNews().getPubDate());
 			assertEquals(gptStockNewsDomain.getStockName(), target);
 		}
 	}
