@@ -12,7 +12,7 @@ public class SearchServerURI {
 	public static final String FILTER_NEXT_SCHEDULE_BY_STOCKNAME = "/api/v0/event/next-schedule";
 
 	public static final String TOP_STOCK_KEYWORD = "/api/v0/ranking/keywords";
-	public static final String SUGGESTION_STOCK = "/api/v0/search/suggestion";
+	public static final String SUGGESTION_STOCK = "/api/v0/ranking/suggestion";
 
 	public static final String ADD_STOCK = "/api/v0/stock";
 	public static final String TOP_STOCK_NEWS = "/api/v0/ranking/stocks";
