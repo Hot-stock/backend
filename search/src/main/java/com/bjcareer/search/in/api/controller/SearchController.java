@@ -49,8 +49,7 @@ public class SearchController {
 		if (validationKeyword(query)) {
 			return ResponseEntity.badRequest().build();
 		}
-
-		List<Stock> searchResult = usecase.filterStockByQuery(query);
+		List<Stock> searchResult = usecase.filterStockByQuery(query.toUpperCase());
 		StockerFilterResultResponseDTO response = new StockerFilterResultResponseDTO(query, searchResult);
 
 		return ResponseEntity.ok(response);
