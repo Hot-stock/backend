@@ -44,6 +44,8 @@ public class AnalyzeRankingStock {
 	}
 
 	public List<Stock> analyzeRankingStock() {
+		redisSuggestionStock.removeBucket();;
+
 		LocalDate startDate = LocalDate.now().minusYears(1);
 		LocalDate endDate = LocalDate.now(AppConfig.ZONE_ID);
 
