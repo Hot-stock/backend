@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
@@ -47,9 +49,10 @@ public class StockRepositoryAdapter implements StockRepositoryPort {
 		em.persist(stock);
 	}
 
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveALl(Collection<Stock> stocks) {
 		for (Stock stock : stocks) {
-			em.persist(stock);
+			em.merge(stock);
 		}
 	}
 
