@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.information.NextEventService;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
-import com.bjcareer.search.in.api.controller.dto.QueryToFindNextEventReasonResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.QueryStockNewsResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -25,28 +25,21 @@ public class EventController {
 	private final NextEventService eventService;
 
 	@GetMapping
-	@Operation(
-		summary = "다가오는 일정 모두 조회",
-		description = "오늘 날짜를 기준으로 앞으로 남은 일정들을 모두 조회"
-	)
-	public ResponseEntity<QueryToFindNextEventReasonResponseDTO> getUpcomingEvent() {
+	@Operation(summary = "다가오는 일정 모두 조회", description = "오늘 날짜를 기준으로 앞으로 남은 일정들을 모두 조회")
+	public ResponseEntity<QueryStockNewsResponseDTO> getUpcomingEvent() {
 		List<GPTStockNewsDomain> upcomingEvents = eventService.getUpcomingEvents();
-		QueryToFindNextEventReasonResponseDTO queryToFindRaiseReasonResponseDTO = new QueryToFindNextEventReasonResponseDTO(
-			upcomingEvents);
-
+		QueryStockNewsResponseDTO queryToFindRaiseReasonResponseDTO = new QueryStockNewsResponseDTO(upcomingEvents);
 		return ResponseEntity.ok(queryToFindRaiseReasonResponseDTO);
 	}
 
 	@GetMapping("/next-schedule")
 	@Operation(summary = "이 주식의 다음 일정을 요청함", description = "주식 이름으로 나온 뉴스 기사를 종합해서 다음 일정을 파악함")
-	public ResponseEntity<QueryToFindNextEventReasonResponseDTO> searchNextSchedule(
+	public ResponseEntity<QueryStockNewsResponseDTO> searchNextSchedule(
 		@RequestParam(name = "q") String code) {
 		log.debug("request next-schedule: {}", code);
 
 		List<GPTStockNewsDomain> nextSchedule = eventService.filterUpcomingEventsByStockName(code);
-		QueryToFindNextEventReasonResponseDTO responseDTO = new QueryToFindNextEventReasonResponseDTO(
-			nextSchedule);
-
+		QueryStockNewsResponseDTO responseDTO = new QueryStockNewsResponseDTO(nextSchedule);
 		return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 	}
 }

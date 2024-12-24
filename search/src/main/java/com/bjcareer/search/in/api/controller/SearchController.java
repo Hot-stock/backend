@@ -15,10 +15,9 @@ import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
-import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.QueryStockNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.QueryToFindThemaNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.SearchResultResponseDTO;
-import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockerFilterResultResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,7 +75,7 @@ public class SearchController {
 		summary = "요청한 날짜에 해당하는 주식의 상승 이유 조회",
 		description = "쿼리파람의 dater가 있으면 특정 날짜의 주식 상승 이유를 조회하는 API입니다. 없다면 최근 일자부터 상승 이유를 반환."
 	)
-	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> filterStocksByQuery(
+	public ResponseEntity<QueryStockNewsResponseDTO> filterStocksByQuery(
 		@RequestParam(name = "q") String code, @RequestParam(name = "date", required = false) LocalDate date) {
 
 		log.debug("request raise-reason: {} {}", code, date);
@@ -86,7 +85,7 @@ public class SearchController {
 		}
 
 		List<GPTStockNewsDomain> contents = usecase.findRaiseReason(code, date);
-		QueryToFindRaiseReasonResponseDTO response = new QueryToFindRaiseReasonResponseDTO(
+		QueryStockNewsResponseDTO response = new QueryStockNewsResponseDTO(
 			contents);
 
 		return ResponseEntity.ok(response);
