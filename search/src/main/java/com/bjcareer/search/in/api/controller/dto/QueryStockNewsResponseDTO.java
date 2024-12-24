@@ -12,11 +12,11 @@ import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public class QueryToFindRaiseReasonResponseDTO {
+public class QueryStockNewsResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
 
-	public QueryToFindRaiseReasonResponseDTO(List<GPTStockNewsDomain> contents) {
+	public QueryStockNewsResponseDTO(List<GPTStockNewsDomain> contents) {
 		for (GPTStockNewsDomain gptStockNewsDomain : contents) {
 			this.items.add(new Content(gptStockNewsDomain));
 		}

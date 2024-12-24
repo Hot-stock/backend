@@ -15,7 +15,7 @@ import com.bjcareer.search.application.information.HotTopicService;
 import com.bjcareer.search.application.port.in.RankingUsecase;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
-import com.bjcareer.search.in.api.controller.dto.QueryToFindRaiseReasonResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.QueryStockNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,10 +49,10 @@ public class RankingController {
 
 	@GetMapping("/stocks")
 	@Operation(summary = "HotTopic 조회", description = "현재 상승률이 가장 높은 10종목(코스피, 코스닥)의 이류를 반환합니다. 다만 반듯이 이류를 찾는 것이 아니기 때문에 총 20개가 안될 수도 있습니다.")
-	public ResponseEntity<QueryToFindRaiseReasonResponseDTO> getHotTopic() {
+	public ResponseEntity<QueryStockNewsResponseDTO> getHotTopic() {
 		log.info("Request hot topic");
 		List<GPTStockNewsDomain> hotTopics = hotTopicService.getTrendingStory();
-		QueryToFindRaiseReasonResponseDTO responseDTO = new QueryToFindRaiseReasonResponseDTO(hotTopics);
+		QueryStockNewsResponseDTO responseDTO = new QueryStockNewsResponseDTO(hotTopics);
 		return ResponseEntity.ok(responseDTO);
 	}
 
