@@ -8,7 +8,7 @@ public class SearchServerURI {
 	public static final String FIND_RAISE_REASON = "/api/v0/search/raise-reason";
 	public static final String FIND_THEMA_NEWS = "/api/v0/search/news/thema";
 
-	public static final String NEXT_EVENT = "/api/v0/event";
+	public static final String NEXT_EVENT = "/api/v0/event/schedule";
 	public static final String FILTER_NEXT_SCHEDULE_BY_STOCKNAME = "/api/v0/event/next-schedule";
 
 	public static final String TOP_STOCK_KEYWORD = "/api/v0/ranking/keywords";

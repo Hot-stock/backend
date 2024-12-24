@@ -1,24 +1,33 @@
 package com.bjcareer.gateway.out.api.search.response;
 
-import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@JsonIgnoreProperties
 public class NextEventNewsDTO {
-	private Integer total;
-	private List<EventDTO> items;
+	private long totalElements;
+	private int totalPages;
+	private int currentPage;
+	private int pageSize;
+	private List<EventDTO> content;
 
 	@Getter
+	@JsonIgnoreProperties
 	private static class EventDTO {
+		private String title;
 		private String stockName;
-		private String nextEventReason;
+		private String stockCode;
+		private String summary;
 		private String imgLink;
-		private String link;
-		private LocalDate nextEventDate;
+		private String date;
+		private String nextDate;
+		private String nextReason;
+		private String logoLink;
 	}
 }

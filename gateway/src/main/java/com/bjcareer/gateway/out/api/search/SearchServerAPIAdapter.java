@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -177,9 +176,13 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 	}
 
 	@Override
-	public ResponseDomain<NextEventNewsDTO> getNextEventNews() {
+	public ResponseDomain<NextEventNewsDTO> getNextEventNews(int page, int size) {
 		ClientResponse res = webClient.get()
-			.uri(SearchServerURI.NEXT_EVENT)
+			.uri(uriBuilder -> uriBuilder
+				.path(SearchServerURI.NEXT_EVENT)
+				.queryParam("page", page)
+				.queryParam("size", size)
+				.build())
 			.exchange()
 			.block();
 

@@ -2,13 +2,15 @@ package com.bjcareer.gateway.domain;
 
 import java.time.Instant;
 
-import com.bjcareer.gateway.common.Logger;
+import org.slf4j.Logger;
+
 import com.bjcareer.gateway.exceptions.TooManyRequestsException;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Slf4j
 public class TokenBucket {
 	public static final int MAX_REQUESTS = 10;
 	public static final int REFILL_INTERVAL_SECONDS = 60 * 5;
@@ -22,7 +24,7 @@ public class TokenBucket {
 	}
 
 	// API 호출 메서드
-	public void attemptApiCall(Logger log) {
+	public void attemptApiCall() {
 		refillTokens(log);  // 토큰 리필
 
 		if (isRateLimitExceeded()) {

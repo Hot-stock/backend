@@ -22,7 +22,7 @@ public interface SearchServerPort {
 	ResponseDomain<NextEventNewsDTO> getNextEventNewsFilterByStockName(String stockName);
 	ResponseDomain<TopNewsDTO> findTopStockNews();
 	ResponseDomain<CandleResponseDTO> getOHLC(String code, String period);
-	ResponseDomain<NextEventNewsDTO> getNextEventNews();
+	ResponseDomain<NextEventNewsDTO> getNextEventNews(int page, int size);
 
 	ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(LoadRaiseReasonOfStock command);
 	ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command);

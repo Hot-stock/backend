@@ -3,20 +3,18 @@ package com.bjcareer.gateway.interceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.bjcareer.gateway.common.Logger;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class LoggingInterceptor implements HandlerInterceptor {
-	private final Logger log;
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
 		Exception {
-		log.setUrl(request.getRequestURI());
 		return true;
 	}
 

@@ -9,20 +9,20 @@ import org.springframework.stereotype.Component;
 
 import com.bjcareer.gateway.aop.CommonAOP;
 import com.bjcareer.gateway.common.JWTUtil;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.common.TokenValidationResult;
 import com.bjcareer.gateway.exceptions.UnauthorizedAccessAttemptException;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JWTLoginAspect {
 	private final JWTUtil jwtUtil;
-	private final Logger log;
 
 	@Pointcut("@annotation(com.bjcareer.gateway.aop.JWT.JWTLogin)")
 	private void cut() {
