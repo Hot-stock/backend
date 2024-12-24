@@ -8,21 +8,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.gateway.application.ports.out.RegisterCommand;
 import com.bjcareer.gateway.application.ports.out.RegisterServerPort;
 import com.bjcareer.gateway.application.ports.out.VerifyTokenCommand;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.EmailCommand;
 import com.bjcareer.gateway.domain.ErrorDomain;
 import com.bjcareer.gateway.domain.RegisterDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.in.api.response.MobileAuthenticationVerifyResponseDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class RegisterServerAPIAdapter implements RegisterServerPort {
 	private final WebClient webClient;
-	private final Logger log;
 
-	public RegisterServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient, Logger log) {
+	public RegisterServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient) {
 		this.webClient = webClient;
-		this.log = log;
 	}
 
 	public ResponseDomain<RegisterDomain> register(RegisterCommand command) {

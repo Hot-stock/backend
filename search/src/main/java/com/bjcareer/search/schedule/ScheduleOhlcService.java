@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,7 @@ public class ScheduleOhlcService {
 	private final StockChartRepositoryPort stockChartRepository;
 	private final ApplicationEventPublisher eventPublisher;
 
-	// @Scheduled(fixedDelay = 300000)
+	@Scheduled(cron = "0 0 16 * * *", zone = "Asia/Seoul")
 	@Transactional(readOnly = true)
 	public void saveStockInfoAndChartData() {
 		Map<String, Stock> stocks = loadEntities(stockRepository.findAll(), Stock::getCode);

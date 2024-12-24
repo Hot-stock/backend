@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.gateway.application.ports.out.SearchServerPort;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
 
@@ -20,11 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 public class EventController {
 	private final SearchServerPort searchServerPort;
 
-	@GetMapping("/api/v0/event")
+	@GetMapping("/api/v0/event/schedule")
 	@Operation(summary = "앞으로 남은 일정들 조회 가능", description = "앞으로 남은 일정들을 사용자에게 알려줍니다."
 	)
-	public ResponseEntity<ResponseDomain<NextEventNewsDTO>> searchResult() {
-		ResponseDomain<NextEventNewsDTO> result = searchServerPort.getNextEventNews();
+	public ResponseEntity<ResponseDomain<NextEventNewsDTO>> searchResult(@RequestParam int page,
+		@RequestParam int size) {
+		ResponseDomain<NextEventNewsDTO> result = searchServerPort.getNextEventNews(page, size);
 		return new ResponseEntity<>(result, result.getStatusCode());
 	}
 
