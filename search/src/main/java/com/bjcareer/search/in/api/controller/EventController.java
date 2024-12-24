@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bjcareer.search.application.information.NextEventService;
+import com.bjcareer.search.domain.PaginationDomain;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.in.api.controller.dto.PageResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.QueryStockNewsResponseDTO;
+import com.bjcareer.search.in.api.controller.dto.StockNewsResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 public class EventController {
 	private final NextEventService eventService;
 
-	@GetMapping
+	@GetMapping("/schedule")
 	@Operation(summary = "다가오는 일정 모두 조회", description = "오늘 날짜를 기준으로 앞으로 남은 일정들을 모두 조회")
-	public ResponseEntity<QueryStockNewsResponseDTO> getUpcomingEvent() {
-		List<GPTStockNewsDomain> upcomingEvents = eventService.getUpcomingEvents();
-		QueryStockNewsResponseDTO queryToFindRaiseReasonResponseDTO = new QueryStockNewsResponseDTO(upcomingEvents);
-		return ResponseEntity.ok(queryToFindRaiseReasonResponseDTO);
+	public ResponseEntity<PageResponseDTO<StockNewsResponseDTO>> getUpcomingEvent(@RequestParam int page, @RequestParam int size) {
+		PaginationDomain<GPTStockNewsDomain> upcomingEvents = eventService.getUpcomingEvents(page, size);
+		List<StockNewsResponseDTO> contents = upcomingEvents.getContent().stream().map(StockNewsResponseDTO::new).toList();
+		PageResponseDTO<StockNewsResponseDTO> res = new PageResponseDTO<>(contents,
+			upcomingEvents.getTotalElements(), upcomingEvents.getCurrentPage(), upcomingEvents.getPageSize());
+		return ResponseEntity.ok(res);
 	}
 
 	@GetMapping("/next-schedule")

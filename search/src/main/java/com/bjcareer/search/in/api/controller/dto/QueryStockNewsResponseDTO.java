@@ -35,6 +35,8 @@ public class QueryStockNewsResponseDTO {
 		private String imgLink;
 		private String link;
 		private String date;
+		private String nextDate;
+		private String nextReason;
 
 		public Content(GPTStockNewsDomain gptStockNewsDomain) {
 			this.stockName = gptStockNewsDomain.getStockName();
@@ -47,6 +49,9 @@ public class QueryStockNewsResponseDTO {
 			this.logoLink = gptStockNewsDomain.getPreSignedStockLogoUrl();
 			this.date = Objects.requireNonNullElseGet(gptStockNewsDomain.getNews().getPubDate(),
 				() -> LocalDate.now(AppConfig.ZONE_ID)).toString();
+			this.nextDate = gptStockNewsDomain.getNext().isEmpty() ? null : gptStockNewsDomain.getNext().get().toString();
+			this.nextReason = gptStockNewsDomain.getNextReason();
+
 		}
 	}
 }
