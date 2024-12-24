@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.prompt;
+package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName;
 
 public class ThemaPrompt {
 	public static final String PROMPT =

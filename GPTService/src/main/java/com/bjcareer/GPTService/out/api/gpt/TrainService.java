@@ -102,4 +102,32 @@ public class TrainService {
 		}
 	}
 
+	@Getter
+	public static class GPTTrainThemaOriginalNews {
+
+		@JsonProperty("isRealNews")
+		private boolean isRealNews;
+		private String isRealNewsDetail;
+		private String summary;
+		private String upcomingDate;
+		private NextScheduleReasonResponseDTO upcomingDateReason;
+		private List<String> stockNames;
+
+		public GPTTrainThemaOriginalNews(boolean isRealNews, String isRealNewsDetail, String summary,
+			String upcomingDate,
+			NextScheduleReasonResponseDTO upcomingDateReason, List<String> stocks) {
+			this.isRealNews = isRealNews;
+			this.isRealNewsDetail = isRealNewsDetail;
+			this.summary = summary;
+			this.upcomingDate = upcomingDate;
+			this.upcomingDateReason = upcomingDateReason;
+			this.stockNames = stocks;
+		}
+
+		@JsonProperty("isRealNews") // 명시적으로 JSON 키 설정
+		public boolean getIsRealNews() {
+			return isRealNews;
+		}
+	}
+
 }

@@ -23,13 +23,14 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AYTYXzqH";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AhvYIa63";
+	public static final String GPT_4o = "gpt-4o";
 	private final WebClient webClient;
 
-	public Optional<GPTThema> summaryThemaNews(OriginalNews news, String themaName) {
-		log.debug("News link: {}", news.getNewsLink());
+	public Optional<GPTThema> summaryThemaNews(OriginalNews news, String themaName, String model) {
+		log.debug("News2 link: {}", news.getNewsLink());
 
-		GPTThemaRequestDTO requestDTO = createRequestDTO(news.getContent(), news.getPubDate(), themaName);
+		GPTThemaRequestDTO requestDTO = createRequestDTO(news.getPubDate(), news.getContent(), themaName, model);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
@@ -39,32 +40,32 @@ public class GPTThemaAdapter {
 				.getMessage()
 				.getParsedContent();
 
-			if (!parsedContent.isRelatedThema()) {
+			if (!parsedContent.isRealNews()) {
 				log.warn("The response is not related to the topic.");
 			}
 
-			ThemaInfo themaInfo = new ThemaInfo(themaName, parsedContent.getIsRelatedThemaDetail());
+			ThemaInfo themaInfo = new ThemaInfo(themaName, parsedContent.getIsRealNewsDetail());
 
 			return Optional.of(
-				new GPTThema(parsedContent.isRelatedThema(), parsedContent.getSummary(),
+				new GPTThema(parsedContent.isRealNews(), parsedContent.getSummary(),
 					parsedContent.getUpcomingDate(), parsedContent.getUpcomingDateReason().getFact(),
-					parsedContent.getUpcomingDateReason().getOpinion(), news, themaInfo));
+					parsedContent.getUpcomingDateReason().getOpinion(), news, themaInfo, parsedContent.getStockNames()));
 		} else {
 			handleErrorResponse(response);
 			return Optional.empty();
 		}
 	}
 
-	private GPTThemaRequestDTO createRequestDTO(String content, LocalDate pubDate, String knownThema) {
+	private GPTThemaRequestDTO createRequestDTO(LocalDate pubDate, String content, String thema, String model) {
 		GPTThemaRequestDTO.Message systemMessage = new GPTThemaRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
-			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
+			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_NEWS_TEXT);
 
 		GPTThemaRequestDTO.Message userMessage = new GPTThemaRequestDTO.Message(
-			GPTWebConfig.USER_ROLE, ThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, content, knownThema));
+			GPTWebConfig.USER_ROLE, ThemaQuestionPrompt.QUESTION_PROMPT.formatted(pubDate, content, thema));
 
 		GPTResponseThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaFormatDTO();
 
-		return new GPTThemaRequestDTO(MODEL, List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
+		return new GPTThemaRequestDTO(model, List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTThemaRequestDTO requestDTO) {

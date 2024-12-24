@@ -2,7 +2,7 @@ package com.bjcareer.GPTService.out.api.gpt.thema;
 
 import com.bjcareer.GPTService.out.api.gpt.PropertyArrayDetail;
 import com.bjcareer.GPTService.out.api.gpt.PropertyDetail;
-import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.prompt.ThemaPrompt;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.ThemaPrompt;
 
 public class ThemaVariable {
 	public static final String[] required = {"name", "stockNames", "reason"};

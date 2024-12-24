@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.domain.gpt.thema;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,12 +27,13 @@ public class GPTThema {
 	private String upcomingDateReasonOpinion;
 	private ThemaInfo themaInfo;
 	private OriginalNews news;
+	private List<String> stockName;
 	@MongoId
 	private String link;
 
 	public GPTThema(boolean isRelatedThema, String summary, String upcomingDate,
 		String upcomingDateReasonFact, String upcomingDateReasonOpinion,
-		OriginalNews news, ThemaInfo themaInfo) {
+		OriginalNews news, ThemaInfo themaInfo, List<String> stockName) {
 		this.isRelatedThema = isRelatedThema;
 		this.summary = summary;
 		this.upcomingDate = parseLocalDate(upcomingDate);
@@ -40,6 +42,7 @@ public class GPTThema {
 		this.news = news;
 		this.themaInfo = themaInfo;
 		this.link = news.getNewsLink();
+		this.stockName = stockName;
 	}
 
 	public Optional<LocalDate> getNext() {
@@ -57,5 +60,13 @@ public class GPTThema {
 				return null;
 			}
 		}
+	}
+
+	public Optional<LocalDate> getUpcomingDate() {
+		if(upcomingDate == null) {
+			return Optional.empty();
+		}
+
+		return Optional.of(upcomingDate);
 	}
 }

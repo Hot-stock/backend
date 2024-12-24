@@ -41,11 +41,12 @@ public class GPTThemaResponseDTO {
 	@Data
 	@JsonIgnoreProperties(ignoreUnknown = true) // 정의되지 않은 필드 무시
 	public static class Content {
-		@JsonProperty("isRelatedThema")
-		private boolean isRelatedThema;
-		private String isRelatedThemaDetail;
+		@JsonProperty("isRealNews")
+		private boolean isRealNews;
+		private String isRealNewsDetail;
 		private String summary;
 		private String upcomingDate;
 		private NextScheduleReasonResponseDTO upcomingDateReason;
+		private List<String> stockNames;
 	}
 }
