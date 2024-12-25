@@ -8,11 +8,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bjcareer.search.application.port.in.UpdateThemaOfStockCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
+import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.application.port.out.persistence.themaInfo.ThemaInfoRepositoryPort;
+import com.bjcareer.search.domain.PaginationDomain;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.entity.ThemaInfo;
+import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
+import com.bjcareer.search.out.persistence.noSQL.DocumentAnalyzeThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ThemaService {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final ThemaInfoRepositoryPort themaInfoRepositoryPort;
+	private final DocumentAnalyzeThemaRepository documentAnalyzeThemaRepository;
 	private final StockRepositoryPort stockRepositoryPort;
 
 	@Transactional
@@ -47,6 +52,20 @@ public class ThemaService {
 				themaRepositoryPort.save(new Thema(stock, themaInfo));
 			}
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public List<ThemaInfo> loadThemaName() {
+		return themaInfoRepositoryPort.findAll();
+	}
+
+
+	@Transactional(readOnly = true)
+	public PaginationDomain<GPTThemaNewsDomain> loadThemaNewsByQuery(LoadThemaNewsCommand command) {
+		PaginationDomain<GPTThemaNewsDomain> themaNews = documentAnalyzeThemaRepository.getThemaNews(command.getPage(),
+			command.getSize(), command.getThemaName(), command.getDate());
+
+		return themaNews;
 	}
 
 }

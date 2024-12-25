@@ -88,6 +88,9 @@ public class StockChart {
 				lastUpdateDate = stockOhlc.getDate();
 				stockOhlc.addChart(this);
 				ohlcList.add(stockOhlc);
+			}else{
+				ohlcList.getFirst().update(stockOhlc);
+
 			}
 		}
 	}
