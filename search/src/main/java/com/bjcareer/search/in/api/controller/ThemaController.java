@@ -38,9 +38,9 @@ public class ThemaController {
 
 	@GetMapping("/news")
 	@Operation(summary = "특정 테마의 뉴스 요청", description = "특정 테마의 정보 요청")
-	public ResponseEntity<PageResponseDTO<GPTAnalayzeThemaNewsResponseDTO>> loadThemasByQuery(@RequestParam(name = "q") String query, @RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "size", defaultValue = "2") int size) {
+	public ResponseEntity<PageResponseDTO<GPTAnalayzeThemaNewsResponseDTO>> loadThemasByQuery(@RequestParam(name = "q") long id, @RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "size", defaultValue = "2") int size) {
 		PaginationDomain<GPTThemaNewsDomain> gptThemaNewsDomainPaginationDomain = themaService.loadThemaNewsByQuery(
-			new LoadThemaNewsCommand(query, page, size));
+			new LoadThemaNewsCommand(id, page, size));
 
 		List<GPTAnalayzeThemaNewsResponseDTO> contents = gptThemaNewsDomainPaginationDomain.getContent()
 			.stream()

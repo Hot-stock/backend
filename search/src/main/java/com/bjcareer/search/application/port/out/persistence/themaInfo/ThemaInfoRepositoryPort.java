@@ -9,6 +9,7 @@ public interface ThemaInfoRepositoryPort {
 	Optional<ThemaInfo> loadByName(String thema);
 	ThemaInfo save(ThemaInfo themaInfo);
 	List<ThemaInfo> findAll();
+	Optional<ThemaInfo> findById(Long id);
 	void saveAll(List<ThemaInfo> themaInfoList);
 	Optional<ThemaInfo> findByName(String thema);
 

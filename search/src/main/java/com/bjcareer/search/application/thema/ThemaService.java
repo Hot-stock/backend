@@ -1,5 +1,6 @@
 package com.bjcareer.search.application.thema;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,10 +63,14 @@ public class ThemaService {
 
 	@Transactional(readOnly = true)
 	public PaginationDomain<GPTThemaNewsDomain> loadThemaNewsByQuery(LoadThemaNewsCommand command) {
-		PaginationDomain<GPTThemaNewsDomain> themaNews = documentAnalyzeThemaRepository.getThemaNews(command.getPage(),
-			command.getSize(), command.getThemaName(), command.getDate());
+		Optional<ThemaInfo> byId = themaInfoRepositoryPort.findById(command.getId());
 
-		return themaNews;
+		if (byId.isEmpty()) {
+			return new PaginationDomain<>(new ArrayList<>(), 0, 0, 0);
+		}
+		ThemaInfo themaInfo = byId.get();
+		return documentAnalyzeThemaRepository.getThemaNews(command.getPage(),
+			command.getSize(), themaInfo.getName(), command.getDate());
 	}
 
 }
