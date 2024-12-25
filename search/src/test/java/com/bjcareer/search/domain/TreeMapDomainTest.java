@@ -35,4 +35,25 @@ class TreeMapDomainTest {
 		Double i = treeMapDomain.getStockIncreaseRate().get(stock);
 		assertEquals(-1, i, "주식의 상승률이 구성되어야 한다.");
 	}
+
+	@Test
+	void test_equals(){
+		ThemaInfo themaInfo = new ThemaInfo("수영복");
+		ThemaInfo themaInfo2 = new ThemaInfo("수영복");
+
+		Stock stock = new Stock("1234", "배럴");
+		Map<Stock, StockChart> chartMap = new HashMap<>();
+
+		OHLC ohlc1 = new OHLC(275, 263, 266, 266, -1, 9057L, LocalDate.now());
+		OHLC ohlc2 = new OHLC(275, 263, 266, 266, -1, 9057L, LocalDate.now());
+		OHLC ohlc3 = new OHLC(275, 263, 266, 266, -1, 9057L, LocalDate.now());
+		List<OHLC> ohlcs = List.of(ohlc1, ohlc2, ohlc3);
+		StockChart chart = new StockChart("1234", ohlcs);
+		chartMap.put(stock, chart);
+
+		TreeMapDomain treeMapDomain = new TreeMapDomain(themaInfo, chartMap, 3);
+		TreeMapDomain treeMapDomain2 = new TreeMapDomain(themaInfo2, chartMap, 3);
+
+		assertTrue(treeMapDomain.equals(treeMapDomain2));
+	}
 }
