@@ -29,6 +29,5 @@ public class NextEventNewsDTO {
 		private String nextDate;
 		private String nextReason;
 		private String logoLink;
-		private List<String> themas;
 	}
 }
