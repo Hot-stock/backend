@@ -12,11 +12,11 @@ import lombok.Data;
 import lombok.Getter;
 
 @Getter
-public class QueryToFindRaiseReasonResponseDTO {
+public class QueryStockNewsResponseDTO {
 	private int total;
 	private List<Content> items = new ArrayList<>();
 
-	public QueryToFindRaiseReasonResponseDTO(List<GPTStockNewsDomain> contents) {
+	public QueryStockNewsResponseDTO(List<GPTStockNewsDomain> contents) {
 		for (GPTStockNewsDomain gptStockNewsDomain : contents) {
 			this.items.add(new Content(gptStockNewsDomain));
 		}
@@ -35,6 +35,8 @@ public class QueryToFindRaiseReasonResponseDTO {
 		private String imgLink;
 		private String link;
 		private String date;
+		private String nextDate;
+		private String nextReason;
 
 		public Content(GPTStockNewsDomain gptStockNewsDomain) {
 			this.stockName = gptStockNewsDomain.getStockName();
@@ -47,6 +49,9 @@ public class QueryToFindRaiseReasonResponseDTO {
 			this.logoLink = gptStockNewsDomain.getPreSignedStockLogoUrl();
 			this.date = Objects.requireNonNullElseGet(gptStockNewsDomain.getNews().getPubDate(),
 				() -> LocalDate.now(AppConfig.ZONE_ID)).toString();
+			this.nextDate = gptStockNewsDomain.getNext().isEmpty() ? null : gptStockNewsDomain.getNext().get().toString();
+			this.nextReason = gptStockNewsDomain.getNextReason();
+
 		}
 	}
 }

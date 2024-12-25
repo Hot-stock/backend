@@ -8,11 +8,14 @@ import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.GPTAnalayzeThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.PageResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
-import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNamesResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNewsOfStockResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
 public interface SearchServerPort {
@@ -22,16 +25,21 @@ public interface SearchServerPort {
 	ResponseDomain<NextEventNewsDTO> getNextEventNewsFilterByStockName(String stockName);
 	ResponseDomain<TopNewsDTO> findTopStockNews();
 	ResponseDomain<CandleResponseDTO> getOHLC(String code, String period);
-	ResponseDomain<NextEventNewsDTO> getNextEventNews();
+	ResponseDomain<NextEventNewsDTO> getNextEventNews(int page, int size);
 
 	ResponseDomain<RaiseReasonResponseDTO> findRaiseReasonOfStock(LoadRaiseReasonOfStock command);
-	ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command);
+
+	ResponseDomain<ThemaNewsOfStockResponseDTO> findThemaNews(LoadThemaNews command);
 
 	ResponseDomain<RankStocksResponseDTO> getRankingStock();
 	ResponseDomain<RankStocksResponseDTO> getSuggestionStock();
 
 
 	ResponseDomain<List<TreeMapResponseDTO>> loadTreeMap();
+
+	ResponseDomain<ThemaNamesResponseDTO> loadThemaNames();
+
+	ResponseDomain<PageResponseDTO<GPTAnalayzeThemaNewsResponseDTO>> loadThemaNews(Integer id, int page, int size);
 
 
 }

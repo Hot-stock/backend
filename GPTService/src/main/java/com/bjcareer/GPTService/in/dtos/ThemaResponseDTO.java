@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class ThemaResponseDTO {
-	private final boolean isPositive;
 	private final String summary;
 	private final ThemaInfoResponseDTO themaInfo;
 	private final LocalDate nextEventDate;
@@ -15,13 +14,12 @@ public class ThemaResponseDTO {
 	private final NewsResponseDTO news;
 
 	public ThemaResponseDTO(String summary, ThemaInfoResponseDTO themaInfo, LocalDate nextEventDate,
-		String nextEventReasonFact, String nextEventReasonOpinion, NewsResponseDTO news, boolean isPositive) {
+		String nextEventReasonFact, String nextEventReasonOpinion, NewsResponseDTO news) {
 		this.summary = summary;
 		this.themaInfo = themaInfo;
 		this.nextEventDate = nextEventDate;
 		this.nextEventReasonFact = nextEventReasonFact;
 		this.nextEventReasonOpinion = nextEventReasonOpinion;
 		this.news = news;
-		this.isPositive = isPositive;
 	}
 }

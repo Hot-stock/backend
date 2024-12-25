@@ -16,7 +16,6 @@ import com.bjcareer.gateway.application.ports.in.CouponEventPushUsecase;
 import com.bjcareer.gateway.application.ports.in.ParticipateEventCommand;
 import com.bjcareer.gateway.application.ports.out.TimeDealServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.ResponseDomain;
 import com.bjcareer.gateway.out.api.timeDeal.response.ParticipationEventResponseDTO;
 

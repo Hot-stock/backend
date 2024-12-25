@@ -26,6 +26,11 @@ public class ThemaInfoRepositoryAdapter implements ThemaInfoRepositoryPort {
 	}
 
 	@Override
+	public Optional<ThemaInfo> findById(Long id) {
+		return themaInfoRepository.findById(id);
+	}
+
+	@Override
 	public List<ThemaInfo> findAll() {
 		return themaInfoRepository.findAll();
 	}

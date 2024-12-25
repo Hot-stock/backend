@@ -25,7 +25,7 @@ auth:
   url: ${AUTH_PUBLIC_SERVER_ADDRESS}
 
 search:
-  url: ${SEARCH_PUBLIC_SERVER_ADDRESS}
+  url: http://${SEARCH_PUBLIC_SERVER_ADDRESS}:8080
 
 time-deal:
   url: ${TIMEDEAL_PUBLIC_SERVER_ADDRESS}

@@ -67,4 +67,14 @@ public class OHLC {
 	public void addChart(StockChart chart) {
 		this.chart = chart;
 	}
+
+	public void update(OHLC ohlc){
+		this.open = ohlc.open;
+		this.high = ohlc.high;
+		this.low = ohlc.low;
+		this.close = ohlc.close;
+		this.date = ohlc.date;
+		this.volume = ohlc.volume;
+		this.percentageIncrease = ohlc.percentageIncrease;
+	}
 }

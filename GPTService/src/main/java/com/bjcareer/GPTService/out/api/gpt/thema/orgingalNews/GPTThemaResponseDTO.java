@@ -43,13 +43,10 @@ public class GPTThemaResponseDTO {
 	public static class Content {
 		@JsonProperty("isRealNews")
 		private boolean isRealNews;
-		@JsonProperty("isPositive")
-		private boolean isPositive;
-
+		private String isRealNewsDetail;
 		private String summary;
 		private String upcomingDate;
 		private NextScheduleReasonResponseDTO upcomingDateReason;
-		private ThemaVariableResponseDTO thema;
-		private ThemaVariableResponseDTO oppositeThema;
+		private List<String> stockNames;
 	}
 }

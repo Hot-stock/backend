@@ -8,18 +8,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.gateway.application.ports.in.ParticipateEventCommand;
 import com.bjcareer.gateway.application.ports.out.TimeDealServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.ErrorDomain;
 import com.bjcareer.gateway.domain.ResponseDomain;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class TimeDealServerAPIAdapter implements TimeDealServerPort {
 	private final WebClient webClient;
-	private final Logger log;
 
-	public TimeDealServerAPIAdapter(@Qualifier("timeDealWebClient") WebClient webClient, Logger logger) {
+	public TimeDealServerAPIAdapter(@Qualifier("timeDealWebClient") WebClient webClient) {
 		this.webClient = webClient;
-		this.log = logger;
 	}
 
 	public ResponseDomain participateEvent(ParticipateEventCommand command) {

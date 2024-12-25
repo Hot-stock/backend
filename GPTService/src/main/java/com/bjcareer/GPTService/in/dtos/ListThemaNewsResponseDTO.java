@@ -16,8 +16,8 @@ public class ListThemaNewsResponseDTO {
 		result = themas.stream()
 			.map(thema -> new ThemaResponseDTO(thema.getSummary(),
 				new ThemaInfoResponseDTO(thema.getThemaInfo().getName(), thema.getThemaInfo().getReason()),
-				thema.getUpcomingDate(), thema.getUpcomingDateReasonFact(), thema.getUpcomingDateReasonOpinion(),
-				new NewsResponseDTO(thema.getNews()), thema.isPositive()))
+				thema.getUpcomingDate().get(), thema.getUpcomingDateReasonFact(), thema.getUpcomingDateReasonOpinion(),
+				new NewsResponseDTO(thema.getNews())))
 			.toList();
 	}
 }

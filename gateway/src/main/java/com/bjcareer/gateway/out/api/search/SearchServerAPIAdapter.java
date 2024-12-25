@@ -21,11 +21,14 @@ import com.bjcareer.gateway.domain.SearchResult;
 import com.bjcareer.gateway.in.api.response.CandleResponseDTO;
 import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.GPTAnalayzeThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.PageResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.StockerFilterResultResponseDTO;
-import com.bjcareer.gateway.out.api.search.response.ThemaNewsResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNamesResponseDTO;
+import com.bjcareer.gateway.out.api.search.response.ThemaNewsOfStockResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.TopNewsDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -94,23 +97,21 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 	}
 
 	@Override
-	public ResponseDomain<ThemaNewsResponseDTO> findThemaNews(LoadThemaNews command) {
-		String uri = UriComponentsBuilder.fromUriString(SearchServerURI.FIND_THEMA_NEWS)
+	public ResponseDomain<ThemaNewsOfStockResponseDTO> findThemaNews(LoadThemaNews command) {
+		String uri = UriComponentsBuilder.fromUriString(SearchServerURI.FIND_THEMA_NEWS_OF_STOCK)
 			.queryParam("q", command.getCode())
 			.queryParam("theme", command.getName())
 			.queryParamIfPresent("date", Optional.ofNullable(command.getDate())) // date는 null이 아니면 추가
 			.toUriString();
-
-		log.info("res = " + uri);
 
 		ClientResponse res = webClient.get()
 			.uri(uri)
 			.exchange()
 			.block();
 
-		log.info("Response of {} {}", SearchServerURI.FIND_THEMA_NEWS, res.statusCode());
+		log.info("Response of {} {}", SearchServerURI.FIND_THEMA_NEWS_OF_STOCK, res.statusCode());
 		if (res.statusCode().is2xxSuccessful()) {
-			ThemaNewsResponseDTO responseDTO = res.bodyToMono(ThemaNewsResponseDTO.class).block();
+			ThemaNewsOfStockResponseDTO responseDTO = res.bodyToMono(ThemaNewsOfStockResponseDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
@@ -177,9 +178,13 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 	}
 
 	@Override
-	public ResponseDomain<NextEventNewsDTO> getNextEventNews() {
+	public ResponseDomain<NextEventNewsDTO> getNextEventNews(int page, int size) {
 		ClientResponse res = webClient.get()
-			.uri(SearchServerURI.NEXT_EVENT)
+			.uri(uriBuilder -> uriBuilder
+				.path(SearchServerURI.NEXT_EVENT)
+				.queryParam("page", page)
+				.queryParam("size", size)
+				.build())
 			.exchange()
 			.block();
 
@@ -260,6 +265,44 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 
 		if (res.statusCode().is2xxSuccessful()) {
 			List<TreeMapResponseDTO> responseDTO = res.bodyToFlux(TreeMapResponseDTO.class).collectList().block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<ThemaNamesResponseDTO> loadThemaNames() {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.LOAD_THEMA_NAMES)
+			.exchange()
+			.block();
+
+		if (res.statusCode().is2xxSuccessful()) {
+			ThemaNamesResponseDTO responseDTO = res.bodyToMono(ThemaNamesResponseDTO.class).block();
+			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
+		} else {
+			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
+			log.error("Error response of findNextScheduleOfStock: {}", errorDomain);
+			return new ResponseDomain<>(res.statusCode(), null, errorDomain);
+		}
+	}
+
+	@Override
+	public ResponseDomain<PageResponseDTO<GPTAnalayzeThemaNewsResponseDTO>> loadThemaNews(Integer id, int page,
+		int size) {
+		ClientResponse res = webClient.get()
+			.uri(SearchServerURI.LOAD_THEMA_NEWS + "?q=" + id + "&page=" + page + "&size=" + size)
+			.exchange()
+			.block();
+
+		if (res.statusCode().is2xxSuccessful()) {
+			PageResponseDTO<GPTAnalayzeThemaNewsResponseDTO> responseDTO = res.bodyToMono(
+				new ParameterizedTypeReference<PageResponseDTO<GPTAnalayzeThemaNewsResponseDTO>>() {
+				}
+			).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();

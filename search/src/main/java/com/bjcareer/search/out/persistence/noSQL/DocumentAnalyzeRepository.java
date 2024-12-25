@@ -19,6 +19,7 @@ import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaise
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.News;
+import com.bjcareer.search.domain.PaginationDomain;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.mongodb.client.MongoClient;
@@ -40,11 +41,24 @@ public class DocumentAnalyzeRepository {
 		themaNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection("stock-thema-news");
 	}
 
-	public List<GPTStockNewsDomain> getUpcomingNews() {
-		List<Document> documents = stockNewsCollection.find(Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)))
-			.sort(Sorts.ascending("next")).into(new ArrayList<>());
+	public PaginationDomain<GPTStockNewsDomain> getUpcomingNews(int page, int size) {
+		Bson filter = Filters.and(
+			Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)),
+			Filters.ne("stockName", "nil"),
+			Filters.ne("stockCode", "nil"),
+			Filters.ne("stockCode", null)
+		);
+
+		long totalCount = stockNewsCollection.countDocuments(filter);
+		List<Document> documents = stockNewsCollection.find(filter)
+			.skip((page - 1) * size)
+			.limit(size)
+			.sort(Sorts.ascending("next"))
+			.into(new ArrayList<>());
+
 		List<GPTStockNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
-		return result;
+
+		return new PaginationDomain<>(result, totalCount, page, size);
 	}
 
 	public List<GPTStockNewsDomain> getUpcomingNewsByStockName(String stockName) {

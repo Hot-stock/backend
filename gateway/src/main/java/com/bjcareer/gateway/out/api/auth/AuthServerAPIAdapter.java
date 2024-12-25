@@ -10,17 +10,17 @@ import com.bjcareer.gateway.application.ports.in.LogoutCommand;
 import com.bjcareer.gateway.application.ports.in.TokenRefreshCommand;
 import com.bjcareer.gateway.application.ports.out.AuthServerPort;
 import com.bjcareer.gateway.common.CookieHelper;
-import com.bjcareer.gateway.common.Logger;
 import com.bjcareer.gateway.domain.JWTDomain;
 import com.bjcareer.gateway.exceptions.UnauthorizedAccessAttemptException;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AuthServerAPIAdapter implements AuthServerPort {
 	private final WebClient webClient;
-	private final Logger log;
 
-	public AuthServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient, Logger log) {
-		this.log = log;
+	public AuthServerAPIAdapter(@Qualifier("authWebClient") WebClient webClient) {
 		this.webClient = webClient;
 	}
 
