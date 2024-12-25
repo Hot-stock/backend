@@ -32,6 +32,7 @@ public class NextEventService {
 				news.getStockName());
 			news.addThema(themasOfNews);
 		});
+
 		return upcomingNews;
 	}
 

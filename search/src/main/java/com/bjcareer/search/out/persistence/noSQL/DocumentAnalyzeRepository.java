@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -22,9 +23,13 @@ import com.bjcareer.search.domain.News;
 import com.bjcareer.search.domain.PaginationDomain;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,15 +54,45 @@ public class DocumentAnalyzeRepository {
 			Filters.ne("stockCode", null)
 		);
 
+		// 애그리게이션 파이프라인
+		List<Bson> pipeline = Arrays.asList(
+			// 필터 조건 적용
+			Aggregates.match(filter),
+
+			// 조인 수행
+			Aggregates.lookup(
+				"stock-thema-news", // 조인할 컬렉션 이름
+				"_id",              // stockNewsCollection의 필드
+				"_id",          // themaNewsCollection의 필드 (조인 조건)
+				"joinedData"        // 조인 결과 배열 이름
+			),
+
+
+			Aggregates.match(Filters.not(Filters.size("joinedData", 0))),
+			// 4. 중복 제거 (next, stockCode 기준)
+			Aggregates.group(
+				new Document("next", "$next").append("stockCode", "$stockCode"), // 그룹 기준
+				Accumulators.first("document", "$$ROOT") // 그룹에서 첫 번째 문서만 선택
+			),
+			// 정렬
+			Aggregates.sort(Sorts.ascending("document.next")),
+
+			// 페이지네이션
+			Aggregates.skip((page - 1) * size),
+			Aggregates.limit(size)
+		);
+
+		// 애그리게이션 실행
+		AggregateIterable<Document> results = stockNewsCollection.aggregate(pipeline);
 		long totalCount = stockNewsCollection.countDocuments(filter);
-		List<Document> documents = stockNewsCollection.find(filter)
-			.skip((page - 1) * size)
-			.limit(size)
-			.sort(Sorts.ascending("next"))
-			.into(new ArrayList<>());
+
+		List<Document> documents = new ArrayList<>();
+		for (Document doc : results) {
+			Document document = doc.get("document", Document.class);
+			documents.add(document);
+		}
 
 		List<GPTStockNewsDomain> result = convertDocumentsToGPTNewsDomains(documents);
-
 		return new PaginationDomain<>(result, totalCount, page, size);
 	}
 
@@ -182,6 +217,8 @@ public class DocumentAnalyzeRepository {
 		String reason = document.getString("reason");
 		String stockCode = document.getString("stockCode");
 
+		System.out.println("stockCode = " + stockCode);
+
 		List<String> keywords = (List<String>) document.getOrDefault("keywords", new ArrayList<>());
 
 		String next = getDate(document);
@@ -192,6 +229,9 @@ public class DocumentAnalyzeRepository {
 
 	private News changeDocumentToNewsDomain(Document document) {
 		Document newsDocument = document.get("news", Document.class);
+
+		System.out.println("document = " + document.toJson());
+		System.out.println("newsDocument = " + newsDocument);
 
 		String title = newsDocument.getString("title");
 		String newsLink = newsDocument.getString("newsLink");

@@ -18,7 +18,7 @@ class ThemaServiceTest {
 
 	@Test
 	void 저장된_테마가_로드되는지_확인() {
-		LoadThemaNewsCommand command = new LoadThemaNewsCommand("트럼프 취임식", 1, 2);
+		LoadThemaNewsCommand command = new LoadThemaNewsCommand(156, 1, 2);
 		PaginationDomain<GPTThemaNewsDomain> gptThemaNewsDomainPaginationDomain = themaService.loadThemaNewsByQuery(
 			command);
 
