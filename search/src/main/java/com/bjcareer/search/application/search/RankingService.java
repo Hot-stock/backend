@@ -57,6 +57,9 @@ public class RankingService implements RankingUsecase {
 
 	private void setURLToStockDomain(Pair<String, Double> t, List<Pair<Stock, String>> result) {
 		Optional<Stock> byName = stockRepositoryPort.findByName(t.getFirst());
+		if (byName.isEmpty()) {
+			return;
+		}
 		Stock stock = byName.get();
 		stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
 				result.add(Pair.of(stock, String.valueOf(t.getSecond().intValue() * -1)));

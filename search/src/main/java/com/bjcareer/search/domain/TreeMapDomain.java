@@ -2,6 +2,7 @@ package com.bjcareer.search.domain;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.entity.StockChart;
@@ -43,5 +44,19 @@ public class TreeMapDomain {
 		Double stockAvg = stockChart.calcMovingAverageOfIncrease(performance);
 		stockIncreaseRate.put(stock.getName(), stockAvg);
 		return stockAvg;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof TreeMapDomain that))
+			return false;
+		return Objects.equals(themaName, that.themaName);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(themaName);
 	}
 }

@@ -1,9 +1,11 @@
 package com.bjcareer.search.out.persistence.cache;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.redisson.api.RMap;
 import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
@@ -21,17 +23,13 @@ public class RedisTreeMapAdapter {
 	private final static String BUKET_KEY = "MARKET_MAP";
 
 	public void uploadTreemap(List<TreeMapDomain> domains) {
-		domains.forEach(domain -> {
-			// Redis 버킷 키 생성
-			RSet<TreeMapDomain> bucket = redissonClient.getSet(BUKET_KEY);
-			bucket.add(domain);
-
-		});
+		RMap<String, TreeMapDomain> map = redissonClient.getMap(BUKET_KEY);
+		domains.forEach(domain -> map.put(domain.getThemaName(), domain));
 	}
 
 	public List<TreeMapDomain> getTreemap() {
-		RSet<TreeMapDomain> set = redissonClient.getSet(BUKET_KEY);
-		Set<TreeMapDomain> objects = set.readAll();
-		return objects.stream().collect(Collectors.toList());
+		RMap<String, TreeMapDomain> map = redissonClient.getMap(BUKET_KEY);
+		Collection<TreeMapDomain> treeMapDomains = map.readAllValues();
+		return treeMapDomains.stream().collect(Collectors.toList());
 	}
 }
