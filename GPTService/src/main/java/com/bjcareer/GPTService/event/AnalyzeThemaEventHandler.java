@@ -12,7 +12,7 @@ import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
-import com.bjcareer.GPTService.out.persistence.document.GPTThemaNewsRepository;
+import com.bjcareer.GPTService.out.persistence.document.GPTThemaStockNewsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AnalyzeThemaEventHandler {
 	private final GPTThemaOfStockNewsAdapter gptThemaOfStockNewsAdapter;
 	private final KafkaTemplate<String, byte[]> kafkaTemplate;
-	private final GPTThemaNewsRepository gptThemaNewsRepository;
+	private final GPTThemaStockNewsRepository gptThemaStockNewsRepository;
 	private final ObjectMapper objectMapper = AppConfig.customObjectMapper();
 
 	@EventListener
@@ -38,7 +38,7 @@ public class AnalyzeThemaEventHandler {
 			return;
 		}
 
-		Optional<GPTStockThema> byLink = gptThemaNewsRepository.findByLink(news.getLink());
+		Optional<GPTStockThema> byLink = gptThemaStockNewsRepository.findByLink(news.getLink());
 
 		if (byLink.isPresent()) {
 			GPTStockThema gptStockThema = byLink.get();
@@ -55,7 +55,7 @@ public class AnalyzeThemaEventHandler {
 
 			ThemaInfo themaInfo = gptStockThema.getThemaInfo();
 			sendThemaToKafka(themaInfo, news.getStockName());
-			gptThemaNewsRepository.save(gptStockThema);
+			gptThemaStockNewsRepository.save(gptStockThema);
 		}
 	}
 

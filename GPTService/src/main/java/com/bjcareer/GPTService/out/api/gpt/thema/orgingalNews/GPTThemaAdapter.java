@@ -23,12 +23,18 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AhvYIa63";
+	public static final String CUSTOM_MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AhvYIa63";
 	public static final String GPT_4o = "gpt-4o";
 	private final WebClient webClient;
 
 	public Optional<GPTThema> summaryThemaNews(OriginalNews news, String themaName, String model) {
-		log.debug("News2 link: {}", news.getNewsLink());
+		log.debug("News link: {} {}", news.getNewsLink(), model);
+
+		if(news.getNewsLink().contains("thebigdata")){
+			log.warn("The news content so bad for thema.");
+			return Optional.empty();
+		}
+
 
 		GPTThemaRequestDTO requestDTO = createRequestDTO(news.getPubDate(), news.getContent(), themaName, model);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -39,6 +45,11 @@ public class GPTThemaAdapter {
 				.get(0)
 				.getMessage()
 				.getParsedContent();
+
+			if(parsedContent == null) {
+				log.warn("GPT error raise.");
+				return Optional.empty();
+			}
 
 			if (!parsedContent.isRealNews()) {
 				log.warn("The response is not related to the topic.");
