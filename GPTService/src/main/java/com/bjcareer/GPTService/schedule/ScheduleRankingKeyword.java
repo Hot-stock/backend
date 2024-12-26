@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.GPTService.application.AnalyzeRankingStock;
+import com.bjcareer.GPTService.domain.Stock;
 import com.bjcareer.GPTService.out.api.python.AbsoluteRankKeywordDTO;
-import com.bjcareer.GPTService.out.api.python.Market;
-import com.bjcareer.GPTService.out.api.python.MarketResponseDTO;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
+import com.bjcareer.GPTService.out.persistence.rdb.StockRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 import com.bjcareer.GPTService.out.persistence.redis.RedisTrendKeywordRankAdapter;
 
@@ -24,15 +24,15 @@ public class ScheduleRankingKeyword {
 	private final RedisTrendKeywordRankAdapter trendKeywordRankAdapter;
 	private final RedisThemaRepository redisThemaRepository;
 	private final AnalyzeRankingStock analyzeRankingStock;
+	private final StockRepository stockRepository;
 
-	@Scheduled(cron = "0 10 9 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
 	public void updateRankingKeyword() {
 		log.info("Start update ranking keyword");
 
-		List<MarketResponseDTO> stocks = pythonSearchServerAdapter.loadStockInfo(Market.KOSDAQ);
-		stocks.addAll(pythonSearchServerAdapter.loadStockInfo(Market.KOSPI));
+		List<Stock> all = stockRepository.findAll();
 
-		for (MarketResponseDTO stock : stocks) {
+		for (Stock stock : all) {
 			List<AbsoluteRankKeywordDTO> absoluteValueOfKeyword = pythonSearchServerAdapter.loadRankKeyword(
 				stock.getName());
 
