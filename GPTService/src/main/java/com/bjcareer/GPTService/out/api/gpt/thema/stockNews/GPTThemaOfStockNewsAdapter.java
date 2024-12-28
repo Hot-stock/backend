@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaOfStockNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-2024-08-06:personal::AeDV6Sq6";
 	private final WebClient webClient;
 	private final GPTThemaNameAdapter gptThemaNameAdapter;
 
@@ -52,7 +51,6 @@ public class GPTThemaOfStockNewsAdapter {
 
 			GPTStockThema gptStockThema = new GPTStockThema(stockNews.getLink(), parsedContent.isPositive(),
 				themaInfo);
-			log.info("GPTStockThema: {}", gptStockThema);
 			return Optional.of(gptStockThema);
 		} else {
 			handleErrorResponse(response);

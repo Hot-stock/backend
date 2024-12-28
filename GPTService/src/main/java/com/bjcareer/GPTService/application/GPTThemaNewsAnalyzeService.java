@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.GPTService.application.port.in.AnalyzeThemaNewsCommand;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
+import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
@@ -24,46 +25,35 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GPTThemaNewsAnalyzeService {
 	private final GPTThemaAdapter gptThemaAdapter;
-	private final RedisThemaRepository redisThemaRepository;
 	private final PythonSearchServerAdapter pythonSearchServerAdapter;
 	private final GPTThemaNewsRepository gptThemaNewsRepository;
 
 	public List<GPTThema> analyzeThemaNewsByNewsLink(AnalyzeThemaNewsCommand command) {
-		// List<OriginalNews> originalNews = fetchNewsForThem(command.getDate(), command.getKeyword());
-		// String themas = redisThemaRepository.loadThema();
-		//
-		// List<GPTThema> gptThemas = fetchThemaFromNewsAndSaveDB(originalNews, themas);
-		//
-		// if (themas.isEmpty()) {
-		// 	return gptThemas.stream().filter(GPTThema::isRelatedThema).toList();
-		// } else {
-		// 	List<GPTThema> result = gptThemas.stream()
-		// 		.map(gptThemaNewsRepository::save)
-		// 		.filter(GPTThema::isRelatedThema)
-		// 		.toList();
-		// 	result.forEach(t -> redisThemaRepository.updateThema(t.getThemaInfo().getName()));
-		// 	return result;
-		//
-		// }
+		List<OriginalNews> originalNews = fetchNewsForThem(command.getDate(), command.getKeyword());
 
-		return null;
+		originalNews.stream()
+			.filter(t -> gptThemaNewsRepository.findByLink(t.getNewsLink()).isEmpty())
+			.map(t -> gptThemaAdapter.summaryThemaNews(t, command.getKeyword(), GPTThemaAdapter.CUSTOM_MODEL))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.map(gptThemaNewsRepository::save)
+			.filter(GPTThema::isRelatedThema)
+			.map(t -> gptThemaAdapter.summaryThemaNews(t.getNews(), command.getKeyword(), GPTThemaAdapter.GPT_4o))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.forEach(gptThemaNewsRepository::save);
+
+		List<String> links = originalNews.stream().map(OriginalNews::getNewsLink).toList();
+		return gptThemaNewsRepository.findByLinkIn(links);
 	}
 
 	private List<OriginalNews> fetchNewsForThem(LocalDate date, String keyword) {
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
-			new NewsCommand(keyword, date, date));
+			new NewsCommand(keyword, date, LocalDate.now(AppConfig.ZONE_ID)));
 
 		return newsResponseDTOS.stream()
 			.map(n -> pythonSearchServerAdapter.fetchNewsBody(n.getLink(), date))
 			.flatMap(Optional::stream)
-			.toList();
-	}
-
-	private List<GPTThema> fetchThemaFromNewsAndSaveDB(List<OriginalNews> originalNews, String knownThema) {
-		return originalNews.stream()
-			.map(news -> gptThemaAdapter.summaryThemaNews(news, knownThema))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
 			.toList();
 	}
 }

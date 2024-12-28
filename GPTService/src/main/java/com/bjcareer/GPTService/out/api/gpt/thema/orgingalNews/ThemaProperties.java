@@ -16,7 +16,7 @@ public class ThemaProperties {
 		"1단계 가이드라인의 세부 조건들의 결과에 대해서 설명하고, 어떤 조건들이 있는지 알려주세요.");
 
 	// Summary: 핵심 요약 및 주요 이벤트
-	public PropertyDetail summary = new PropertyDetail("string", "기사를 바탕으로 주식 매매 아이디어를 도출해보고 도출할 수 없다면 빈 칸으로 둔다.");
+	public PropertyDetail summary = new PropertyDetail("string", "질문지에서 언급한 테마의 배경에 대해서 요약해주세요.");
 
 	// Key Upcoming Dates: 주요 일정과 테마에 대한 예상 영향
 	public PropertyDetail upcomingDate = new PropertyDetail("string", NextSchedulePrompt.PROMPT);

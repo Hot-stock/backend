@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTThemaAdapter {
-	public static final String CUSTOM_MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AhvYIa63";
+	public static final String CUSTOM_MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AicoPeB1";
 	public static final String GPT_4o = "gpt-4o";
 	private final WebClient webClient;
 

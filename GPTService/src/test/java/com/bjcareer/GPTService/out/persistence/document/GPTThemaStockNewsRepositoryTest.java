@@ -14,28 +14,28 @@ import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
 
 @SpringBootTest
-class GPTThemaNewsRepositoryTest {
+class GPTThemaStockNewsRepositoryTest {
 	@Autowired
-	GPTThemaNewsRepository gptThemaNewsRepository;
+	GPTThemaStockNewsRepository gptThemaStockNewsRepository;
 
 	@Test
 	void GPTStockThema가_저장될_수_있는지() {
 		OriginalNews news = new OriginalNews("", "", "", LocalDate.now().toString(), "");
 		GPTStockThema stockThema = new GPTStockThema(")link", false,
 			new ThemaInfo(List.of("에이텍", "동신건설"), "이재명", "ttt"));
-		GPTStockThema save = gptThemaNewsRepository.save(stockThema);
+		GPTStockThema save = gptThemaStockNewsRepository.save(stockThema);
 		assertNotNull(save);
 	}
 
 	@Test
 	void 저장된_테마를_찾을_수_있는지() {
-		List<GPTStockThema> list = gptThemaNewsRepository.findByThemaName("이재명");
+		List<GPTStockThema> list = gptThemaStockNewsRepository.findByThemaName("이재명");
 		assertFalse(list.isEmpty());
 	}
 
 	@Test
 	void 주식_이름으로_테마를_찾을_수_있는지() {
-		List<GPTStockThema> list = gptThemaNewsRepository.findByStockName("에이텍");
+		List<GPTStockThema> list = gptThemaStockNewsRepository.findByStockName("에이텍");
 		assertFalse(list.isEmpty());
 	}
 }

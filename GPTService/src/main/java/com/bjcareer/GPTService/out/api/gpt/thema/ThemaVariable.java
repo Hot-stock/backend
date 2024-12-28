@@ -14,6 +14,6 @@ public class ThemaVariable {
 		new PropertyDetail("string", "name필드와 관련된 주식 종목들의 이름을 나열하세요. 반드시 기사에서 언급된 사실만을 사용하세요"));
 
 	public PropertyDetail reason = new PropertyDetail("string",
-		"name 테마가 어떤 가이드라인에 의해서 생겼는지, 왜 생겨나야 했는지 설명하세요.");
+		"1차 원인은 무엇인지에 대해서 설명해줘");
 
 }

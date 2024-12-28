@@ -19,11 +19,10 @@ class GPTThemaNewsAnalyzeServiceTest {
 
 	@Test
 	void test() {
-		AnalyzeThemaNewsCommand command = new AnalyzeThemaNewsCommand("우크라이나", LocalDate.now().minusDays(1));
 
+		// 우크라이나 제건 -> 배경적 맥락은 정치아닌가?
+		AnalyzeThemaNewsCommand command = new AnalyzeThemaNewsCommand("우크라이나", LocalDate.now().minusYears(1));
 		List<GPTThema> gptThemas = gptThemaNewsAnalyzeService.analyzeThemaNewsByNewsLink(command);
-
-		System.out.println("gptThemas = " + gptThemas);
 	}
 
 }

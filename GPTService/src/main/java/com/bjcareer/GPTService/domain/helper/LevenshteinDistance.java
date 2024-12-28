@@ -4,7 +4,7 @@ public class LevenshteinDistance {
 
 	public static int calculateLevenshteinDistance(String str1, String str2) {
 		//비교하지 않는 방식
-		if(str1.length() <= 3){
+		if(str1.length() <= 4){
 			return 99999;
 		}
 
