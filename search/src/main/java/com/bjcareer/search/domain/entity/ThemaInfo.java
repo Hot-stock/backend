@@ -11,19 +11,16 @@ import org.hibernate.type.SqlTypes;
 import com.bjcareer.search.config.AppConfig;
 import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,6 +36,7 @@ public class ThemaInfo {
 	@Column(unique = true)
 	private String name;
 	private String href;
+	private String background;
 
 	@OneToMany(mappedBy = "themaInfo", cascade = CascadeType.ALL)
 	@BatchSize(size = 10)
@@ -47,21 +45,14 @@ public class ThemaInfo {
 	@JdbcTypeCode(SqlTypes.JSON)
 	private ArrayNode news = JsonNodeFactory.instance.arrayNode();
 
-
-	public ThemaInfo(String name, String href) {
+	public ThemaInfo(String name, String href, String background) {
 		this.name = name;
 		this.href = href;
+		this.background = background;
 	}
 
-	public ThemaInfo(String name) {
-		this(name, null);
-	}
-
-	public void addThemaNews(List<GPTThemaNewsDomain> themas) {
-		ObjectMapper mapper = AppConfig.customObjectMapper();
-		ArrayNode arrayNode = mapper.convertValue(themas, ArrayNode.class);
-
-		this.news.addAll(arrayNode);
+	public ThemaInfo(String name, String href) {
+		this(name, href, null);
 	}
 
 	public List<GPTThemaNewsDomain> getNews() {

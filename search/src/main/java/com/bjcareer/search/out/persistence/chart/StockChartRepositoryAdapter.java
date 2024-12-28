@@ -54,7 +54,7 @@ public class StockChartRepositoryAdapter implements StockChartRepositoryPort {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void save(StockChart stockChart) {
 		em.merge(stockChart);
 	}

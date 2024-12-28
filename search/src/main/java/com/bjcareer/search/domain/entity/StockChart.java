@@ -78,7 +78,6 @@ public class StockChart {
 	public void addOHLC(List<OHLC> ohlcs) {
 		for (OHLC ohlc : ohlcs) {
 			ohlc.addChart(this);
-			this.ohlcList.add(ohlc);
 		}
 	}
 
@@ -87,7 +86,6 @@ public class StockChart {
 			if (this.getLastUpdateDate().isBefore(stockOhlc.getDate())) {
 				lastUpdateDate = stockOhlc.getDate();
 				stockOhlc.addChart(this);
-				ohlcList.add(stockOhlc);
 			}else{
 				ohlcList.getFirst().update(stockOhlc);
 

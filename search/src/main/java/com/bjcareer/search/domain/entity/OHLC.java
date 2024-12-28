@@ -66,6 +66,7 @@ public class OHLC {
 
 	public void addChart(StockChart chart) {
 		this.chart = chart;
+		chart.getOhlcList().add(this);
 	}
 
 	public void update(OHLC ohlc){

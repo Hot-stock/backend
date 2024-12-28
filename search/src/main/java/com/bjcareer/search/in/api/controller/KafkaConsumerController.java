@@ -33,7 +33,7 @@ public class KafkaConsumerController {
 		ThemaInfoResponseDTO command = optionalCommand.get();
 		try {
 			UpdateThemaOfStockCommand updateThemaOfStockCommand = new UpdateThemaOfStockCommand(command.getStockName(),
-				command.getName());
+				command.getName(), command.getReason());
 			themaService.updateThema(updateThemaOfStockCommand);
 		} catch (Exception e) {
 			log.debug("Can't save Error: {} {}", command.getName(), command.getStockName());
