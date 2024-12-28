@@ -50,7 +50,6 @@ public class DocumentAnalyzeRepository {
 		Bson filter = Filters.and(
 			Filters.gt("next", LocalDate.now(AppConfig.ZONE_ID)),
 			Filters.ne("stockName", "nil"),
-			Filters.ne("stockCode", "nil"),
 			Filters.ne("stockCode", null)
 		);
 
@@ -68,7 +67,7 @@ public class DocumentAnalyzeRepository {
 			),
 
 
-			Aggregates.match(Filters.not(Filters.size("joinedData", 0))),
+			// Aggregates.match(Filters.not(Filters.size("joinedData", 0))),
 			// 4. 중복 제거 (next, stockCode 기준)
 			Aggregates.group(
 				new Document("next", "$next").append("stockCode", "$stockCode"), // 그룹 기준

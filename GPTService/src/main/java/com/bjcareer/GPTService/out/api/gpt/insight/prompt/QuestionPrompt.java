@@ -6,26 +6,22 @@ import com.bjcareer.GPTService.config.AppConfig;
 
 public class QuestionPrompt {
 	public static String QUESTION_FORMAT =
-		"우리는 이 주식의 매수 근거 인사이트하려고 해. \n"
+		"우리는 이 주식의 상승 트리거를 찾을려고 해 . \n"
 			+ "오늘의 날짜는 " + LocalDate.now(AppConfig.ZONE_ID) + "입니다.\n\n"
 			+ "### 주식 정보\n"
-			+ "- 주식 이름: <stockName> %s </stockName>\n"
+			+ "- 테마 이름: <thema> %s </thema>\n"
 			+ "- 시가 총액: <marketCap> %s </marketCap>\n\n"
 			+ "### 주식 상승 이유\n"
 			+ "- 주식 상승 이유(구체적으로 작성): <reason> %s </reason>\n"
-			+ "### 이벤트 일정\n"
-			+ "- 이벤트 일정과 이벤트가 발생할 것이라고 예상되는 이유를 요약해놨어: <upCommingDate> %s </upCommingDate>\n"
-			+ "- 중요한 점은 반드시 상승한 것은 아니고, 상승을 했는지는 <reason> <reason> XML테크안에 해당 날짜가 있으면 상승했다고 판단할게.\n"
-			+ "### 이벤트 관련 뉴스\n"
-			+ "- 이벤트와 관련된 뉴스 요약 내용: <news> %s </news>\n"
-			+ "### 슈퍼사이클 \n"
-			+ "- 슈퍼사이클 시기에 나온 뉴스 내용들(요약 포함): <cycle-news> %s </cycle-news>\n"
 
-			+ "세 명의 전문가가 협력하여 매수 추천 점수를 기반으로 주식을 평가한다고 상상해보세요.\n"
-			+ "모든 전문가는 자신의 사고 과정을 한 단계씩 기록하고 그룹과 공유합니다.\n"
-			+ "그 후, 모든 전문가는 다음 단계로 진행하며 평가를 반복적으로 세부 조정합니다.\n"
-			+ "어떤 전문가라도 자신의 판단에 오류를 발견하면 논의에서 제외됩니다.\n"
-			+ "질문: 명확한 기준에 따라 이 주식을 매수 추천 점수로 평가하는 방법은 무엇입니까?\n\n"
+			+ "Act as a market strategist and stock analyst specializing in thematic investing. "
+			+ "Analyze the provided summary of stock price increase reasons to identify the key triggers driving the rise. "
+			+ "Based on these triggers, develop three actionable investment ideas, evaluating their probability of success, "
+			+ "their impact on thematic investors, and their potential to attract public attention. "
+			+ "Propose three distinct platforms and tailored approaches to make the identified triggers more accessible and useful to the public. "
+			+ "Refine each idea to ensure clarity and logical structure, thoroughly analyze the strengths and weaknesses of each strategy, "
+			+ "and break down educational objectives into smaller, actionable steps. "
+			+ "Finally, consider various implementation scenarios and recommend the most effective approach based on your analysis."
 
 			+ "### 평가 방법론\n\n"
 

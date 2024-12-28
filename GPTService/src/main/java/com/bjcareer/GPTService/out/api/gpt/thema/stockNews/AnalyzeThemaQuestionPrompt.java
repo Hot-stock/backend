@@ -72,5 +72,12 @@ public class AnalyzeThemaQuestionPrompt {
 			+ "8. 기타 테마:\n"
 			+ "   - 위의 3가지 카테고리에 속하지 않는 경우 테마로 사용하지 않습니다.\n\n"
 
+			+ "The second question is about identifying the background knowledge from which a theme is derived.\n"
+			+ "Background knowledge refers to the primary cause.\n"
+			+ "The method for extracting the primary cause is as follows:\n"
+			+ "For example, if Trump’s peace negotiation team visits Ukraine to negotiate a ceasefire -> "
+			+ "this results in Geumgang Industrial, which operates a modular business, rising due to reconstruction expectations.\n"
+			+ "In this case, Trump’s peace negotiation team is the primary cause, and the outcome is the rise in Geumgang Industrial’s stock price.\n"
+
 			+ "답변은 반드시 한글로 진행합니다.";
 }
