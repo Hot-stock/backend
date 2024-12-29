@@ -13,8 +13,11 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.dtos.GPTResponseStockNewsOfThemaFormatDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.dtos.GPTThemaOfStockNewsResponseDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.dtos.GPTThemaOfStockRequestDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.prompt.AnalyzeThemaQuestionPrompt;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.GPTThemaNameAdapter;
-import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

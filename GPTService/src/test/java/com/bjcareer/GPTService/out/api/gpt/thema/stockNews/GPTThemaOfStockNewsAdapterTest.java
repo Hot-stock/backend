@@ -37,9 +37,9 @@ class GPTThemaOfStockNewsAdapterTest {
 
 	@Test
 	void 정확한_형식으로_들어오는지_테스트() {
-		String stockName = "에스앤디";
+		String stockName = "스마트레이더시스템";
 		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"https://www.thebigdata.co.kr/view.php?ud=202412190558582669cd1e7f0bdf_23", LocalDate.now());
+			"https://www.financialpost.co.kr/news/articleView.html?idxno=218089", LocalDate.now());
 		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), stockName,
 			originalNews.get().getPubDate());
 
@@ -49,43 +49,19 @@ class GPTThemaOfStockNewsAdapterTest {
 	}
 
 	@Test
-	void 뉴스_테마() {
+	void 데이터베이스의_뉴스로_검증() {
+		String stockName = "옵티시스";
 		List<GPTNewsDomain> all = gptStockNewsRepository.findAll();
 
 		for (GPTNewsDomain gptNewsDomain : all) {
-			if(!gptNewsDomain.isRelated() || !gptNewsDomain.isThema()) {
-				continue;
+			if (gptNewsDomain.getStockName().equals(stockName) && gptNewsDomain.isThema()
+				&& gptNewsDomain.isRelated()) {
+				Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(gptNewsDomain);
+				if (r.isPresent()) {
+					System.out.println("r = " + r);
+					gptStockThemaNewsRepository.save(r.get());
+				}
 			}
-
-			if(!gptNewsDomain.getKeywords().contains("우크라이나 재건")){
-				continue;
-			}
-
-			Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(gptNewsDomain);
-			if (r.isEmpty()) {
-				continue;
-			}
-
-			GPTStockThema save = gptStockThemaNewsRepository.save(r.get());
-			System.out.println("TT" + " " + save.getThemaInfo());
 		}
-	}
-
-	@Test
-	void 뉴스_필터링_테스트() {
-		List<GPTStockThema> all = gptStockThemaNewsRepository.findAll();
-
-		for (GPTStockThema gptStockThema : all) {
-			Optional<GPTNewsDomain> byLink = gptStockNewsRepository.findByLink(gptStockThema.getLink());
-			Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(byLink.get());
-
-			if (r.isEmpty()) {
-				gptStockThemaNewsRepository.delete(gptStockThema);
-				continue;
-			}
-
-			GPTStockThema save = gptStockThemaNewsRepository.save(r.get());
-		}
-
 	}
 }

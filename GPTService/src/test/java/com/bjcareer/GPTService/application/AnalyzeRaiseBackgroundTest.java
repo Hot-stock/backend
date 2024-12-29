@@ -18,7 +18,7 @@ class AnalyzeRaiseBackgroundTest {
 
 	@Test
 	void 테마를_분석하고_해당_내용이_저장되어_있어야_함() {
-		Optional<GPTTriggerBackground> trigger = analyzeRaiseBackground.loadTriggerOfRiseOfThema("우크라이나 재건");
+		Optional<GPTTriggerBackground> trigger = analyzeRaiseBackground.saveTriggerOfRiseOfThema("자율주행차 규제 완화", "인포뱅크");
 		assertTrue(trigger.isPresent());
 	}
 }

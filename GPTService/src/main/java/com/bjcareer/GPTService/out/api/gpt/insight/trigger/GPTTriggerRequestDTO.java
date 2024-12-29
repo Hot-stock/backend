@@ -2,7 +2,6 @@ package com.bjcareer.GPTService.out.api.gpt.insight.trigger;
 
 import java.util.List;
 
-import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.GPTResponseThemaFormatDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;

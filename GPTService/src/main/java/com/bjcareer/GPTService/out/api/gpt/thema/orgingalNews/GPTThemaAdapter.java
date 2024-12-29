@@ -13,6 +13,9 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.dtos.GPTResponseThemaFormatDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.dtos.GPTThemaRequestDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.dtos.GPTThemaResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.thema.orgingalNews.prompt.ThemaQuestionPrompt;
 
 import lombok.RequiredArgsConstructor;

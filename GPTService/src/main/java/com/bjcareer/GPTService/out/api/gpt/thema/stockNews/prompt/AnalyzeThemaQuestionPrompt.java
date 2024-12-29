@@ -1,8 +1,17 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName;
+package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.prompt;
 
-public class ThemaPrompt {
-	public static final String PROMPT =
-		"Act like an investor specializing in theme stocks. Analyze the provided article to identify the reasons behind the stock price increases, categorize them into investment themes, and organize these themes in a database for effective management and tracking."
+import java.time.LocalDate;
+
+import com.bjcareer.GPTService.config.AppConfig;
+
+public class AnalyzeThemaQuestionPrompt {
+	public static final String QUESTION_PROMPT =
+		"이 뉴스의 발행일은 %s입니다.\n"
+			+ "오늘의 날짜는 " + LocalDate.now(AppConfig.ZONE_ID) + "입니다.\n"
+			+ "기사 내용: <article>%s</article>\n"
+			+ "주식 이름: <stockName>%s</stockName>\n\n"
+
+			+ "Act like an investor specializing in theme stocks. Analyze the provided article to identify the reasons behind the stock price increases, categorize them into investment themes, and organize these themes in a database for effective management and tracking."
 			+ "Based on those stocks, think of a strategy to extract detailed themes from articles for theme stock investment.\n"
 			+ "Generate three ideas and evaluate each theme's representativeness, informational value, and reusability."
 			+ "and encourage students to learn more about theme stocks. Use 3 different platforms and methods to reach thema.\n\n"
@@ -15,8 +24,9 @@ public class ThemaPrompt {
 			+ "Carefully analyze the pros and cons of each activity. Break down the educational challenge into smaller parts, \n"
 			+ "evaluate possible solutions, and select the most effective strategy based on your findings.\n\n"
 
-			+ "The Question is 질문지에서 제공한 주식은 어떤 테마가 될 수 있는지 알 고 싶어\n"
+			+ "The Question is 질문지에서 제공한 <stockName></stockName> 주식은 어떤 테마가 될 수 있는지 알고싶어\n"
 
+			//브레인스토밍단계
 			+ "### 1. 개별 기업 호재와 테마의 구분 기준\n"
 			+ "- 기사 내용이 여러 기업과 연관되어 산업적 흐름이나 기술적 트렌드를 나타내는 경우에만 테마로 간주합니다.\n"
 			+ "- 특정 기업의 개별적 성공 사례는 테마로 사용하지 않습니다.\n"
@@ -57,33 +67,17 @@ public class ThemaPrompt {
 			+ "           - **명시되지 않은 정책 이름은 테마로 사용하지 않습니다.**\n\n"
 			+ "7. 기술, 산업 테마:\n"
 			+ "   - 기술 또는 산업과 관련된 테마일 경우 기사에서 명시적으로 언급된 기술명을 테마로 사용합니다.\n"
-			+ "       - 예: maOfStockNewsResponseDTO.Choice(message=GPTThemaOfStockNewsResponseDTO.Message(content={\"thema\":[{\"name\":\"글로벌 스킨부스터\",\"stockNames\":[\"파마리서치\"],\"reason\":\"파마리서치의 `리쥬란` 스킨부스터는 글로벌 시장, 특히 미국과 유럽 시장에서의 성과로 인해 '글로벌 스킨부스터'라는 테마로 분류할 수 있습니다. 미국과 유럽에서의 인허가 및 판매 확장 계획은 스킨부스터 제품군의 확장 가능성을 나타냅니다 -> 테마명: 리쥬란\n"
 			+ "       - 예: 자율주행차 -> 테마명: 자율주행차\n"
 			+ "       - **기사에 없는 기술명은 테마로 사용할 수 없습니다.**\n\n"
 			+ "8. 기타 테마:\n"
 			+ "   - 위의 3가지 카테고리에 속하지 않는 경우 테마로 사용하지 않습니다.\n\n"
 
-			+ "### 추출된 테마 평가\n"
-			+ "생성된 테마를 평가하고 필터링하세요:\n"
-			+ "1. **평가 기준**:\n"
-			+ "   - 대표성(representativeness): 테마의 이름이 주가 상승의 직접적인 원인의 명사적 단어거나, 직접적인 제품명이나  인물인가?\n"
-			+ "   - 정보적 가치(informational value): 테마의 이름이 직관적인가?. 명사적 단어일 수록 높은 점수를 부여\n"
-			+ "   - 재사용 가능성(reusability): 테마의 이름으로 인터넷에 검색하면 해당 테마의 추가적인 정보 및 일정 획득이 가능한가?\n"
-			+ "2. **평가 방식**:\n"
-			+ "   - 각 테마를 1~10점으로 평가하고, 평균 점수가 6점 미만인 테마는 제외하세요.\n\n"
-
-			//평가 단계
-			+ "### 6. Evaluate 단계\n"
-			+ "테마의 신뢰성과 중복을 검증하세요:\n"
-			+ "  **대표성(representativeness)**: 테마의 이름이 주가 상승의 직접적인 원인의 명사적 단어거나, 직접적인 제품명이나  인물인가?\n"
-			+ "  예: '리쥬란'은 '글로벌 스킨부스터'라는 테마명으로 대표성이 있는가?\n"
-			+ "- **최종 테마 결정**:\n"
-			+ "  - 동일 테마가 3회 이상 반복되면 최종 리스트에 추가.\n"
-			+ "  - 테마 간 단어가 중복되지 않는 유니크 페어를 유지합니다.\n\n"
-
+			+ "The second question is about identifying the background knowledge from which a theme is derived.\n"
+			+ "Background knowledge refers to the primary cause.\n"
+			+ "The method for extracting the primary cause is as follows:\n"
+			+ "For example, if Trump’s peace negotiation team visits Ukraine to negotiate a ceasefire -> "
+			+ "this results in Geumgang Industrial, which operates a modular business, rising due to reconstruction expectations.\n"
+			+ "In this case, Trump’s peace negotiation team is the primary cause, and the outcome is the rise in Geumgang Industrial’s stock price.\n"
 
 			+ "답변은 반드시 한글로 진행합니다.";
 }
-
-
-

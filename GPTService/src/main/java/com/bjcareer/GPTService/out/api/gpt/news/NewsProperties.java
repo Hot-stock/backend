@@ -14,10 +14,11 @@ import com.bjcareer.GPTService.out.api.gpt.news.Prompt.ThemaFilter;
 public class NewsProperties {
 	public static final String[] required = {"isRelevant", "isRelevantDetail", "isThema", "keywords", "name", "reason", "next",
 		"nextReason"};
-	public PropertyDetail isRelevant = new PropertyDetail("boolean", NewsFilterPrompt.FILTER_PROMPT);
-	public PropertyDetail isRelevantDetail = new PropertyDetail("string", "isRelevant의 필드에 대한 결과에 대한 이유를 한글로 안내해주세요");
-	public PropertyDetail isThema = new PropertyDetail("boolean", ThemaFilter.PROMPT);
-	public PropertyArrayDetail keywords = new PropertyArrayDetail("기사에서 중점으로 다루고 있는 주식 상승의 이유에 대한 키워드를 추출",
+	public PropertyDetail isRelevant = new PropertyDetail("boolean", "가이드라인 1을 적용한 결과는 어떻게 돼? A perfect 100-point answer is expected.");
+	public PropertyDetail isRelevantDetail = new PropertyDetail("string", "A detailed explanation of the result based on the first guideline is expected. A perfect 100-point answer is expected. 답변은 한글로");
+
+	public PropertyDetail isThema = new PropertyDetail("boolean", "가이드라인 2를 적용한 결과는 어떻게 돼? A perfect 100-point answer is expected.");
+	public PropertyArrayDetail keywords = new PropertyArrayDetail("기사에서 중점으로 다루고 있는 주식 상승의 이유에 대한 키워드를 추출 A perfect 100-point answer is expected.",
 		new PropertyDetail("string", KeywordPrompt.PROMPT));
 	public PropertyDetail name = new PropertyDetail("string", NameFilterPrompt.PROMPT);
 	public PropertyDetail reason = new PropertyDetail("string", RoseReasonPrompt.PROMPT);

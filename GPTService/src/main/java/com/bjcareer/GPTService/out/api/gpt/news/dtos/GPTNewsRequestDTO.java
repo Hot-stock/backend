@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.news;
+package com.bjcareer.GPTService.out.api.gpt.news.dtos;
 
 import java.util.List;
 

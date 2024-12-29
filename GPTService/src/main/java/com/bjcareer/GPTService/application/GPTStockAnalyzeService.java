@@ -44,28 +44,36 @@ public class GPTStockAnalyzeService {
 
 	@AnalyzeThema
 	public GPTNewsDomain analyzeStockNewsByNewsLink(AnalyzeStockNewsCommand command) {
-		if (isNewsNotProcessed(command.getNewsLink())) {
-			Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink(), LocalDate.now());
-			optionalGPTNewsDomain.ifPresent(gptStockNewsRepository::save);
-		}
+		// if (isNewsNotProcessed(command.getNewsLink())) {
+		// 	Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink(), LocalDate.now());
+		// 	optionalGPTNewsDomain.ifPresent(gptStockNewsRepository::save);
+		// }
 
 		return gptStockNewsRepository.findByLink(command.getNewsLink()).orElseThrow();
 	}
 
 	@AnalyzeThema
 	@Transactional(readOnly = true)
-	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate date, String stockName) {
-		log.debug("Analyzing stock news for date: {} stock: {}", date, stockName);
-		List<NewsResponseDTO> newsLinks = fetchNewsForStock(date, stockName);
+	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate endDate, String stockName) {
+		Map<String, String> stockMap = getStockDomainToHash();
+		log.debug("Analyzing stock news for date: {} stock: {}", endDate, stockName);
+		List<NewsResponseDTO> newsLinks = fetchNewsForStock(endDate, stockName);
 		log.debug("Fetched news links: {}", newsLinks);
 
-		List<GPTNewsDomain> target = newsLinks.stream()
-			.filter(n -> isNewsNotProcessed(n.getLink()))
-			.map(n -> processAnalyzeNewsLink(n.getLink(), n.getDate()))
-			.flatMap(Optional::stream).toList();
+		for (NewsResponseDTO newsResponseDTO : newsLinks) {
+			if (!isNewsNotProcessed(newsResponseDTO.getLink(), stockName, newsResponseDTO.getDate())) {
+				continue;
+			}
 
-		Map<String, String> stockMap = getStockDomainToHash();
-		setStockCodeToGPTNewsDomain(target, stockMap);
+			Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(newsResponseDTO.getLink(),
+				newsResponseDTO.getDate());
+
+			if (optionalGPTNewsDomain.isPresent()) {
+				String code = stockMap.get(optionalGPTNewsDomain.get().getStockName());
+				optionalGPTNewsDomain.get().addStockCode(code);
+				gptStockNewsRepository.save(optionalGPTNewsDomain.get());
+			}
+		}
 
 		return newsLinks.stream()
 			.map(link -> gptStockNewsRepository.findByLink(link.getLink()))
@@ -131,8 +139,9 @@ public class GPTStockAnalyzeService {
 		return pythonSearchServerAdapter.fetchNews(new NewsCommand(stockName, date, LocalDate.now()));
 	}
 
-	private boolean isNewsNotProcessed(String newsLink) {
+	private boolean isNewsNotProcessed(String newsLink, String stockName, LocalDate date) {
 		boolean empty = gptStockNewsRepository.findByLink(newsLink).isEmpty();
+		empty = empty & gptStockNewsRepository.findByStockNameAndPubDateWithRelatedIsTrue(stockName, date).isEmpty();
 		log.debug("News is already processed: {} {}", newsLink, !empty);
 		return empty;
 	}

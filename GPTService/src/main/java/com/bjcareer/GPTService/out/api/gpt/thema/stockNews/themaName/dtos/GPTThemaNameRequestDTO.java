@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.stockNews;
+package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.dtos;
 
 import java.util.List;
 
@@ -7,14 +7,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class GPTThemaOfStockRequestDTO {
+public class GPTThemaNameRequestDTO {
 	private String model;
 	private List<Message> messages;
 	@JsonProperty("response_format")
-	private GPTResponseStockNewsOfThemaFormatDTO responseFormat;
+	private GPTResponseThemaNameOfThemaFormatDTO responseFormat;
 
-	public GPTThemaOfStockRequestDTO(String model, List<Message> messages,
-		GPTResponseStockNewsOfThemaFormatDTO responseFormat) {
+	public GPTThemaNameRequestDTO(String model, List<Message> messages,
+		GPTResponseThemaNameOfThemaFormatDTO responseFormat) {
 		this.model = model;
 		this.messages = messages;
 		this.responseFormat = responseFormat;

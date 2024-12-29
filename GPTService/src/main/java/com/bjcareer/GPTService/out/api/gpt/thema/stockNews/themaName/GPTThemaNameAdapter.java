@@ -11,6 +11,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.dtos.GPTResponseThemaNameOfThemaFormatDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.dtos.GPTThemaNameRequestDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.dtos.GPTThemaNameResponseDTO;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.prompt.AnalyzeThemaNamePrompt;
 import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +50,7 @@ public class GPTThemaNameAdapter {
 				log.warn("Parsed content is null");
 				return Optional.empty();
 			}
+
 			ThemaInfo themaInfo = new ThemaInfo(stockNames, parsedContent.getThema(), reason);
 			themaInfo.changeThemaNameUsingLevenshteinDistance(themas);
 
@@ -66,10 +71,10 @@ public class GPTThemaNameAdapter {
 					log.warn("Parsed content is null");
 					return Optional.empty();
 				}
-				log.debug("thema: {} reason {}", parsedContent.getThemasName(), parsedContent.getReason());
+				log.debug("Reason {}", reason);
+				log.debug("Final thema: {} Final reason {} keywords {}", parsedContent.getThema(), parsedContent.getReason(), parsedContent.getThemasName());
 
 				themaInfo = new ThemaInfo(stockNames, parsedContent.getThema(), reason);
-				themaInfo.changeThemaNameUsingLevenshteinDistance(themas);
 			}
 
 			redisThemaRepository.updateThema(themaInfo.getName());

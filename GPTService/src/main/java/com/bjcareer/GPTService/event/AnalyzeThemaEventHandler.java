@@ -7,10 +7,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.GPTService.application.AnalyzeRaiseBackground;
 import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
+import com.bjcareer.GPTService.domain.gpt.GPTTriggerBackground;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
+import com.bjcareer.GPTService.out.api.gpt.insight.trigger.GPTTriggerAdapter;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTThemaStockNewsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AnalyzeThemaEventHandler {
 	private final GPTThemaOfStockNewsAdapter gptThemaOfStockNewsAdapter;
+	private final AnalyzeRaiseBackground analyzeRaiseBackground;
+	private final GPTTriggerAdapter gptTriggerAdapter;
 	private final KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final GPTThemaStockNewsRepository gptThemaStockNewsRepository;
 	private final ObjectMapper objectMapper = AppConfig.customObjectMapper();
@@ -49,11 +54,18 @@ public class AnalyzeThemaEventHandler {
 		Optional<GPTStockThema> gptThema = gptThemaOfStockNewsAdapter.getThema(news);
 
 		if (gptThema.isPresent()) {
+			GPTStockThema gptStockThema = gptThema.get();
 			log.debug("Extracted Thema: {}", gptThema.get());
 
-			GPTStockThema gptStockThema = gptThema.get();
-
 			ThemaInfo themaInfo = gptStockThema.getThemaInfo();
+			Optional<GPTTriggerBackground> trigger = analyzeRaiseBackground.saveTriggerOfRiseOfThema(
+				gptStockThema.getThemaInfo().getName(), news.getStockName());
+
+			if (trigger.isPresent()) {
+				themaInfo = new ThemaInfo(themaInfo.getStockName(), themaInfo.getName(), trigger.get().getBackground());
+			}
+
+
 			sendThemaToKafka(themaInfo, news.getStockName());
 			gptThemaStockNewsRepository.save(gptStockThema);
 		}

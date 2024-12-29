@@ -1,7 +1,8 @@
-package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName;
+package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.dtos;
 
 import com.bjcareer.GPTService.out.api.gpt.JsonSchema;
 import com.bjcareer.GPTService.out.api.gpt.Schema;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName.ThemaNameProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GPTResponseThemaNameOfThemaFormatDTO {

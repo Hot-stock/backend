@@ -1,7 +1,8 @@
-package com.bjcareer.GPTService.out.api.gpt.news;
+package com.bjcareer.GPTService.out.api.gpt.news.dtos;
 
 import com.bjcareer.GPTService.out.api.gpt.JsonSchema;
 import com.bjcareer.GPTService.out.api.gpt.Schema;
+import com.bjcareer.GPTService.out.api.gpt.news.NewsProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GPTResponseNewsFormatDTO {

@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChatGPTTriggerAdapter {
+public class GPTTriggerAdapter {
 	private final WebClient webClient;
 	public final static String GPT_4o = "gpt-4o";
 
@@ -51,9 +51,8 @@ public class ChatGPTTriggerAdapter {
 			}
 
 			GPTTriggerBackground gptTriggerBackground = new GPTTriggerBackground(thema, parsedContent.getNextUse(),
-				parsedContent.getNextUseReason());
-			List<String> keywords = parsedContent.getKeywords();
-			gptTriggerBackground.addBackground(parsedContent.getBackground(), keywords);
+				parsedContent.getNextUseReason(), parsedContent.getBackground());
+			gptTriggerBackground.addKeywords(parsedContent.getKeywords());
 
 			return Optional.of(gptTriggerBackground);
 		} else {

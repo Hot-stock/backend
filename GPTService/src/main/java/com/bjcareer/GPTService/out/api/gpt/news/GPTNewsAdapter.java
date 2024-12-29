@@ -13,6 +13,9 @@ import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
 import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
+import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTNewsRequestDTO;
+import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTNewsResponseDTO;
+import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTResponseNewsFormatDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +44,15 @@ public class GPTNewsAdapter {
 		log.info("Request successed with News link: {}", originalNews.getNewsLink());
 
 		if (content.isRelevant()) {
-			log.info("결과가 성공이라고 나와서 검증 시도: {}", content);
 			GPTNewsResponseDTO.Content finalContent = content;
+			log.info("결과가 성공이라고 나와서 검증 시도: {}", content);
 			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, GPT_4o);
 			content = parseContent(response).orElseGet(() -> {
-				log.warn("Failed to parse content: {}");
+				log.warn("Failed to parse content");
 				return finalContent;
 			});
+
+			log.info("최종결과 {}", content);
 		}
 
 		return Optional.of(
