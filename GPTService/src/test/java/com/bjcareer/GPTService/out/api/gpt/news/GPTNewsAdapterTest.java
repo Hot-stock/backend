@@ -25,8 +25,8 @@ class GPTNewsAdapterTest {
 
 	@Test
 	void 뉴스_필터링_테스트() {
-		String link = "https://www.energy-news.co.kr/news/articleView.html?idxno=207655";
-		String stockName = "인텔리안테크";
+		String link = "https://www.econonews.co.kr/news/articleView.html?idxno=368265";
+		String stockName = "쏠리드";
 		OriginalNews originalNews = pythonSearchServerAdapter.fetchNewsBody(link, LocalDate.now()).get();
 		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews, stockName,
 			LocalDate.now());

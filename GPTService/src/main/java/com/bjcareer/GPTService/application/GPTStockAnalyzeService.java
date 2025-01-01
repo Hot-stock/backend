@@ -61,7 +61,7 @@ public class GPTStockAnalyzeService {
 		log.debug("Fetched news links: {}", newsLinks);
 
 		for (NewsResponseDTO newsResponseDTO : newsLinks) {
-			if (!isNewsNotProcessed(newsResponseDTO.getLink(), stockName, newsResponseDTO.getDate())) {
+			if (!isNewsNeedProcessed(newsResponseDTO.getLink(), stockName, newsResponseDTO.getDate())) {
 				continue;
 			}
 
@@ -139,7 +139,7 @@ public class GPTStockAnalyzeService {
 		return pythonSearchServerAdapter.fetchNews(new NewsCommand(stockName, date, LocalDate.now()));
 	}
 
-	private boolean isNewsNotProcessed(String newsLink, String stockName, LocalDate date) {
+	private boolean isNewsNeedProcessed(String newsLink, String stockName, LocalDate date) {
 		boolean empty = gptStockNewsRepository.findByLink(newsLink).isEmpty();
 		empty = empty & gptStockNewsRepository.findByStockNameAndPubDateWithRelatedIsTrue(stockName, date).isEmpty();
 		log.debug("News is already processed: {} {}", newsLink, !empty);

@@ -1,4 +1,4 @@
-package com.bjcareer.GPTService.out.api.gpt.insight;
+package com.bjcareer.GPTService.out.api.gpt.insight.score.dtos;
 
 import java.util.List;
 

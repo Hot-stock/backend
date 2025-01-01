@@ -30,7 +30,7 @@ public class AnalyzeRaiseBackground {
 	public Optional<GPTTriggerBackground> saveTriggerOfRiseOfThema(String themaName, String stockName) {
 		List<GPTNewsDomain> gptNewsDomains = loadAllReasonOfRiseOfThema(themaName);
 
-		if (gptNewsDomains.size() <= 5) {
+		if (gptNewsDomains.size() < 3) {
 			log.debug("Not enough news for Thema: {}", themaName);
 			return Optional.empty();
 		}
@@ -40,7 +40,7 @@ public class AnalyzeRaiseBackground {
 			return Optional.empty();
 		}
 
-		GPTTriggerBackground triggerReason = getTriggerReason(themaName);
+		// GPTTriggerBackground triggerReason = getTriggerReason(themaName);
 
 		List<String> reason = gptNewsDomains.stream().map(GPTNewsDomain::getReason).collect(Collectors.toList());
 		List<String> stockNames = gptNewsDomains.stream().map(GPTNewsDomain::getStockName).toList();
@@ -49,9 +49,11 @@ public class AnalyzeRaiseBackground {
 			GPTTriggerAdapter.GPT_4o);
 
 		if (trigger.isPresent()) {
-			triggerReason.addKeywords(trigger.get().getKeywords().stream().toList());
-			triggerReason.addStocks(stockNames);
-			gptBackgroundRepository.save(triggerReason);
+			// triggerReason.addKeywords(trigger.get().getKeywords().stream().toList());
+			// triggerReason.addStocks(stockNames);
+			trigger.get().addKeywords(trigger.get().getKeywords().stream().toList());
+			trigger.get().addStocks(stockNames);
+			gptBackgroundRepository.save(trigger.get());
 			return Optional.empty();
 		}
 

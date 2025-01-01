@@ -1,7 +1,8 @@
-package com.bjcareer.GPTService.out.api.gpt.insight;
+package com.bjcareer.GPTService.out.api.gpt.insight.score.dtos;
 
 import com.bjcareer.GPTService.out.api.gpt.JsonSchema;
 import com.bjcareer.GPTService.out.api.gpt.Schema;
+import com.bjcareer.GPTService.out.api.gpt.insight.score.InsightProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GPTResponseInsightFormatDTO {

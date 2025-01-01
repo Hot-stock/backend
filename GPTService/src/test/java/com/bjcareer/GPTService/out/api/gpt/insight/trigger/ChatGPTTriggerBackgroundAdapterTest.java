@@ -18,8 +18,8 @@ class ChatGPTTriggerBackgroundAdapterTest {
 
 	@Test
 	void test() {
-		String thema = "우크라이나 재건";
-		Optional<GPTTriggerBackground> trigger1 = analyzeRaiseBackground.saveTriggerOfRiseOfThema(thema, "진성티이씨");
+		String thema = "양자컴퓨터";
+		Optional<GPTTriggerBackground> trigger1 = analyzeRaiseBackground.saveTriggerOfRiseOfThema(thema, "우리넷");
 
 	}
 }

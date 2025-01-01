@@ -1,10 +1,11 @@
-package com.bjcareer.GPTService.out.api.gpt.insight;
+package com.bjcareer.GPTService.out.api.gpt.insight.score.dtos;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.bjcareer.GPTService.config.AppConfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
@@ -38,12 +39,12 @@ public class GPTResponseInsightDTO {
 
 	@Data
 	public static class Content {
-		private BuyRecommendationVariableResponseDTO buyRecommendation;
-		private String marketDrivers;
-		private List<KeyDateVariableResponseDTO> keyDates;
-		private List<ShortTermStrategyVariableResponseDTO> shortTermStrategy;
-		private List<LongTermThesisVariableResponseDTO> longTermThesis;
-		private String volumeTargetForGain;
-		private String riskPeriods;
+		@JsonProperty("isFound")
+		private boolean isFound;
+		private InsightDTO insight;
+		private String newsNumDetail;
+		private String eventsDetail;
+		// private Integer score;
 	}
+
 }
