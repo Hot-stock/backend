@@ -1,12 +1,8 @@
 package com.bjcareer.search.out.persistence.noSQL;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,7 +25,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 
 import lombok.extern.slf4j.Slf4j;
@@ -121,8 +116,8 @@ public class DocumentAnalyzeRepository {
 
 		if (command.getDate() != null) {
 			// KST -> UTC 변환
-			ZonedDateTime startKST = command.getDate().atStartOfDay(ZoneId.of("Asia/Seoul"));
-			ZonedDateTime endKST = command.getDate().atTime(23, 59, 59).atZone(ZoneId.of("Asia/Seoul"));
+			ZonedDateTime startKST = command.getDate().atStartOfDay(ZoneOffset.UTC);
+			ZonedDateTime endKST = command.getDate().atTime(23, 59, 59).atZone((ZoneOffset.UTC));
 
 			Date startDate = Date.from(startKST.toInstant());
 			Date endDate = Date.from(endKST.toInstant());
@@ -216,8 +211,6 @@ public class DocumentAnalyzeRepository {
 		String reason = document.getString("reason");
 		String stockCode = document.getString("stockCode");
 
-		System.out.println("stockCode = " + stockCode);
-
 		List<String> keywords = (List<String>) document.getOrDefault("keywords", new ArrayList<>());
 
 		String next = getDate(document);
@@ -229,8 +222,6 @@ public class DocumentAnalyzeRepository {
 	private News changeDocumentToNewsDomain(Document document) {
 		Document newsDocument = document.get("news", Document.class);
 
-		System.out.println("document = " + document.toJson());
-		System.out.println("newsDocument = " + newsDocument);
 
 		String title = newsDocument.getString("title");
 		String newsLink = newsDocument.getString("newsLink");
@@ -255,15 +246,4 @@ public class DocumentAnalyzeRepository {
 		}
 		return "";
 	}
-
-	private LocalDateTime changeISOFormat(LocalDate date, String time) {
-		String target = date.toString() + time;
-		LocalDateTime dateTime = LocalDateTime.from(
-			Instant.from(
-				DateTimeFormatter.ISO_DATE_TIME.parse(target)
-			).atZone(AppConfig.ZONE_ID));
-
-		return dateTime;
-	}
-
 }
