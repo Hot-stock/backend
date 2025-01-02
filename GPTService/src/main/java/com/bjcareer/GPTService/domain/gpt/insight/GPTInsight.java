@@ -1,33 +1,31 @@
 package com.bjcareer.GPTService.domain.gpt.insight;
 
-import java.util.List;
+import java.time.LocalDate;
 
-import lombok.AccessLevel;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
+@Document(collection = "insight")  // MongoDB의 "news" 컬렉션에 매핑
+@NoArgsConstructor
 public class GPTInsight {
-	private BuyRecommendationVariableDomain buyRecommendationVariableDomain;
-	private String marketDrivers;
-	private List<KeyDateVariableDomain> keyDateVariableDomains;
-	private List<ShortTermStrategyVariableDomain> shortTermStrategyVariableDomains;
-	private List<LongTermThesisVariableDomain> longTermThesisVariableDomains;
-	private String volumeTargetForGain;
-	private String riskPeriods;
+	private boolean isFound;
+	private String stockName;
+	private String reason;
+	private String reasonDetail;
+	private Integer score;
+	private LocalDate createdDate;
 
-	public GPTInsight(BuyRecommendationVariableDomain buyRecommendationVariableDomain, String marketDrivers,
-		List<KeyDateVariableDomain> keyDateVariableDomains,
-		List<ShortTermStrategyVariableDomain> shortTermStrategyVariableDomains,
-		List<LongTermThesisVariableDomain> longTermThesisVariableDomains, String volumeTargetForGain,
-		String riskPeriods) {
-		this.buyRecommendationVariableDomain = buyRecommendationVariableDomain;
-		this.marketDrivers = marketDrivers;
-		this.keyDateVariableDomains = keyDateVariableDomains;
-		this.shortTermStrategyVariableDomains = shortTermStrategyVariableDomains;
-		this.longTermThesisVariableDomains = longTermThesisVariableDomains;
-		this.volumeTargetForGain = volumeTargetForGain;
-		this.riskPeriods = riskPeriods;
+	public GPTInsight(String stockName, boolean isFound, String reason, String reasonDetail, Integer score) {
+		this.stockName = stockName;
+		this.isFound = isFound;
+		this.reason = reason;
+		this.reasonDetail = reasonDetail;
+		this.score = score;
+		this.createdDate = LocalDate.now();
 	}
 }

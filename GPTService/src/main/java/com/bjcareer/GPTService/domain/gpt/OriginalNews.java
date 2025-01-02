@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.domain.gpt;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -45,10 +46,10 @@ public class OriginalNews {
 				if (pattern.contains("VV")) {
 					// ZonedDateTime으로 파싱
 					ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDate, formatter);
-					return zonedDateTime.toLocalDate();
+					return zonedDateTime.toLocalDate().atStartOfDay(ZoneOffset.UTC).toLocalDate();
 				} else {
 					// LocalDate로 직접 파싱
-					return LocalDate.parse(pubDate, formatter);
+					return LocalDate.parse(pubDate, formatter).atStartOfDay(ZoneOffset.UTC).toLocalDate();
 				}
 			} catch (DateTimeParseException e) {
 				// 현재 패턴으로 파싱 실패하면 다음 패턴으로 이동

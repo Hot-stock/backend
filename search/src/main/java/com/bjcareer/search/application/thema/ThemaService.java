@@ -37,7 +37,7 @@ public class ThemaService {
 
 		Optional<ThemaInfo> optionalThemaInfo = themaInfoRepositoryPort.findByName(command.getName());
 		ThemaInfo themaInfo = optionalThemaInfo.orElseGet(
-			() -> themaInfoRepositoryPort.save(new ThemaInfo(command.getName())));
+			() -> themaInfoRepositoryPort.save(new ThemaInfo(command.getName(), "", command.getReason())));
 
 		List<Stock> stocks = command.getStockName()
 			.stream()

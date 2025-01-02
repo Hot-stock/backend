@@ -31,7 +31,7 @@ public class ThemaInfo {
 
 	public void changeThemaNameUsingLevenshteinDistance(List<String> themas) {
 		for (String thema : themas) {
-			if (LevenshteinDistance.calculateLevenshteinDistance(this.name, thema) <= 3) {
+			if (LevenshteinDistance.calculateLevenshteinDistance(this.name, thema) <= 4) {
 				this.name = thema;
 				return;
 			}

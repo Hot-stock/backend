@@ -23,13 +23,10 @@ class GPTThemaAdapterTest {
 
 	@Test
 	void 뉴스_필터링_테스트() {
-		String link = "https://www.chosun.com/economy/science/2024/12/24/KFPQCDZ7Y5BGZFCOK3SN7S7N6Q/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news";
-		String thema = "에너지 효율";
+		String link = "https://www.widedaily.com/news/articleView.html?idxno=253555";
+		String thema = "중국 경기부양책";
 		OriginalNews originalNews = pythonSearchServerAdapter.fetchNewsBody(link, LocalDate.now()).get();
-		// System.out.println("originalNews.getContent() = " + originalNews.getContent());
 		Optional<GPTThema> gptThema = gptThemaAdapter.summaryThemaNews(originalNews, thema, GPTThemaAdapter.GPT_4o);
-
 		assertFalse(gptThema.get().isRelatedThema());
-		System.out.println("gptThema.get().isRelatedThema() = " + gptThema.get().isRelatedThema());
 	}
 }

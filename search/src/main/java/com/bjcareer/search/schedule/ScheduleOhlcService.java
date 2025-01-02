@@ -51,9 +51,10 @@ public class ScheduleOhlcService {
 				chart.getLastUpdateDate(),
 				LocalDate.now(AppConfig.ZONE_ID)); //1분
 			chart.mergeOhlc(apiServerPort.loadStockChart(stockChartQueryConfig));
+			stockChartRepository.save(chart);
 		}
 
-		stockChartRepository.saveAll(stockCharts);
+		// stockChartRepository.saveAll(stockCharts);
 		stockRepository.saveALl(stocks.values());
 		log.info("All Stocks was renewed: {}", stocks.size());
 	}

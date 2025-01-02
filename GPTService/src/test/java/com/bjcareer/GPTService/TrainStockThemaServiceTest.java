@@ -18,7 +18,7 @@ import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.out.api.dto.NewsResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.TrainService;
 import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
-import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.AnalyzeThemaQuestionPrompt;
+import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.prompt.AnalyzeThemaQuestionPrompt;
 import com.bjcareer.GPTService.out.api.gpt.thema.stockNews.GPTThemaOfStockNewsAdapter;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;

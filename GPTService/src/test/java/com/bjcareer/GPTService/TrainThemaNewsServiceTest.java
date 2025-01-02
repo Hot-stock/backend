@@ -44,14 +44,14 @@ TrainThemaNewsServiceTest {
 
 	@Test
 	void 테스트_테마_파일_생성() throws JsonProcessingException {
-		String keyword = "친환경 포장재";
+		String keyword = "이재명";
 		String fileName = "./thema-" + keyword + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 12, 24);
-		LocalDate endDate = LocalDate.of(2024, 12, 24);
+		LocalDate startDate = LocalDate.of(2024, 1, 26);
+		LocalDate endDate = LocalDate.of(2024, 12, 26);
 
-		redisThemaRepository.loadThema();
+		// redisThemaRepository.loadThema();
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(keyword, startDate, endDate));
@@ -60,7 +60,7 @@ TrainThemaNewsServiceTest {
 			pythonSearchServerAdapter.fetchNewsBody(
 				newsResponseDTO.getLink(), startDate).ifPresent(targetNews::add);
 
-			if (targetNews.size() >= 5) {
+			if (targetNews.size() >= 10) {
 				break;
 			}
 		}

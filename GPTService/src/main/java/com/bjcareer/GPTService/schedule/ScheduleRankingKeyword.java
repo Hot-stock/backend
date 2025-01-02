@@ -1,10 +1,12 @@
 package com.bjcareer.GPTService.schedule;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.bjcareer.GPTService.application.AnalyzeInsightKeyword;
 import com.bjcareer.GPTService.application.AnalyzeRankingStock;
 import com.bjcareer.GPTService.domain.Stock;
 import com.bjcareer.GPTService.out.api.python.AbsoluteRankKeywordDTO;
@@ -25,8 +27,9 @@ public class ScheduleRankingKeyword {
 	private final RedisThemaRepository redisThemaRepository;
 	private final AnalyzeRankingStock analyzeRankingStock;
 	private final StockRepository stockRepository;
+	private final AnalyzeInsightKeyword analyzeInsightKeyword;
 
-	@Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 50 8 * * *", zone = "Asia/Seoul")
 	public void updateRankingKeyword() {
 		log.info("Start update ranking keyword");
 
@@ -36,15 +39,16 @@ public class ScheduleRankingKeyword {
 			List<AbsoluteRankKeywordDTO> absoluteValueOfKeyword = pythonSearchServerAdapter.loadRankKeyword(
 				stock.getName());
 
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				log.warn("Failed to sleep thread {} {}", e, stock.getName());
-			}
-
 			double percentage = getWeightedPercentageWithMovingAverage(absoluteValueOfKeyword, 3);
 			log.debug("Start update ranking keyword for stock: {} Percentage: {}", stock.getName(), percentage);
-			trendKeywordRankAdapter.updateRanking(stock.getName(), percentage + 0.0, RedisTrendKeywordRankAdapter.STOCK_RANK_BUCKET);
+			trendKeywordRankAdapter.updateRanking(stock.getName(), percentage,
+				RedisTrendKeywordRankAdapter.STOCK_RANK_BUCKET);
+
+			// if (percentage > -400) {
+			// 	log.debug("Start update insight keyword for stock: {}", stock.getName());
+			// 	analyzeInsightKeyword.analyzeInsightKeyword(stock.getName(), LocalDate.now().minusDays(1),
+			// 		LocalDate.now());
+			// }
 		}
 
 		analyzeRankingStock.analyzeRankingStock();

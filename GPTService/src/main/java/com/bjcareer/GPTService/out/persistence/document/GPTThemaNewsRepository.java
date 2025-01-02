@@ -1,5 +1,7 @@
 package com.bjcareer.GPTService.out.persistence.document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,14 +9,18 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
+import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 
 @EnableMongoRepositories
-public interface GPTThemaNewsRepository extends MongoRepository<GPTStockThema, String> {
-	Optional<GPTStockThema> findByLink(String link);
-	@Query("{ 'themaInfo.name' : ?0 }")
-	List<GPTStockThema> findByThemaName(String themaName); // 'name' 필드 기반 쿼리
+public interface GPTThemaNewsRepository extends MongoRepository<GPTThema, String> {
+	List<GPTThema> findByLinkIn(List<String> links);
 
-	@Query("{ 'themaInfo.stockName' : ?0 }")
-	List<GPTStockThema> findByStockName(String stockName); // 'name' 필드 기반 쿼리
+	Optional<GPTThema> findByLink(String link);
+
+	@Query("{ 'themaInfo.name' : ?0, 'isRelatedThema' : true }")
+	List<GPTThema> findThemaNews(String themaName);
+
+	@Query("{ 'themaInfo.name' : ?0, 'isRelatedThema' : true, 'news.pubDate' : { $gte: ?1, $lt: ?2 } }")
+	List<GPTThema> findThemaNewsByPubDate(String themaName, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
 }
