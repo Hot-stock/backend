@@ -63,7 +63,8 @@ public class GPTNewsAdapter {
 		}
 
 		redisThemaRepository.releaseLock();
-		ThemaInfo themaInfo = new ThemaInfo(content.getThemaName(), content.getThemaReason());
+		ThemaInfo themaInfo = new ThemaInfo(content.getThemStockNames(), content.getThemaName(),
+			content.getThemaReason());
 		return Optional.of(
 				new GPTNewsDomain(content.getName(), content.getReason(), content.getNext(),
 					content.getNextReason().getFact(), content.getNextReason().getOpinion(), originalNews,
@@ -88,8 +89,9 @@ public class GPTNewsAdapter {
 			}
 
 			return Optional.of(parsedContent);
+		} else {
+			handleErrorResponse(response);
 		}
-
 		return Optional.empty();
 	}
 

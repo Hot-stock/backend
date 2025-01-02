@@ -52,5 +52,6 @@ public class GPTNewsResponseDTO {
 
 		private String themaName;
 		private String themaReason;
+		private List<String> themStockNames;
 	}
 }
