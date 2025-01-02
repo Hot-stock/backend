@@ -5,7 +5,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,7 +40,7 @@ public class OriginalNews {
 		// 패턴을 순회하며 입력값을 처리
 		for (String pattern : patterns) {
 			try {
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, Locale.KOREA);
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
 				if (pattern.contains("VV")) {
 					// ZonedDateTime으로 파싱

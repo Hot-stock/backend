@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
-import com.bjcareer.GPTService.out.persistence.document.GPTThemaStockNewsRepository;
+import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnalyzeThemaAspect {
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final GPTThemaStockNewsRepository gptThemaStockNewsRepository;
+	private final GPTStockNewsRepository gptStockNewsRepository;
 
 	@Pointcut("@annotation(com.bjcareer.GPTService.application.aop.AnalyzeThema)")
 	private void cut() {
@@ -47,7 +47,7 @@ public class AnalyzeThemaAspect {
 		if (!(result.isRelated() & result.isThema())) {
 			return;
 		}
-		if (gptThemaStockNewsRepository.findByLink(result.getLink()).isEmpty()) {
+		if (gptStockNewsRepository.findByLink(result.getLink()).isEmpty()) {
 			applicationEventPublisher.publishEvent(result);
 		}
 	}

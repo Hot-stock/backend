@@ -1,7 +1,5 @@
 package com.bjcareer.GPTService.out.api.gpt.insight.score;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
@@ -15,8 +13,6 @@ import com.bjcareer.GPTService.domain.gpt.insight.GPTInsight;
 class GPTInsightAdapterTest {
 	@Autowired
 	AnalyzeInsightKeyword analyzeInsightKeyword;
-
-
 
 	@Test
 	void test() {
