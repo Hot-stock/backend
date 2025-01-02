@@ -10,6 +10,7 @@ public class QuestionPrompt {
 			+ "- Theme Name: <thema> %s </thema>\n"
 			+ "- Reasons for Rise: <reasons>  %s </reasons>\n\n"
 			+ "Act as a super-investor with the name 'Time Traveler.' "
+
 			+ "Analyze historical data related to the provided theme to uncover key triggers that caused significant stock price increases. "
 			+ "Focus on repetitive patterns or events that consistently led to substantial movements in the theme. "
 			+ "Based on these triggers, develop three actionable strategies for predicting and capitalizing on similar opportunities in the future. "

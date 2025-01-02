@@ -18,18 +18,11 @@ public class QuestionPrompt {
 			+ "If an error is identified in any reasoning, it will be corrected or excluded from the discussion.\n"
 			+ "The question is as follows:\n\n"
 
-			+ "<question>"
-			+ "1. Based on the content provided in the article, summarize why the stock specified within the <stock> tags has risen.\n"
-			+ "2. Determine if the article is related to the stock.\n"
-			+ "3. Classify the theme names and related stocks associated with the stock's rise based on the article.\n"
-			+ "4. Determine whether the cause of the stock price increase applies only to the specific company mentioned in the article.\n"
-			+ "5. Pinpoint the next event mentioned in the article and explain its significance.\n"
-			+ "6. Extract Stock Rise Keywords.\n"
-			+ "</question>\n\n"
-
 			+ "Step 1: **Extract Stock Name and Remove XML Tags**\n"
 			+ "- Retrieve the Stock name from within the <stock> </stock> XML tags.\n"
 			+ "- Remove the XML tags within <article> </article>.\n\n"
+
+			+ "### GUIDELINE 0\n\n"
 
 			+ "Step 2: **Summarize the Content**\n"
 			+ "- Summarize the content of the article provided within <article> </article>, focusing on the stock name.\n"
@@ -48,12 +41,12 @@ public class QuestionPrompt {
 			+ "- Eliminate any unrelated or tangential information to maintain focus."
 
 			+ "### GUIDELINE 1: How to Determine Relevance to the Stock\n\n"
-
-			+ "기사에 언급된 사실만을 사용할것"
-			+ "브랜드 평판 지수, 브랜드 이미지 상승, 상장 수상, 내부 프로그램, 인증서 등은 '관련 없음'으로 분류합니다.\n"
+			+ "Use only the facts mentioned in the article."
+			+ "Brand reputation index, brand image improvement, awards, internal programs, certifications, etc., are classified as 'Not Relevant.'\n"
 
 			+ "Step 1: **Identify Causes of Stock Price Increase**\n"
-			+ "주가 변동에 대한 언급이 기사에 명시적으로 언급되어 있지 않다면 '관련 없음'으로 분류합니다.\n"
+			+ "- 기사에 구체적인 외부요인이 언급되어 있지 않다면 '관련 없음'으로 평가합니다.\n"
+			+ "If the article does not explicitly mention reasons for stock price changes, classify it as 'Not Relevant.'\n"
 			+ "   - If the article discusses a collaboration or agreement and the counterpart is a university, organization, or non-corporate entity or 대학교가 설립한 기관, classify the article as **'IRRELEVANT'**. then return false\n"
 			+ "   - If the article discusses a collaboration or agreement and the counterpart is a major corporation, foreign multinational company, or involves significant technological agreements, classify the article as **'RELEVANT'**."
 			+ "- News about business agreements should be classified as 'irrelevant' if the contracting party is not a monopoly or a foreign multinational corporation.\n"
@@ -108,6 +101,7 @@ public class QuestionPrompt {
 			+ "**Step 5: Analyze the Reasons for the Stock Increase**\n"
 			+ "If the article does not mention that the stock has increased, it should be classified as 'IRRELEVANT.'"
 			+ "- Identify and explain the primary reasons for the stock's increase or performance.\n"
+			+ "- A simple evaluation stating that the stock rose due to the rise of the related industry group is classified as irrelevant.\n"
 			+ "- Classify the article as 'RELEVANT' if the increase is linked to:\n"
 			+ "  1. Corporate growth factors, such as policy changes, new product launches, or mergers and acquisitions.\n"
 			+ "  2. External events or conditions directly impacting the stock's performance, such as competitor disruptions, government subsidies, or major economic shifts.\n"

@@ -12,4 +12,6 @@ import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 public interface GPTStockThemaNewsRepository extends MongoRepository<GPTStockThema, String> {
 	@Query("{ 'themaInfo.name' : ?0 }")
 	List<GPTStockThema> findByThemaName(String themaName);
+
+	List<GPTStockThema> findByLinkIn(List<String> links);
 }

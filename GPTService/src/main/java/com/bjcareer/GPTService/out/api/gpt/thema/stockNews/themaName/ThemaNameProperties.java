@@ -10,10 +10,10 @@ public class ThemaNameProperties {
 	);
 	public PropertyDetail reason = new PropertyDetail(
 		"string",
-		"thema 필드가 나온 결과에 대한 이유를 알려주세요. Provide a 100-point answer that includes detailed reasoning, historical context, and connections to current trends or market demands. Your response should be thorough and demonstrate a comprehensive understanding of the theme's significance. 답변은 한국어로 고정합니다."
+		"thema 필드가 나온 결과에 대한 이유를 알려주세요. Provide a 100-point answer that includes detailed reason 답변은 한국어로 고정합니다."
 	);
 	public PropertyDetail themasName = new PropertyDetail(
 		"string",
-		"최종 출력 결과에서 . Provide a 100-point answer that includes detailed reasoning, historical context, and connections to current trends or market demands. Your response should be thorough and demonstrate a comprehensive understanding of the theme's significance. 답변은 한국어로 고정합니다."
+		"<themas> </themas>XML에 있는 테마 이름들을 알려줘"
 	);
 }

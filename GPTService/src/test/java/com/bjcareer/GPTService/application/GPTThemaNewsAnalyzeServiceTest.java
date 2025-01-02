@@ -19,10 +19,14 @@ class GPTThemaNewsAnalyzeServiceTest {
 
 	@Test
 	void test() {
-
-		// 우크라이나 제건 -> 배경적 맥락은 정치아닌가?
 		AnalyzeThemaNewsCommand command = new AnalyzeThemaNewsCommand("우크라이나", LocalDate.now().minusYears(1));
 		List<GPTThema> gptThemas = gptThemaNewsAnalyzeService.analyzeThemaNewsByNewsLink(command);
+	}
+
+	@Test
+	void 저장된_데이터를_찾을_수_있는지(){
+		List<GPTThema> themaNews = gptThemaNewsAnalyzeService.getAnalyzeThemaNews("경기 부양책", LocalDate.now().minusDays(3), LocalDate.now());
+		assertEquals(3, themaNews.size());
 	}
 
 }

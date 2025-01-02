@@ -17,8 +17,10 @@ import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
 import com.bjcareer.GPTService.out.api.gpt.insight.score.GPTInsightAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTBackgroundRepository;
+import com.bjcareer.GPTService.out.persistence.document.GPTInsightRepository;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockThemaNewsRepository;
+import com.bjcareer.GPTService.out.persistence.rdb.StockRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +30,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnalyzeInsightKeyword {
 	private final GPTBackgroundRepository gptBackgroundRepository;
+	private final GPTInsightRepository gptInsightRepository;
 	private final GPTStockThemaNewsRepository gptStockThemaNewsRepository;
 	private final GPTStockNewsRepository gptStockNewsRepository;
 	private final GPTThemaNewsAnalyzeService gptThemaNewsAnalyzeService;
 	private final GPTInsightAdapter insightAdapter;
+	private final StockRepository stockRepository;
 
 	public GPTInsight analyzeInsightKeyword(String stockName, LocalDate startDate, LocalDate endDate) {
-		log.debug("Tracking reason {}", stockName);
+		log.debug("Tracking reason {} {} {}", stockName, startDate, endDate);
 		Set<String> keywords = new HashSet<>();
 		List<GPTThema> gptThemas = new ArrayList<>();
 
@@ -52,13 +56,25 @@ public class AnalyzeInsightKeyword {
 		backgrounds.forEach(b -> keywords.addAll(b.getKeywords()));
 
 		for (String keyword : keywords) {
+			if(stockRepository.findByName(keyword).isPresent()){
+				continue;
+			}
+
+			log.debug("키워드 분석 = {}", keyword);
 			List<GPTThema> analyzeThemaNews = gptThemaNewsAnalyzeService.getAnalyzeThemaNews(keyword, startDate,
 				endDate);
-
 			gptThemas.addAll(analyzeThemaNews);
 		}
 
-		return insightAdapter.getInsight(stockName, raiseReason, backgrounds, gptThemas);
+		if(keywords.isEmpty()){
+			log.warn("키워드가 없습니다. {}", stockName);
+			return null;
+		}
+
+		GPTInsight insight = insightAdapter.getInsight(stockName, raiseReason, backgrounds, gptThemas);
+		gptInsightRepository.save(insight);
+
+		return insight;
 	}
 
 	private List<String> getThemaName(List<String> links) {

@@ -1,5 +1,7 @@
 package com.bjcareer.GPTService.out.persistence.document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +19,8 @@ public interface GPTThemaNewsRepository extends MongoRepository<GPTThema, String
 
 	@Query("{ 'themaInfo.name' : ?0, 'isRelatedThema' : true }")
 	List<GPTThema> findThemaNews(String themaName);
+
+	@Query("{ 'themaInfo.name' : ?0, 'isRelatedThema' : true, 'news.pubDate' : { $gte: ?1, $lt: ?2 } }")
+	List<GPTThema> findThemaNewsByPubDate(String themaName, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
 }

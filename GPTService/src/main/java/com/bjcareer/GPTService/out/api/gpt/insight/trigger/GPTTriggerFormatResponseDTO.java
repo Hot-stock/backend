@@ -2,7 +2,6 @@ package com.bjcareer.GPTService.out.api.gpt.insight.trigger;
 
 import com.bjcareer.GPTService.out.api.gpt.JsonSchema;
 import com.bjcareer.GPTService.out.api.gpt.Schema;
-import com.bjcareer.GPTService.out.api.gpt.insight.InsightProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GPTTriggerFormatResponseDTO {

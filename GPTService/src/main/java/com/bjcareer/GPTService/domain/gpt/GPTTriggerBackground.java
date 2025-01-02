@@ -8,23 +8,30 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
+@ToString
 @Document(collection = "background")  // MongoDB의 "news" 컬렉션에 매핑
+@NoArgsConstructor
 public class GPTTriggerBackground {
 	@MongoId
-	private final String thema;
-	private final String background;
-	private final String nextUse;
-	private final String nextUseReason;
-	private final Set<String> keywords = new HashSet<>();
-	private final Set<String> stocks = new HashSet<>();
+	private String thema;
+	private String background;
+	private String nextUse;
+	private String nextUseReason;
+	private Set<String> keywords;
+	private Set<String> stocks;
+
 
 	public GPTTriggerBackground(String thema, String nextUse, String nextUseReason, String background) {
 		this.thema = thema;
 		this.nextUse = nextUse;
 		this.nextUseReason = nextUseReason;
 		this.background = background;
+		this.keywords = new HashSet<>();
+		this.stocks = new HashSet<>();
 	}
 
 	public void addKeywords(List<String> keywords) {

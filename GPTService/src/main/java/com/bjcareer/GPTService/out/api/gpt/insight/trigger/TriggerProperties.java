@@ -12,6 +12,6 @@ public class TriggerProperties {
 
 	public PropertyArrayDetail keywords = new PropertyArrayDetail(
 		"To trace the background of an event effectively, focus on three key elements: the individuals involved, the political events that influenced the situation, and the specific incident name or product name associated with it.",
-		new PropertyDetail("string", "To trace the background of an event, focus on three key factors: the people involved, relevant political events, and the specific incident or product name linked to the situation."));
+		new PropertyDetail("string", "이 이벤트 발생 전 추적을 위한 키워드를 알려줘"));
 	;
 }

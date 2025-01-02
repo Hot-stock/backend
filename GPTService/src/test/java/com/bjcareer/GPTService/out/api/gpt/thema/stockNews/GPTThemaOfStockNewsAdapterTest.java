@@ -37,20 +37,23 @@ class GPTThemaOfStockNewsAdapterTest {
 
 	@Test
 	void 정확한_형식으로_들어오는지_테스트() {
-		String stockName = "스마트레이더시스템";
-		Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
-			"https://www.financialpost.co.kr/news/articleView.html?idxno=218089", LocalDate.now());
-		Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), stockName,
-			originalNews.get().getPubDate());
+		String stockName = "지에스이";
+		String link = "https://www.yeongnam.com/web/view.php?key=20240813001502331";
+		// Optional<OriginalNews> originalNews = pythonSearchServerAdapter.fetchNewsBody(
+		// 	"https://www.yeongnam.com/web/view.php?key=20240813001502331", LocalDate.now());
+		// Optional<GPTNewsDomain> stockRaiseReason = gptNewsAdapter.findStockRaiseReason(originalNews.get(), stockName,
+		// 	originalNews.get().getPubDate());
 
-		Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(stockRaiseReason.get());
+		Optional<GPTNewsDomain> byLink = gptStockNewsRepository.findByLink(link);
+		Optional<GPTStockThema> r = gptThemaOfStockNewsAdapter.getThema(byLink.get());
+
 		System.out.println("r = " + r);
 		assertTrue(r.isPresent());
 	}
 
 	@Test
 	void 데이터베이스의_뉴스로_검증() {
-		String stockName = "옵티시스";
+		String stockName = "지에스이";
 		List<GPTNewsDomain> all = gptStockNewsRepository.findAll();
 
 		for (GPTNewsDomain gptNewsDomain : all) {
@@ -60,6 +63,7 @@ class GPTThemaOfStockNewsAdapterTest {
 				if (r.isPresent()) {
 					System.out.println("r = " + r);
 					gptStockThemaNewsRepository.save(r.get());
+					// return;
 				}
 			}
 		}

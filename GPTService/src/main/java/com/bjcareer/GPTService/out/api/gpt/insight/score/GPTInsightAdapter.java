@@ -38,21 +38,21 @@ public class GPTInsightAdapter {
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
-			return processSuccessfulResponse(response);
+			return processSuccessfulResponse(stockName, response);
 		} else {
 			handleErrorResponse(response);
 			return null;
 		}
 	}
 
-	private GPTInsight processSuccessfulResponse(ClientResponse response) {
+	private GPTInsight processSuccessfulResponse(String stockName, ClientResponse response) {
 		GPTResponseInsightDTO gptResponse = handleSuccessResponse(response);
 		GPTResponseInsightDTO.Content parsedContent = gptResponse.getChoices()
 			.get(0)
 			.getMessage()
 			.getParsedContent();
 
-		return new GPTInsight(parsedContent.isFound(), parsedContent.getInsight().insight,
+		return new GPTInsight(stockName, parsedContent.isFound(), parsedContent.getInsight().insight,
 			parsedContent.getInsight().insightDetail,
 			10);
 	}

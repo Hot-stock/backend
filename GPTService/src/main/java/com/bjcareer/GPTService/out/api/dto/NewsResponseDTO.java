@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.out.api.dto;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 import lombok.Data;
 
@@ -11,5 +12,9 @@ public class NewsResponseDTO {
 
 	public NewsResponseDTO(String link) {
 		this.link = link;
+	}
+
+	public LocalDate getDate() {
+		return date.atStartOfDay().atOffset(ZoneOffset.UTC).toLocalDate();
 	}
 }

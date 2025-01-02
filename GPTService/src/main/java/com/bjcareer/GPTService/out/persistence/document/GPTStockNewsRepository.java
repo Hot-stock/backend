@@ -1,6 +1,7 @@
 package com.bjcareer.GPTService.out.persistence.document;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -14,5 +15,7 @@ public interface GPTStockNewsRepository extends MongoRepository<GPTNewsDomain, S
 	Optional<GPTNewsDomain> findByLink(String link);
 
 	@Query("{ 'stockName' : ?0, 'news.pubDate' : ?1, 'isRelated' : true }")
-	Optional<GPTNewsDomain> findByStockNameAndPubDateWithRelatedIsTrue(String stockName, LocalDate pubDate);
+	List<GPTNewsDomain> findByStockNameAndPubDateWithRelatedIsTrue(String stockName, LocalDate pubDate);
+
+	List<GPTNewsDomain> findByStockName(String stockName);
 }

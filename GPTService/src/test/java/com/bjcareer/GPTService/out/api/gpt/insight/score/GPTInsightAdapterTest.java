@@ -22,7 +22,7 @@ class GPTInsightAdapterTest {
 	void test() {
 		LocalDate startDate = LocalDate.now().minusDays(7);
 		LocalDate endDate = LocalDate.now();
-		String stockName = "컬러레이";
+		String stockName = "이미지스";
 		GPTInsight gptInsight = analyzeInsightKeyword.analyzeInsightKeyword(stockName, startDate, endDate);
 		System.out.println(gptInsight);
 	}

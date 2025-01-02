@@ -2,7 +2,7 @@ package com.bjcareer.GPTService.out.api.gpt.thema.stockNews.themaName;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -31,12 +31,14 @@ public class GPTThemaNameAdapter {
 	private final RedisThemaRepository redisThemaRepository;
 
 	public Optional<ThemaInfo> getThemaName(List<String> stockNames, String themaName, String reason) {
-
 		redisThemaRepository.getLock();
-		List<String> themas = redisThemaRepository.loadThema();
+		String uuid = UUID.randomUUID().toString();
+		log.debug("Reason {} {}", reason, uuid);
 
-		GPTThemaNameRequestDTO requestDTO = createRequestDTO(themaName, reason,
-			themas.stream().collect(Collectors.joining(", ")), gpt_4o_mini);
+		List<String> themas = redisThemaRepository.loadThema();
+		String themasStr = String.join(",", themas);
+
+		GPTThemaNameRequestDTO requestDTO = createRequestDTO(themaName, reason, themasStr, gpt_4o_mini);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
 		if (response != null && response.statusCode().is2xxSuccessful()) {
@@ -52,13 +54,10 @@ public class GPTThemaNameAdapter {
 			}
 
 			ThemaInfo themaInfo = new ThemaInfo(stockNames, parsedContent.getThema(), reason);
-			themaInfo.changeThemaNameUsingLevenshteinDistance(themas);
 
 			if (!themas.contains(themaInfo.getName())) {
-				themas.remove(themaInfo.getName());
 
-				requestDTO = createRequestDTO(themaName, reason,
-					themas.stream().collect(Collectors.joining(", ")), gpt_4o);
+				requestDTO = createRequestDTO(themaName, reason, themasStr, gpt_4o);
 				response = sendRequestToGPT(requestDTO).block();
 
 				gptThemaResponseDTO = handleSuccessResponse(response);
@@ -71,11 +70,11 @@ public class GPTThemaNameAdapter {
 					log.warn("Parsed content is null");
 					return Optional.empty();
 				}
-				log.debug("Reason {}", reason);
-				log.debug("Final thema: {} Final reason {} keywords {}", parsedContent.getThema(), parsedContent.getReason(), parsedContent.getThemasName());
-
 				themaInfo = new ThemaInfo(stockNames, parsedContent.getThema(), reason);
 			}
+
+			log.debug("{} Final thema: {} Final reason {}", uuid, parsedContent.getThema(),
+				parsedContent.getReason());
 
 			redisThemaRepository.updateThema(themaInfo.getName());
 			redisThemaRepository.releaseLock();
@@ -89,14 +88,12 @@ public class GPTThemaNameAdapter {
 	}
 
 	private GPTThemaNameRequestDTO createRequestDTO(String themaName, String reason, String themas, String model) {
-		log.debug("Request to GPT with Reason: {}, model: {}", reason, model);
 		GPTThemaNameRequestDTO.Message systemMessage = new GPTThemaNameRequestDTO.Message(
 			GPTWebConfig.SYSTEM_ROLE, GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 		GPTThemaNameRequestDTO.Message userMessage = new GPTThemaNameRequestDTO.Message(GPTWebConfig.USER_ROLE,
 			AnalyzeThemaNamePrompt.PROMPT.formatted(themaName, reason, themas));
 
 		GPTResponseThemaNameOfThemaFormatDTO gptResponseThemaFormatDTO = new GPTResponseThemaNameOfThemaFormatDTO();
-
 		return new GPTThemaNameRequestDTO(model, List.of(systemMessage, userMessage), gptResponseThemaFormatDTO);
 	}
 
@@ -107,6 +104,7 @@ public class GPTThemaNameAdapter {
 	private GPTThemaNameResponseDTO handleSuccessResponse(ClientResponse response) {
 		// 동기적으로 body를 읽음
 		GPTThemaNameResponseDTO gptResponse = response.bodyToMono(GPTThemaNameResponseDTO.class).block();
+		log.debug("GPTThemaNameResponseDTO Response {}", gptResponse);
 		return gptResponse;
 	}
 
