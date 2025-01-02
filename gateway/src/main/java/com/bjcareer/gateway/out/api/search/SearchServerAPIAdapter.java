@@ -23,6 +23,7 @@ import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.GPTAnalayzeThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.NextStockEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.PageResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
@@ -201,7 +202,7 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 	}
 
 	@Override
-	public ResponseDomain<NextEventNewsDTO> getNextEventNewsFilterByStockName(String stockName) {
+	public ResponseDomain<NextStockEventNewsDTO> getNextEventNewsFilterByStockName(String stockName) {
 		ClientResponse res = webClient.get()
 			.uri(SearchServerURI.FILTER_NEXT_SCHEDULE_BY_STOCKNAME + "?q=" + stockName)
 			.exchange()
@@ -209,7 +210,7 @@ public class SearchServerAPIAdapter implements SearchServerPort {
 
 		log.info("Response of {} {}", SearchServerURI.FILTER_NEXT_SCHEDULE_BY_STOCKNAME, res.statusCode());
 		if (res.statusCode().is2xxSuccessful()) {
-			NextEventNewsDTO responseDTO = res.bodyToMono(NextEventNewsDTO.class).block();
+			NextStockEventNewsDTO responseDTO = res.bodyToMono(NextStockEventNewsDTO.class).block();
 			return new ResponseDomain<>(res.statusCode(), responseDTO, null);
 		} else {
 			ErrorDomain errorDomain = res.bodyToMono(ErrorDomain.class).block();
