@@ -33,12 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DocumentAnalyzeRepository {
 	private final MongoCollection<Document> stockNewsCollection;
-	private final MongoCollection<Document> themaNewsCollection;
 	public static final String COLLECTION_NAME = "news";
 
 	public DocumentAnalyzeRepository(MongoClient mongoClient) {
 		stockNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection(COLLECTION_NAME);
-		themaNewsCollection = mongoClient.getDatabase(COLLECTION_NAME).getCollection("stock-thema-news");
 	}
 
 	public PaginationDomain<GPTStockNewsDomain> getUpcomingNews(int page, int size) {
@@ -116,8 +114,8 @@ public class DocumentAnalyzeRepository {
 
 		if (command.getDate() != null) {
 			// KST -> UTC 변환
-			ZonedDateTime startKST = command.getDate().atStartOfDay(ZoneOffset.UTC);
-			ZonedDateTime endKST = command.getDate().atTime(23, 59, 59).atZone((ZoneOffset.UTC));
+			ZonedDateTime startKST = command.getDate().atStartOfDay(AppConfig.ZONE_ID);
+			ZonedDateTime endKST = command.getDate().atStartOfDay(AppConfig.ZONE_ID).plusDays(1);
 
 			Date startDate = Date.from(startKST.toInstant());
 			Date endDate = Date.from(endKST.toInstant());
@@ -125,7 +123,7 @@ public class DocumentAnalyzeRepository {
 			filter = Filters.and(
 				filter,
 				Filters.gte("news.pubDate", startDate),
-				Filters.lte("news.pubDate", endDate));
+				Filters.lt("news.pubDate", endDate));
 		}
 
 		List<Document> documents = stockNewsCollection.find(filter)
@@ -141,14 +139,14 @@ public class DocumentAnalyzeRepository {
 			Filters.eq("_id", link)
 		);
 
-		themaNewsCollection.find(filter).forEach(doc -> {
-			Document document = doc.get("themaInfo", Document.class);
-			List<String> stockNames = (List<String>)document.get("stockName");
-
-			if (stockNames.contains(stockName)) {
-				result.add(document.getString("name"));
-			}
-		});
+		// themaNewsCollection.find(filter).forEach(doc -> {
+		// 	Document document = doc.get("themaInfo", Document.class);
+		// 	List<String> stockNames = (List<String>)document.get("stockName");
+		//
+		// 	if (stockNames.contains(stockName)) {
+		// 		result.add(document.getString("name"));
+		// 	}
+		// });
 
 		return result;
 	}
@@ -166,11 +164,13 @@ public class DocumentAnalyzeRepository {
 			);
 		}
 
-		List<Document> documents = themaNewsCollection.find(filter)
-			.sort(Sorts.descending("news.pubDate"))
-			.into(new ArrayList<>());
+		// List<Document> documents = themaNewsCollection.find(filter)
+		// 	.sort(Sorts.descending("news.pubDate"))
+		// 	.into(new ArrayList<>());
 
-		return convertDocumentsToGPTThemaDomains(documents, command.getThemaName());
+		// return convertDocumentsToGPTThemaDomains(documents, command.getThemaName());
+
+		return new ArrayList<>();
 	}
 
 	private List<GPTThemaNewsDomain> convertDocumentsToGPTThemaDomains(List<Document> documents, String themaName) {
@@ -227,7 +227,7 @@ public class DocumentAnalyzeRepository {
 		String newsLink = newsDocument.getString("newsLink");
 		String imgLink = newsDocument.get("imgLink", String.class);
 		String description = newsDocument.getString("description");
-		LocalDate pubDate = newsDocument.getDate("pubDate").toInstant().atOffset(ZoneOffset.UTC).toLocalDate();
+		LocalDate pubDate = newsDocument.getDate("pubDate").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate();
 		String content = newsDocument.getString("content");
 
 		return new News(title, newsLink, imgLink, description, pubDate, content);
@@ -235,7 +235,7 @@ public class DocumentAnalyzeRepository {
 
 	private String getDate(Document document) {
 		if (document.getDate("next") != null) {
-			return document.getDate("next").toInstant().atOffset(ZoneOffset.UTC).toLocalDate().toString();
+			return document.getDate("next").toInstant().atZone(AppConfig.ZONE_ID).toLocalDate().toString();
 		}
 		return "";
 	}

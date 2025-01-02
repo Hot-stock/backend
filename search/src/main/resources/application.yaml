@@ -60,6 +60,9 @@ logging:
     org.hibernate.SQL: debug # SQL 쿼리 로그 출력
     org.hibernate.orm.jdbc.bind: TRACE
     com.bjcareer.search.*: debug
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.mongodb.driver: DEBUG
+
 
 server:
   servlet:

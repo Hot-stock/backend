@@ -47,7 +47,7 @@ public class News {
 			return null;
 		}
 		// 날짜 형식에 맞는 DateTimeFormatter 생성
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV", Locale.ENGLISH);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV");
 
 		// ZonedDateTime으로 파싱 (타임존 정보 포함)
 		ZonedDateTime zonedDateTime = ZonedDateTime.parse(pubDate, formatter);
