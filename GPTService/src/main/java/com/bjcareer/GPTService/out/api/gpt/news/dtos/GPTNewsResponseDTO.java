@@ -49,5 +49,8 @@ public class GPTNewsResponseDTO {
 		private String reason;
 		private String next;
 		private NextScheduleReasonResponseDTO nextReason;
+
+		private String themaName;
+		private String themaReason;
 	}
 }
