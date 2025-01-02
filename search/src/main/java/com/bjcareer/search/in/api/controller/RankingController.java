@@ -15,6 +15,7 @@ import com.bjcareer.search.application.information.HotTopicService;
 import com.bjcareer.search.application.port.in.RankingUsecase;
 import com.bjcareer.search.domain.entity.Stock;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
+import com.bjcareer.search.domain.gpt.insight.GPTInsight;
 import com.bjcareer.search.in.api.controller.dto.QueryStockNewsResponseDTO;
 import com.bjcareer.search.in.api.controller.dto.StockInformationResponseDTO;
 
@@ -59,9 +60,9 @@ public class RankingController {
 	@GetMapping("/suggestion")
 	@Operation(summary = "추전 주식 종목 조회", description = "키워드 검색어 기반으로 추천된 종목을 반환함")
 	public ResponseEntity<Map<String, Object>> getSuggestionStocks() {
-		List<Stock> suggestionStocks = usecase.getSuggestionStocks();
+		List<GPTInsight> suggestionStocks = usecase.getSuggestionStocks();
 		List<StockInformationResponseDTO> response = suggestionStocks.stream()
-			.map(t -> new StockInformationResponseDTO(t, ""))
+			.map(StockInformationResponseDTO::new)
 			.toList();
 
 		Map<String, Object> map = new HashMap<>();
