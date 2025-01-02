@@ -35,20 +35,17 @@ class TrainStockServiceTest {
 	@Autowired
 	GPTNewsAdapter gptNewsAdapter;
 
-	@Autowired
-	private GPTStockAnalyzeService analyzeService;
-
 	private final List<TrainService> trains = new ArrayList<>();
 
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
 		//씨큐센부터 option 없음
-		String stockName = "케이씨에스";//ㅁ //태영건설ㄴ
+		String stockName = "에스피시스템스";//ㅁ //태영건설ㄴ
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.of(2024, 12, 16);
-		LocalDate endDate = LocalDate.of(2024, 12, 16);
+		LocalDate startDate = LocalDate.now();
+		LocalDate endDate = LocalDate.now();
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
 			new NewsCommand(stockName, startDate, endDate));
@@ -110,7 +107,7 @@ class TrainStockServiceTest {
 	}
 
 	private String generateUserPrompt(String stockName, OriginalNews news) {
-		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), news.getTitle(), stockName, news.getContent());
+		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), stockName, "", news.getTitle(), news.getContent());
 	}
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {
