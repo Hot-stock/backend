@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import com.bjcareer.GPTService.domain.gpt.thema.GPTThema;
+import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
@@ -26,6 +28,7 @@ public class GPTNewsDomain {
 	private String isRelatedDetail;
 	@JsonIgnore
 	private boolean isThema;
+	private ThemaInfo themaInfo;
 	@JsonIgnore
 	private List<String> keywords;
 	private String stockName;
@@ -40,7 +43,7 @@ public class GPTNewsDomain {
 
 	public GPTNewsDomain(String stockName, String reason, String next, String nextReasonFact,
 		String nextReasonOption,
-		OriginalNews news, boolean isRelated, String isRelatedDetail,  boolean isThema, List<String> keywords) {
+		OriginalNews news, boolean isRelated, String isRelatedDetail,  boolean isThema, List<String> keywords, ThemaInfo themaInfo) {
 		this.isRelated = isRelated;
 		this.isRelatedDetail = isRelatedDetail;
 		this.stockName = stockName;
@@ -51,6 +54,7 @@ public class GPTNewsDomain {
 		this.news = news;
 		this.link= news.getNewsLink();
 		this.keywords = keywords;
+		this.themaInfo = themaInfo;
 		parseLocalDate(next);
 	}
 

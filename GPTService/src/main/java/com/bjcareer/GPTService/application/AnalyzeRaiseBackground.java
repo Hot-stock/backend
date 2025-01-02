@@ -9,11 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.GPTTriggerBackground;
-import com.bjcareer.GPTService.domain.gpt.thema.GPTStockThema;
 import com.bjcareer.GPTService.out.api.gpt.insight.trigger.GPTTriggerAdapter;
 import com.bjcareer.GPTService.out.persistence.document.GPTBackgroundRepository;
 import com.bjcareer.GPTService.out.persistence.document.GPTStockNewsRepository;
-import com.bjcareer.GPTService.out.persistence.document.GPTStockThemaNewsRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AnalyzeRaiseBackground {
 	private final GPTStockNewsRepository gptStockNewsRepository;
 	private final GPTTriggerAdapter gptTriggerAdapter;
-	private final GPTStockThemaNewsRepository gptStockThemaNewsRepository;
 	private final GPTBackgroundRepository gptBackgroundRepository;
 
 	public Optional<GPTTriggerBackground> saveTriggerOfRiseOfThema(String themaName, String stockName) {
@@ -84,12 +81,8 @@ public class AnalyzeRaiseBackground {
 	}
 
 	private List<GPTNewsDomain> loadAllReasonOfRiseOfThema(String themaName) {
-		List<GPTStockThema> byThemaName = gptStockThemaNewsRepository.findByThemaName(themaName);
-		log.debug("Load size byThemaName: {}", byThemaName.size());
-
-		return byThemaName.stream().map(t -> gptStockNewsRepository.findByLink(t.getLink()))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.toList();
+		List<GPTNewsDomain> raiseReasonByThemaName = gptStockNewsRepository.findRaiseReasonByThemaName(themaName);
+		log.debug("Load all reason of rise of Thema size: {}", raiseReasonByThemaName.size());
+		return raiseReasonByThemaName;
 	}
 }

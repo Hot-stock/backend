@@ -12,10 +12,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.OriginalNews;
+import com.bjcareer.GPTService.domain.gpt.thema.ThemaInfo;
 import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
 import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTNewsRequestDTO;
 import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTNewsResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTResponseNewsFormatDTO;
+import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +30,15 @@ public class GPTNewsAdapter {
 	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AdspZUDm";
 	public static final String GPT_4o = "gpt-4o";
 	private final WebClient webClient;
+	private final RedisThemaRepository redisThemaRepository;
 
 	//가장 좋은 모델을 선택해서 테스트 케이스 구축
 	public Optional<GPTNewsDomain> findStockRaiseReason(OriginalNews originalNews, String stockName, LocalDate pubDate) {
-		ClientResponse response = sendAnalyzeStockNews(originalNews, stockName, pubDate, MODEL);
+		redisThemaRepository.getLock();
+		List<String> themas = redisThemaRepository.loadThema();
+		String themasStr = String.join(",", themas);
+
+		ClientResponse response = sendAnalyzeStockNews(originalNews, stockName, pubDate, themasStr, MODEL);
 
 		log.info("Request with News link: {}", originalNews.getNewsLink());
 		Optional<GPTNewsResponseDTO.Content> res = parseContent(response);
@@ -46,7 +53,7 @@ public class GPTNewsAdapter {
 		if (content.isRelevant()) {
 			GPTNewsResponseDTO.Content finalContent = content;
 			log.info("결과가 성공이라고 나와서 검증 시도: {}", content);
-			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, GPT_4o);
+			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, themasStr, GPT_4o);
 			content = parseContent(response).orElseGet(() -> {
 				log.warn("Failed to parse content");
 				return finalContent;
@@ -55,10 +62,13 @@ public class GPTNewsAdapter {
 			log.info("최종결과 {}", content);
 		}
 
+		redisThemaRepository.releaseLock();
+		ThemaInfo themaInfo = new ThemaInfo(content.getThemStockNames(), content.getThemaName(),
+			content.getThemaReason());
 		return Optional.of(
 				new GPTNewsDomain(content.getName(), content.getReason(), content.getNext(),
 					content.getNextReason().getFact(), content.getNextReason().getOpinion(), originalNews,
-					content.isRelevant(), content.getIsRelevantDetail(), content.isThema(), content.getKeywords()));
+					content.isRelevant(), content.getIsRelevantDetail(), content.isThema(), content.getKeywords(), themaInfo));
 		}
 
 	private Optional<GPTNewsResponseDTO.Content> parseContent(ClientResponse response) {
@@ -79,27 +89,28 @@ public class GPTNewsAdapter {
 			}
 
 			return Optional.of(parsedContent);
+		} else {
+			handleErrorResponse(response);
 		}
-
 		return Optional.empty();
 	}
 
 	private ClientResponse sendAnalyzeStockNews(OriginalNews originalNews, String stockName, LocalDate pubDate,
-		String model) {
+		String themasStr, String model) {
 		log.debug("Requesting GPT with news with model: {}", model);
 		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName,
-			pubDate, model);
+			pubDate, themasStr, model);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 		return response;
 	}
 
 	private GPTNewsRequestDTO createRequestDTO(String content, String title, String name,
-		LocalDate pubDate, String model) {
+		LocalDate pubDate, String themasStr, String model) {
 		GPTNewsRequestDTO.Message systemMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.SYSTEM_ROLE,
 			GPTWebConfig.SYSTEM_MESSAGE_TEXT + GPTWebConfig.SYSTEM_THEMA_TEXT);
 
 		GPTNewsRequestDTO.Message userMessage = new GPTNewsRequestDTO.Message(GPTWebConfig.USER_ROLE,
-		QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, title, content));
+			QuestionPrompt.QUESTION_FORMAT.formatted(pubDate, name, themasStr, title, content));
 
 		GPTResponseNewsFormatDTO gptResponseNewsFormatDTO = new GPTResponseNewsFormatDTO();
 		return new GPTNewsRequestDTO(model, List.of(systemMessage, userMessage), gptResponseNewsFormatDTO);

@@ -18,4 +18,7 @@ public interface GPTStockNewsRepository extends MongoRepository<GPTNewsDomain, S
 	List<GPTNewsDomain> findByStockNameAndPubDateWithRelatedIsTrue(String stockName, LocalDate pubDate);
 
 	List<GPTNewsDomain> findByStockName(String stockName);
+
+	@Query("{ 'themaInfo.name' : ?0, 'isRelated' : true, 'isThema' : true }")
+	List<GPTNewsDomain> findRaiseReasonByThemaName(String themaName);
 }

@@ -10,8 +10,7 @@ import com.bjcareer.GPTService.out.api.gpt.news.Prompt.NameFilterPrompt;
 import com.bjcareer.GPTService.out.api.gpt.news.Prompt.RoseReasonPrompt;
 
 public class NewsProperties {
-	public static final String[] required = {"isRelevant", "isRelevantDetail", "isThema", "keywords", "name", "reason", "next",
-		"nextReason"};
+	public static final String[] required = {"isRelevant", "isRelevantDetail", "isThema", "keywords", "name", "reason", "next", "nextReason", "themaName", "themaReason", "themStockNames"};
 	public PropertyDetail isRelevant = new PropertyDetail("boolean",
 		"What is the result after applying GUIDELINE 1? A perfect 100-point answer is expected.");
 	public PropertyDetail isRelevantDetail = new PropertyDetail("string",
@@ -27,5 +26,10 @@ public class NewsProperties {
 	public PropertyDetail next = new PropertyDetail("string", NextSchedulePrompt.PROMPT);
 	public PropertyObject nextReason = new PropertyObject(new NextScheduleReasonVariable(),
 		NextScheduleReasonVariable.required);
+
+	public PropertyDetail themaName = new PropertyDetail("string", "What is the name of the theme?");
+	public PropertyDetail themaReason = new PropertyDetail("string", "What is the reason for the theme?");
+	public PropertyArrayDetail themStockNames = new PropertyArrayDetail("What are the names of the stocks related to the theme?",
+		new PropertyDetail("string", "Please enter the name of the stock related to the theme."));
 
 }

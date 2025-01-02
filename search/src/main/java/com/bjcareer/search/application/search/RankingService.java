@@ -11,8 +11,10 @@ import com.bjcareer.search.application.S3Service;
 import com.bjcareer.search.application.port.in.RankingUsecase;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
 import com.bjcareer.search.domain.entity.Stock;
+import com.bjcareer.search.domain.gpt.insight.GPTInsight;
 import com.bjcareer.search.out.persistence.cache.CacheRepository;
 import com.bjcareer.search.out.persistence.cache.RedisSuggestionAdapter;
+import com.bjcareer.search.out.persistence.noSQL.DocumentAnalyzeInsightRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class RankingService implements RankingUsecase {
 	private final StockRepositoryPort stockRepositoryPort;
 	private final RedisSuggestionAdapter redisSuggestionAdapter;
 	private final S3Service s3Service;
+	private final DocumentAnalyzeInsightRepository documentAnalyzeInsightRepository;
 
 	public void updateKeyword(String keyword) {
 		log.debug("Keyword to update is {}", keyword);
@@ -41,18 +44,31 @@ public class RankingService implements RankingUsecase {
 	}
 
 	@Override
-	public List<Stock> getSuggestionStocks() {
+	public List<GPTInsight> getSuggestionStocks() {
 		List<String> suggestionStock = redisSuggestionAdapter.getSuggestionStock();
-		List<Stock> list = suggestionStock.stream()
-			.map(stockRepositoryPort::findByName)
-			.flatMap(Optional::stream)
+
+		List<GPTInsight> insights = suggestionStock.stream()
+			.map(t -> documentAnalyzeInsightRepository.getInsightOfStockByLatest(t).orElseGet(() -> {
+				log.warn("Insight not found: {}", t);
+				return new GPTInsight(false, t, "키워드 검색량 기반 추천입니다.", "키워드 검색량이 급증한 것을 확인했으나, 추가적인 인사이트는 발견하지 못했습니다.", 0,
+					null);
+			}))
 			.toList();
 
-		for (Stock stock : list) {
+		for (GPTInsight insight : insights) {
+			Optional<Stock> byName = stockRepositoryPort.findByName(insight.getStockName());
+
+			if (byName.isEmpty()) {
+				log.warn("Stock not found: {}", insight.getStockName());
+				continue;
+			}
+
+			Stock stock = byName.get();
 			stock.setPreSignedURL(s3Service.getStockLogoURL(stock.getName()));
+			insight.addStock(stock);
 		}
 
-		return list;
+		return insights;
 	}
 
 	private void setURLToStockDomain(Pair<String, Double> t, List<Pair<Stock, String>> result) {
