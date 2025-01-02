@@ -32,6 +32,22 @@ class DocumentAnalyzeRepositoryTest {
 	}
 
 	@Test
+	void 날짜복원테test(){
+		String link = "http://www.econonews.co.kr/news/articleView.html?idxno=369243";
+		List<GPTStockNewsDomain> stockNewsByLinks = documentAnalyzeRepository.getStockNewsByLinks(List.of(link));
+		GPTStockNewsDomain first = stockNewsByLinks.getFirst();
+
+		assertEquals(LocalDate.of(2025, 1, 2), first.getNews().getPubDate());
+	}
+
+	@Test
+	void 범위쿼리테스트(){
+		List<GPTStockNewsDomain> stockNewsByLinks = documentAnalyzeRepository.getRaiseReason(new LoadStockRaiseReason("동신건설", LocalDate.of(2025, 1, 2)));
+		GPTStockNewsDomain first = stockNewsByLinks.getFirst();
+		assertEquals(LocalDate.of(2025, 1, 2), first.getNews().getPubDate());
+	}
+
+	@Test
 	void 특정_주식의_상승_이유를_요청() {
 		String target = "신원";
 		LoadStockRaiseReason command = new LoadStockRaiseReason(target, null);
