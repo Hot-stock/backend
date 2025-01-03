@@ -62,6 +62,10 @@ public class GPTNewsAdapter {
 			log.info("최종결과 {}", content);
 		}
 
+		if(content.isThema()){
+			redisThemaRepository.updateThema(content.getThemaName());
+		}
+
 		redisThemaRepository.releaseLock();
 		ThemaInfo themaInfo = new ThemaInfo(content.getThemStockNames(), content.getThemaName(),
 			content.getThemaReason());
