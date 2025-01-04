@@ -105,6 +105,7 @@ public class GPTInsightAdapter {
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTRequestInsightDTO requestDTO) {
+		log.warn("Request to GPT Insight Adapter");
 		return webClient.post()
 			.uri(GPTWebConfig.URI)
 			.bodyValue(requestDTO)

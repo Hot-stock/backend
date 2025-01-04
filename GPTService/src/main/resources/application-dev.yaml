@@ -37,7 +37,7 @@ logging:
     org.hibernate.SQL: debug # SQL ?? ?? ??
     org.hibernate.orm.jdbc.bind: TRACE
     com.bjcareer.GPTService.*: debug
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+#    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
 server:
   servlet:

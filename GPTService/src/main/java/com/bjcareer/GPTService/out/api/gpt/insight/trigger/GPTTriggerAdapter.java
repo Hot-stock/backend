@@ -72,6 +72,7 @@ public class GPTTriggerAdapter {
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTTriggerRequestDTO requestDTO) {
+		log.warn("Request to GPT Trigger Adapter");
 		return webClient.post()
 			.uri(GPTWebConfig.URI)
 			.bodyValue(requestDTO)
@@ -80,7 +81,7 @@ public class GPTTriggerAdapter {
 
 	private GPTTriggerResponseDTO handleSuccessResponse(ClientResponse response) {
 		GPTTriggerResponseDTO gptResponse = response.bodyToMono(GPTTriggerResponseDTO.class).block();
-		log.debug("GPT response: {}", gptResponse);
+		log.warn("GPT response: {}", gptResponse);
 		return gptResponse;
 	}
 

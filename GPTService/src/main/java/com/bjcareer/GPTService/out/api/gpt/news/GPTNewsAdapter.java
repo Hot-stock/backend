@@ -120,6 +120,7 @@ public class GPTNewsAdapter {
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {
+		log.warn("Request to GPT News Adapter");
 		return webClient.post()
 			.uri(GPTWebConfig.URI)
 			.bodyValue(requestDTO)
