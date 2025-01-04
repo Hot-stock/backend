@@ -10,6 +10,7 @@ import com.bjcareer.gateway.in.api.response.StockAdditionResponseDTO;
 import com.bjcareer.gateway.in.api.response.TreeMapResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.GPTAnalayzeThemaNewsResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.NextEventNewsDTO;
+import com.bjcareer.gateway.out.api.search.response.NextStockEventNewsDTO;
 import com.bjcareer.gateway.out.api.search.response.PageResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RaiseReasonResponseDTO;
 import com.bjcareer.gateway.out.api.search.response.RankStocksResponseDTO;
@@ -22,7 +23,7 @@ public interface SearchServerPort {
 	SearchResult searchResult(KeywordCommand command);
 	ResponseDomain<StockerFilterResultResponseDTO> filterStockByQuery(KeywordCommand command);
 	ResponseDomain<StockAdditionResponseDTO> addStockInfo(StockInfoCommand command);
-	ResponseDomain<NextEventNewsDTO> getNextEventNewsFilterByStockName(String stockName);
+	ResponseDomain<NextStockEventNewsDTO> getNextEventNewsFilterByStockName(String stockName);
 	ResponseDomain<TopNewsDTO> findTopStockNews();
 	ResponseDomain<CandleResponseDTO> getOHLC(String code, String period);
 	ResponseDomain<NextEventNewsDTO> getNextEventNews(int page, int size);

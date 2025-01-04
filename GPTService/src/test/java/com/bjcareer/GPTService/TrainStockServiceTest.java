@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjcareer.GPTService.application.GPTStockAnalyzeService;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
 import com.bjcareer.GPTService.config.AppConfig;
 import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
@@ -23,7 +23,9 @@ import com.bjcareer.GPTService.out.api.gpt.TrainService;
 import com.bjcareer.GPTService.out.api.gpt.common.variable.NextScheduleReasonResponseDTO;
 import com.bjcareer.GPTService.out.api.gpt.news.GPTNewsAdapter;
 import com.bjcareer.GPTService.out.api.gpt.news.Prompt.QuestionPrompt;
+import com.bjcareer.GPTService.out.api.gpt.news.dtos.GPTNewsResponseDTO;
 import com.bjcareer.GPTService.out.api.python.PythonSearchServerAdapter;
+import com.bjcareer.GPTService.out.persistence.redis.RedisThemaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,6 +35,9 @@ class TrainStockServiceTest {
 	private PythonSearchServerAdapter pythonSearchServerAdapter;
 
 	@Autowired
+	private RedisThemaRepository redisThemaRepository;
+
+	@Autowired
 	GPTNewsAdapter gptNewsAdapter;
 
 	private final List<TrainService> trains = new ArrayList<>();
@@ -40,11 +45,12 @@ class TrainStockServiceTest {
 	@Test
 	void 테스트_뉴스_파일_생성() throws JsonProcessingException {
 		//씨큐센부터 option 없음
-		String stockName = "에스피시스템스";//ㅁ //태영건설ㄴ
+		String stockName = "르노코리아";//ㅁ //태영건설ㄴ
 		String fileName = "./test-4o-mini" + stockName + ".json";
 		List<OriginalNews> targetNews = new ArrayList<>();
 
-		LocalDate startDate = LocalDate.now();
+
+		LocalDate startDate = LocalDate.now().minusDays(5);
 		LocalDate endDate = LocalDate.now();
 
 		List<NewsResponseDTO> newsResponseDTOS = pythonSearchServerAdapter.fetchNews(
@@ -107,27 +113,54 @@ class TrainStockServiceTest {
 	}
 
 	private String generateUserPrompt(String stockName, OriginalNews news) {
-		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), stockName, "", news.getTitle(), news.getContent());
+		String themas = redisThemaRepository.loadThema().stream().collect(Collectors.joining(","));
+		return QuestionPrompt.QUESTION_FORMAT.formatted(news.getPubDate(), stockName, themas, news.getTitle(),
+			news.getContent());
 	}
 
 	private String createEmptyAssistantResponse(ObjectMapper mapper, String stockName) throws JsonProcessingException {
-		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(false, "",false, new ArrayList<>(), stockName, "", "",
-				new NextScheduleReasonResponseDTO("", "")));
+		GPTNewsResponseDTO.Content response = new GPTNewsResponseDTO.Content();
+		response.setRelevant(false);
+		response.setIsRelevantDetail("");
+		response.setThema(false);
+		response.setKeywords(new ArrayList<>());
+
+		response.setName(stockName);
+		response.setReason("");
+		response.setNext("");
+		response.setNextReason(
+			new NextScheduleReasonResponseDTO("", ""));
+		response.setThemaName("");
+		response.setThemaReason("");
+		response.setThemStockNames(new ArrayList<>());
+
+		return mapper.writeValueAsString(response);
 	}
 
 	private String createAssistantResponse(ObjectMapper mapper, String stockName, GPTNewsDomain reason) throws
 		JsonProcessingException {
-		String date = "";
-		if(reason.getNext().isPresent()){
-			date = reason.getNext().get().toString();
+
+		String next = "";
+		if (reason.getNext().isPresent()) {
+			next = reason.getNext().get().toString();
 		}
 
-		return mapper.writeValueAsString(
-			new TrainService.NewsPrompt(reason.isRelated(), reason.getIsRelatedDetail(), reason.isThema(), reason.getKeywords(), stockName,
-				reason.getReason(),
-				date,
-				new NextScheduleReasonResponseDTO(reason.getNextReasonFact(), reason.getNextReasonFact())));
+		GPTNewsResponseDTO.Content response = new GPTNewsResponseDTO.Content();
+		response.setRelevant(reason.isRelated());
+		response.setIsRelevantDetail(reason.getIsRelatedDetail());
+		response.setThema(reason.isThema());
+		response.setKeywords(reason.getKeywords());
+
+		response.setName(stockName);
+		response.setReason(reason.getReason());
+		response.setNext(next);
+		response.setNextReason(
+			new NextScheduleReasonResponseDTO(reason.getNextReasonFact(), reason.getNextReasonOption()));
+		response.setThemaName(reason.getThemaInfo().getName());
+		response.setThemaReason(reason.getThemaInfo().getReason());
+		response.setThemStockNames(reason.getThemaInfo().getStockName());
+
+		return mapper.writeValueAsString(response);
 	}
 
 	private void saveTrainsToFile(String filePath) {

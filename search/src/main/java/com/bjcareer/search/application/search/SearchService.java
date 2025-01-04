@@ -2,21 +2,17 @@ package com.bjcareer.search.application.search;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import com.bjcareer.search.application.S3Service;
 import com.bjcareer.search.application.port.in.SearchUsecase;
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockCommand;
 import com.bjcareer.search.application.port.out.persistence.stock.LoadStockRaiseReason;
 import com.bjcareer.search.application.port.out.persistence.stock.StockRepositoryPort;
-import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaNewsCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.LoadThemaUsingkeywordCommand;
 import com.bjcareer.search.application.port.out.persistence.thema.ThemaRepositoryPort;
 import com.bjcareer.search.candidate.Trie;
@@ -26,8 +22,8 @@ import com.bjcareer.search.domain.entity.Thema;
 import com.bjcareer.search.domain.gpt.GPTStockNewsDomain;
 import com.bjcareer.search.domain.gpt.thema.GPTThemaNewsDomain;
 import com.bjcareer.search.event.SearchedKeyword;
-import com.bjcareer.search.out.persistence.cache.RedisSuggestionAdapter;
 import com.bjcareer.search.out.persistence.noSQL.DocumentAnalyzeRepository;
+import com.bjcareer.search.out.persistence.noSQL.DocumentAnalyzeThemaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,8 +34,7 @@ public class SearchService implements SearchUsecase {
 	private final ThemaRepositoryPort themaRepositoryPort;
 	private final StockRepositoryPort stockRepositoryPort;
 	private final DocumentAnalyzeRepository documentAnalyzeRepository;
-	private final RedisSuggestionAdapter redisSuggestionAdapter;
-	private final S3Service	s3Service;
+	private final DocumentAnalyzeThemaRepository documentAnalyzeThemaRepository;
 	private final Trie trie;
 
 	public List<Thema> filterThemesByQuery(String keyword) {
@@ -87,11 +82,10 @@ public class SearchService implements SearchUsecase {
 			target.add(themaName);
 		}
 
-		target.stream().map(thema -> documentAnalyzeRepository.getThemaNews(new LoadThemaNewsCommand(thema, date)))
+		target.stream().map(thema -> documentAnalyzeThemaRepository.getThemaNews(thema))
 			.forEach(result::addAll);
 
-		List<String> theams = byCode.get().getThemas().stream().map(t -> t.getThemaInfo().getName()).toList();
-		return Pair.of(theams, result);
+		return Pair.of(target, result);
 	}
 
 	@Override

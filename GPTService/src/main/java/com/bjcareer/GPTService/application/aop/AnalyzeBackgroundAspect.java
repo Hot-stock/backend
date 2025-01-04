@@ -20,11 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AnalyzeThemaAspect {
+public class AnalyzeBackgroundAspect {
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final GPTStockNewsRepository gptStockNewsRepository;
 
-	@Pointcut("@annotation(com.bjcareer.GPTService.application.aop.AnalyzeThema)")
+	@Pointcut("@annotation(com.bjcareer.GPTService.application.aop.AnalyzeBackground)")
 	private void cut() {
 	}
 
@@ -47,8 +46,7 @@ public class AnalyzeThemaAspect {
 		if (!(result.isRelated() & result.isThema())) {
 			return;
 		}
-		if (gptStockNewsRepository.findByLink(result.getLink()).isEmpty()) {
-			applicationEventPublisher.publishEvent(result);
-		}
+
+		applicationEventPublisher.publishEvent(result);
 	}
 }

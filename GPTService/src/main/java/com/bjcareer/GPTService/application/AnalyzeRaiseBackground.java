@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.GPTTriggerBackground;
 import com.bjcareer.GPTService.out.api.gpt.insight.trigger.GPTTriggerAdapter;
@@ -37,17 +38,13 @@ public class AnalyzeRaiseBackground {
 			return Optional.empty();
 		}
 
-		// GPTTriggerBackground triggerReason = getTriggerReason(themaName);
-
 		List<String> reason = gptNewsDomains.stream().map(GPTNewsDomain::getReason).collect(Collectors.toList());
 		List<String> stockNames = gptNewsDomains.stream().map(GPTNewsDomain::getStockName).toList();
 
 		Optional<GPTTriggerBackground> trigger = gptTriggerAdapter.getTrigger(reason, themaName,
-			GPTTriggerAdapter.GPT_4o);
+			GPTWebConfig.GPT_4o);
 
 		if (trigger.isPresent()) {
-			// triggerReason.addKeywords(trigger.get().getKeywords().stream().toList());
-			// triggerReason.addStocks(stockNames);
 			trigger.get().addKeywords(trigger.get().getKeywords().stream().toList());
 			trigger.get().addStocks(stockNames);
 			gptBackgroundRepository.save(trigger.get());
@@ -68,7 +65,7 @@ public class AnalyzeRaiseBackground {
 		return byThema.get();
 	}
 
-	private boolean isNeedToUpdateBackground(String themaName, String stockName) {
+	public boolean isNeedToUpdateBackground(String themaName, String stockName) {
 		Optional<GPTTriggerBackground> byThema = gptBackgroundRepository.findByThema(themaName);
 
 		if (byThema.isPresent()) {

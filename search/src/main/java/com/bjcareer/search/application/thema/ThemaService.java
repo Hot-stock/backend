@@ -69,8 +69,8 @@ public class ThemaService {
 			return new PaginationDomain<>(new ArrayList<>(), 0, 0, 0);
 		}
 		ThemaInfo themaInfo = byId.get();
-		return documentAnalyzeThemaRepository.getThemaNews(command.getPage(),
-			command.getSize(), themaInfo.getName(), command.getDate());
+		return documentAnalyzeThemaRepository.getThemaNewsWithPagination(command.getPage(),
+			command.getSize(), themaInfo.getName());
 	}
 
 }

@@ -34,6 +34,7 @@ public class GPTInsightAdapter {
 	public GPTInsight getInsight(String stockName, List<GPTNewsDomain> raiseReason,
 		List<GPTTriggerBackground> backgrounds,
 		List<GPTThema> themaNews) {
+		log.warn("Request to GPT Insight Adapter with model {}", GPTWebConfig.GPT_4o);
 		GPTRequestInsightDTO requestDTO = createRequestDTO(stockName, raiseReason, backgrounds, themaNews);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
 
@@ -105,6 +106,7 @@ public class GPTInsightAdapter {
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTRequestInsightDTO requestDTO) {
+		log.warn("Request to GPT Insight Adapter");
 		return webClient.post()
 			.uri(GPTWebConfig.URI)
 			.bodyValue(requestDTO)

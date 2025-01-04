@@ -21,9 +21,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GPTTriggerAdapter {
 	private final WebClient webClient;
-	public final static String GPT_4o = "gpt-4o";
 
 	public Optional<GPTTriggerBackground> getTrigger(List<String> raiseReasons, String thema, String model) {
+		log.warn("Request to GPT Trigger Adapter with {}", model);
 		String summary = raiseReasons.stream().collect(Collectors.joining(","));
 
 		GPTTriggerRequestDTO requestDTO = createRequestDTO(summary, thema, model);
@@ -72,6 +72,7 @@ public class GPTTriggerAdapter {
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTTriggerRequestDTO requestDTO) {
+		log.warn("Request to GPT Trigger Adapter");
 		return webClient.post()
 			.uri(GPTWebConfig.URI)
 			.bodyValue(requestDTO)
@@ -80,7 +81,7 @@ public class GPTTriggerAdapter {
 
 	private GPTTriggerResponseDTO handleSuccessResponse(ClientResponse response) {
 		GPTTriggerResponseDTO gptResponse = response.bodyToMono(GPTTriggerResponseDTO.class).block();
-		log.debug("GPT response: {}", gptResponse);
+		log.warn("GPT response: {}", gptResponse);
 		return gptResponse;
 	}
 

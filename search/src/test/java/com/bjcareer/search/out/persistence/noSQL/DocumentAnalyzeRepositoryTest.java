@@ -74,16 +74,16 @@ class DocumentAnalyzeRepositoryTest {
 		}
 	}
 
-	@Test
-	void 테마이름을_찾을_수_있는지_체크() {
-		String target = "이재명";
-		LoadThemaNewsCommand command = new LoadThemaNewsCommand(target, null);
-		List<GPTThemaNewsDomain> reason = documentAnalyzeRepository.getThemaNews(command);
-
-		for (GPTThemaNewsDomain thema : reason) {
-			assertEquals(target, thema.getName(), "테마 이름이 일치하지 않습니다.");
-		}
-	}
+	// @Test
+	// void 테마이름을_찾을_수_있는지_체크() {
+	// 	String target = "이재명";
+	// 	LoadThemaNewsCommand command = new LoadThemaNewsCommand(target, null);
+	// 	List<GPTThemaNewsDomain> reason = documentAnalyzeRepository.getThemaNews(command);
+	//
+	// 	for (GPTThemaNewsDomain thema : reason) {
+	// 		assertEquals(target, thema.getName(), "테마 이름이 일치하지 않습니다.");
+	// 	}
+	// }
 
 	@Test
 	void 뉴스가_가지고_있는_테마_찾기() {

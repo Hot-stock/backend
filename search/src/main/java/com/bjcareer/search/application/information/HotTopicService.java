@@ -30,11 +30,6 @@ public class HotTopicService {
 		List<GPTStockNewsDomain> stockNewsDomains = documentAnalyzeRepository.getStockNewsByLinks(links);
 
 		for (GPTStockNewsDomain domain : stockNewsDomains) {
-			List<String> themas = documentAnalyzeRepository.getThemasOfNews(
-				domain.getNews().getOriginalLink(), domain.getStockName());
-
-			domain.addThema(themas);
-
 			String preSignedStockLogoUrl = s3Service.getStockLogoURL(domain.getStockName());
 			domain.linkPreSignedStockLogoUrl(preSignedStockLogoUrl);
 		}

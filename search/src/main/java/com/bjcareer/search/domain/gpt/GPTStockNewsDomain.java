@@ -21,33 +21,36 @@ public class GPTStockNewsDomain {
 	private String stockName;
 	private String reason;
 	private String stockCode;
-	private List<String> keywords = new ArrayList<>();
 	private String nextReason;
 	private Optional<LocalDate> next;
 	private News news;
 	private String preSignedStockLogoUrl;
+	private boolean isThema;
+	private List<String> keywords = new ArrayList<>();
 	private List<String> themas = new ArrayList<>();
 
 
 	public GPTStockNewsDomain(String stockName, String stockCode,  String reason, List<String> keywords, String next, String nextReason,
-		News news) {
+		News news, boolean isThema, List<String> themas) {
 		this.stockName = stockName;
 		this.stockCode = stockCode;
 		this.reason = reason;
 		this.nextReason = nextReason;
 		this.news = news;
 		this.keywords = keywords;
+		this.isThema = isThema;
+		this.themas = themas;
 
 		parseLocalDate(next);
 	}
 
 	public GPTStockNewsDomain(String stockName, String stockCode, String reason, List<String> keywords, String next, String nextReason) {
-		this(stockName, stockCode, reason, keywords, next, nextReason, null);
+		this(stockName, stockCode, reason, keywords, next, nextReason, null, false, new ArrayList<>());
 	}
 
 
 	public GPTStockNewsDomain(String stockName, String reason) {
-		this(stockName, null, reason, new ArrayList<>(), null, null, null);
+		this(stockName, null, reason, new ArrayList<>(), null, null);
 	}
 
 	private void parseLocalDate(String next) {
@@ -67,8 +70,8 @@ public class GPTStockNewsDomain {
 		this.news = news;
 	}
 
-	public void addThema(List<String> thema) {
-		this.themas = thema;
+	public void addThema(List<String> themas) {
+		this.themas.addAll(themas);
 	}
 
 	public void linkPreSignedStockLogoUrl(String preSignedStockLogoUrl) {

@@ -1,5 +1,7 @@
 package com.bjcareer.search.domain;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +22,7 @@ public class TreeMapDomain {
 
 	public TreeMapDomain(ThemaInfo themaInfo, Map<Stock, StockChart> chart, int performance) {
 		this.themaName = themaInfo.getName();
-		this.value = sortByUpperRate(chart, performance);
+		this.value = roundToTwoDecimalPlaces(sortByUpperRate(chart, performance));
 	}
 
 	private Double sortByUpperRate(Map<Stock, StockChart> chart, int day) {
@@ -42,8 +44,18 @@ public class TreeMapDomain {
 
 	private Double setStockRaiseRate(int performance, Stock stock, StockChart stockChart) {
 		Double stockAvg = stockChart.calcMovingAverageOfIncrease(performance);
+		stockAvg = roundToTwoDecimalPlaces(stockAvg); // 소수점 두 자리로 반올림
 		stockIncreaseRate.put(stock.getName(), stockAvg);
 		return stockAvg;
+	}
+
+	private Double roundToTwoDecimalPlaces(Double value) {
+		if (value == null) {
+			return 0.0;
+		}
+		return BigDecimal.valueOf(value)
+			.setScale(2, RoundingMode.HALF_UP)
+			.doubleValue();
 	}
 
 	@Override

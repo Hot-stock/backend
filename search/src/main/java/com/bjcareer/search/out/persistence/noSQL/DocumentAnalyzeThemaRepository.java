@@ -30,7 +30,25 @@ public class DocumentAnalyzeThemaRepository {
 		collection = mongoClient.getDatabase(DATABASE_NAME).getCollection(COLLECTION_NAME);
 	}
 
-	public PaginationDomain<GPTThemaNewsDomain> getThemaNews(int page, int size, String themaName, LocalDate date) {
+	public List<GPTThemaNewsDomain> getThemaNews(String themaName) {
+		Bson filter = Filters.and(
+			Filters.eq("isRelatedThema", true),
+			Filters.eq("themaInfo.name", themaName)
+		);
+
+		long totalCount = collection.countDocuments(filter);
+		List<Document> documents = collection.find(filter)
+			.sort(Sorts.ascending("news.pubDate"))
+			.into(new ArrayList<>());
+
+		List<GPTThemaNewsDomain> result = documents.stream()
+			.map(t -> convertDocumentsToGPTNewsDomains(t, themaName))
+			.toList();
+
+		return result;
+	}
+
+	public PaginationDomain<GPTThemaNewsDomain> getThemaNewsWithPagination(int page, int size, String themaName) {
 		Bson filter = Filters.and(
 			Filters.eq("isRelatedThema", true),
 			Filters.eq("themaInfo.name", themaName)

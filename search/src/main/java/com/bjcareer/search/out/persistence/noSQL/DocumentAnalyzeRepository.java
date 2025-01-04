@@ -196,27 +196,34 @@ public class DocumentAnalyzeRepository {
 	private List<GPTStockNewsDomain> convertDocumentsToGPTNewsDomains(List<Document> documents) {
 		List<GPTStockNewsDomain> result = new ArrayList<>();
 		for (Document document : documents) {
-			GPTStockNewsDomain gptStockNewsDomain = changeDocumentToGPTNewsDomain(document);
 			News news = changeDocumentToNewsDomain(document);
-
-			gptStockNewsDomain.addNewsDomain(news);
+			GPTStockNewsDomain gptStockNewsDomain = changeDocumentToGPTNewsDomain(document, news);
 			result.add(gptStockNewsDomain);
 		}
 
 		return result;
 	}
 
-	private GPTStockNewsDomain changeDocumentToGPTNewsDomain(Document document) {
+	private GPTStockNewsDomain changeDocumentToGPTNewsDomain(Document document, News news) {
+		List<String> themas = new ArrayList<>();
 		String stockName = document.getString("stockName");
 		String reason = document.getString("reason");
 		String stockCode = document.getString("stockCode");
+		Boolean isThema = document.getBoolean("isThema");
+
+		Document themaInfoDocument = document.get("themaInfo", Document.class);
+
+		if (themaInfoDocument != null) {
+			themas.add(themaInfoDocument.getString("name"));
+		}
 
 		List<String> keywords = (List<String>) document.getOrDefault("keywords", new ArrayList<>());
 
 		String next = getDate(document);
 
 		String nextReason = document.getString("nextReasonFact");
-		return new GPTStockNewsDomain(stockName, stockCode, reason, keywords, next.toString(), nextReason);
+		return new GPTStockNewsDomain(stockName, stockCode, reason, keywords, next.toString(), nextReason, news,
+			isThema, themas);
 	}
 
 	private News changeDocumentToNewsDomain(Document document) {

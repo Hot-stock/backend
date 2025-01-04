@@ -27,8 +27,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AdspZUDm";
-	public static final String GPT_4o = "gpt-4o";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AlfeBDjH";
 	private final WebClient webClient;
 	private final RedisThemaRepository redisThemaRepository;
 
@@ -53,13 +52,17 @@ public class GPTNewsAdapter {
 		if (content.isRelevant()) {
 			GPTNewsResponseDTO.Content finalContent = content;
 			log.info("결과가 성공이라고 나와서 검증 시도: {}", content);
-			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, themasStr, GPT_4o);
+			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, themasStr, MODEL);
 			content = parseContent(response).orElseGet(() -> {
 				log.warn("Failed to parse content");
 				return finalContent;
 			});
 
 			log.info("최종결과 {}", content);
+		}
+
+		if(content.isThema()){
+			redisThemaRepository.updateThema(content.getThemaName());
 		}
 
 		redisThemaRepository.releaseLock();
@@ -97,7 +100,7 @@ public class GPTNewsAdapter {
 
 	private ClientResponse sendAnalyzeStockNews(OriginalNews originalNews, String stockName, LocalDate pubDate,
 		String themasStr, String model) {
-		log.debug("Requesting GPT with news with model: {}", model);
+		log.warn("Request to GPT News Adapter with model: {}", model);
 		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName,
 			pubDate, themasStr, model);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();
@@ -117,6 +120,7 @@ public class GPTNewsAdapter {
 	}
 
 	private Mono<ClientResponse> sendRequestToGPT(GPTNewsRequestDTO requestDTO) {
+		log.warn("Request to GPT News Adapter");
 		return webClient.post()
 			.uri(GPTWebConfig.URI)
 			.bodyValue(requestDTO)

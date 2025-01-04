@@ -10,7 +10,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bjcareer.GPTService.application.aop.AnalyzeThema;
+import com.bjcareer.GPTService.application.aop.AnalyzeBackground;
 import com.bjcareer.GPTService.application.port.in.AnalyzeStockNewsCommand;
 import com.bjcareer.GPTService.application.port.out.api.NewsCommand;
 import com.bjcareer.GPTService.domain.Stock;
@@ -42,7 +42,7 @@ public class GPTStockAnalyzeService {
 	 * Handles asynchronous requests, typically triggered via Kafka.
 	 */
 
-	@AnalyzeThema
+	@AnalyzeBackground
 	public GPTNewsDomain analyzeStockNewsByNewsLink(AnalyzeStockNewsCommand command) {
 		// if (isNewsNotProcessed(command.getNewsLink())) {
 		// 	Optional<GPTNewsDomain> optionalGPTNewsDomain = processAnalyzeNewsLink(command.getNewsLink(), LocalDate.now());
@@ -52,7 +52,7 @@ public class GPTStockAnalyzeService {
 		return gptStockNewsRepository.findByLink(command.getNewsLink()).orElseThrow();
 	}
 
-	@AnalyzeThema
+	@AnalyzeBackground
 	@Transactional(readOnly = true)
 	public List<GPTNewsDomain> analyzeStockNewsByDateWithStockName(LocalDate endDate, String stockName) {
 		Map<String, String> stockMap = getStockDomainToHash();
@@ -101,7 +101,7 @@ public class GPTStockAnalyzeService {
 		return stockMap;
 	}
 
-	@AnalyzeThema
+	@AnalyzeBackground
 	public List<GPTNewsDomain> analyzeRankingStock(RankingStocksDTO command) {
 		List<GPTNewsDomain> rankingNews = new ArrayList<>();
 		AnalyzeBestNews analyzeBestNews = new AnalyzeBestNews();

@@ -49,7 +49,9 @@ public class QuestionPrompt {
 			+ "- Eliminate any unrelated or tangential information to maintain focus."
 
 			+ "### GUIDELINE 1: How to Determine Relevance to the Stock\n\n"
-			+ "Use only the facts mentioned in the article."
+			+ "- If the primary reason for the stock's rise is described as an **industry-wide or sector-wide increase** (e.g., 'Rising stock prices in the chemical industry'), classify it as **'IRRELEVANT.'**\n"
+			+ "- Sector-wide increases are not considered external factors, as they are not directly related to the unique performance of individual companies. Therefore, they should be categorized as **'IRRELEVANT.'**\n\n"
+			+ "Use only the facts mentioned in the article.\n"
 			+ "Brand reputation index, brand image improvement, awards, internal programs, certifications, etc., are classified as 'Not Relevant.'\n"
 
 			+ "Step 1: **Identify Causes of Stock Price Increase**\n"
@@ -120,7 +122,9 @@ public class QuestionPrompt {
 			+ "  - The reasons rely only on investor behavior (e.g., net buying/selling) without additional external factors.\n"
 			+ "  - The article only highlights stock performance metrics (e.g., hitting upper limit or percentage increase) without explaining the reasons behind the performance.\n\n"
 
-			+ "**Final Decision**\n"
+			+ "Final Decision\n"
+			+ "- If the stock's rise is primarily attributed to a general industry or sector increase, return **'false'** and classify as **'IRRELEVANT.'**"
+			+ "- Refer to isRelevantDetail: If a clear reason for the stock's rise cannot be identified or if no external factors are determined, return 'false'."
 			+ "- If all steps conclude the content as 'RELEVANT,' return TRUE.\n"
 			+ "- If any step classifies the content as 'IRRELEVANT,' return FALSE.\n"
 
@@ -185,6 +189,7 @@ public class QuestionPrompt {
 
 			+ "### 2단계: 테마 이름 도출\n"
 			+ "- 최종 원인이 인물, 정책, 기술, 정치적 사건, 또는 산업인지에 따라 테마를 도출하는 방법이 달라집니다.\n\n"
+			+ "- themaReason필드에서 어떤 이유 떄문에 해당 주식이 수혜를 받았는지 생각하고, 다음 단계를 진행합니다.\n"
 
 			+ "**인물:**\n"
 			+ "- **반드시 기사에 등장하는 인물 이름만 사용해야 합니다.**\n"
@@ -195,10 +200,17 @@ public class QuestionPrompt {
 
 			+ "**정책:**\n"
 			+ "- **명시되지 않은 정책 이름은 테마로 사용하지 않습니다.**\n"
-			+ "- 기사에서 명시적으로 언급된 정책 이름을 테마로 사용합니다.\n"
+			+ "- **정책 이름, 프로그램 이름을 테마 이름으로 사용합니다.**\n"
 			+ "- 예시:\n"
 			+ "  - '북미정상회담으로 인해 관련 주식들이 상승함.' → 테마명: 북미정상회담\n"
 			+ "  - '이재명의 지역화폐 예산 증액으로 관련 주식 상승.' → 테마명: 지역화폐\n\n"
+
+			+ "**프로그램:**\n"
+			+ "- **명시되지 않은 프로그램 이름은 테마로 사용하지 않습니다.**\n"
+			+ "- **프로그램 이름을 테마 이름으로 사용합니다.**\n"
+			+ "- 예시:\n"
+			+ "  - 'APEC 프로그램으로 인해 관련주들이 상승했습니다.' → 테마명: APEC 프로그램\n"
+
 
 			+ "**기술:**\n"
 			+ "- 기업이 개발한 제품 또는 기술이 최종 원인이라면, 이를 테마 이름으로 사용합니다.\n"
@@ -237,12 +249,47 @@ public class QuestionPrompt {
 			+ "- 테마 이름을 도출한 이유를 명확히 설명하세요.\n"
 			+ "- 테마 이름이 주식 상승의 원인을 명확히 설명하는지 검토하세요.\n\n"
 
-			+ "### 최종 테마 선정\n"
-			+ "- <themas> XML에는 기존 테마가 ','로 구분되어 저장되어 있습니다.\n"
-			+ "- 기존 테마와 새로 도출한 테마를 비교하여 단어 유사도가 0.6 이상이거나 의미적으로 유사하다면 기존 테마를 사용하세요.\n"
-			+ "- 예시:\n"
-			+ "  - 기존 테마: 양자컴퓨터, 북미정상회담. 도출된 테마: 양자암호 → 최종 테마: 양자컴퓨터.\n"
-			+ "- 변경 여부와 그 이유를 명확히 설명하세요.\n"
+			+ "### Final Theme Selection\n"
+			+ "- The <themes> XML contains existing themes separated by commas.\n"
+			+ "- When comparing the existing themes with the newly derived themes, apply the following enhanced rules to avoid duplication and ensure clarity:\n"
+			+ "  1. **Primary Theme Selection**: Always prioritize broader or primary themes over combined or nested themes. For example:\n"
+			+ "     - If 'Chinese Cosmetics Stocks' exists, prefer it over 'Economic Stimulus & Chinese Cosmetics Stocks.'\n"
+			+ "  2. **Contextual Relevance Check**: If the article emphasizes economic stimulus and its impact on multiple industries, retain 'Economic Stimulus' as a separate theme and omit nested references like 'Economic Stimulus & Chinese Cosmetics Stocks.'\n"
+			+ "  3. **Single Reference Rule**: For overlapping themes (e.g., 'Chinese Cosmetics Stocks' and 'Economic Stimulus & Chinese Cosmetics Stocks'), choose the simplest and most representative theme.\n"
+			+ "  4. **Semantic Consolidation**: Merge semantically overlapping themes. For instance:\n"
+			+ "     - 'Chinese Cosmetics Stocks' + 'Economic Stimulus & Chinese Cosmetics Stocks' → 'Chinese Cosmetics Stocks.'\n"
+			+ "     - If two separate themes are required (e.g., Economic Stimulus and Chinese Cosmetics Stocks), ensure they do not overlap unnecessarily.\n"
+			+ "  5. **Order of Precedence**:\n"
+			+ "     - Use existing themes first unless the new theme introduces critical information or significantly alters the context.\n"
+			+ "     - Avoid creating new combined themes if their components are already adequately represented in existing themes.\n\n"
+
+			+ "- Examples:\n"
+			+ "  - Existing Themes: Chinese Cosmetics Stocks.\n"
+			+ "    - Derived Theme: Economic Stimulus & Chinese Cosmetics Stocks.\n"
+			+ "    - Final Theme: Chinese Cosmetics Stocks (omit redundancy).\n"
+			+ "  - Existing Themes: Economic Stimulus, Chinese Cosmetics Stocks.\n"
+			+ "    - Derived Theme: Economic Stimulus & Chinese Cosmetics Stocks.\n"
+			+ "    - Final Themes: Economic Stimulus, Chinese Cosmetics Stocks (preserve separate relevance).\n\n"
+
+			+ "### Process for Theme Consolidation\n"
+			+ "1. **Identify Duplicates**: Compare newly derived themes with existing ones based on:\n"
+			+ "   - Word similarity (threshold ≥ 0.6).\n"
+			+ "   - Semantic overlap.\n"
+			+ "2. **Eliminate Redundancy**: Retain only one version of overlapping or nested themes.\n"
+			+ "3. **Prioritize Simplicity**: Opt for concise, clear, and standalone themes whenever possible.\n"
+			+ "4. **Document Changes**: Clearly explain any changes to the themes, including why certain themes were omitted or consolidated.\n\n"
+
+			+ "- Example Justifications:\n"
+			+ "  - Original Themes: Chinese Cosmetics Stocks, Economic Stimulus & Chinese Cosmetics Stocks.\n"
+			+ "  - Consolidated Theme: Chinese Cosmetics Stocks.\n"
+			+ "  - Reason: The derived theme 'Economic Stimulus & Chinese Cosmetics Stocks' is redundant since 'Chinese Cosmetics Stocks' already represents the key focus.\n"
+			+ "  - Original Themes: Economic Stimulus, Chinese Cosmetics Stocks.\n"
+			+ "  - Final Themes: Economic Stimulus, Chinese Cosmetics Stocks.\n"
+			+ "  - Reason: Both themes are distinct and relevant in their respective contexts; combining them would reduce clarity.\n\n"
+
+			+ "### Output Requirements\n"
+			+ "- Ensure the final themes are concise, distinct, and avoid unnecessary overlap.\n"
+			+ "- Clearly list and explain the rationale for consolidating or retaining themes."
 
 			+ "### Output Requirements\n"
 			+ "- The response must be written in Korean.\n";

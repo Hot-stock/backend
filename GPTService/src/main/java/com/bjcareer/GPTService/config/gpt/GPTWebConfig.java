@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class GPTWebConfig {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AUdia0v9";
+	public static final String GPT_4o = "gpt-4o";
 	public static final String URI = "/chat/completions";
 	public static final String SYSTEM_ROLE = "system";
 	public static final String USER_ROLE = "user";
