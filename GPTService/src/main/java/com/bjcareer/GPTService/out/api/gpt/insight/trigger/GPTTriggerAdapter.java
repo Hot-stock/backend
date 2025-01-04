@@ -21,9 +21,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GPTTriggerAdapter {
 	private final WebClient webClient;
-	public final static String GPT_4o = "gpt-4o";
 
 	public Optional<GPTTriggerBackground> getTrigger(List<String> raiseReasons, String thema, String model) {
+		log.warn("Request to GPT Trigger Adapter with {}", model);
 		String summary = raiseReasons.stream().collect(Collectors.joining(","));
 
 		GPTTriggerRequestDTO requestDTO = createRequestDTO(summary, thema, model);

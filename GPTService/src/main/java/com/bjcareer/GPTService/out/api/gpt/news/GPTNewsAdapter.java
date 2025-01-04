@@ -100,7 +100,7 @@ public class GPTNewsAdapter {
 
 	private ClientResponse sendAnalyzeStockNews(OriginalNews originalNews, String stockName, LocalDate pubDate,
 		String themasStr, String model) {
-		log.debug("Requesting GPT with news with model: {}", model);
+		log.warn("Request to GPT News Adapter with model: {}", model);
 		GPTNewsRequestDTO requestDTO = createRequestDTO(originalNews.getContent(), originalNews.getTitle(), stockName,
 			pubDate, themasStr, model);
 		ClientResponse response = sendRequestToGPT(requestDTO).block();

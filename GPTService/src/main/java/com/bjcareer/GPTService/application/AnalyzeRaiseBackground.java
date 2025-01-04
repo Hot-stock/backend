@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bjcareer.GPTService.config.gpt.GPTWebConfig;
 import com.bjcareer.GPTService.domain.gpt.GPTNewsDomain;
 import com.bjcareer.GPTService.domain.gpt.GPTTriggerBackground;
 import com.bjcareer.GPTService.out.api.gpt.insight.trigger.GPTTriggerAdapter;
@@ -41,7 +42,7 @@ public class AnalyzeRaiseBackground {
 		List<String> stockNames = gptNewsDomains.stream().map(GPTNewsDomain::getStockName).toList();
 
 		Optional<GPTTriggerBackground> trigger = gptTriggerAdapter.getTrigger(reason, themaName,
-			GPTTriggerAdapter.GPT_4o);
+			GPTWebConfig.GPT_4o);
 
 		if (trigger.isPresent()) {
 			trigger.get().addKeywords(trigger.get().getKeywords().stream().toList());
