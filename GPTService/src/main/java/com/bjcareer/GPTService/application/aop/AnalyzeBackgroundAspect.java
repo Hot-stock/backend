@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AnalyzeBackgroundAspect {
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final GPTStockNewsRepository gptStockNewsRepository;
 
 	@Pointcut("@annotation(com.bjcareer.GPTService.application.aop.AnalyzeBackground)")
 	private void cut() {

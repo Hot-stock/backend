@@ -27,8 +27,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class GPTNewsAdapter {
-	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AdspZUDm";
-	public static final String GPT_4o = "gpt-4o";
+	public static final String MODEL = "ft:gpt-4o-mini-2024-07-18:personal::AlfeBDjH";
 	private final WebClient webClient;
 	private final RedisThemaRepository redisThemaRepository;
 
@@ -53,7 +52,7 @@ public class GPTNewsAdapter {
 		if (content.isRelevant()) {
 			GPTNewsResponseDTO.Content finalContent = content;
 			log.info("결과가 성공이라고 나와서 검증 시도: {}", content);
-			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, themasStr, GPT_4o);
+			response = sendAnalyzeStockNews(originalNews, stockName, pubDate, themasStr, MODEL);
 			content = parseContent(response).orElseGet(() -> {
 				log.warn("Failed to parse content");
 				return finalContent;

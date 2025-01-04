@@ -37,8 +37,6 @@ public class AnalyzeRaiseBackground {
 			return Optional.empty();
 		}
 
-		// GPTTriggerBackground triggerReason = getTriggerReason(themaName);
-
 		List<String> reason = gptNewsDomains.stream().map(GPTNewsDomain::getReason).collect(Collectors.toList());
 		List<String> stockNames = gptNewsDomains.stream().map(GPTNewsDomain::getStockName).toList();
 
@@ -46,8 +44,6 @@ public class AnalyzeRaiseBackground {
 			GPTTriggerAdapter.GPT_4o);
 
 		if (trigger.isPresent()) {
-			// triggerReason.addKeywords(trigger.get().getKeywords().stream().toList());
-			// triggerReason.addStocks(stockNames);
 			trigger.get().addKeywords(trigger.get().getKeywords().stream().toList());
 			trigger.get().addStocks(stockNames);
 			gptBackgroundRepository.save(trigger.get());
@@ -68,7 +64,7 @@ public class AnalyzeRaiseBackground {
 		return byThema.get();
 	}
 
-	private boolean isNeedToUpdateBackground(String themaName, String stockName) {
+	public boolean isNeedToUpdateBackground(String themaName, String stockName) {
 		Optional<GPTTriggerBackground> byThema = gptBackgroundRepository.findByThema(themaName);
 
 		if (byThema.isPresent()) {
